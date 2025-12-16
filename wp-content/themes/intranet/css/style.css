@@ -1,0 +1,120 @@
+.table {
+  width: 100%;
+}
+
+table > thead > tr > th {
+  text-align: left;
+  font-size: 0.70rem;
+}
+
+.nome {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.nome .ordem {
+  font-weight: bold;
+}
+
+.txt-bold {
+  font-weight: bold;
+}
+
+.status {
+  gap: 24px;
+  font-weight: 600;
+  color: #f97316; /* laranja */
+  font-size: 0.8rem;
+}
+
+.status span {
+  display: inline-flex;
+  align-items: center;
+}
+
+.toggle.btn.btn-xs {
+  top: -2px;
+}
+
+.toggle-handle {
+  border-width: 0 0px !important; 
+  background-color: rgb(35, 34, 34) !important;
+}
+
+.margem-superior {
+  margin-top: 15px;
+}
+
+.negrito {
+  font-weight: 700;
+}
+
+label.btn.btn-light.btn-xs.toggle-off {
+  background-color: #d1d1d1;
+}
+
+.toggle.ios, .toggle-on.ios, .toggle-off.ios { 
+  border-radius: 20px; 
+}
+
+.toggle.ios .toggle-handle { 
+  border-radius: 20px; 
+}
+
+.check-contato > .spinner, .check-presenca > .spinner, .check-instrucoes > .spinner {
+  position: absolute;
+  float: left;
+}
+
+div.conteudo-lista > div.container, div#conteudo-sortear-novamente > div.container {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+}
+
+div#conteudo-sortear-novamente{
+  margin-top: 30px;
+  border-top: 1px solid #e2e0e0;
+}
+
+.toggle-conf-todos > .status {
+  padding-left: 20px;
+}
+
+input[type="checkbox"]#inclui-lista-geral {
+  transform: scale(2);
+  margin-left: 20px !important;
+}
+
+.form-check-center {
+  text-align: center;
+  top: 10px;
+}
+
+.divulgacao > .status {
+  padding-left: 15px;
+}
+
+span#conf-todos-gif {
+  float: initial;
+  position: relative;
+  top: -4px;
+  right: 7px;
+}
+
+span#divulgar-resultado-gif {
+  float: initial;
+  position: relative;
+  right: 7px;
+}
+
+.divulgacao > .toggle.btn.btn-xs {
+  top: 2px;
+}
+
+.reevia-email-sorteado, .remove-participante-sorteado {
+    cursor: pointer;
+}

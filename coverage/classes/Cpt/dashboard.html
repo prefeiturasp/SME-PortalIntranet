@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <title>Dashboard for C:\Users\felipe.viana\Documents\SME\intranet\wp-content\themes\intranet\classes\Cpt</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="../../_css/bootstrap.min.css?v=10.1.16" rel="stylesheet" type="text/css">
+  <link href="../../_css/nv.d3.min.css?v=10.1.16" rel="stylesheet" type="text/css">
+  <link href="../../_css/style.css?v=10.1.16" rel="stylesheet" type="text/css">
+  <link href="../../_css/custom.css" rel="stylesheet" type="text/css">
+ </head>
+ <body>
+  <header>
+   <div class="container-fluid">
+    <div class="row">
+     <div class="col-md-12">
+      <nav aria-label="breadcrumb">
+       <ol class="breadcrumb">
+         <li class="breadcrumb-item"><a href="../../index.html">C:\Users\felipe.viana\Documents\SME\intranet\wp-content\themes\intranet</a></li>
+         <li class="breadcrumb-item"><a href="../index.html">classes</a></li>
+         <li class="breadcrumb-item"><a href="index.html">Cpt</a></li>
+         <li class="breadcrumb-item active">(Dashboard)</li>
+
+       </ol>
+      </nav>
+     </div>
+    </div>
+   </div>
+  </header>
+  <div class="container-fluid">
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Classes</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="classCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="classComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="CptAba.php.html#6">Classes\Cpt\CptAba</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretario.php.html#6">Classes\Cpt\CptAgendaSecretario</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretarioNew.php.html#6">Classes\Cpt\CptAgendaSecretarioNew</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptBotao.php.html#6">Classes\Cpt\CptBotao</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptCard.php.html#6">Classes\Cpt\CptCard</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptConcursos.php.html#6">Classes\Cpt\CptConcursos</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptContato.php.html#6">Classes\Cpt\CptContato</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptCurriculoDaCidade.php.html#6">Classes\Cpt\CptCurriculoDaCidade</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptNoticias.php.html#6">Classes\Cpt\CptNoticias</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptOrganograma.php.html#6">Classes\Cpt\CptOrganograma</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPages.php.html#6">Classes\Cpt\CptPages</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPosts.php.html#6">Classes\Cpt\CptPosts</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="cptProgramaProjeto.php.html#5">Classes\Cpt\cptProgramasEProjetos</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#6">Classes\Cpt\Cpt</a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPortais.php.html#6">Classes\Cpt\CptPortais</a></td><td class="text-right">2%</td></tr>
+       <tr><td><a href="CptParceiros.php.html#6">Classes\Cpt\CptParceiros</a></td><td class="text-right">2%</td></tr>
+       <tr><td><a href="CptSmeExplica.php.html#6">Classes\Cpt\CptSmeExplica</a></td><td class="text-right">2%</td></tr>
+       <tr><td><a href="CptFaqs.php.html#6">Classes\Cpt\CptFaqs</a></td><td class="text-right">2%</td></tr>
+       <tr><td><a href="CptMuralProf.php.html#6">Classes\Cpt\CptMuralProf</a></td><td class="text-right">3%</td></tr>
+       <tr><td><a href="CptDestaques.php.html#6">Classes\Cpt\CptDestaques</a></td><td class="text-right">3%</td></tr>
+       <tr><td><a href="CptMediaImages.php.html#6">Classes\Cpt\CptMediaImages</a></td><td class="text-right">3%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Class</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Cpt.php.html#6">Classes\Cpt\Cpt</a></td><td class="text-right">1161</td></tr>
+       <tr><td><a href="CptAgendaSecretario.php.html#6">Classes\Cpt\CptAgendaSecretario</a></td><td class="text-right">506</td></tr>
+       <tr><td><a href="CptAgendaSecretarioNew.php.html#6">Classes\Cpt\CptAgendaSecretarioNew</a></td><td class="text-right">506</td></tr>
+       <tr><td><a href="CptDestaques.php.html#6">Classes\Cpt\CptDestaques</a></td><td class="text-right">497</td></tr>
+       <tr><td><a href="CptPages.php.html#6">Classes\Cpt\CptPages</a></td><td class="text-right">272</td></tr>
+       <tr><td><a href="CptSmeExplica.php.html#6">Classes\Cpt\CptSmeExplica</a></td><td class="text-right">224</td></tr>
+       <tr><td><a href="CptFaqs.php.html#6">Classes\Cpt\CptFaqs</a></td><td class="text-right">222</td></tr>
+       <tr><td><a href="CptContato.php.html#6">Classes\Cpt\CptContato</a></td><td class="text-right">182</td></tr>
+       <tr><td><a href="CptPortais.php.html#6">Classes\Cpt\CptPortais</a></td><td class="text-right">170</td></tr>
+       <tr><td><a href="CptParceiros.php.html#6">Classes\Cpt\CptParceiros</a></td><td class="text-right">170</td></tr>
+       <tr><td><a href="cptProgramaProjeto.php.html#5">Classes\Cpt\cptProgramasEProjetos</a></td><td class="text-right">156</td></tr>
+       <tr><td><a href="CptMediaImages.php.html#6">Classes\Cpt\CptMediaImages</a></td><td class="text-right">81</td></tr>
+       <tr><td><a href="CptNoticias.php.html#6">Classes\Cpt\CptNoticias</a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="CptMuralProf.php.html#6">Classes\Cpt\CptMuralProf</a></td><td class="text-right">65</td></tr>
+       <tr><td><a href="CptPosts.php.html#6">Classes\Cpt\CptPosts</a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="CptCard.php.html#6">Classes\Cpt\CptCard</a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="CptConcursos.php.html#6">Classes\Cpt\CptConcursos</a></td><td class="text-right">20</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-12">
+     <h2>Methods</h2>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Coverage Distribution</h3>
+     <div id="methodCoverageDistribution" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Complexity</h3>
+     <div id="methodComplexity" style="height: 300px;">
+       <svg></svg>
+     </div>
+    </div>
+   </div>
+   <div class="row">
+    <div class="col-md-6">
+     <h3>Insufficient Coverage</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right">Coverage</th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="Cpt.php.html#18"><abbr title="Classes\Cpt\Cpt::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#54"><abbr title="Classes\Cpt\Cpt::getCptSlugExtend">getCptSlugExtend</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#58"><abbr title="Classes\Cpt\Cpt::getNameExtend">getNameExtend</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#62"><abbr title="Classes\Cpt\Cpt::getTodosOsItensExtend">getTodosOsItensExtend</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#66"><abbr title="Classes\Cpt\Cpt::getTaxonomyExtend">getTaxonomyExtend</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#70"><abbr title="Classes\Cpt\Cpt::getDashborarIconExtendExtend">getDashborarIconExtendExtend</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#74"><abbr title="Classes\Cpt\Cpt::loadDependencesAdmin">loadDependencesAdmin</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#81"><abbr title="Classes\Cpt\Cpt::custom_formats_admin">custom_formats_admin</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#91"><abbr title="Classes\Cpt\Cpt::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#150"><abbr title="Classes\Cpt\Cpt::my_restrict_manage_posts">my_restrict_manage_posts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#171"><abbr title="Classes\Cpt\Cpt::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#182"><abbr title="Classes\Cpt\Cpt::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#205"><abbr title="Classes\Cpt\Cpt::cols_sort">cols_sort</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="Cpt.php.html#212"><abbr title="Classes\Cpt\Cpt::orderby">orderby</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAba.php.html#9"><abbr title="Classes\Cpt\CptAba::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAba.php.html#23"><abbr title="Classes\Cpt\CptAba::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretario.php.html#8"><abbr title="Classes\Cpt\CptAgendaSecretario::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretario.php.html#24"><abbr title="Classes\Cpt\CptAgendaSecretario::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretario.php.html#38"><abbr title="Classes\Cpt\CptAgendaSecretario::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretario.php.html#79"><abbr title="Classes\Cpt\CptAgendaSecretario::cols_sort">cols_sort</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretario.php.html#87"><abbr title="Classes\Cpt\CptAgendaSecretario::orderby">orderby</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretario.php.html#109"><abbr title="Classes\Cpt\CptAgendaSecretario::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretarioNew.php.html#8"><abbr title="Classes\Cpt\CptAgendaSecretarioNew::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretarioNew.php.html#24"><abbr title="Classes\Cpt\CptAgendaSecretarioNew::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretarioNew.php.html#38"><abbr title="Classes\Cpt\CptAgendaSecretarioNew::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretarioNew.php.html#73"><abbr title="Classes\Cpt\CptAgendaSecretarioNew::cols_sort">cols_sort</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretarioNew.php.html#81"><abbr title="Classes\Cpt\CptAgendaSecretarioNew::orderby">orderby</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptAgendaSecretarioNew.php.html#104"><abbr title="Classes\Cpt\CptAgendaSecretarioNew::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptBotao.php.html#8"><abbr title="Classes\Cpt\CptBotao::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptBotao.php.html#19"><abbr title="Classes\Cpt\CptBotao::removePostTypeSupport">removePostTypeSupport</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptBotao.php.html#26"><abbr title="Classes\Cpt\CptBotao::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptCard.php.html#8"><abbr title="Classes\Cpt\CptCard::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptCard.php.html#20"><abbr title="Classes\Cpt\CptCard::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptCard.php.html#31"><abbr title="Classes\Cpt\CptCard::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptConcursos.php.html#8"><abbr title="Classes\Cpt\CptConcursos::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptConcursos.php.html#20"><abbr title="Classes\Cpt\CptConcursos::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptConcursos.php.html#31"><abbr title="Classes\Cpt\CptConcursos::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptContato.php.html#8"><abbr title="Classes\Cpt\CptContato::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptContato.php.html#23"><abbr title="Classes\Cpt\CptContato::exibe_cols_contatos">exibe_cols_contatos</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptContato.php.html#43"><abbr title="Classes\Cpt\CptContato::cols_content_contato">cols_content_contato</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptContato.php.html#95"><abbr title="Classes\Cpt\CptContato::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptCurriculoDaCidade.php.html#9"><abbr title="Classes\Cpt\CptCurriculoDaCidade::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptCurriculoDaCidade.php.html#15"><abbr title="Classes\Cpt\CptCurriculoDaCidade::removePostTypeSupport">removePostTypeSupport</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptDestaques.php.html#8"><abbr title="Classes\Cpt\CptDestaques::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptDestaques.php.html#62"><abbr title="Classes\Cpt\CptDestaques::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptDestaques.php.html#75"><abbr title="Classes\Cpt\CptDestaques::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptDestaques.php.html#128"><abbr title="Classes\Cpt\CptDestaques::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptFaqs.php.html#8"><abbr title="Classes\Cpt\CptFaqs::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptFaqs.php.html#43"><abbr title="Classes\Cpt\CptFaqs::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptFaqs.php.html#54"><abbr title="Classes\Cpt\CptFaqs::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptFaqs.php.html#90"><abbr title="Classes\Cpt\CptFaqs::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptMediaImages.php.html#10"><abbr title="Classes\Cpt\CptMediaImages::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptMediaImages.php.html#24"><abbr title="Classes\Cpt\CptMediaImages::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptMediaImages.php.html#73"><abbr title="Classes\Cpt\CptMediaImages::my_restrict_manage_posts">my_restrict_manage_posts</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptMuralProf.php.html#8"><abbr title="Classes\Cpt\CptMuralProf::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptMuralProf.php.html#43"><abbr title="Classes\Cpt\CptMuralProf::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptMuralProf.php.html#53"><abbr title="Classes\Cpt\CptMuralProf::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptMuralProf.php.html#63"><abbr title="Classes\Cpt\CptMuralProf::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptNoticias.php.html#8"><abbr title="Classes\Cpt\CptNoticias::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptNoticias.php.html#15"><abbr title="Classes\Cpt\CptNoticias::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptNoticias.php.html#36"><abbr title="Classes\Cpt\CptNoticias::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptOrganograma.php.html#9"><abbr title="Classes\Cpt\CptOrganograma::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptOrganograma.php.html#13"><abbr title="Classes\Cpt\CptOrganograma::removeThemeSupport">removeThemeSupport</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPages.php.html#8"><abbr title="Classes\Cpt\CptPages::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPages.php.html#16"><abbr title="Classes\Cpt\CptPages::exibe_cols_pages">exibe_cols_pages</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPages.php.html#42"><abbr title="Classes\Cpt\CptPages::cols_content_pages">cols_content_pages</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptParceiros.php.html#8"><abbr title="Classes\Cpt\CptParceiros::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptParceiros.php.html#43"><abbr title="Classes\Cpt\CptParceiros::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptParceiros.php.html#54"><abbr title="Classes\Cpt\CptParceiros::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptParceiros.php.html#86"><abbr title="Classes\Cpt\CptParceiros::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPortais.php.html#8"><abbr title="Classes\Cpt\CptPortais::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPortais.php.html#43"><abbr title="Classes\Cpt\CptPortais::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPortais.php.html#55"><abbr title="Classes\Cpt\CptPortais::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPortais.php.html#87"><abbr title="Classes\Cpt\CptPortais::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPosts.php.html#8"><abbr title="Classes\Cpt\CptPosts::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPosts.php.html#15"><abbr title="Classes\Cpt\CptPosts::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptPosts.php.html#36"><abbr title="Classes\Cpt\CptPosts::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptSmeExplica.php.html#8"><abbr title="Classes\Cpt\CptSmeExplica::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptSmeExplica.php.html#43"><abbr title="Classes\Cpt\CptSmeExplica::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptSmeExplica.php.html#55"><abbr title="Classes\Cpt\CptSmeExplica::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptSmeExplica.php.html#90"><abbr title="Classes\Cpt\CptSmeExplica::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="cptProgramaProjeto.php.html#6"><abbr title="Classes\Cpt\cptProgramasEProjetos::__construct">__construct</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="cptProgramaProjeto.php.html#17"><abbr title="Classes\Cpt\cptProgramasEProjetos::orderby">orderby</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="cptProgramaProjeto.php.html#29"><abbr title="Classes\Cpt\cptProgramasEProjetos::cols_sort">cols_sort</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="cptProgramaProjeto.php.html#36"><abbr title="Classes\Cpt\cptProgramasEProjetos::cols_content">cols_content</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="cptProgramaProjeto.php.html#51"><abbr title="Classes\Cpt\cptProgramasEProjetos::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="cptProgramaProjeto.php.html#61"><abbr title="Classes\Cpt\cptProgramasEProjetos::register">register</abbr></a></td><td class="text-right">0%</td></tr>
+       <tr><td><a href="CptDestaques.php.html#25"><abbr title="Classes\Cpt\CptDestaques::filter_categ_destaques">filter_categ_destaques</abbr></a></td><td class="text-right">20%</td></tr>
+       <tr><td><a href="CptDestaques.php.html#43"><abbr title="Classes\Cpt\CptDestaques::filter_tags_destaques">filter_tags_destaques</abbr></a></td><td class="text-right">20%</td></tr>
+       <tr><td><a href="CptFaqs.php.html#24"><abbr title="Classes\Cpt\CptFaqs::filter_categ_portais">filter_categ_portais</abbr></a></td><td class="text-right">20%</td></tr>
+       <tr><td><a href="CptMuralProf.php.html#24"><abbr title="Classes\Cpt\CptMuralProf::filter_categ_destaques">filter_categ_destaques</abbr></a></td><td class="text-right">20%</td></tr>
+       <tr><td><a href="CptParceiros.php.html#24"><abbr title="Classes\Cpt\CptParceiros::filter_categ_portais">filter_categ_portais</abbr></a></td><td class="text-right">20%</td></tr>
+       <tr><td><a href="CptPortais.php.html#24"><abbr title="Classes\Cpt\CptPortais::filter_categ_portais">filter_categ_portais</abbr></a></td><td class="text-right">20%</td></tr>
+       <tr><td><a href="CptSmeExplica.php.html#24"><abbr title="Classes\Cpt\CptSmeExplica::filter_categ_destaques">filter_categ_destaques</abbr></a></td><td class="text-right">20%</td></tr>
+       <tr><td><a href="Cpt.php.html#226"><abbr title="Classes\Cpt\Cpt::habilitaTags">habilitaTags</abbr></a></td><td class="text-right">33%</td></tr>
+       <tr><td><a href="CptMediaImages.php.html#62"><abbr title="Classes\Cpt\CptMediaImages::incluirAnexosNaQuery">incluirAnexosNaQuery</abbr></a></td><td class="text-right">40%</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+    <div class="col-md-6">
+     <h3>Project Risks</h3>
+     <div class="scrollbox">
+      <table class="table">
+       <thead>
+        <tr>
+         <th>Method</th>
+         <th class="text-right"><abbr title="Change Risk Anti-Patterns (CRAP) Index">CRAP</abbr></th>
+        </tr>
+       </thead>
+       <tbody>
+       <tr><td><a href="CptDestaques.php.html#75"><abbr title="Classes\Cpt\CptDestaques::cols_content">cols_content</abbr></a></td><td class="text-right">182</td></tr>
+       <tr><td><a href="CptPages.php.html#42"><abbr title="Classes\Cpt\CptPages::cols_content_pages">cols_content_pages</abbr></a></td><td class="text-right">156</td></tr>
+       <tr><td><a href="CptAgendaSecretario.php.html#38"><abbr title="Classes\Cpt\CptAgendaSecretario::cols_content">cols_content</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="CptAgendaSecretarioNew.php.html#38"><abbr title="Classes\Cpt\CptAgendaSecretarioNew::cols_content">cols_content</abbr></a></td><td class="text-right">90</td></tr>
+       <tr><td><a href="CptAgendaSecretario.php.html#87"><abbr title="Classes\Cpt\CptAgendaSecretario::orderby">orderby</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="CptAgendaSecretarioNew.php.html#81"><abbr title="Classes\Cpt\CptAgendaSecretarioNew::orderby">orderby</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="CptContato.php.html#43"><abbr title="Classes\Cpt\CptContato::cols_content_contato">cols_content_contato</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="CptFaqs.php.html#54"><abbr title="Classes\Cpt\CptFaqs::cols_content">cols_content</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="CptSmeExplica.php.html#55"><abbr title="Classes\Cpt\CptSmeExplica::cols_content">cols_content</abbr></a></td><td class="text-right">72</td></tr>
+       <tr><td><a href="Cpt.php.html#212"><abbr title="Classes\Cpt\Cpt::orderby">orderby</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="CptParceiros.php.html#54"><abbr title="Classes\Cpt\CptParceiros::cols_content">cols_content</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="CptPortais.php.html#55"><abbr title="Classes\Cpt\CptPortais::cols_content">cols_content</abbr></a></td><td class="text-right">42</td></tr>
+       <tr><td><a href="Cpt.php.html#150"><abbr title="Classes\Cpt\Cpt::my_restrict_manage_posts">my_restrict_manage_posts</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="Cpt.php.html#182"><abbr title="Classes\Cpt\Cpt::cols_content">cols_content</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="CptMediaImages.php.html#73"><abbr title="Classes\Cpt\CptMediaImages::my_restrict_manage_posts">my_restrict_manage_posts</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="CptNoticias.php.html#36"><abbr title="Classes\Cpt\CptNoticias::cols_content">cols_content</abbr></a></td><td class="text-right">30</td></tr>
+       <tr><td><a href="cptProgramaProjeto.php.html#17"><abbr title="Classes\Cpt\cptProgramasEProjetos::orderby">orderby</abbr></a></td><td class="text-right">20</td></tr>
+       <tr><td><a href="Cpt.php.html#91"><abbr title="Classes\Cpt\Cpt::register">register</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="CptContato.php.html#23"><abbr title="Classes\Cpt\CptContato::exibe_cols_contatos">exibe_cols_contatos</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="CptPages.php.html#16"><abbr title="Classes\Cpt\CptPages::exibe_cols_pages">exibe_cols_pages</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="cptProgramaProjeto.php.html#36"><abbr title="Classes\Cpt\cptProgramasEProjetos::cols_content">cols_content</abbr></a></td><td class="text-right">12</td></tr>
+       <tr><td><a href="CptDestaques.php.html#25"><abbr title="Classes\Cpt\CptDestaques::filter_categ_destaques">filter_categ_destaques</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="CptDestaques.php.html#43"><abbr title="Classes\Cpt\CptDestaques::filter_tags_destaques">filter_tags_destaques</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="CptFaqs.php.html#24"><abbr title="Classes\Cpt\CptFaqs::filter_categ_portais">filter_categ_portais</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="CptMuralProf.php.html#24"><abbr title="Classes\Cpt\CptMuralProf::filter_categ_destaques">filter_categ_destaques</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="CptParceiros.php.html#24"><abbr title="Classes\Cpt\CptParceiros::filter_categ_portais">filter_categ_portais</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="CptPortais.php.html#24"><abbr title="Classes\Cpt\CptPortais::filter_categ_portais">filter_categ_portais</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="CptSmeExplica.php.html#24"><abbr title="Classes\Cpt\CptSmeExplica::filter_categ_destaques">filter_categ_destaques</abbr></a></td><td class="text-right">7</td></tr>
+       <tr><td><a href="Cpt.php.html#74"><abbr title="Classes\Cpt\Cpt::loadDependencesAdmin">loadDependencesAdmin</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Cpt.php.html#171"><abbr title="Classes\Cpt\Cpt::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptAgendaSecretario.php.html#24"><abbr title="Classes\Cpt\CptAgendaSecretario::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptAgendaSecretarioNew.php.html#24"><abbr title="Classes\Cpt\CptAgendaSecretarioNew::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptCard.php.html#20"><abbr title="Classes\Cpt\CptCard::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptConcursos.php.html#20"><abbr title="Classes\Cpt\CptConcursos::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptDestaques.php.html#62"><abbr title="Classes\Cpt\CptDestaques::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptFaqs.php.html#43"><abbr title="Classes\Cpt\CptFaqs::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptMuralProf.php.html#43"><abbr title="Classes\Cpt\CptMuralProf::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptNoticias.php.html#15"><abbr title="Classes\Cpt\CptNoticias::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptParceiros.php.html#43"><abbr title="Classes\Cpt\CptParceiros::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptPortais.php.html#43"><abbr title="Classes\Cpt\CptPortais::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptPosts.php.html#15"><abbr title="Classes\Cpt\CptPosts::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptPosts.php.html#36"><abbr title="Classes\Cpt\CptPosts::cols_content">cols_content</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="CptSmeExplica.php.html#43"><abbr title="Classes\Cpt\CptSmeExplica::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="cptProgramaProjeto.php.html#51"><abbr title="Classes\Cpt\cptProgramasEProjetos::exibe_cols">exibe_cols</abbr></a></td><td class="text-right">6</td></tr>
+       <tr><td><a href="Cpt.php.html#226"><abbr title="Classes\Cpt\Cpt::habilitaTags">habilitaTags</abbr></a></td><td class="text-right">5</td></tr>
+       <tr><td><a href="CptMediaImages.php.html#62"><abbr title="Classes\Cpt\CptMediaImages::incluirAnexosNaQuery">incluirAnexosNaQuery</abbr></a></td><td class="text-right">2</td></tr>
+
+       </tbody>
+      </table>
+     </div>
+    </div>
+   </div>
+   <footer>
+    <hr/>
+    <p>
+     <small>Generated by <a href="https://github.com/sebastianbergmann/php-code-coverage" target="_top">php-code-coverage 10.1.16</a> using <a href="https://www.php.net/" target="_top">PHP 8.3.14</a> and <a href="https://phpunit.de/">PHPUnit 10.5.36</a> at Fri Oct 10 18:16:30 UTC 2025.</small>
+    </p>
+   </footer>
+  </div>
+  <script src="../../_js/jquery.min.js?v=10.1.16" type="text/javascript"></script>
+  <script src="../../_js/d3.min.js?v=10.1.16" type="text/javascript"></script>
+  <script src="../../_js/nv.d3.min.js?v=10.1.16" type="text/javascript"></script>
+  <script type="text/javascript">
+$(document).ready(function() {
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#classCoverageDistribution svg')
+      .datum(getCoverageDistributionData([13,8,0,0,0,0,0,0,0,0,0,0], "Class Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.multiBarChart();
+    chart.tooltips(false)
+      .showControls(false)
+      .showLegend(false)
+      .reduceXTicks(false)
+      .staggerLabels(true)
+      .yAxis.tickFormat(d3.format('d'));
+
+    d3.select('#methodCoverageDistribution svg')
+      .datum(getCoverageDistributionData([87,0,0,7,1,1,0,0,0,0,0,0], "Method Coverage"))
+      .transition().duration(500).call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getCoverageDistributionData(data, label) {
+    var labels = [
+      '0%',
+      '0-10%',
+      '10-20%',
+      '20-30%',
+      '30-40%',
+      '40-50%',
+      '50-60%',
+      '60-70%',
+      '70-80%',
+      '80-90%',
+      '90-100%',
+      '100%'
+    ];
+    var values = [];
+    $.each(labels, function(key) {
+      values.push({x: labels[key], y: data[key]});
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Cyclomatic Complexity');
+
+    d3.select('#classComplexity svg')
+      .datum(getComplexityData([[0.8403361344537815,34,"<a href=\"Cpt.php.html#6\">Classes\\Cpt\\Cpt<\/a>"],[0,2,"<a href=\"CptAba.php.html#6\">Classes\\Cpt\\CptAba<\/a>"],[0,22,"<a href=\"CptAgendaSecretario.php.html#6\">Classes\\Cpt\\CptAgendaSecretario<\/a>"],[0,22,"<a href=\"CptAgendaSecretarioNew.php.html#6\">Classes\\Cpt\\CptAgendaSecretarioNew<\/a>"],[0,3,"<a href=\"CptBotao.php.html#6\">Classes\\Cpt\\CptBotao<\/a>"],[0,4,"<a href=\"CptCard.php.html#6\">Classes\\Cpt\\CptCard<\/a>"],[0,4,"<a href=\"CptConcursos.php.html#6\">Classes\\Cpt\\CptConcursos<\/a>"],[0,13,"<a href=\"CptContato.php.html#6\">Classes\\Cpt\\CptContato<\/a>"],[0,2,"<a href=\"CptCurriculoDaCidade.php.html#6\">Classes\\Cpt\\CptCurriculoDaCidade<\/a>"],[3.5398230088495577,23,"<a href=\"CptDestaques.php.html#6\">Classes\\Cpt\\CptDestaques<\/a>"],[2.7027027027027026,15,"<a href=\"CptFaqs.php.html#6\">Classes\\Cpt\\CptFaqs<\/a>"],[3.7037037037037033,9,"<a href=\"CptMediaImages.php.html#6\">Classes\\Cpt\\CptMediaImages<\/a>"],[3.508771929824561,8,"<a href=\"CptMuralProf.php.html#6\">Classes\\Cpt\\CptMuralProf<\/a>"],[0,8,"<a href=\"CptNoticias.php.html#6\">Classes\\Cpt\\CptNoticias<\/a>"],[0,2,"<a href=\"CptOrganograma.php.html#6\">Classes\\Cpt\\CptOrganograma<\/a>"],[0,16,"<a href=\"CptPages.php.html#6\">Classes\\Cpt\\CptPages<\/a>"],[2.380952380952381,13,"<a href=\"CptParceiros.php.html#6\">Classes\\Cpt\\CptParceiros<\/a>"],[2.3529411764705883,13,"<a href=\"CptPortais.php.html#6\">Classes\\Cpt\\CptPortais<\/a>"],[0,5,"<a href=\"CptPosts.php.html#6\">Classes\\Cpt\\CptPosts<\/a>"],[2.380952380952381,15,"<a href=\"CptSmeExplica.php.html#6\">Classes\\Cpt\\CptSmeExplica<\/a>"],[0,12,"<a href=\"cptProgramaProjeto.php.html#5\">Classes\\Cpt\\cptProgramasEProjetos<\/a>"]], 'Class Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  nv.addGraph(function() {
+    var chart = nv.models.scatterChart()
+      .showDistX(true)
+      .showDistY(true)
+      .showLegend(false)
+      .forceX([0, 100]);
+    chart.tooltipContent(function(graph) {
+      return '<p>' + graph.point.class + '</p>';
+    });
+
+    chart.xAxis.axisLabel('Code Coverage (in percent)');
+    chart.yAxis.axisLabel('Method Complexity');
+
+    d3.select('#methodComplexity svg')
+      .datum(getComplexityData([[0,1,"<a href=\"Cpt.php.html#18\">Classes\\Cpt\\Cpt::__construct<\/a>"],[0,1,"<a href=\"Cpt.php.html#54\">Classes\\Cpt\\Cpt::getCptSlugExtend<\/a>"],[0,1,"<a href=\"Cpt.php.html#58\">Classes\\Cpt\\Cpt::getNameExtend<\/a>"],[0,1,"<a href=\"Cpt.php.html#62\">Classes\\Cpt\\Cpt::getTodosOsItensExtend<\/a>"],[0,1,"<a href=\"Cpt.php.html#66\">Classes\\Cpt\\Cpt::getTaxonomyExtend<\/a>"],[0,1,"<a href=\"Cpt.php.html#70\">Classes\\Cpt\\Cpt::getDashborarIconExtendExtend<\/a>"],[0,2,"<a href=\"Cpt.php.html#74\">Classes\\Cpt\\Cpt::loadDependencesAdmin<\/a>"],[0,1,"<a href=\"Cpt.php.html#81\">Classes\\Cpt\\Cpt::custom_formats_admin<\/a>"],[0,3,"<a href=\"Cpt.php.html#91\">Classes\\Cpt\\Cpt::register<\/a>"],[0,5,"<a href=\"Cpt.php.html#150\">Classes\\Cpt\\Cpt::my_restrict_manage_posts<\/a>"],[0,2,"<a href=\"Cpt.php.html#171\">Classes\\Cpt\\Cpt::exibe_cols<\/a>"],[0,5,"<a href=\"Cpt.php.html#182\">Classes\\Cpt\\Cpt::cols_content<\/a>"],[0,1,"<a href=\"Cpt.php.html#205\">Classes\\Cpt\\Cpt::cols_sort<\/a>"],[0,6,"<a href=\"Cpt.php.html#212\">Classes\\Cpt\\Cpt::orderby<\/a>"],[33.33333333333333,3,"<a href=\"Cpt.php.html#226\">Classes\\Cpt\\Cpt::habilitaTags<\/a>"],[0,1,"<a href=\"CptAba.php.html#9\">Classes\\Cpt\\CptAba::__construct<\/a>"],[0,1,"<a href=\"CptAba.php.html#23\">Classes\\Cpt\\CptAba::register<\/a>"],[0,1,"<a href=\"CptAgendaSecretario.php.html#8\">Classes\\Cpt\\CptAgendaSecretario::__construct<\/a>"],[0,2,"<a href=\"CptAgendaSecretario.php.html#24\">Classes\\Cpt\\CptAgendaSecretario::exibe_cols<\/a>"],[0,9,"<a href=\"CptAgendaSecretario.php.html#38\">Classes\\Cpt\\CptAgendaSecretario::cols_content<\/a>"],[0,1,"<a href=\"CptAgendaSecretario.php.html#79\">Classes\\Cpt\\CptAgendaSecretario::cols_sort<\/a>"],[0,8,"<a href=\"CptAgendaSecretario.php.html#87\">Classes\\Cpt\\CptAgendaSecretario::orderby<\/a>"],[0,1,"<a href=\"CptAgendaSecretario.php.html#109\">Classes\\Cpt\\CptAgendaSecretario::register<\/a>"],[0,1,"<a href=\"CptAgendaSecretarioNew.php.html#8\">Classes\\Cpt\\CptAgendaSecretarioNew::__construct<\/a>"],[0,2,"<a href=\"CptAgendaSecretarioNew.php.html#24\">Classes\\Cpt\\CptAgendaSecretarioNew::exibe_cols<\/a>"],[0,9,"<a href=\"CptAgendaSecretarioNew.php.html#38\">Classes\\Cpt\\CptAgendaSecretarioNew::cols_content<\/a>"],[0,1,"<a href=\"CptAgendaSecretarioNew.php.html#73\">Classes\\Cpt\\CptAgendaSecretarioNew::cols_sort<\/a>"],[0,8,"<a href=\"CptAgendaSecretarioNew.php.html#81\">Classes\\Cpt\\CptAgendaSecretarioNew::orderby<\/a>"],[0,1,"<a href=\"CptAgendaSecretarioNew.php.html#104\">Classes\\Cpt\\CptAgendaSecretarioNew::register<\/a>"],[0,1,"<a href=\"CptBotao.php.html#8\">Classes\\Cpt\\CptBotao::__construct<\/a>"],[0,1,"<a href=\"CptBotao.php.html#19\">Classes\\Cpt\\CptBotao::removePostTypeSupport<\/a>"],[0,1,"<a href=\"CptBotao.php.html#26\">Classes\\Cpt\\CptBotao::register<\/a>"],[0,1,"<a href=\"CptCard.php.html#8\">Classes\\Cpt\\CptCard::__construct<\/a>"],[0,2,"<a href=\"CptCard.php.html#20\">Classes\\Cpt\\CptCard::exibe_cols<\/a>"],[0,1,"<a href=\"CptCard.php.html#31\">Classes\\Cpt\\CptCard::register<\/a>"],[0,1,"<a href=\"CptConcursos.php.html#8\">Classes\\Cpt\\CptConcursos::__construct<\/a>"],[0,2,"<a href=\"CptConcursos.php.html#20\">Classes\\Cpt\\CptConcursos::exibe_cols<\/a>"],[0,1,"<a href=\"CptConcursos.php.html#31\">Classes\\Cpt\\CptConcursos::register<\/a>"],[0,1,"<a href=\"CptContato.php.html#8\">Classes\\Cpt\\CptContato::__construct<\/a>"],[0,3,"<a href=\"CptContato.php.html#23\">Classes\\Cpt\\CptContato::exibe_cols_contatos<\/a>"],[0,8,"<a href=\"CptContato.php.html#43\">Classes\\Cpt\\CptContato::cols_content_contato<\/a>"],[0,1,"<a href=\"CptContato.php.html#95\">Classes\\Cpt\\CptContato::register<\/a>"],[0,1,"<a href=\"CptCurriculoDaCidade.php.html#9\">Classes\\Cpt\\CptCurriculoDaCidade::__construct<\/a>"],[0,1,"<a href=\"CptCurriculoDaCidade.php.html#15\">Classes\\Cpt\\CptCurriculoDaCidade::removePostTypeSupport<\/a>"],[0,1,"<a href=\"CptDestaques.php.html#8\">Classes\\Cpt\\CptDestaques::__construct<\/a>"],[20,3,"<a href=\"CptDestaques.php.html#25\">Classes\\Cpt\\CptDestaques::filter_categ_destaques<\/a>"],[20,3,"<a href=\"CptDestaques.php.html#43\">Classes\\Cpt\\CptDestaques::filter_tags_destaques<\/a>"],[0,2,"<a href=\"CptDestaques.php.html#62\">Classes\\Cpt\\CptDestaques::exibe_cols<\/a>"],[0,13,"<a href=\"CptDestaques.php.html#75\">Classes\\Cpt\\CptDestaques::cols_content<\/a>"],[0,1,"<a href=\"CptDestaques.php.html#128\">Classes\\Cpt\\CptDestaques::register<\/a>"],[0,1,"<a href=\"CptFaqs.php.html#8\">Classes\\Cpt\\CptFaqs::__construct<\/a>"],[20,3,"<a href=\"CptFaqs.php.html#24\">Classes\\Cpt\\CptFaqs::filter_categ_portais<\/a>"],[0,2,"<a href=\"CptFaqs.php.html#43\">Classes\\Cpt\\CptFaqs::exibe_cols<\/a>"],[0,8,"<a href=\"CptFaqs.php.html#54\">Classes\\Cpt\\CptFaqs::cols_content<\/a>"],[0,1,"<a href=\"CptFaqs.php.html#90\">Classes\\Cpt\\CptFaqs::register<\/a>"],[0,1,"<a href=\"CptMediaImages.php.html#10\">Classes\\Cpt\\CptMediaImages::__construct<\/a>"],[0,1,"<a href=\"CptMediaImages.php.html#24\">Classes\\Cpt\\CptMediaImages::register<\/a>"],[40,2,"<a href=\"CptMediaImages.php.html#62\">Classes\\Cpt\\CptMediaImages::incluirAnexosNaQuery<\/a>"],[0,5,"<a href=\"CptMediaImages.php.html#73\">Classes\\Cpt\\CptMediaImages::my_restrict_manage_posts<\/a>"],[0,1,"<a href=\"CptMuralProf.php.html#8\">Classes\\Cpt\\CptMuralProf::__construct<\/a>"],[20,3,"<a href=\"CptMuralProf.php.html#24\">Classes\\Cpt\\CptMuralProf::filter_categ_destaques<\/a>"],[0,2,"<a href=\"CptMuralProf.php.html#43\">Classes\\Cpt\\CptMuralProf::exibe_cols<\/a>"],[0,1,"<a href=\"CptMuralProf.php.html#53\">Classes\\Cpt\\CptMuralProf::cols_content<\/a>"],[0,1,"<a href=\"CptMuralProf.php.html#63\">Classes\\Cpt\\CptMuralProf::register<\/a>"],[0,1,"<a href=\"CptNoticias.php.html#8\">Classes\\Cpt\\CptNoticias::__construct<\/a>"],[0,2,"<a href=\"CptNoticias.php.html#15\">Classes\\Cpt\\CptNoticias::exibe_cols<\/a>"],[0,5,"<a href=\"CptNoticias.php.html#36\">Classes\\Cpt\\CptNoticias::cols_content<\/a>"],[0,1,"<a href=\"CptOrganograma.php.html#9\">Classes\\Cpt\\CptOrganograma::__construct<\/a>"],[0,1,"<a href=\"CptOrganograma.php.html#13\">Classes\\Cpt\\CptOrganograma::removeThemeSupport<\/a>"],[0,1,"<a href=\"CptPages.php.html#8\">Classes\\Cpt\\CptPages::__construct<\/a>"],[0,3,"<a href=\"CptPages.php.html#16\">Classes\\Cpt\\CptPages::exibe_cols_pages<\/a>"],[0,12,"<a href=\"CptPages.php.html#42\">Classes\\Cpt\\CptPages::cols_content_pages<\/a>"],[0,1,"<a href=\"CptParceiros.php.html#8\">Classes\\Cpt\\CptParceiros::__construct<\/a>"],[20,3,"<a href=\"CptParceiros.php.html#24\">Classes\\Cpt\\CptParceiros::filter_categ_portais<\/a>"],[0,2,"<a href=\"CptParceiros.php.html#43\">Classes\\Cpt\\CptParceiros::exibe_cols<\/a>"],[0,6,"<a href=\"CptParceiros.php.html#54\">Classes\\Cpt\\CptParceiros::cols_content<\/a>"],[0,1,"<a href=\"CptParceiros.php.html#86\">Classes\\Cpt\\CptParceiros::register<\/a>"],[0,1,"<a href=\"CptPortais.php.html#8\">Classes\\Cpt\\CptPortais::__construct<\/a>"],[20,3,"<a href=\"CptPortais.php.html#24\">Classes\\Cpt\\CptPortais::filter_categ_portais<\/a>"],[0,2,"<a href=\"CptPortais.php.html#43\">Classes\\Cpt\\CptPortais::exibe_cols<\/a>"],[0,6,"<a href=\"CptPortais.php.html#55\">Classes\\Cpt\\CptPortais::cols_content<\/a>"],[0,1,"<a href=\"CptPortais.php.html#87\">Classes\\Cpt\\CptPortais::register<\/a>"],[0,1,"<a href=\"CptPosts.php.html#8\">Classes\\Cpt\\CptPosts::__construct<\/a>"],[0,2,"<a href=\"CptPosts.php.html#15\">Classes\\Cpt\\CptPosts::exibe_cols<\/a>"],[0,2,"<a href=\"CptPosts.php.html#36\">Classes\\Cpt\\CptPosts::cols_content<\/a>"],[0,1,"<a href=\"CptSmeExplica.php.html#8\">Classes\\Cpt\\CptSmeExplica::__construct<\/a>"],[20,3,"<a href=\"CptSmeExplica.php.html#24\">Classes\\Cpt\\CptSmeExplica::filter_categ_destaques<\/a>"],[0,2,"<a href=\"CptSmeExplica.php.html#43\">Classes\\Cpt\\CptSmeExplica::exibe_cols<\/a>"],[0,8,"<a href=\"CptSmeExplica.php.html#55\">Classes\\Cpt\\CptSmeExplica::cols_content<\/a>"],[0,1,"<a href=\"CptSmeExplica.php.html#90\">Classes\\Cpt\\CptSmeExplica::register<\/a>"],[0,1,"<a href=\"cptProgramaProjeto.php.html#6\">Classes\\Cpt\\cptProgramasEProjetos::__construct<\/a>"],[0,4,"<a href=\"cptProgramaProjeto.php.html#17\">Classes\\Cpt\\cptProgramasEProjetos::orderby<\/a>"],[0,1,"<a href=\"cptProgramaProjeto.php.html#29\">Classes\\Cpt\\cptProgramasEProjetos::cols_sort<\/a>"],[0,3,"<a href=\"cptProgramaProjeto.php.html#36\">Classes\\Cpt\\cptProgramasEProjetos::cols_content<\/a>"],[0,2,"<a href=\"cptProgramaProjeto.php.html#51\">Classes\\Cpt\\cptProgramasEProjetos::exibe_cols<\/a>"],[0,1,"<a href=\"cptProgramaProjeto.php.html#61\">Classes\\Cpt\\cptProgramasEProjetos::register<\/a>"]], 'Method Complexity'))
+      .transition()
+      .duration(500)
+      .call(chart);
+
+    nv.utils.windowResize(chart.update);
+
+    return chart;
+  });
+
+  function getComplexityData(data, label) {
+    var values = [];
+    $.each(data, function(key) {
+      var value = Math.round(data[key][0]*100) / 100;
+      values.push({
+        x: value,
+        y: data[key][1],
+        class: data[key][2],
+        size: 0.05,
+        shape: 'diamond'
+      });
+    });
+
+    return [
+      {
+        key: label,
+        values: values,
+        color: "#4572A7"
+      }
+    ];
+  }
+});
+  </script>
+ </body>
+</html>

@@ -1,0 +1,44 @@
+<div class="card conteudo-tab-lista-sorteados mb-4">
+    <div class="card-header row d-flex align-items-center justify-content-between" id="heading-{ITEM-ID}">
+        <div class="col col-md-7">
+            <div
+                data-toggle="collapse"
+                data-target="#sorteados-{ITEM-ID}"
+                aria-expanded="true"
+                aria-controls="sorteados-{ITEM-ID}"
+                >
+                <span>{TEXTO-COLLAPSE}</span>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="alert-primary" role="alert" style="padding: 0 10px 0 10px; display: inline-block; float: right; font-size: 12px; font-weight: bold; margin: 0;">Sorteio realizado em {DATA-SORTEIO}</div>
+        </div>
+        <div class="col-1">
+            <span
+                class="dashicons dashicons-arrow-down-alt2 collapsed"
+                data-toggle="collapse"
+                data-target="#sorteados-{ITEM-ID}"
+                aria-expanded="true"
+                aria-controls="sorteados-{ITEM-ID}"
+                >
+            </span>
+        </div>
+    </div>
+    <div id="sorteados-{ITEM-ID}" class="collapse" aria-labelledby="headingOne" data-parent="#accordion-sorteados">
+        <div class="row card-body">
+            <div class="container">
+                <table class="table datatables container border rounded">
+                    <thead class="d-none">
+                        <tr>
+                            <td>Nome</td>
+                            <td>Tipo</td>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {CONTEUDO-LISTA-SORTEADOS}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

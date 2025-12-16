@@ -1,0 +1,141 @@
+.banner-lp{
+	background-color: #73a2b6;
+	min-height: 100px;
+	margin: auto;
+	text-align: center;
+}
+.bloco-1-lp{
+	background-color: #264270;
+}
+.bloco-1-lp h3{
+	color: yellow !important;
+}
+.bloco-1-lp a:link, a:hover{
+	color: yellow;
+}
+.bloco-1-lp-inter{
+	margin: 30px auto !important;
+	color: #fff;
+}
+.bloco-1-lp-titulo{
+	color: #fff !important;
+}
+.bloco-2-lp{
+	background-color: #fff;
+	margin: auto;
+	text-align: center;
+}
+.bloco-2-lp-inter{
+	margin: 30px auto !important;
+	text-align: center;
+}
+.link_btn_bloco_2{
+	max-width: 300px !important;
+    display: inline-block;
+    margin: 10px;
+    text-align: center;
+    background-color: #264270;
+    border-radius: 15px;
+    padding: 20px;
+    color: #fff;
+}
+.bloco-3-lp{
+	background-color: #eeeeee;
+	min-height: 400px;
+}
+.bloco-3-lp-inter{
+	margin: 30px auto !important;
+}
+.bloco-3-lp-titulo{
+	color: #264270 !important;
+}
+.bloco-4-lp{
+	background-color: #fff;
+	min-height: 400px;
+}
+.bloco-4-lp-inter{
+	margin: 30px auto !important;
+}
+.bloco-5-lp{
+	background-color: #eeeeee;
+	min-height: 400px;
+}
+.bloco-5-lp-inter{
+	margin: 30px auto !important;
+}
+.bloco-5-lp-titulo{
+	color: #264270 !important;
+}
+.bloco-6-lp{
+	background-color: #264270;
+}
+.bloco-6-lp-inter{
+	margin: 30px auto !important;
+	color: #fff;
+}
+.bloco-6-lp-titulo{
+	color: #fff !important;
+}
+.link_btn_bloco_6{
+	max-width: 300px !important;
+    display: inline-block;
+    margin: 10px;
+    text-align: center;
+    background-color: #fff;
+    border-radius: 15px;
+    padding: 20px;
+    color: #264270;
+}
+.bloco-7-lp{
+	background-image: url(https://educacao.sme.prefeitura.sp.gov.br/wp-content/uploads/2020/03/fundo_lp.jpg);
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	/*background-color: #fff;*/
+	min-height: 300px;
+	margin: auto;
+	text-align: center;
+}
+.bloco-7-lp-inter{
+	margin: 30px auto !important;
+	text-align: center;
+}
+video {
+	width: 100% !important;
+	/*min-height: 450px;*/
+	height: auto !important;
+}
+@media only screen and (max-width: 768px) {
+  /* For mobile phones: */
+  video{
+		width: 100% !important;
+		min-height: 180px;
+		height: auto !important;
+	}
+}
+.col {
+    text-align: center;
+}
+#style-2 {
+    max-height: 650px;
+}
+.overflow-auto {
+    overflow: auto!important;
+}
+#style-2::-webkit-scrollbar-track
+{
+    -webkit-box-shadow: inset 0 0 6px rgba(212,212,212,0.5);
+    border-radius: 10px;
+    /*background-color: #eee;*/
+}
+#style-2::-webkit-scrollbar
+{
+    width: 5px;
+   /* background-color: #eee;*/
+}
+#style-2::-webkit-scrollbar-thumb
+{
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(212,212,212,0.5);
+    background-color: #196CBD;
+}

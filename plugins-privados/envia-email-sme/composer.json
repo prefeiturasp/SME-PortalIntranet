@@ -1,0 +1,8 @@
+{
+    "name": "jardeonjmaraujo/envia-email-sme",
+    "autoload": {
+        "psr-4": {
+            "EnviaEmailSme\\": "src/"
+        }
+    }
+}

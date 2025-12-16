@@ -1,0 +1,21 @@
+{
+    "name": "ascom.sme/intranet",
+    "require-dev": {
+        "pestphp/pest": "^2.0",
+        "yoast/phpunit-polyfills": "^2.0",
+        "brain/monkey": "^2.6",
+        "symfony/console": "^7.3",
+        "fakerphp/faker": "^1.24",
+        "mikey179/vfsstream": "^1.6"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
+}

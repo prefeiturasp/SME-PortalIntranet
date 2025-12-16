@@ -1,0 +1,292 @@
+#pages {
+    text-align: center;
+}
+
+.pages-count {
+    display: block;
+    text-align: center;
+}
+
+body {
+    background: #fff;
+}
+
+
+/*Cabeçalho do acf*/
+
+.acf-fc-layout-handle {
+    background: #01295c !important;
+    color: #fff !important;
+}
+
+div#categorias-contatodiv{
+    display: none;
+}
+
+.pages-modal {
+    text-align: left;
+    padding: 0 25px;
+}
+
+.swal2-icon.swal2-question.swal2-icon-show {
+    font-size: 20px;
+}
+
+.date-feedback .green {
+    color: #28a745;
+    margin-top: 0;
+}
+
+.acf-date-picker.has-conflict {
+    border: 1px solid #28a745 !important;
+    border-radius: 4px;
+}
+
+.acf-date-picker.has-conflict .input {
+    border: 1px solid #8c8f94 !important;
+}
+
+#publish.disabled, 
+#save-post.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.ui-draggable.alert-data-conflict {
+    position: relative;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, .2);
+    border-radius: .3rem;
+    outline: 0;
+    padding: 0;
+    width: 600px !important;
+    max-width: 90vw !important;
+}
+
+.ui-draggable.alert-data-conflict .ui-dialog-titlebar-close:before{
+    line-height: 1;
+    font-size: 18px;
+}
+
+.ui-draggable.alert-data-conflict .ui-dialog-titlebar-close span{
+    display: none;
+}
+
+.ui-draggable.alert-data-conflict .ui-dialog-titlebar {
+    background: initial;
+    border-radius: 0;
+    border: 0;
+    border-bottom: 1px solid rgba(0, 0, 0, .2);
+}
+
+.dialog-button{
+    border: 0;
+    padding: 10px;
+    line-height: 1;
+    height: auto;
+    color: #FFFFFF;
+}
+
+.dialog-button.dialog-cancel-button{
+    background: #6C757D;
+}
+
+.dialog-button.dialog-confirm-button{
+    background: #007BFF;
+}
+
+.dialog-button:focus, .dialog-button:hover{
+    color: #FFFFFF;
+}
+
+.acf-taxonomy-field .acf-actions.-hover{
+    display: block;
+}
+
+.acf-taxonomy-field .acf-actions.-hover .acf-icon{
+    border-color: transparent;
+    background: #2a9bd9;
+    color: #fff;
+    opacity: 0.8;
+    transition: 0.2s;
+}
+
+.acf-taxonomy-field .acf-actions.-hover .acf-icon:hover{
+    opacity: 1;
+    transition: 0.2s;
+}
+
+#tabela-participantes-sorteados .sorteado {
+    color: #DC143C;
+}
+
+.card-inscritos .card-title,
+.accordion-sorteio .accordion-card .card-title {
+    background: #011257;
+}
+
+.card-inscritos .card-title .btn{
+    color: #FFFFFF;
+    width: 100%;
+    text-align: left;
+}
+
+.card-inscritos .card-title .btn .accordion-icon,
+.accordion-sorteio .card-title .accordion-toggle .accordion-icon {
+    transition: transform 0.3s ease, color 0.3s ease;
+    background: white;
+    border-radius: 50%;  
+    color: #011257;
+    float: right;
+    transform: rotate(-90deg);
+    font-size: 16px;
+    padding: 2px;
+    padding-right: 0;
+}
+
+.card-inscritos .card-title .btn[aria-expanded="true"] .accordion-icon,
+.accordion-sorteio .card-title .accordion-toggle[aria-expanded="true"] .accordion-icon {
+    transform: rotate(90deg);
+}
+
+.legenda-participantes p{
+    color: #b8002e;
+    text-transform: uppercase;
+}
+
+.acf-row .contador_qtd_inscritos {
+    font-weight: bold;
+    font-size: 1rem;
+    text-align: center;
+}
+
+/* Estilos da listagem de participantes sorteados */
+.accordion-buttons .btn:not(.btn-outline-danger) {
+    color: #011257 !important;
+    margin-left: 1rem;
+}
+.accordion-buttons .btn-notificar-sorteados {
+    background-color: #F7C406;
+    border: 1.5px solid #CDA303;
+}
+
+.accordion-buttons .btn-enviar-instrucoes {
+    background-color: #35E175;
+    border: 1.5px solid #12A348;
+}
+
+.conteudo-lista .check-sorteados {
+    width: 18px;
+    height: 18px;
+}
+
+.conteudo-lista input[type=checkbox]:checked::before {
+    background-color:#FF6F00;
+    border-radius: 6px;
+    content: url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M14.83 4.89l1.34.94-5.81 8.38H9.02L5.78 9.67l1.34-1.25 2.57 2.4z' fill='%23ffffff'/%3E%3C/svg%3E");
+}
+
+.popup-notificar-sorteados.sem-borda .swal2-icon {
+    border: none !important;
+}
+
+.popup-notificar-sorteados .swal2-icon-content span {
+    font-size: 5rem;
+    color: #011257;
+    margin-bottom: 1rem;
+    margin-right: 65px;
+}
+
+.popup-notificar-sorteados .swal2-confirm {
+    background-color: #011257;
+}
+
+.popup-notificar-sorteados div:where(.swal2-icon) {
+    border: 0;
+}
+
+.dest-azul {
+    color: #011257;
+    font-weight: 700;
+}
+
+.dest-vermelho {
+    color: #B8002E;
+    font-weight: 700;
+}
+
+.tabela-lista-sorteados .status {
+    color: #FA6718;
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="small"]::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="small"]::before {
+  content: "Pequeno";
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="large"]::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="large"]::before {
+  content: "Grande";
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label[data-value="huge"]::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value="huge"]::before {
+  content: "Muito grande";
+}
+
+.ql-snow .ql-picker.ql-size .ql-picker-label::before,
+.ql-snow .ql-picker.ql-size .ql-picker-item::before {
+  content: "Normal";
+}
+
+#lista-participantes{
+    min-height: 150px;
+    width: 100%;
+}
+
+#participante{
+    height: calc(2rem + 2px);
+}
+
+#buscar-participantes {
+    background: #DD823B;
+    color: #FFFFFF;
+    padding-left: 20px;
+    padding-right: 20px;
+    transition: 0.2s;
+}
+
+#buscar-eventos, .btn-laranja {
+    background: #DD823B;
+    color: #FFFFFF !important;
+    border: none;
+}
+
+#buscar-participantes:hover, #buscar-eventos:hover, .btn-laranja:hover {
+    opacity: 0.8;
+    transition: 0.2s;
+}
+
+#relatorio-sancoes {
+    border: 1.5px solid #B6C275;
+    padding-left: 15px;
+    padding-right: 15px;
+    color: #B6C275;
+    background: #F9F9F9;
+    transition: 0.2s;
+}
+
+#relatorio-sancoes:hover {
+    opacity: 0.8;
+    transition: 0.2s;
+}
+
+.sem-resultados {
+    min-height: 150px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}

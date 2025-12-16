@@ -1,0 +1,49 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "SME - API/Intranet",
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "https://hom-intranet.sme.prefeitura.sp.gov.br"
+      }
+    ],
+    "paths": {
+      "/api/gerar_token_login/": {
+        "post": {
+		"tags": ["Autenticacao"],
+          "summary": "Gerar token de login",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/x-www-form-urlencoded": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rf": {
+                      "type": "integer"
+                    },
+                    "chave_acesso": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Sucesso"
+            },
+            "400": {
+              "description": "Parâmetros inválidos"
+            },
+            "405": {
+              "description": "Método não permitido"
+            }
+          }
+        }
+      }
+    }
+  }

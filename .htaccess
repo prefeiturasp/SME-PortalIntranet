@@ -1,0 +1,46 @@
+# BEGIN WordPress
+# As diretrizes (linhas) entre "BEGIN WordPress" e "END WordPress" são
+# geradas dinamicamente e só devem ser modificadas através de filtros do WordPress.
+# Quaisquer alterações nas diretivas entre esses marcadores serão sobrescritas.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+</IfModule>
+
+# END WordPress
+
+#php_value upload_max_filesize 128M
+#php_value post_max_size 128M
+#php_value max_execution_time 300
+#php_value max_input_time 300
+#php_value max_input_vars 5000
+#php_value suhosin.get.max_vars 5000
+#php_value suhosin.post.max_vars 5000
+#php_value suhosin.request.max_vars 5000
+
+# Wordfence WAF
+<IfModule mod_php5.c>
+	php_value auto_prepend_file '/var/www/html/wordfence-waf.php'
+</IfModule>
+<IfModule mod_php7.c>
+	php_value auto_prepend_file '/var/www/html/wordfence-waf.php'
+</IfModule>
+<IfModule mod_php.c>
+	php_value auto_prepend_file '/var/www/html/wordfence-waf.php'
+</IfModule>
+<Files ".user.ini">
+<IfModule mod_authz_core.c>
+	Require all denied
+</IfModule>
+<IfModule !mod_authz_core.c>
+	Order deny,allow
+	Deny from all
+</IfModule>
+</Files>
+
+# END Wordfence WAF

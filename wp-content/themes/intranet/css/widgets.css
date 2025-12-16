@@ -1,0 +1,32 @@
+/* Estilos dos widgets de calendário dos sorteios */
+#accordion-calendario-sorteios .card {
+    padding: 0;
+    border-radius: 10px;
+}
+
+#accordion-calendario-sorteios .card .card-header {
+    background-color: #f3f3f3 !important;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+#accordion-calendario-sorteios .card .card-header .dashicons-arrow-down-alt2 {
+    transition: transform 0.3s ease;
+}
+
+#accordion-calendario-sorteios .card .card-header .dashicons-arrow-down-alt2:not(.collapsed) {
+    transform: rotate(180deg);
+}
+
+.js-limit-list li.hidden {
+    display: none;
+}
+
+.toggle-list {
+    cursor: pointer;
+    margin-top: 5px;
+    color: #0073aa;
+    background: none;
+    border: none;
+    font-size: 14px;
+}

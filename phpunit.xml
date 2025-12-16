@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.3/phpunit.xsd"
+    bootstrap="tests/bootstrap.php"
+    colors="true"
+    verbose="true"
+    beStrictAboutTestsThatDoNotTestAnything="true"
+    beStrictAboutOutputDuringTests="true"
+    convertDeprecationsToExceptions="true"
+    failOnRisky="true"
+    failOnWarning="false"
+>
+
+    <testsuites>
+        <testsuite name="Intranet Theme Tests">
+            <directory suffix="Test.php">tests/Unit</directory>
+        </testsuite>
+    </testsuites>
+
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">wp-content/themes/intranet</directory>
+        </include>
+        <exclude>
+            <file>wp-content/themes/intranet/404.php</file>
+            <directory suffix=".php">wp-content/themes/intranet/construtor</directory>
+            <!-- Se quiser ignorar todos os templates do tema: -->
+            <!-- <directory>wp-content/themes/seu-tema/</directory> -->
+        </exclude>
+        <report>
+            <html outputDirectory="coverage" lowUpperBound="50" highLowerBound="80"/>
+            <clover outputFile="coverage/clover.xml"/>
+        </report>
+    </coverage>
+
+    <php>
+        <ini name="xdebug.mode" value="coverage"/>
+        <env name="WP_ENV" value="testing"/>
+        <env name="Pest" value="1"/>
+    </php>
+</phpunit>

@@ -1,0 +1,3 @@
+    <LocationMatch "/wp-admin/post.php">
+                SecRuleRemoveById 951120
+    </LocationMatch>
