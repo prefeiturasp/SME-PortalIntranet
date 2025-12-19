@@ -5983,3 +5983,15 @@ function get_post_type_label( int $post_id ) {
 			return null;
 	}
 }
+
+/** Endpoints relacionados ao gerenciamento do fluxo de Gratuidade e cortesias */
+
+add_action('rest_api_init', function () {
+
+    register_rest_route('cortesias/v1', '/resgatar', [
+        'methods'  => 'POST',
+        'callback' => 'resgatar_cortesia_callback',
+        'permission_callback' => '__return_true'
+    ]);
+
+});

@@ -190,22 +190,8 @@ class LoopCortesiasNoticiaPrincipal extends LoopCortesias
 			if ($_SERVER["REQUEST_METHOD"] === "POST") { //requisição POST
 				global $wpdb;
 
-				// Sanitização e captura dos dados do formulário
-				$user_id = get_current_user_id(); // Pega o ID do usuário logado (se aplicável)
-				$cpf = isset($_POST['cpf']) ? preg_replace('/\D/', '', $_POST['cpf']) : ''; // Remove caracteres não numéricos
-				$post_id = get_the_ID(); // ID do post atual
-				$nome_completo = sanitize_text_field($_POST['nomeComp']);
-				$email_institucional = sanitize_email($_POST['emailInsti']);
-				$email_secundario = sanitize_email($_POST['emailSec']);
-				$celular = sanitize_text_field($_POST['celular']);
-				$dre = sanitize_text_field($_POST['dre']);
-				$telefone_comercial = sanitize_text_field($_POST['telCom']);
-				$cargo_principal = sanitize_text_field($_POST['cargo_principal']);
-				$unidade_setor = sanitize_text_field($_POST['uniSetor']);
-				$disciplina = sanitize_text_field($_POST['disciplina']);
-				$ciente = isset($_POST['ciente']) ? 1 : 0;
-				$remanescentes = isset($_POST['remanescentes']) ? 1 : 0;
-				$datas_escolhidas = ( isset( $_POST['datas'] ) && is_array( $_POST['datas'] ) ) ?  $_POST['datas'] : [];
+				$cpf = isset( $_POST['cpf'] ) ? preg_replace('/\D/', '', $_POST['cpf']) : ''; // Remove caracteres não numéricos
+				$post_id = get_the_ID();
 
 				// Verifica se o CPF já está inscrito para este post/evento
 				$tabela = $wpdb->prefix . "inscricoes";
@@ -229,49 +215,28 @@ class LoopCortesiasNoticiaPrincipal extends LoopCortesias
 				} else {
 
 					// Insere os dados na tabela
-					$insert = $wpdb->insert(
-						$tabela,
-						[
-							'user_id' => $user_id ?: null,
-							'cpf' => $cpf,
-							'post_id' => $post_id,
-							'nome_completo' => $nome_completo,
-							'email_institucional' => $email_institucional,
-							'email_secundario' => $email_secundario,
-							'celular' => $celular,
-							'dre' => $dre,
-							'telefone_comercial' => $telefone_comercial ?: null,
-							'cargo_principal' => $cargo_principal,
-							'unidade_setor' => $unidade_setor,
-							'disciplina' => $disciplina ?: null,
-							'ciente' => $ciente,
-							'remanescentes' => $remanescentes,
-							'data_inscricao' => current_time('mysql')
-						],
-						[
-							'%d', '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%d', '%d', '%s'
-						]
-					);
+					$params = [
+						'user_id' => get_current_user_id(),
+						'cpf' => $cpf,
+						'post_id' => $post_id,
+						'nome_completo' => $_POST['nomeComp'],
+						'email_institucional' => $_POST['emailInsti'],
+						'email_secundario' => $_POST['emailSec'],
+						'celular' =>$_POST['celular'],
+						'dre' => $_POST['dre'],
+						'telefone_comercial' => $_POST['telCom'],
+						'cargo_principal' => $_POST['cargo_principal'],
+						'unidade_setor' => $_POST['uniSetor'],
+						'disciplina' => $_POST['disciplina'],
+						'ciente' => $_POST['ciente'],
+						'data_inscricao' => current_time('mysql'),
+						'acf_id' => 1, // (Data selecionada pelo usuário) Fixado até a implementação do formulário
+						'qtd' => 2 //Fixado até a implementação do formulário
+					];
+					
+					$resultado = resgatar_cortesia( $params );
 
-					if ($insert) {
-
-						$inscricao_id = $wpdb->insert_id;
-
-						if ( $datas_escolhidas ) {
-							$datas = array_map( 'sanitize_text_field', $datas_escolhidas );							
-
-							foreach ( $datas as $data ) {
-								$wpdb->insert(
-									$wpdb->prefix . 'inscricao_datas',
-									[
-										'inscricao_id' => $inscricao_id,
-										'data_evento'  => $data,
-									],
-									['%d', '%s']
-								);
-							}
-						}
-						
+					if ( !is_wp_error( $resultado ) ) {
 						$tipo_usuario = $parceira ? 'parceira' : 'servidor';
 						echo $this->exibe_mensagem_por_tipo_usuario( 'cadastro_realizado', $tipo_usuario );
 
@@ -280,8 +245,8 @@ class LoopCortesiasNoticiaPrincipal extends LoopCortesias
 							jQuery(document).ready(function ($) {
 								Swal.fire({
 									icon: 'error',
-									title: 'Erro ao salvar a inscrição',
-									text: 'Houve um erro ao salvar a inscrição. Tente novamente, caso o problema persista entre em contato com o intranet.beneficios@sme.prefeitura.sp.gov.br.',
+									title: 'Erro ao realizar o resgate.',
+									text: 'Houve um erro ao realizar o resgate da cortesia. Tente novamente, caso o problema persista entre em contato com o intranet.beneficios@sme.prefeitura.sp.gov.br.',
 									confirmButtonText: 'Fechar',
 								});
 							});
@@ -289,7 +254,6 @@ class LoopCortesiasNoticiaPrincipal extends LoopCortesias
 					}
 
 				}
-
 				
 			} // fim requisição POST
 
