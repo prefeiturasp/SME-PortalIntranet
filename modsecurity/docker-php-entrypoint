@@ -1,0 +1,55 @@
+#!/bin/sh -e
+
+# This is the first program launched at container start.
+# We don't know where our binaries are and we cannot guarantee
+# that the default PATH can access them.
+# So this script needs to be entirely self-contained until it has
+# at least /command, /usr/bin and /bin in its PATH.
+set -e
+
+mkdir -p /run/apache2/modsecurity/data
+mkdir -p /run/apache2/modsecurity/tmp
+envsubst < /etc/modsecurity/modsecurity.template > /etc/modsecurity/modsecurity.conf
+chown -R www-data:www-data /run/apache2/modsecurity
+rm -f /var/www/html/wp-content/plugins/aviso-secretario /var/www/html/wp-content/plugins/email-admin /var/www/html/wp-content/plugins/email-padrao /var/www/html/wp-content/plugins/email-admin-dre /var/www/html/wp-content/plugins/coressoapi /var/www/html/wp-content/plugins/grupo-editores 
+ln -s /var/www/html/plugins-privados/aviso-secretario /var/www/html/wp-content/plugins/aviso-secretario
+ln -s /var/www/html/plugins-privados/email-admin /var/www/html/wp-content/plugins/email-admin
+ln -s /var/www/html/plugins-privados/email-padrao /var/www/html/wp-content/plugins/email-padrao
+ln -s /var/www/html/plugins-privados/email-admin-dre /var/www/html/wp-content/plugins/email-admin-dre
+ln -s /var/www/html/plugins-privados/coressoapi /var/www/html/wp-content/plugins/coressoapi
+ln -s /var/www/html/plugins-privados/grupo-editores /var/www/html/wp-content/plugins/grupo-editores
+ln -s /var/www/html/plugins-privados/envia-email-sme /var/www/html/wp-content/plugins/envia-email-sme
+
+addpath () {
+  x="$1"
+  IFS=:
+  set -- $PATH
+  IFS=
+  while test "$#" -gt 0 ; do
+    if test "$1" = "$x" ; then
+      return
+    fi
+    shift
+  done
+  PATH="${x}:$PATH"
+}
+
+if test -z "$PATH" ; then
+  PATH=/bin
+fi
+
+addpath /bin
+addpath /usr/bin
+addpath /command
+export PATH
+
+# Now we're good: s6-overlay-suexec is accessible via PATH, as are
+# all our binaries.
+# Run preinit as root, then run stage0 as the container's user (can be
+# root, can be a normal user).
+
+exec s6-overlay-suexec \
+  ' /package/admin/s6-overlay-3.1.5.0/libexec/preinit' \
+  '' \
+  /package/admin/s6-overlay-3.1.5.0/libexec/stage0 \
+  "$@"

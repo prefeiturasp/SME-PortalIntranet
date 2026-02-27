@@ -1,0 +1,41 @@
+<html>
+    <head>
+        <style>
+            body { font-family: Arial, sans-serif; color: #333; }
+            .container { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+            .dado { margin: 10px 0 20px 0; }
+            .espaco { padding-top: 25px; }
+            .destaque { font-weight: 600;color: #f97316;font-size: 1rem; margin-top: 50px;}
+            a:active {color: blue;font-weight: 500;}
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='dado'>Olá!</div>
+            <div class='dado'>Sua inscrição para <strong>{NOME-INGRESSO}</strong> foi registrada com sucesso.</div>
+            <div class='espaco'><span class="destaque">Informações:</span></div>
+            <p class='espaco'>
+                {DATA-HORA-EVENTO}
+                {GENERO}
+                {DURACAO}
+                {CLASSIFICACAO}
+                {LOCAL-EVENTO}
+                {ENDERECO-EVENTO}
+            </p>
+            {AVISO-PERIODO-UTILIZACAO}
+            <p class="espaco">  
+                Para garantir sua participação, é necessário <strong>confirmar dentro do prazo estabelecido</strong>. Após esse prazo, o link de confirmação expira automaticamente e a oportunidade será disponibilizada para outro participante.
+            </p>
+            <div class="espaco">
+                {PRAZO-CONFIRMACAO}
+                <br><br><strong><a href="{LINK-CONFIRMACAO}">Clique aqui para confirmar ou cancelar</a></strong>.
+            </div>
+            <p>Caso não possa participar, lembre-se de cancelar dentro do prazo, assim, outra pessoa terá a chance de participar. <br>Sua colaboração faz a diferença!</p>
+
+            <p class="destaque">Atenciosamente, <br>Equipe Intranet SME-SP</p>
+            
+            <img src="{LINK-LOGO}" width="120" alt="Logo SME">
+            <br>
+        </br>
+    </body>
+</html>

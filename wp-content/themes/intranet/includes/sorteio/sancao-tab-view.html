@@ -1,0 +1,22 @@
+<tr class="sorteado-{ID} sorteado-item">
+    <td><input type="checkbox" class="check-sorteados check-item" name="participantes-sorteados[]" value="{ID}" {DESABILITAR}></td>
+    <td><span class="nome">{ORDEM}º {NOME}</span><span class="{TAG}">{PUBLICO}</span></td>
+    <td class="negrito"><span id="email-inst-{ID}">{EMAILINSTITUCIONAL}</span><img src="{DIRETORIO_URI}/img/icon_copy_16.png" class="copia-email-sorteio" id="copiar-email-inst-{ID}"><br><span id="email-sec-{ID}">{EMAILSECUNDARIO}</span><img src="{DIRETORIO_URI}/img/icon_copy_16.png" class="copia-email-sorteio" id="copiar-email-sec-{ID}"></td>
+    <td class="negrito">{CELULAR}<br>{TELEFONE}</td>
+    <td class="negrito">{CPF}</td>
+    <td class="negrito">{DRE}<br>{UNIDADE}</td>
+</tr>
+<tr class="table-light sorteado-{ID}">
+    <td>&nbsp;</td>
+    <td class="check-contato {ESCONDE-PRESENCA}" colspan="2">
+        <font class="status">CONFIRMOU PRESENÇA:</font> 
+        <span class="valor-status">{PRESENCA-CHECADA}</span>
+    </td>
+    <td class="check-presenca" colspan="3">
+        <font class="status">APLICADA SANÇÃO AO PARTICIPANTE:</font> 
+        <span class="valor-status">{SANCAO-APLICADA}</span>
+    </td>
+    <td class="check-debloqueio">
+        {DEBLOQUEIO-SANCAO}
+    </td>
+</tr>

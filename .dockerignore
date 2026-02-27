@@ -1,0 +1,9 @@
+.git
+Docker*
+README.md
+Jenkinsfile
+Tiltfile
+.env
+.env_example
+docker-compose.yml
+env_*

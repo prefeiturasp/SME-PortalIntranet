@@ -1,0 +1,337 @@
+.texto-org p {
+    font-size: 19px;
+}
+
+.texto-org .text-date {
+    font-size: 16px;
+}
+
+table {
+    /* reset width */
+    width: auto;
+}
+
+
+/* Horizontal drawing (default) styles */
+
+
+/* Draw the lines */
+
+.jOrgChart .line {
+    height: 20px;
+    width: 1px;
+}
+
+.jOrgChart .down {
+    background-color: #B8B8B8;
+    margin: 0px auto;
+}
+
+.jOrgChart .top {
+    border-top: 1px solid #B8B8B8;
+}
+
+.jOrgChart .left {
+    border-right: 1px solid #B8B8B8;
+}
+
+.jOrgChart .right {
+    border-left: 1px solid #B8B8B8;
+}
+
+
+/* node cell */
+
+.jOrgChart td {
+    text-align: center;
+    vertical-align: top;
+    padding: 0;
+}
+
+
+/* The node */
+
+.jOrgChart .node {
+    background-color: white;
+    display: inline-block;
+    width: 100px;
+    /* vertical type node width */
+    min-height: 60px;
+    /* vertical type node min-height */
+    z-index: 10;
+    margin: 0 2px;
+    cursor: pointer;
+    border-top: 2px solid #264270;
+}
+
+
+/* support vertical draw child nodes */
+
+.jOrgChart .node.vertical {
+    float: left;
+    position: relative;
+}
+
+.jOrgChart .cover,
+.jOrgChart .coversub {
+    position: absolute;
+    cursor: pointer;
+    bottom: -4px;
+    width: 6px;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+}
+
+
+/* Vertical drawing styles */
+
+.jOrgChart .multi-tree {
+    margin: 0;
+    float: left;
+}
+
+.jOrgChart .multi-tree .content {
+    color: black;
+    background-color: white;
+    text-decoration: none;
+    width: 100px;
+    /* horizontal type node width */
+    min-height: 60px;
+    /* horizontal type node min-height */
+    cursor: pointer;
+    border-top: 2px solid #196CBD;
+}
+
+.jOrgChart .multi-tree span {
+    width: 109px;
+    text-decoration: none;
+    display: block;
+    margin: 0 0 0 1.2em;
+    padding-top: 10px;
+    background-color: transparent;
+    border: solid #B8B8B8;
+    border-width: 0 0 1px 1px;
+}
+
+.jOrgChart .multi-tree span .content {
+    display: block;
+    position: relative;
+    top: .95em;
+    background-color: #fff;
+    margin: 0 0 .2em .7em;
+    padding: 0;
+    line-height: 1.5;
+}
+
+.jOrgChart .multi-tree ul,
+.multi-tree li {
+    list-style-image: none;
+    list-style-position: outside;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.jOrgChart .multi-tree ul li {
+    line-height: 1.2em;
+}
+
+.jOrgChart .multi-tree ul li ul li {
+    margin: 0 0 0 1.2em;
+    border-left: 1px solid #B8B8B8;
+    /* vertical node connector line */
+}
+
+
+/* if node is last then need to remove left connector */
+
+.jOrgChart .multi-tree li.last ul li {
+    border: none;
+}
+
+div#tree-view {
+    margin-top: 80px;
+}
+
+#organograma-site {
+    overflow: auto;
+    min-height: 500px;
+    background: #F3F3F3;
+    position: relative;
+}
+
+#tree-view table,
+#tree-view3 table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#tree-view3 {
+    position: relative;
+}
+
+#tree-view3 #root::before {
+    content: ' ';
+    width: 1px;
+    height: 95px;
+    position: absolute;
+    background: #B8B8B8;
+    top: -50px;
+    margin-left: -1px;
+}
+
+.jOrgChart .node,
+.jOrgChart .multi-tree .content {
+    margin: 0 6px;
+    width: 60px;
+    min-height: 25px;
+    font-size: 5px;
+    padding: 2px;
+    vertical-align: top;
+}
+
+.jOrgChart .multi-tree span {
+    width: 50px;
+}
+
+#tree-view.impar {
+    margin-left: 70px;
+}
+
+#tree-view.impar.more {
+    margin-left: 35px;
+}
+
+#tree-view .jOrgChart #root {
+    width: 70%;
+    background: #182A49;
+    color: #FFFFFF;
+}
+
+#tree-view .jOrgChart #root p {
+    margin-bottom: 0;
+}
+
+div#tree-view3 #root {
+    background: #F3F3F3;
+    border: 0;
+}
+
+.jOrgChart .cover {
+    /*display: none;*/
+}
+
+.btn-organograma {
+    position: absolute;
+    left: 30px;
+    top: 15px;
+    z-index: 999;
+}
+
+.btn-organograma button {
+    border: 1px solid #CED4DA;
+    background: #FFFFFF;
+    color: #2F80ED;
+    padding: 5px 10px;
+}
+
+.btn-organograma #btn_ZoomIn {
+    border-top-left-radius: 7px;
+    border-bottom-left-radius: 7px;
+}
+
+.btn-organograma #btn_ZoomOut {
+    border-top-right-radius: 7px;
+    border-bottom-right-radius: 7px;
+}
+
+.modal-org-title,
+.modal-org-footer {
+    border: 0;
+}
+
+.modal-org-title button.close {
+    width: auto;
+    margin-left: auto;
+    right: 14px;
+    color: #42474A;
+    opacity: 1;
+    font-size: 34px;
+}
+
+.modal-org-title .modal-title {
+    font-weight: bold;
+    font-size: 20px;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.modal-org {
+    text-align: left;
+    color: #196CBD;
+}
+
+.modal-org span {
+    width: 100%;
+    display: block;
+    color: #264270;
+    font-weight: bold;
+}
+
+.modal-org .org-line {
+    width: 100%;
+    display: block;
+    border-bottom: 1px solid #cccccc;
+    margin-bottom: 12px;
+}
+
+.modal-org-footer a {
+    color: #FFFFFF;
+}
+
+#tree-view4 {
+    position: absolute;
+    top: 80px;
+}
+
+#tree-view4 .jOrgChart tr {
+    display: none;
+}
+
+#tree-view4 .jOrgChart tr:last-child {
+    display: block;
+}
+
+#tree-view4 .title-cons {
+    color: #264270;
+    padding-left: 8px;
+    font-size: 8px;
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+#tree-view4 .jOrgChart .node {
+    border-top: 2px solid #C4C4C4;
+}
+
+.disable-child .multi-tree,
+.multi-tree li ul {
+    display: none;
+    transition: 0.1s;
+}
+
+.multi-tree li.enable-child ul {
+    display: initial;
+}
+
+li.enable-child:last-child ul li {
+    border-left: 0 !important;
+}
+
+@media only screen and (max-width: 991px) {
+    #tree-view .jOrgChart {
+        width: 795px;
+    }
+}

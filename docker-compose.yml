@@ -1,0 +1,20 @@
+version: '3.3'
+services:
+    intranet:
+        restart: always
+        env_file:
+            - ../env_intranet
+        container_name: intranet
+        ports:
+            - '8082:80'
+        volumes:
+            - '../nfs/intranet-dev/uploads:/var/www/html/wp-content/uploads'
+            - '../nfs/intranet-dev/plugins:/var/www/html/wp-content/plugins'
+            - '../nfs/intranet-dev/wflogs:/var/www/html/wp-content/wflogs'
+            - '../nfs/intranet-dev/upgrade:/var/www/html/wp-content/upgrade'
+            - '../nfs/intranet-dev/ai1wm-backups:/var/www/html/wp-content/ai1wm-backups'
+            - '../nfs/intranet-dev/locationmatch:/etc/apache2/locationmatch/location_match.modsecurity'
+        image: wordpress/intranet
+        build: 
+            dockerfile: ./Dockerfile
+            context: . 
