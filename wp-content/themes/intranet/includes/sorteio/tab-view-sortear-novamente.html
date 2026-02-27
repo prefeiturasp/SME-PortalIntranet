@@ -1,0 +1,43 @@
+<div id="conteudo-sortear-novamente">
+    <div class="container margem-superior">
+        <div class="row">
+            <div class="col"><b>Sortear Novamente:</b></div>
+        </div>
+        <div class="row">
+            <div class="col">&nbsp;</div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <div class="form-group">
+                    {DATAS-RESORTEADAS}
+                </div>                
+            </div>
+             <div class="col">
+                <div class="form-group">
+                    <label for="qtd-resorteada">Quantidade a ser sorteada</label>
+                    <input type="text" class="form-control" id="qtd-resorteada">
+                </div>                
+            </div>
+            
+            <div class="col">
+                <label for="btn-resortear">&nbsp;</label>
+                <button type="button" class="btn btn-outline-success btn-block" id="btn-resortear">Resortear</button>
+            </div>
+        </div> 
+
+        <div class="row"><div class="col">&nbsp;</div></div>
+        <div class="row"><div class="col">&nbsp;</div></div>
+
+        <div class="row">
+            <div class="col-35 divulgacao">
+                <font class="status">DIVULGAR RESULTADO NA PÁGINA:</font>
+            </div>
+            <div class="col divulgacao">
+                <input class="toggle-checkbox" name="divulgar-resultado" {EXIBE-NA-PAGINA} id="divulgar-resultado" data-onstyle="success" type="checkbox" data-toggle="toggle" data-on="SIM" data-off="NÃO" data-style="ios" data-size="xs">
+                <span id="divulgar-resultado-gif" class="spinner"></span>
+            </div>
+        </div>
+
+    </div>
+</div>

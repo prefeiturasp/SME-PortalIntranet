@@ -1,0 +1,110 @@
+.container-forms{
+    padding-top: 170px;
+    padding-bottom: 100px;
+    font-family: 'Open Sans', sans-serif;
+    background-size: cover;
+}
+
+.core_login_form{
+    background: #FFFFFF;
+    box-shadow: 0px 6px 3px 0px rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 20px;
+    min-height: 450px;
+}
+
+.core_login_form h2{
+    color: #14457C;
+    font-size: 32px !important;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.core_login_form label {
+    display: block;
+    color: #040404;
+    font-weight: bold;
+    font-size: 14px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.core_login_form input {
+    border: 1px solid #A4A4A4;
+    width: 100%;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.core_login_form .login-password {
+    margin-bottom: 5px;
+}
+
+.core_login_form .lost-pass a {
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+.core_login_form .lost-pass .pass-text {
+    font-size: 13px;
+    font-style: italic;
+    margin-top: 6px;
+}
+
+.core_login_form #wp-submit {
+    background: #14457C;
+    color: #FFFFFF;
+    border-color: #14457C;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.core_login_form #wp-submit:hover{
+    opacity: 0.7;
+    transition: 0.2s;
+}
+
+#togglePassword {
+    margin-left: -25px;
+    cursor: pointer;
+    margin-top: 9px;
+    color: #A4A4A4;
+    position: absolute;
+}
+
+.core_login_form .error{
+    outline: 1px solid red;
+}
+
+.core_login_form .login-error,
+.core_login_form .pass-error{
+    color: #FF0000;
+    font-size: 14px;
+    font-weight: bold;
+    display: none;
+}
+
+.core_login_form .buttons-form input{
+    width: auto;
+}
+
+.text-duvidas,
+.text-duvidas a{
+    color: #14457C;
+}
+
+.text-duvidas a{
+    text-decoration: underline;
+}
+
+@media (max-width: 767px){
+    .buttons-form{
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .buttons-form #cancel,
+    .buttons-form #continue {
+        width: 48%;
+    }
+}

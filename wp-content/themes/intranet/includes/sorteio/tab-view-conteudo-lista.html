@@ -1,0 +1,79 @@
+<div class="conteudo-lista" data-data="{ATRIBUTO-DATA}" data-tipo="{ATRIBUTO-TIPO}">
+    <div class="row">
+        <div class="col accordion-buttons">
+            <div class="text-right">
+                <button data-data="{ATRIBUTO-DATA}" class="btn btn-notificar-sorteados {OCULTAR-BOTAO}" disabled>
+                    <i class="fa fa-envelope" aria-hidden="true"></i> Confirmar Presença 
+                </button>
+                <button data-data="{ATRIBUTO-DATA}" class="btn btn-enviar-instrucoes" data-toggle="modal" data-target="#modal_{ATRIBUTO-DATA-CONF}" data-postid="{POST-ID}" data-responsavel="{RESPONSAVEL}">
+                    <i class="fa fa-envelope-open" aria-hidden="true"></i> Enviar Instruções 
+                </button>
+            </div>
+
+            <div class="modal fade" id="modal_{ATRIBUTO-DATA-CONF}" data-data="{ATRIBUTO-DATA-CONF}" tabindex="-1" role="dialog" aria-labelledby="modal_{ATRIBUTO-DATA-CONF}_label" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Enviar instruções sobre os ingressos</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                        <div class="custom-control custom-radio custom-control-inline radio-todos {OCULTAR-CONFIRMADOS}">
+                            <input type="radio" id="{ATRIBUTO-DATA-CONF}_1" name="opcao_envio" value="todos" class="custom-control-input">
+                            <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_1">Enviar a todos com presença confirmada.</label>
+                        </div>
+
+                        <div class="custom-control custom-radio custom-control-inline radio-geral {OCULTAR-TODOS}">
+                            <input type="radio" id="{ATRIBUTO-DATA-CONF}_3" name="opcao_envio" value="geral" class="custom-control-input">
+                            <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_3">Enviar a todos os participantes.</label>
+                        </div>
+
+                        <div class="custom-control custom-radio custom-control-inline radio-selecionados">
+                            <input type="radio" id="{ATRIBUTO-DATA-CONF}_2" name="opcao_envio" value="selecionados" class="custom-control-input">
+                            <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_2">Enviar somente aos selecionados.</label>
+                        </div>
+                        <hr>
+                        <div class="editorEmail" data-name="conteudo_email" id="{EDITOR-ID}"></div>
+                        <hr>
+                        <div class="form-group">
+                            <label for="anexo_{ATRIBUTO-DATA-CONF}">Anexar documento (PDF, DOC, etc.)</label>
+                            <input type="file" class="form-control-file input-anexo" 
+                                id="anexo_{ATRIBUTO-DATA-CONF}" 
+                                name="anexo">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary btn-enviar">Enviar</button>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    <div class="row"><div class="col">&nbsp;</div></div>
+    <div id="sorteados_data_{ATRIBUTO-DATA-CONF}">
+        <div class="table-responsive">
+            <table class="table tabela-lista-sorteados">
+                <thead>
+                <tr>
+                    <th style="width: 1%;"><input type="checkbox" class="check-sorteados check-all" name="marcar-todos"></th>
+                    <th style="width:25%">Nome Completo</th>
+                    <th>E-mails</th>
+                    <th>Telefones</th>
+                    <th>CPF</th>
+                    <th>DRE/SME - UE/Setor</th>
+                    <th>Opções</th>
+                </tr>
+                </thead>
+                <tbody>
+                {CONTEUDO-TAB}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

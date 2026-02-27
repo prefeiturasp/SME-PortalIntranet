@@ -1,0 +1,120 @@
+#pages {
+    text-align: center;
+}
+
+.pages-count {
+    display: block;
+    text-align: center;
+}
+
+body {
+    background: #fff;
+}
+
+#wpadminbar {
+    color: #fff;
+    background: #01295c;
+    padding: 2px 0px;
+    height: 42px;
+}
+
+#wpadminbar #adminbarsearch:before,
+#wpadminbar .ab-icon:before,
+#wpadminbar .ab-item:before {
+    color: #fff;
+}
+
+#adminmenu,
+#adminmenu .wp-submenu,
+#adminmenuback,
+#adminmenuwrap {
+    background-color: #284472;
+}
+
+#adminmenu div.wp-menu-image:before {
+    color: #fff;
+}
+
+#wp-content-editor-tools {
+    background: transparent;
+}
+
+#adminmenu a {
+    color: #fff;
+}
+
+#adminmenu .wp-submenu,
+.folded #adminmenu .wp-has-current-submenu .wp-submenu,
+.folded #adminmenu a.wp-has-current-submenu:focus+.wp-submenu {
+    background-color: #01295c !important;
+}
+
+#screen-meta-links {
+    float: right;
+    margin: 10px 20px 0px 0px;
+}
+
+ul#adminmenu a.wp-has-current-submenu:after,
+ul#adminmenu>li.current>a.current:after {
+    border-right-color: #fff;
+}
+
+#adminmenu li.menu-top:hover,
+#adminmenu li.opensub>a.menu-top,
+#adminmenu li>a.menu-top:focus {
+    background-color: #fff;
+    color: #01295c;
+}
+
+#adminmenu li.menu-top:hover,
+#adminmenu li.opensub>a.menu-top,
+#adminmenu li>a.menu-top:focus {
+    position: relative;
+    background-color: #fff !important;
+}
+
+#adminmenu li.wp-has-submenu.wp-not-current-submenu.opensub:hover:after {
+    border-right-color: #01295c;
+}
+
+#wpadminbar .ab-top-menu>li.hover>.ab-item,
+#wpadminbar.nojq .quicklinks .ab-top-menu>li>.ab-item:focus,
+#wpadminbar:not(.mobile) .ab-top-menu>li:hover>.ab-item,
+#wpadminbar:not(.mobile) .ab-top-menu>li>.ab-item:focus {
+    background: none;
+    color: #00b9eb;
+}
+
+#wpadminbar .ab-sub-wrapper,
+#wpadminbar ul,
+#wpadminbar ul li {
+    background: #01295c;
+}
+
+#wpadminbar .ab-empty-item,
+#wpadminbar a.ab-item,
+#wpadminbar>#wp-toolbar span.ab-label,
+#wpadminbar>#wp-toolbar span.noticon {
+    color: #fff;
+}
+
+
+/*Cabeçalho do acf*/
+
+.acf-fc-layout-handle {
+    background: #01295c !important;
+    color: #fff !important;
+}
+
+div#categorias-contatodiv{
+    display: none;
+}
+
+.pages-modal {
+    text-align: left;
+    padding: 0 25px;
+}
+
+.swal2-icon.swal2-question.swal2-icon-show {
+    font-size: 20px;
+}
