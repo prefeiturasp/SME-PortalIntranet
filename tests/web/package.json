@@ -1,0 +1,32 @@
+{
+  "name": "ascom-intranet-testes",
+  "version": "1.0.0",
+  "description": "Testes automatizados intranet",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint cypress/**/**/*.js --fix",
+    "lint:debug": "eslint --debug cypress/**/**/*.js",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.16.0",
+    "@faker-js/faker": "^9.8.0",
+    "@shelex/cypress-allure-plugin": "^2.41.2",
+    "allure-commandline": "^2.34.1",
+    "cucumber": "^6.0.7",
+    "cypress": "^14.5.0",
+    "cypress-cloud": "^1.13.1",
+    "cypress-cucumber-preprocessor": "^4.3.1",
+    "cypress-iframe": "^1.0.1",
+    "dayjs": "^1.11.13",
+    "dotenv": "^16.4.7",
+    "eslint": "^9.16.0",
+    "eslint-plugin-cypress": "^4.1.0",
+    "globals": "^15.13.0",
+    "mocha-allure-reporter": "^1.4.0",
+    "prettier": "^3.4.1"
+  },
+  "author": "",
+  "license": "ISC"
+}

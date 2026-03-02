@@ -1,0 +1,39 @@
+<?xml version='1.0'?>
+<ns2:test-suite xmlns:ns2='urn:model.allure.qatools.yandex.ru' start='1750951694952' stop='1750951724843'>
+    <name>Login</name>
+    <title>Login</title>
+    <test-cases>
+        <test-case start='1750951694972' status='passed' stop='1750951711549'>
+            <name>Deve validar Login com sucesso (example #1)</name>
+            <title>Deve validar Login com sucesso (example #1)</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+        </test-case>
+        <test-case start='1750951711573' status='passed' stop='1750951713579'>
+            <name>Deve validar mensagem de obrigatoriedade do campo usuário</name>
+            <title>Deve validar mensagem de obrigatoriedade do campo usuário</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+        </test-case>
+        <test-case start='1750951713588' status='passed' stop='1750951715227'>
+            <name>Deve validar mensagem de obrigatoriedade do campo senha</name>
+            <title>Deve validar mensagem de obrigatoriedade do campo senha</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+        </test-case>
+        <test-case start='1750951715236' status='passed' stop='1750951724843'>
+            <name>Deve validar mensagem de usuario ou senha invalidos</name>
+            <title>Deve validar mensagem de usuario ou senha invalidos</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+        </test-case>
+    </test-cases>
+</ns2:test-suite>

@@ -1,0 +1,382 @@
+<?xml version='1.0'?>
+<ns2:test-suite xmlns:ns2='urn:model.allure.qatools.yandex.ru' start='1754485780163' stop='1754485783352'>
+    <name>Noticias</name>
+    <title>Noticias</title>
+    <test-cases>
+        <test-case start='1754485780196' status='broken' stop='1754485780474'>
+            <name>Deve validar publicação de noticia com sucesso</name>
+            <title>Deve validar publicação de noticia com sucesso</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485780509' status='broken' stop='1754485780704'>
+            <name>Deve validar mensagem de obrigatoriedade do campo de subtitulo</name>
+            <title>Deve validar mensagem de obrigatoriedade do campo de subtitulo</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485780723' status='broken' stop='1754485780866'>
+            <name>Deve validar se a notícia foi publicada no portal da intranet</name>
+            <title>Deve validar se a notícia foi publicada no portal da intranet</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485780890' status='broken' stop='1754485781051'>
+            <name>Deve validar exibição do título da notícia publicada no portal da intranet</name>
+            <title>Deve validar exibição do título da notícia publicada no portal da intranet</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485781068' status='broken' stop='1754485781238'>
+            <name>Deve validar exibição do subtítulo da notícia publicada no portal da intranet</name>
+            <title>Deve validar exibição do subtítulo da notícia publicada no portal da intranet</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485781256' status='broken' stop='1754485781420'>
+            <name>Deve validar exibição do corpo da notícia publicada no portal da intranet</name>
+            <title>Deve validar exibição do corpo da notícia publicada no portal da intranet</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485781438' status='broken' stop='1754485781595'>
+            <name>Deve validar exibição da notícia criada na listagem da intranet</name>
+            <title>Deve validar exibição da notícia criada na listagem da intranet</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485781617' status='broken' stop='1754485781794'>
+            <name>Deve validar edição de uma notícia</name>
+            <title>Deve validar edição de uma notícia</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485781815' status='broken' stop='1754485781977'>
+            <name>Deve validar exibição do título da notícia publicada no portal da intranet após edição</name>
+            <title>Deve validar exibição do título da notícia publicada no portal da intranet após edição</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485781998' status='broken' stop='1754485782165'>
+            <name>Deve validar exibição do subtítulo da notícia publicada no portal da intranet após edição</name>
+            <title>Deve validar exibição do subtítulo da notícia publicada no portal da intranet após edição</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485782189' status='broken' stop='1754485782435'>
+            <name>Deve validar exibição do corpo da notícia publicada no portal da intranet após edição</name>
+            <title>Deve validar exibição do corpo da notícia publicada no portal da intranet após edição</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485782474' status='broken' stop='1754485782746'>
+            <name>Deve validar envio da notícia para a lixeira</name>
+            <title>Deve validar envio da notícia para a lixeira</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485782784' status='broken' stop='1754485782944'>
+            <name>Deve validar a não exibição da notícia que foi enviada para a lixeira</name>
+            <title>Deve validar a não exibição da notícia que foi enviada para a lixeira</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485782967' status='broken' stop='1754485783141'>
+            <name>Deve validar a remoção da página da notícia que foi enviada para a lixeira</name>
+            <title>Deve validar a remoção da página da notícia que foi enviada para a lixeira</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+        <test-case start='1754485783164' status='broken' stop='1754485783344'>
+            <name>Deve validar a exclusão permanente da página da notícia que foi enviada para a lixeira</name>
+            <title>Deve validar a exclusão permanente da página da notícia que foi enviada para a lixeira</title>
+            <labels/>
+            <parameters/>
+            <steps/>
+            <attachments/>
+            <failure>
+                <message>Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.</message>
+                <stack-trace>TypeError: Cannot read properties of undefined (reading 'usuario')
+                
+                This error occurred while creating the session. Because the session setup failed, we failed the test.
+                    at Object.eval [as setup] (cypress/support/commands/commands_globais.js:17:42)
+                    at Context.&lt;anonymous> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:136564:38)
+                    at getRet (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120949:20)
+                    at tryCatcher (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:1777:23)
+                    at Promise.attempt.Promise.try (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:4285:29)
+                    at Context.thenFn (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:120960:66)
+                    at Context.then (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:121211:21)
+                    at wrapped (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:141532:19)
+                    at &lt;unknown> (https://hom-intranet.sme.prefeitura.sp.gov.br/__cypress/runner/cypress_runner.js:147477:15)</stack-trace>
+            </failure>
+        </test-case>
+    </test-cases>
+</ns2:test-suite>
