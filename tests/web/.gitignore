@@ -1,0 +1,12 @@
+.DS_Store
+screenshots/
+videos/
+node_modules/
+package-lock.json
+cypress.env.json
+.env
+
+# Others
+tmp
+.idea
+node_modules
