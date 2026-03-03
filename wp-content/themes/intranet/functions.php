@@ -4638,6 +4638,15 @@ function custom_posts_endpoint($request) {
 			//Tipo de post: Sorteio ou Cortesia
 			$post_data['post_type'] = $post_type;
 
+			$tag_id = get_field('local', $post->ID);
+			if ($tag_id) {
+				$tag = get_term($tag_id, 'post_tag');
+
+				if (!is_wp_error($tag)) {
+					$post_data['local_nome'] = $tag->name;
+				}
+			}
+
 			// Custom fields (meta)
 			if (in_array('meta', $selected_fields)) {
 				$meta_fields = get_post_meta($post->ID);
