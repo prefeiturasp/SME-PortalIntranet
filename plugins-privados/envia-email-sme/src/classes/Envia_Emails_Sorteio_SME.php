@@ -198,7 +198,7 @@ class Envia_Emails_Sorteio_SME {
                 }
 
                 $generoBusca = get_field('genero_taxo', $this->idEvento);
-                $genero = $generoBusca->name;
+                $genero = $generoBusca->name; // Tipo evento
                 $duracao = get_post_meta( $this->idEvento, 'duracao', true );
                 $class_indicativa = get_post_meta( $this->idEvento, 'class_indicativa', true );
                 $local = get_term(get_post_meta( $this->idEvento, 'local', true ));
@@ -212,7 +212,7 @@ class Envia_Emails_Sorteio_SME {
                 $temaEmail = str_replace('{O-QUE}', $o_que, $temaEmail);
                 $temaEmail = str_replace('{DATA-HORA-EVENTO}', $dataEvento, $temaEmail);
                 if($genero){
-                    $temaEmail = str_replace('{GENERO}', '<strong>Gênero:</strong> ' . $genero, $temaEmail);
+                    $temaEmail = str_replace('{GENERO}', '<strong>Tipo de Evento:</strong> ' . $genero, $temaEmail);
                 } else {
                     $temaEmail = str_replace('{GENERO}', '', $temaEmail);
                 }
@@ -380,7 +380,7 @@ class Envia_Emails_Sorteio_SME {
                 }
 
                 $generoBusca = get_field('genero_taxo', $this->idEvento);
-                $genero = $generoBusca->name ?? null;
+                $genero = $generoBusca->name ?? null; // Tipo evento
                 $duracao = get_post_meta( $this->idEvento, 'duracao', true );
                 $class_indicativa = get_post_meta( $this->idEvento, 'class_indicativa', true );
                 $local = get_term(get_post_meta( $this->idEvento, 'local', true ));
@@ -391,7 +391,7 @@ class Envia_Emails_Sorteio_SME {
                 $temaEmail = str_replace( '{NOME-INGRESSO}', $tituloEvento, $temaEmail );
                 $temaEmail = str_replace('{DATA-HORA-EVENTO}', $dataEvento, $temaEmail);
                 if($genero){
-                    $temaEmail = str_replace('{GENERO}', '<br><strong>Gênero:</strong> ' . $genero, $temaEmail);
+                    $temaEmail = str_replace('{GENERO}', '<br><strong>Tipo de Evento:</strong> ' . $genero, $temaEmail);
                 } else {
                     $temaEmail = str_replace('{GENERO}', '', $temaEmail);
                 }

@@ -1,11 +1,44 @@
 <tr class="sorteado-{ID} sorteado-item">
     <td><input type="checkbox" class="check-sorteados check-item" name="participantes-sorteados[]" value="{ID}" {DESABILITAR}></td>
-    <td><span class="nome">{ORDEM}º {NOME}</span><span class="{TAG}">{PUBLICO}</span></td>
+    <td>
+        <span class="nome">{ORDEM}º {NOME}</span>
+        <span class="icone icone-user-{ID}"> {ICONE-NOME}</span>
+        <br>
+        <span class="{TAG}">{PUBLICO}</span>
+    </td>
     <td class="negrito"><span id="email-inst-{ID}">{EMAILINSTITUCIONAL}</span><img src="{DIRETORIO_URI}/img/icon_copy_16.png" class="copia-email-sorteio" id="copiar-email-inst-{ID}"><br><span id="email-sec-{ID}">{EMAILSECUNDARIO}</span><img src="{DIRETORIO_URI}/img/icon_copy_16.png" class="copia-email-sorteio" id="copiar-email-sec-{ID}"></td>
     <td class="negrito">{CELULAR}<br>{TELEFONE}</td>
     <td class="negrito">{CPF}</td>
     <td class="negrito">{DRE}<br>{UNIDADE}</td>
     <td>
+        <button
+            type="button"
+            class="btn btn-sm btn-primary btn-contato"
+            data-user-id="{ID}"
+            data-valor-atual="{TIPO-CONTATO}"
+            data-tipo="sorteios"
+            data-toggle="popover">
+            <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+        </button>
+        <div class="d-none popover-template">
+            <p>Contatado por</p>
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="forma_contato" value="1" id="contato-tel-{ID}">
+                <label class="form-check-label" for="contato-tel-{ID}" data-toggle="tooltip" data-placement="top" title="Contatado por Telefone"><img src="{TEMPLATE-URI}/img/icon-telefone.svg" alt="icone Telefone" class="mr-1"> Telefone</label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="forma_contato" value="2" id="contato-email-{ID}">
+                <label class="form-check-label" for="contato-email-{ID}" data-toggle="tooltip" data-placement="top" title="Contatado por E-mail"><img src="{TEMPLATE-URI}/img/icon-email.svg" alt="icone Email" class="mr-1"> Email</label>
+            </div>
+
+            <div class="form-check">
+                <input class="form-check-input" type="radio" name="forma_contato" value="3" id="contato-whatsapp-{ID}">
+                <label class="form-check-label" for="contato-whatsapp-{ID}" data-toggle="tooltip" data-placement="top" title="Contatado por WhatsApp"><img src="{TEMPLATE-URI}/img/icon-whatsapp.svg" alt="icone Whatsapp" class="mr-1"> Whatsapp</label>
+            </div>
+            
+        </div>
+        <br>
         <img src="{IMG-CANCELA-SORTEADO}" id="remove-participante-sorteado-{ID}-{NOME}" class="remove-participante-sorteado {ESCONDE-REMOVER}" title="Remove o participante da lista de sorteados">
         <span id="remove-participante-sorteado-{ID}-gif" class="spinner"></span>
         <br>

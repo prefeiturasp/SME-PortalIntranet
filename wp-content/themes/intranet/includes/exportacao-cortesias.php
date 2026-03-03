@@ -94,13 +94,14 @@ function handle_exportar_cortesias_excel() {
                 $xlsx->setColWidth(7, 15);
                 $xlsx->setColWidth(8, 15);
                 $xlsx->setColWidth(9, 15);
-                $xlsx->setColWidth(10, 14);
+                $xlsx->setColWidth(10, 15);
                 $xlsx->setColWidth(11, 14);
-                $xlsx->setColWidth(12, 15);
+                $xlsx->setColWidth(12, 14);
                 $xlsx->setColWidth(13, 15);
-                $xlsx->setColWidth(14, 20);
+                $xlsx->setColWidth(14, 15);
+                $xlsx->setColWidth(15, 20);
 
-                $xlsx->mergeCells('A1:N2');
+                $xlsx->mergeCells('A1:O2');
             } else {
                 $xlsx->setColWidth(1, 25);
                 $xlsx->setColWidth(2, 20);
@@ -109,13 +110,14 @@ function handle_exportar_cortesias_excel() {
                 $xlsx->setColWidth(5, 15);
                 $xlsx->setColWidth(6, 15);
                 $xlsx->setColWidth(7, 15);
-                $xlsx->setColWidth(8, 14);
+                $xlsx->setColWidth(8, 15);
                 $xlsx->setColWidth(9, 14);
-                $xlsx->setColWidth(10, 15);
+                $xlsx->setColWidth(10, 14);
                 $xlsx->setColWidth(11, 15);
-                $xlsx->setColWidth(12, 20);
+                $xlsx->setColWidth(12, 15);
+                $xlsx->setColWidth(13, 20);
 
-                $xlsx->mergeCells('A1:L2');
+                $xlsx->mergeCells('A1:M2');
             }
         }
 
@@ -160,12 +162,12 @@ function gerar_aba_inscritos_corte($post_id, $local, $dataSorteio, $data_evento 
     if ($requer_confirmacao_presenca) {
         $inscritos[] = [
             '<style font-size="12" bgcolor="#ABBFE3" align="center" valign="center"><middle><center>' . $infoCabecalho . '</center></middle></style>',
-            '', '', '', '', '', '', '', '', '', '', '', '', '', ''
+            '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''
         ];
     } else {
         $inscritos[] = [
             '<style font-size="12" bgcolor="#ABBFE3" align="center" valign="center"><middle><center>' . $infoCabecalho . '</center></middle></style>',
-            '', '', '', '', '', '', '', '', '', '', '', ''
+            '', '', '', '', '', '', '', '', '', '', '', '', ''
         ];
     }
 
@@ -178,7 +180,7 @@ function gerar_aba_inscritos_corte($post_id, $local, $dataSorteio, $data_evento 
             SELECT i." . implode(', i.', [
                 'cpf', 'nome_completo', 'email_institucional', 'email_secundario',
                 'celular', 'telefone_comercial', 'dre', 'cargo_principal',
-                'unidade_setor', 'disciplina', 'programa_estagio', 'enviou_email_instrucoes', 'qtd', 'fez_contato', 'confirmou_presenca', 'prazo_confirmacao', 'historico_emails'
+                'unidade_setor', 'disciplina', 'programa_estagio', 'enviou_email_instrucoes', 'qtd', 'fez_contato', 'tipo_contato', 'confirmou_presenca', 'prazo_confirmacao', 'historico_emails'
             ]) . "
             FROM {$wpdb->prefix}cortesias_inscricoes i
             JOIN {$wpdb->prefix}cortesias_acf_datas d ON d.id = i.acf_id
@@ -194,7 +196,7 @@ function gerar_aba_inscritos_corte($post_id, $local, $dataSorteio, $data_evento 
             SELECT " . implode(', ', [
                 'cpf', 'nome_completo', 'email_institucional', 'email_secundario',
                 'celular', 'telefone_comercial', 'dre', 'cargo_principal',
-                'unidade_setor', 'disciplina', 'programa_estagio','enviou_email_instrucoes', 'qtd', 'fez_contato', 'confirmou_presenca', 'prazo_confirmacao', 'historico_emails'
+                'unidade_setor', 'disciplina', 'programa_estagio','enviou_email_instrucoes', 'qtd', 'fez_contato', 'tipo_contato', 'confirmou_presenca', 'prazo_confirmacao', 'historico_emails'
             ]) . "
             FROM {$wpdb->prefix}cortesias_inscricoes
             WHERE post_id = %d 
@@ -205,7 +207,7 @@ function gerar_aba_inscritos_corte($post_id, $local, $dataSorteio, $data_evento 
     $results = $wpdb->get_results($query);
 
     if ($requer_confirmacao_presenca) {
-        $inscritos[] = ['', '', '', '', '', '', '', '', '', '', '', '','', '']; // linha em branco
+        $inscritos[] = ['', '', '', '', '', '', '', '', '', '', '', '','', '', '']; // linha em branco
 
         $inscritos[] = [
             '<style bgcolor="#2A4A8B" color="#FFFFFF">Nome Completo</style>',
@@ -215,6 +217,7 @@ function gerar_aba_inscritos_corte($post_id, $local, $dataSorteio, $data_evento 
             '<style bgcolor="#2A4A8B" color="#FFFFFF">Conf. Presença</style>',
             '<style bgcolor="#2A4A8B" color="#FFFFFF">Qtde de Cortesias</style>',
             '<style bgcolor="#2A4A8B" color="#FFFFFF">E-mail c/ Instruções</style>',
+            '<style bgcolor="#2A4A8B" color="#FFFFFF">Contatado por</style>',
             '<style bgcolor="#2A4A8B" color="#FFFFFF">Telefone Celular</style>',
             '<style bgcolor="#2A4A8B" color="#FFFFFF">Telefone Comercial</style>',
             '<style bgcolor="#2A4A8B" color="#FFFFFF">CPF</style>',
@@ -233,6 +236,7 @@ function gerar_aba_inscritos_corte($post_id, $local, $dataSorteio, $data_evento 
             '<style bgcolor="#2A4A8B" color="#FFFFFF">E-mail Secundário</style>',
             '<style bgcolor="#2A4A8B" color="#FFFFFF">Qtde de Cortesias</style>',
             '<style bgcolor="#2A4A8B" color="#FFFFFF">E-mail c/ Instruções</style>',
+            '<style bgcolor="#2A4A8B" color="#FFFFFF">Contatado por</style>',
             '<style bgcolor="#2A4A8B" color="#FFFFFF">Telefone Celular</style>',
             '<style bgcolor="#2A4A8B" color="#FFFFFF">Telefone Comercial</style>',
             '<style bgcolor="#2A4A8B" color="#FFFFFF">CPF</style>',
@@ -249,11 +253,21 @@ function gerar_aba_inscritos_corte($post_id, $local, $dataSorteio, $data_evento 
         '3' => 'Diversos',
     ];
 
+    $tipos_contato = [
+        '1' => 'Telefone',
+        '2' => 'E-mail',
+        '3' => 'WhatsApp',
+    ];
+
     if ($results) {
         foreach ($results as $r) {
             if (!empty($r->programa_estagio)) {
                 $r->cargo_principal = 'Estagiário(a)';
                 $r->disciplina = $programas_estagio[$r->programa_estagio] ?? ' - ';
+            }
+
+            if (!empty($r->tipo_contato)) {
+                $r->tipo_contato = $tipos_contato[$r->tipo_contato] ?? ' - ';
             }
 
             if ($requer_confirmacao_presenca) {
@@ -292,6 +306,7 @@ function gerar_aba_inscritos_corte($post_id, $local, $dataSorteio, $data_evento 
                     $presenca,
                     $r->qtd ?: ' - ',
                     !empty($r->enviou_email_instrucoes) ? '<center>SIM</center>' : '<center>NÃO</center>',
+                    !empty($r->tipo_contato) ? $r->tipo_contato : ' - ',
                     !empty($r->celular) ? formatarTelefone($r->celular) : ' - ',
                     !empty($r->telefone_comercial) ? formatarTelefone($r->telefone_comercial) : ' - ',
                     !empty($r->cpf) ? formatarCpfMasked($r->cpf) : ' - ',
@@ -308,6 +323,7 @@ function gerar_aba_inscritos_corte($post_id, $local, $dataSorteio, $data_evento 
                     $r->email_secundario ?: ' - ',
                     $r->qtd ?: ' - ',
                     !empty($r->enviou_email_instrucoes) ? '<center>SIM</center>' : '<center>NÃO</center>',
+                    !empty($r->tipo_contato) ? $r->tipo_contato : ' - ',
                     !empty($r->celular) ? formatarTelefone($r->celular) : ' - ',
                     !empty($r->telefone_comercial) ? formatarTelefone($r->telefone_comercial) : ' - ',
                     !empty($r->cpf) ? formatarCpfMasked($r->cpf) : ' - ',

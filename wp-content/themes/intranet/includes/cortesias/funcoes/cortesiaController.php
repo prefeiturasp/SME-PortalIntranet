@@ -1473,3 +1473,148 @@ function get_acf_info_by_key( int $post_id, ?string $data = null) {
         ", $post_id, $data )
     );    
 }
+
+/**
+ * Obtem informações sobre as datas diponíveis em um post de Gratuidade e cortesias
+ *
+ * Obtem informações relacionadas ao repetidor de datas do evento.
+ *
+ * @param  string  $post_id ID do evento.
+ * @param  string  $filto   hoje (dia atual), data (uma data especifica Y-m-d).
+ * @param  string  $data 	Se o filtro tiver o valor = data, então o parametro "data" deve ser iformado.
+ */
+function obter_informacoes_datas_cortesia( $post_id, ?string $filtro = null, ?string $data = null ) {
+	
+    $hoje = obter_data_com_timezone( 'Y-m-d', 'America/Sao_Paulo' );
+	$tipo_evento = get_field( 'tipo_evento', $post_id );
+    $datas_info = [];
+
+	if($tipo_evento == 'premio'){
+		if ( $evento_datas = get_field( 'evento_premios', $post_id ) ) {
+			
+            $datas = $evento_datas;
+
+			if ( $filtro === 'hoje' || $filtro === 'data' ) {
+
+				$data = is_null( $data ) ? $hoje : $data;
+				
+				$datas = array_filter( $evento_datas, function( $item ) use ( $data ) {
+					return isset( $item['encerramento_inscricoes'] ) && $item['encerramento_inscricoes'] == $data;
+				} );
+
+				if ( empty( $datas ) ) {
+					return null;
+				}
+
+				usort( $datas, function( $a, $b ) {
+					return strcmp( $a['data'], $b['data'] );
+				} );
+
+			}
+
+			foreach ( $datas as $item ) {
+
+                $acf_data = get_acf_info_by_key( $post_id,  $item['data'] );
+				$instrucoes = check_envio_email_instrucoes_cortesia( $post_id, $acf_data->id );
+                $estoque_atual = intval( $acf_data->estoque_atual );
+
+				array_push( $datas_info, [
+					'data' => $item['premio'],
+                    'estoque_atual' => $estoque_atual > 0
+                        ? $estoque_atual . ' ' . _n( 'cortesia', 'cortesias', $estoque_atual ) . ' ' . _n( 'disponível', 'disponíveis', $estoque_atual )
+                        : 'Cortesias esgotadas',
+					'instrucoes' => $instrucoes ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+				] );
+			}
+
+			return $datas_info;
+		}
+
+	} elseif ( $tipo_evento === 'periodo' ) {
+
+		if ( $data_sorteio = get_field( 'evento_periodo_descricao', $post_id ) ) {
+			
+            $acf_data = get_acf_info_by_key( $post_id );
+			$instrucoes = check_envio_email_instrucoes_cortesia( $post_id, $acf_data->id );
+            $estoque_atual = intval( $acf_data->estoque_atual );
+
+            array_push( $datas_info, [
+                'data' => $data_sorteio,
+                'estoque_atual' => $estoque_atual > 0
+                    ? $estoque_atual . ' ' . _n( 'cortesia', 'cortesias', $estoque_atual ) . ' ' . _n( 'disponível', 'disponíveis', $estoque_atual )
+                    : 'Cortesias esgotadas',
+                'instrucoes' => $instrucoes ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+            ] );
+
+			return $datas_info;
+		}
+	} else {
+		
+		if ( $evento_datas = get_field( 'evento_datas', $post_id ) ) {
+			
+            $datas = $evento_datas;
+
+			if ( $filtro === 'hoje' || $filtro === 'data' ) {
+
+				$data = is_null( $data ) ? $hoje : $data;
+				
+				$datas = array_filter( $evento_datas, function( $item ) use ( $data ) {
+					return isset( $item['encerramento_inscricoes'] ) && $item['encerramento_inscricoes'] == $data;
+				} );
+
+				if ( empty( $datas ) ) {
+					return null;
+				}
+
+				usort( $datas, function( $a, $b ) {
+					return strcmp( $a['data'], $b['data'] );
+				} );
+			}
+
+			foreach ( $datas as $item ) {
+
+                $acf_data = get_acf_info_by_key( $post_id,  $item['data'] );
+                $instrucoes = check_envio_email_instrucoes_cortesia( $post_id, $acf_data->id );
+                $estoque_atual = intval( $acf_data->estoque_atual );
+
+                array_push( $datas_info, [
+					'data' => date( 'd/m/Y H:i', strtotime( $item['data'] ) ),
+                    'estoque_atual' => $estoque_atual > 0
+                        ? $estoque_atual . ' ' . _n( 'cortesia', 'cortesias', $estoque_atual ) . ' ' . _n( 'disponível', 'disponíveis', $estoque_atual )
+                        : 'Cortesias esgotadas',
+					'instrucoes' => $instrucoes ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+				] );
+			}
+
+			return $datas_info;
+		}
+	}	
+}
+
+/**
+ * Verifica se já houve algum envio de e-mail de instruções para o evento/data
+ *
+ * @param  int  $post_id ID do evento.
+ * @param  $acf_data_id ID da data de rferencia na tabela int_cortesias_acf_datas.
+
+ */
+function check_envio_email_instrucoes_cortesia( int $post_id, $acf_data_id ) {
+
+    global $wpdb;
+
+    $tabela = $wpdb->prefix . 'cortesias_inscricoes';
+
+    $instrucoes = $wpdb->get_var($wpdb->prepare("
+        SELECT 1
+        FROM $tabela 
+        WHERE post_id = %d
+        AND enviou_email_instrucoes = 1
+        AND acf_id = %d 
+        LIMIT 1
+        ",
+        $post_id,
+        $acf_data_id
+    ));
+
+    return boolval( $instrucoes );
+}

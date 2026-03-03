@@ -2,7 +2,7 @@
 
 wp_add_dashboard_widget(
     'calendario_sorteios_semana_widget',
-    'Sorteios da Semana',
+    'Nesta semana',
     'renderizar_eventos_semana',
 );
 
@@ -186,7 +186,166 @@ function renderizar_eventos_semana() {
     }
 
     wp_reset_postdata();
-    remove_filter('posts_where', 'my_events_where');
+    
+    remove_filter( 'posts_where', 'filtro_posts_where_evento_datas' );
+    remove_filter( 'posts_where', 'filtro_posts_where_evento_premios' );
 
-    get_template_part( 'includes/widgets/template-parts/accordion-dias', null, ['eventos' => $eventos] );
+    $cortesias = get_cortesias_semana();
+
+    get_template_part('includes/widgets/template-parts/accordion-dias', null, [
+        'eventos' => $eventos,
+        'cortesias' => $cortesias
+        ]
+    );
+}
+
+function get_cortesias_semana() {
+
+    $hoje = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+    $timestamp = strtotime( $hoje );
+    $inicio_semana  = date( 'Ymd', strtotime( 'monday this week', $timestamp ) );
+    $fim_semana    = date('Ymd', strtotime( 'sunday this week', $timestamp ) );
+
+    add_filter( 'posts_where', 'filtro_posts_where_evento_datas' );
+    add_filter( 'posts_where', 'filtro_posts_where_evento_premios' );
+
+    $args = array(
+        'post_type'      => 'cortesias',
+        'posts_per_page' => -1,
+        'meta_query'     => array(
+            array(
+                'key'     => 'administracao_ingressos',
+                'value'   => 'ascom',
+            ),
+            array(
+                'relation' => 'OR',
+                'sorteio_multiplo' => array(
+                    'key'     => 'evento_datas_$_encerramento_inscricoes',
+                    'value'   => array( $inicio_semana, $fim_semana ),
+                    'compare' => 'BETWEEN',
+                    'type'    => 'NUMERIC'
+                ),
+                'sorteio_premios' => array(
+                    'key'     => 'evento_premios_$_encerramento_inscricoes',
+                    'value'   => array( $inicio_semana, $fim_semana ),
+                    'compare' => 'BETWEEN',
+                    'type'    => 'NUMERIC'
+                ),
+                'sorteio_periodo' => array(
+                    'key'     => 'evento_periodo_encerramento_inscricoes',
+                    'value'   => array( $inicio_semana, $fim_semana ),
+                    'compare' => 'BETWEEN',
+                    'type'    => 'NUMERIC'
+                ),
+            )
+        ),
+        'suppress_filters' => false,
+        'orderby'          => array(
+            'sorteio_multiplo' => 'ASC',
+            'sorteio_premios'  => 'ASC',
+            'sorteio_periodo'  => 'ASC',
+        ),
+    );
+
+    $query = new WP_Query( $args );
+
+    remove_filter( 'posts_where', 'filtro_posts_where_evento_datas' );
+    remove_filter( 'posts_where', 'filtro_posts_where_evento_premios' );
+
+    $eventos = obter_dias_semana_atual( true );
+
+    if ( $query->have_posts() ) {
+        while ( $query->have_posts() ) {
+            $query->the_post();
+            $post_id = get_the_ID();
+            $tipo_evento = get_field( 'tipo_evento' );
+
+            $evento_datas = [];
+
+            if ( $tipo_evento === 'data' && have_rows( 'evento_datas' ) ) {
+                while ( have_rows( 'evento_datas' ) ) {
+                    the_row();
+
+                    $data_encerramento_inscricoes = get_sub_field( 'encerramento_inscricoes' );
+                    $data_evento = get_sub_field( 'data' );
+
+                    if ($data_encerramento_inscricoes) {
+                        $data_formatada = date( 'Y-m-d', strtotime( $data_encerramento_inscricoes ) );
+
+                        // ignora dia atual
+                        if ( $data_formatada === $hoje ) {
+                            continue;
+                        }
+
+                        $evento_datas[] = [
+                            'data_encerramento' => $data_formatada,
+                            'data_evento'       => $data_evento,
+                        ];
+                    }
+                }
+            } elseif ( $tipo_evento === 'premio' && have_rows( 'evento_premios' ) ) {
+                while ( have_rows( 'evento_premios' ) ) {
+                    the_row();
+
+                    $data_encerramento_inscricoes = get_sub_field( 'encerramento_inscricoes' );
+                    $data_evento = get_sub_field( 'data' );
+
+                    if ( $data_encerramento_inscricoes ) {
+                        $data_formatada = date( 'Y-m-d', strtotime( $data_encerramento_inscricoes ) );
+
+                        // ignora dia atual
+                        if ( $data_formatada === $hoje ) {
+                            continue;
+                        }
+
+                        $evento_datas[] = [
+                            'data_encerramento' => $data_formatada,
+                            'data_evento'       => $data_evento,
+                        ];
+                    }
+                }
+            } elseif( $tipo_evento === 'periodo' && $data_encerramento_inscricoes = get_field( 'evento_periodo_data_sorteio' ) ){
+
+                $data_encerramento_inscricoes = get_field( 'evento_periodo_data_sorteio', $post_id, false );
+
+                if ( $data_encerramento_inscricoes ) {
+                    $data_formatada = date( 'Y-m-d', strtotime( $data_encerramento_inscricoes ) );
+
+                    if ($data_formatada !== $hoje) {
+                        $evento_datas[] = [
+                            'data_encerramento'  => $data_encerramento_inscricoes,
+                            'data_evento'   => $data_formatada,
+                            'titulo' => get_the_title(),
+                        ];
+                    }
+                }
+            }
+            
+            // Agrupa os sorteios por data
+            foreach ( $evento_datas as $item ) {
+                $data = $item['data_encerramento'];
+                $label = date_i18n( 'l - d/m/Y', strtotime ($data ) );
+
+                if ( in_array( $label, array_keys( $eventos ) ) ) {
+
+                    $eventos[$label][$post_id] = [
+                        'post_id'  => $post_id,
+                        'title'    => get_the_title(),
+                        'data'     => $data,
+                        'link'     => get_edit_post_link(),
+                        'local'    => get_field('local'),
+                    ];
+
+                }
+            }
+
+        }
+
+        wp_reset_postdata();
+
+        remove_filter( 'posts_where', 'filtro_posts_where_evento_datas' );
+        remove_filter( 'posts_where', 'filtro_posts_where_evento_premios' );
+    }
+
+    return $eventos;
 }
