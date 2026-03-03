@@ -99,16 +99,17 @@ function handle_exportar_sorteados_excel() {
                 $xlsx->setColWidth(2, 25);  // Nome Completo
                 $xlsx->setColWidth(3, 20);  // E-mail Institucional
                 $xlsx->setColWidth(4, 15);  // E-mail c/ Instruções
-                $xlsx->setColWidth(5, 20);  // E-mail Secundário
-                $xlsx->setColWidth(6, 15);  // Telefone Celular
-                $xlsx->setColWidth(7, 15);  // Telefone Comercial
-                $xlsx->setColWidth(8, 14); // CPF
-                $xlsx->setColWidth(9, 14); // DRE/SME
-                $xlsx->setColWidth(10, 15); // Cargo Atual
-                $xlsx->setColWidth(11, 15); // Escola/Setor
-                $xlsx->setColWidth(12, 20); // Disciplina/Estágio
+                $xlsx->setColWidth(5, 15);  // Contatado por
+                $xlsx->setColWidth(6, 20);  // E-mail Secundário
+                $xlsx->setColWidth(7, 15);  // Telefone Celular
+                $xlsx->setColWidth(8, 15);  // Telefone Comercial
+                $xlsx->setColWidth(9, 14); // CPF
+                $xlsx->setColWidth(10, 14); // DRE/SME
+                $xlsx->setColWidth(11, 15); // Cargo Atual
+                $xlsx->setColWidth(12, 15); // Escola/Setor
+                $xlsx->setColWidth(13, 20); // Disciplina/Estágio
 
-                $xlsx->mergeCells('A1:L2');
+                $xlsx->mergeCells('A1:M2');
             } else {
                 $xlsx->setColWidth(1, 8);   // Sorteado
                 $xlsx->setColWidth(2, 25);  // Nome Completo
@@ -116,16 +117,17 @@ function handle_exportar_sorteados_excel() {
                 $xlsx->setColWidth(4, 10);  // Contato
                 $xlsx->setColWidth(5, 20);  // Conf. Presença
                 $xlsx->setColWidth(6, 15);  // E-mail c/ Instruções
-                $xlsx->setColWidth(7, 20);  // E-mail Secundário
-                $xlsx->setColWidth(8, 15);  // Telefone Celular
-                $xlsx->setColWidth(9, 15);  // Telefone Comercial
-                $xlsx->setColWidth(10, 14); // CPF
-                $xlsx->setColWidth(11, 14); // DRE/SME
-                $xlsx->setColWidth(12, 15); // Cargo Atual
-                $xlsx->setColWidth(13, 15); // Escola/Setor
-                $xlsx->setColWidth(14, 20); // Disciplina/Estágio
+                $xlsx->setColWidth(7, 15);  // Contatado por
+                $xlsx->setColWidth(8, 20);  // E-mail Secundário
+                $xlsx->setColWidth(9, 15);  // Telefone Celular
+                $xlsx->setColWidth(10, 15);  // Telefone Comercial
+                $xlsx->setColWidth(11, 14); // CPF
+                $xlsx->setColWidth(12, 14); // DRE/SME
+                $xlsx->setColWidth(13, 15); // Cargo Atual
+                $xlsx->setColWidth(14, 15); // Escola/Setor
+                $xlsx->setColWidth(15, 20); // Disciplina/Estágio
 
-                $xlsx->mergeCells('A1:N2');
+                $xlsx->mergeCells('A1:O2');
             }
         }
 
@@ -174,12 +176,12 @@ function gerar_aba_sorteados($post_id, $local, $dataSorteio, $data_evento = null
     if($premio){
         $sorteados[] = [
             '<style font-size="12" bgcolor="#b5b3f6" align="center" valign="center"><middle><center>' . $infoCabecalho . '</center></middle></style>',
-            '', '', '', '', '', '', '', ''
+            '', '', '', '', '', '', '', '', '', ''
         ];
     } else {
         $sorteados[] = [
             '<style font-size="12" bgcolor="#b5b3f6" align="center" valign="center"><middle><center>' . $infoCabecalho . '</center></middle></style>',
-            '', '', '', '', '', '', '', '', '', ''
+            '', '', '', '', '', '', '', '', '', '', '', '', 
         ];
     }
 
@@ -201,6 +203,7 @@ function gerar_aba_sorteados($post_id, $local, $dataSorteio, $data_evento = null
         'disciplina',
         'programa_estagio',
         'historico_emails',
+        'tipo_contato'
     ]);
 
     $sql  = "SELECT $campos 
@@ -225,7 +228,7 @@ function gerar_aba_sorteados($post_id, $local, $dataSorteio, $data_evento = null
 
     $query = $wpdb->prepare($sql, ...$params);
 
-    $sorteados[] = ['', '', '', '', '', '', '', '', '', '']; // linha em branco
+    $sorteados[] = ['', '', '', '', '', '', '', '', '', '', '']; // linha em branco
 
     if($premio || !$requer_confirmacao_presenca){
         $sorteados[] = [
@@ -233,6 +236,7 @@ function gerar_aba_sorteados($post_id, $local, $dataSorteio, $data_evento = null
             '<style bgcolor="#652a96" color="#FFFFFF">Nome Completo</style>',
             '<style bgcolor="#652a96" color="#FFFFFF">E-mail Institucional</style>',
             '<style bgcolor="#652a96" color="#FFFFFF">E-MAIL C/ INSTRUÇÕES</style>',
+            '<style bgcolor="#652a96" color="#FFFFFF">Contatado por</style>',
             '<style bgcolor="#652a96" color="#FFFFFF">E-mail Secundário</style>',
             '<style bgcolor="#652a96" color="#FFFFFF">Telefone Celular</style>',
             '<style bgcolor="#652a96" color="#FFFFFF">Telefone Comercial</style>',
@@ -250,6 +254,7 @@ function gerar_aba_sorteados($post_id, $local, $dataSorteio, $data_evento = null
             '<style bgcolor="#652a96" color="#FFFFFF">CONTATO</style>',
             '<style bgcolor="#652a96" color="#FFFFFF">CONF. PRESENÇA</style>',
             '<style bgcolor="#652a96" color="#FFFFFF">E-MAIL C/ INSTRUÇÕES</style>',
+            '<style bgcolor="#652a96" color="#FFFFFF">Contatado por</style>',
             '<style bgcolor="#652a96" color="#FFFFFF">E-mail Secundário</style>',
             '<style bgcolor="#652a96" color="#FFFFFF">Telefone Celular</style>',
             '<style bgcolor="#652a96" color="#FFFFFF">Telefone Comercial</style>',
@@ -267,6 +272,12 @@ function gerar_aba_sorteados($post_id, $local, $dataSorteio, $data_evento = null
         '3' => 'Diversos',
     ];
 
+    $tipos_contato = [
+        '1' => 'Telefone',
+        '2' => 'E-mail',
+        '3' => 'WhatsApp',
+    ];
+
     $results = $wpdb->get_results($query);
 
     if (!empty($results)) {
@@ -279,6 +290,10 @@ function gerar_aba_sorteados($post_id, $local, $dataSorteio, $data_evento = null
             if (!empty($result->programa_estagio)) {
                 $result->cargo_principal = 'Estagiário(a)';
                 $result->disciplina = $programas_estagio[$result->programa_estagio] ?? ' - ';
+            }
+
+            if (!empty($result->tipo_contato)) {
+                $result->tipo_contato = $tipos_contato[$result->tipo_contato] ?? ' - ';
             }
 
             if ( $requer_confirmacao_presenca ) {
@@ -312,6 +327,7 @@ function gerar_aba_sorteados($post_id, $local, $dataSorteio, $data_evento = null
                     $result->nome_completo ?: ' - ',
                     $result->email_institucional ?: ' - ',
                     !empty($result->enviou_email_instrucoes) ? '<center>SIM</center>' : '<center>NÃO</center>',
+                    $result->tipo_contato ?: ' - ',
                     $result->email_secundario ?: ' - ',
                     !empty($result->celular) ? formatarTelefone($result->celular) : ' - ',
                     !empty($result->telefone_comercial) ? formatarTelefone($result->telefone_comercial) : ' - ',
@@ -329,6 +345,7 @@ function gerar_aba_sorteados($post_id, $local, $dataSorteio, $data_evento = null
                     $fez_contato ? '<center>SIM</center>' : '<center>NÃO</center>',
                     $presenca,
                     !empty($result->enviou_email_instrucoes) ? '<center>SIM</center>' : '<center>NÃO</center>',
+                    $result->tipo_contato ?: ' - ',
                     $result->email_secundario ?: ' - ',
                     !empty($result->celular) ? formatarTelefone($result->celular) : ' - ',
                     !empty($result->telefone_comercial) ? formatarTelefone($result->telefone_comercial) : ' - ',

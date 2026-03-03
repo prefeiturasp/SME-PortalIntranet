@@ -1029,14 +1029,51 @@ jQuery(document).on('click', '.btn-debloqueio', function(e) {
 
     // Primeiro modal: confirmação
     Swal.fire({
-        title: 'Atenção',
-        text: 'Deseja permitir que este usuário volte a se inscrever em novas oportunidades e concorrer a sorteios?',
-        iconHtml: '<span class="dashicons dashicons-warning"></span>',
+        html: `
+        <div class="d-flex align-items-center border-bottom pb-1">
+            <i class="fa fa-exclamation-circle fa-2x" aria-hidden="true" style="color: #011257"></i>
+            <h4 class="ml-2">Permitir participação</h4>
+        </div>
+        <div class="conteudo-texto mt-4 text-left">
+            <span>Você está permitindo que esse participante volte a se inscrever em sorteios e cortesias antes do término da sanção.</span>
+            <br><br>
+            <span>Selecione o motivo dessa ação para registro no histórico:</span>
+        </div>
+        <form id="formOpcao" class="container text-left mt-4 pb-5 border-bottom">
+        <div class="form-group">
+            <div class="form-check form-check-inline align-items-center">
+                <input class="form-check-input" type="radio" name="motivo" id="check-revogar" value="j" checked>
+                <label class="form-check-label mr-2 font-italic" for="check-revogar">
+                    A sanção foi aplicada corretamente, mas estou encerrando antes do prazo previsto.
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="form-check form-check-inline align-items-center">
+                <input class="form-check-input" type="radio" name="motivo" id="check-remover" value="e">
+                <label class="form-check-label mr-2 font-italic" for="check-remover">
+                    A sanção foi aplicada por erro administrativo e não deveria ter ocorrido.
+                </label>
+            </div>
+        </div>
+    </form>`,
         showCancelButton: true,
-        confirmButtonText: 'Sim',
+        confirmButtonText: 'Confirmar',
         cancelButtonText: 'Cancelar',
+        width: '850px',
         customClass: {
             popup: 'popup-notificar-sorteados sem-borda',
+        },
+        preConfirm: () => {
+            const $selected = jQuery('input[name="motivo"]:checked');
+
+            if (!$selected) {
+                Swal.showValidationMessage('Você precisa selecionar uma opção.');
+            }
+
+            return {
+                'motivo': $selected.val(),
+            };
         }
     }).then((result) => {
         if (result.isConfirmed) {
@@ -1063,7 +1100,8 @@ jQuery(document).on('click', '.btn-debloqueio', function(e) {
                 dataType: 'json',
                 data: {
                     action: 'debloquear_usuario',
-                    sancao_id: sancaoId
+                    sancao_id: sancaoId,
+                    motivo: result.value.motivo
                 },
                 success: function(response) {
                     Swal.close();
@@ -1220,7 +1258,7 @@ jQuery(function($) {
         const inscritos = $('.tabela-participantes-sorteados tbody tr');
 
         if (inscritos.length > 0) {
-            toastr.error("Não é permitido alterar o Tipo de Sorteio, pois já existem inscrições registradas.");
+            toastr.error("Não é permitido alterar o Tipo de Uso, pois já existem inscrições registradas.");
             
             return false;
         }

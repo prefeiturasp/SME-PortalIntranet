@@ -1,8 +1,10 @@
 <?php
 
+use Pest\Support\Arr;
+
 wp_add_dashboard_widget(
     'calendario_sorteios_hoje_widget',
-    'Sorteios de Hoje',
+    'Hoje',
     'renderizar_eventos_hoje',
 );
 
@@ -85,9 +87,76 @@ function renderizar_eventos_hoje() {
         return ($ordem === 'ASC') ? $a['timestamp'] <=> $b['timestamp'] : $b['timestamp'] <=> $a['timestamp'];
     });
 
+    $cortesias = get_cortesias_dia( $hoje );
+
     get_template_part( 'includes/widgets/template-parts/lista-eventos', null, [
         'eventos'   => $eventos,
+        'cortesias' => $cortesias,
         'filtro'    => 'hoje',
-        'mensagem'  => 'Não há sorteios agendados para hoje.'
+        'mensagem'  => 'Nenhuma atividade prevista para hoje.'
     ] );
+}
+
+function get_cortesias_dia( string $data ) {
+
+    add_filter( 'posts_where', 'filtro_posts_where_evento_datas' );
+    add_filter( 'posts_where', 'filtro_posts_where_evento_premios' );
+
+    $cortesias_args = array(
+        'post_type'      => 'cortesias',
+        'posts_per_page' => 100,
+        'post_status'    => 'publish',
+        'meta_query'     => array(
+            array(
+                'key'     => 'administracao_ingressos',
+                'value'   => 'ascom',
+            ),
+            array(
+                'relation' => 'OR',
+                array(
+                    'key'     => 'evento_datas_$_encerramento_inscricoes',
+                    'value'   => $data,
+                    'compare' => '=',
+                    'type'    => 'NUMERIC'
+                ),
+                array(
+                    'key'     => 'evento_premios_$_encerramento_inscricoes',
+                    'value'   => $data,
+                    'compare' => '=',
+                    'type'    => 'NUMERIC'
+                ),
+                array(
+                    'key'     => 'evento_periodo_encerramento_inscricoes',
+                    'value'   => $data,
+                    'compare' => '=',
+                    'type'    => 'NUMERIC'
+                ),
+            )
+        ),
+        'orderby'  => 'meta_value',
+        'order'    => 'ASC'
+    );
+
+    $query_cortesias = new WP_Query( $cortesias_args );
+
+    remove_filter( 'posts_where', 'filtro_posts_where_evento_datas' );
+    remove_filter( 'posts_where', 'filtro_posts_where_evento_premios' );
+
+    $cortesias = [];
+    
+    if ( $query_cortesias->have_posts() ) {
+        while ($query_cortesias->have_posts()) {
+            $query_cortesias->the_post();
+
+            $cortesias[] = [
+                'post_id' => get_the_ID(),
+                'title' => get_the_title(),
+                'local' => get_field('local'),
+            ];
+        }
+
+        wp_reset_postdata();
+    }
+
+    return $cortesias;
 }

@@ -107,7 +107,6 @@ function inicializaPagina(){
         });
     });
 
-    console.log(qtdSorteados);
 }
 
 function exibeMsg(msg, tipo, tempo){
@@ -383,8 +382,7 @@ function excluiParticipanteCortesia(id, dataSelecionada, premio = null){
     var formatada = dataSelecionada.replace(/[:\s]/g, '-');
         
     $s.post(ajaxurl, data, function(response){
-        console.log(response);
-        console.log(formatada);
+        
         if(response.data.sucesso == true){
             qtdSorteados--;
             exibeCarregamentoSorteioToggle('#remove-participante-sorteado-'+id+'-gif');
@@ -999,8 +997,6 @@ function marcarSorteiosRelizados() {
         var data_hora = $linha.find('[data-name="data"] input').val();
         const seletor = (tipo_sorteio == 'periodo') ? '.conteudo-lista' : `[data-data="${data_hora}"]`;
         let $inputs = $linha.find('[data-name="data"] input');
-        console.log(tipo_sorteio);
-        console.log($inputs);
         var sorteio_realizado = jQuery(document)
             .find(`.accordion-card ${seletor} table tbody .sorteado-item`)
             .filter(function () {
@@ -1080,7 +1076,7 @@ jQuery(function($) {
         const inscritos = $('.tabela-lista-sorteados tbody tr');
 
         if (inscritos.length > 0) {
-            toastr.error("Não é permitido alterar o Tipo de Sorteio, pois já existem inscrições registradas.");
+            toastr.error("Não é permitido alterar o Tipo de Uso, pois já existem inscrições registradas.");
             
             return false;
         }
@@ -1098,7 +1094,7 @@ jQuery(function($) {
 
             const $field = $(fieldSelector);
 
-            $field.find('input[type="radio"]').prop('disabled', true);
+            //$field.find('input[type="radio"]').prop('disabled', true);
 
             $field.addClass('acf-disabled');
 

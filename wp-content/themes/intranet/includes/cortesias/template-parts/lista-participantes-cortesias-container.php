@@ -153,6 +153,12 @@ function retorna_lista_cortesias_html($post_id, $data, $unica = false, $sancao =
         $qtds = retorna_quantidades_disponiveis( $post_id, $data, false );
     }
 
+    $icones = [
+        1 => 'icon-telefone.svg',
+        2 => 'icon-email.svg',
+        3 => 'icon-whatsapp.svg'
+    ];
+
     $confimacao = $requerConfirmacao ? 'd-none' : '';	
     if(!empty($resultados)):
     ?>
@@ -225,6 +231,13 @@ function retorna_lista_cortesias_html($post_id, $data, $unica = false, $sancao =
                     <p><span class="status">TOTAL DE REMANESCENTES:</span> <strong><span class="total-remanecentes"><?= $qtds['disponiveis'] ;?></span></strong></p>
                 </div>
             </div>
+            <div class="row"><div class="col">
+                <p class="legenda-tabela">
+                    <img src="<?= get_template_directory_uri(); ?>/img/icon-telefone.svg" alt="icone Telefone" class="mr-1"> Contatado por telefone
+                    <img src="<?= get_template_directory_uri(); ?>/img/icon-email.svg" alt="icone Email" class="mr-1 ml-3"> Contatado por e-mail
+                    <img src="<?= get_template_directory_uri(); ?>/img/icon-whatsapp.svg" alt="icone Whatsapp" class="mr-1 ml-3"> Contatado por WhatsApp
+                </p>
+            </div></div>
             <div id="sorteados_data_<?= esc_attr($dataConf); ?>">
                 <div class="table-responsive">
                     <table class="table tabela-lista-sorteados">
@@ -326,17 +339,58 @@ function retorna_lista_cortesias_html($post_id, $data, $unica = false, $sancao =
                                 
                                     <tr class="sorteado-<?= $id; ?> sorteado-item">
                                         <td><input type="checkbox" class="check-sorteados check-item" name="participantes-sorteados[]" value="<?= $id; ?>" <?= $desabilitar; ?>></td>
-                                        <td><span class="nome"><?= $i; ?>º <?= esc_html(strtoupper($linha['nome_completo'])); ?></span><span class="<?= $tag; ?>"><?= esc_html($localInscri); ?></span></td>
+                                        <td>
+                                            <span class="nome">
+                                                <?= $i; ?>º 
+                                                <?= esc_html(strtoupper($linha['nome_completo'])); ?>                                                
+                                            </span>
+                                            <span class="icone icone-user-<?= $id; ?>">
+                                                <?php $linha['tipo_contato'] != 0 ? print ' <img src="' . get_stylesheet_directory_uri() . '/img/' . $icones[$linha['tipo_contato']] . '" class="icone-contato">' : ''; ?>
+                                            </span>
+                                            <br>
+                                            <span class="<?= $tag; ?>">
+                                                <?= esc_html($localInscri); ?>
+                                            </span>
+                                        </td>
                                         <td class="negrito"><span id="email-inst-<?= $id; ?>"><?= esc_html($linha['email_institucional']); ?></span><img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio" id="copiar-email-inst-<?= $id; ?>"><br><span id="email-sec-<?= $id; ?>"><?= esc_html($linha['email_secundario']); ?></span><img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio" id="copiar-email-sec-<?= $id; ?>"></td>
                                         <td class="negrito"><?= esc_html($linha['celular']); ?><br><?= esc_html($linha['telefone_comercial']); ?></td>
                                         <td class="negrito"><?= esc_html($linha['cpf']); ?></td>
                                         <td class="negrito"><?= esc_html($linha['dre']); ?><br><?= esc_html($linha['unidade_setor']); ?></td>
                                         <td>
-                                            <img src="<?= get_template_directory_uri().'/img/remove-participante.png'; ?>" id="remove-participante-sorteado-<?= $id; ?>-<?= esc_html(strtoupper($linha['nome_completo'])); ?>" class="remove-participante-sorteado <?= $escondeRemover; ?>" title="Remove o participante da lista de sorteados">
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm btn-primary btn-contato"
+                                                data-user-id="<?= $id; ?>"
+                                                data-valor-atual="<?= $linha['tipo_contato']; ?>"
+                                                data-tipo="cortesias"
+                                                data-toggle="popover">
+                                                <i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+                                            </button>
+
+                                            <div class="d-none popover-template">
+                                                <p>Contatado por</p>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="forma_contato" value="1" id="contato-telefone-<?= $id; ?>">
+                                                    <label class="form-check-label" for="contato-telefone-<?= $id; ?>" data-toggle="tooltip" data-placement="top" title="Contatado por Telefone"><img src="<?= get_template_directory_uri(); ?>/img/icon-telefone.svg" alt="icone Telefone" class="mr-1"> Telefone</label>
+                                                </div>
+
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="forma_contato" value="2" id="contato-email-<?= $id; ?>">
+                                                    <label class="form-check-label" for="contato-email-<?= $id; ?>" data-toggle="tooltip" data-placement="top" title="Contatado por E-mail"><img src="<?= get_template_directory_uri(); ?>/img/icon-email.svg" alt="icone Email" class="mr-1"> Email</label>
+                                                </div>
+
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="forma_contato" value="3" id="contato-whatsapp-<?= $id; ?>">
+                                                    <label class="form-check-label" for="contato-whatsapp-<?= $id; ?>" data-toggle="tooltip" data-placement="top" title="Contatado por WhatsApp"><img src="<?= get_template_directory_uri(); ?>/img/icon-whatsapp.svg" alt="icone Whatsapp" class="mr-1"> Whatsapp</label>
+                                                </div>
+                                                
+                                            </div>
+                                            <br>
+                                            <img src="<?= get_template_directory_uri().'/img/remove-participante.svg'; ?>" id="remove-participante-sorteado-<?= $id; ?>-<?= esc_html(strtoupper($linha['nome_completo'])); ?>" class="remove-participante-sorteado <?= $escondeRemover; ?>" title="Remove o participante da lista de sorteados">
                                             <span id="remove-participante-sorteado-<?= $id; ?>-gif" class="spinner"></span>
                                             <br>
                                             <div class="d-flex justify-content-start align-items-center">
-                                                <img id="reevia-email-sorteado-<?= $id; ?>-<?= esc_html(strtoupper($linha['nome_completo'])); ?>" src="<?= get_template_directory_uri().'/img/email-enviado.png'; ?>" title="<?= $dataHoraEnvioSorteado; ?>" class="reevia-email-sorteado <?= $esconde; ?>" data-data="{ATRIBUTO-DATA}">
+                                                <img id="reevia-email-sorteado-<?= $id; ?>-<?= esc_html(strtoupper($linha['nome_completo'])); ?>" src="<?= get_template_directory_uri().'/img/email-enviado.svg'; ?>" title="<?= $dataHoraEnvioSorteado; ?>" class="reevia-email-sorteado <?= $esconde; ?>" data-data="{ATRIBUTO-DATA}">
                                                 <span id="reenvia-email-participante-sorteado-<?= $id; ?>-gif" class="spinner"></span>
                                             </div>
                                         </td>

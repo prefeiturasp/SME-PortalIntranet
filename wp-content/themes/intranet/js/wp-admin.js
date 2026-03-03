@@ -78,7 +78,7 @@ function getPostType() {
 function getDeltaPadrao() {
     return [
         { insert: "🎉 Parabéns! Você foi sorteado e tem a presença confirmada!\n" },
-        { insert: "[Cole aqui as informações do evento: O que é, Data, Gênero, Duração, Classificação Indicativa, Local, Endereço]\n\n" },
+        { insert: "[Cole aqui as informações do evento: O que é, Data, Tipo de Evento, Duração, Classificação Indicativa, Local, Endereço]\n\n" },
         { insert: "✏️ Atente-se para as instruções:\n" },
         { insert: "[Digite aqui as instruções específicas sobre o uso do ingresso, documentos obrigatórios etc.]\n\n" },
         { insert: "_____________\n" },
@@ -226,5 +226,172 @@ $s('.modal').on('hidden.bs.modal', function () {
         if (quill) {
             quill.setContents(getDeltaPorPostType());
         }
+    });
+});
+
+jQuery(function ($) {
+
+  // Armazena seleções por usuário
+  let selecoes = {};
+
+  const iconesContato = {
+        1: {
+            src: `${wpContato.themeUrl}/img/icon-telefone.svg`,
+            alt: 'Telefone'
+        },
+        2: {
+            src: `${wpContato.themeUrl}/img/icon-email.svg`,
+            alt: 'Email'
+        },
+        3: {
+            src: `${wpContato.themeUrl}/img/icon-whatsapp.svg`,
+            alt: 'WhatsApp'
+        }
+    };
+
+  $('.btn-contato').each(function () {
+
+    const $btn = $(this);
+    const userId = $btn.data('user-id');
+    const valorInicial = $btn.data('valor-atual');
+
+    if (valorInicial) {
+      selecoes[userId] = valorInicial;
+    }
+
+    $btn.popover({
+      html: true,
+      sanitize: false,
+      placement: 'right',
+      container: 'body',
+      boundary: 'viewport',
+      trigger: 'click',
+      template: `
+        <div class="popover popover-forma-contato" role="tooltip">
+          <div class="arrow"></div>
+          <h3 class="popover-header"></h3>
+          <div class="popover-body"></div>
+        </div>
+      `,
+      content: function () {
+
+        // Clona o template
+        const $content = $($('div.popover-template').html());
+
+        // Gera IDs e names únicos usando data-user-id
+        $content.find('input[type="radio"]').each(function () {
+
+          const $radio = $(this);
+          const valor = $radio.val();
+
+          const radioId = `forma-contato-${userId}-${valor}`;
+          const radioName = `forma_contato_${userId}`;
+
+          $radio
+            .attr('id', radioId)
+            .attr('name', radioName);
+
+          $radio
+            .closest('.form-check')
+            .find('label')
+            .attr('for', radioId);
+        });
+
+        // Restaura seleção, se existir
+        if (selecoes[userId]) {
+          $content
+            .find(`input[value="${selecoes[userId]}"]`)
+            .prop('checked', true);
+        }
+
+        return $content;
+      }
+    });
+  });
+
+  // Fecha popovers ao clicar fora
+  $(document).on('click', function (e) {
+    if (
+      !$(e.target).closest('.popover').length &&
+      !$(e.target).closest('.btn-contato').length
+    ) {
+      $('.btn-contato').popover('hide');
+    }
+  });
+
+  // Mudança do radio
+  $(document).on('change', 'input[type="radio"][name^="forma_contato_"]', function () {
+
+    const $radio = $(this);
+    const valor = $radio.val();
+
+    const $popover = $radio.closest('.popover');
+    const popoverId = $popover.attr('id');
+
+    const $btn = $(`.btn-contato[aria-describedby="${popoverId}"]`);
+
+    if (!$btn.length) return;
+
+    const userId = $btn.data('user-id');
+    const tipo_evento = $btn.data('tipo');
+
+    const $icone = $(`.icone-user-${userId}`);
+
+    // Salva localmente
+    selecoes[userId] = valor;
+
+    // AJAX
+    $.ajax({
+      url: ajaxurl,
+      method: 'POST',
+      data: {
+        action: 'salvar_forma_contato',
+        user_id: userId,
+        tipo_evento: tipo_evento,
+        tipo_contato: valor
+      }
+    }).done(function (response) {
+        if (response.success) {
+
+            if (iconesContato[valor]) {
+                const iconData = iconesContato[valor];
+
+                const $img = $('<img>', {
+                    src: iconData.src,
+                    alt: iconData.alt,
+                    class: 'icone-contato'
+                });
+
+                $icone.empty().append($img);
+            }
+
+            toastr.options.positionClass = 'toast-bottom-right';
+            toastr.success('Forma de contato registrada com sucesso!');
+        } else {
+            toastr.options.positionClass = 'toast-bottom-right';
+            toastr.error('Erro ao registrar forma de contato.');
+        }
+    })
+    .fail(function (jqXHR, textStatus) {
+        // erro técnico (timeout, 500, etc)
+        toastr.options.positionClass = 'toast-bottom-right';
+        toastr.error('Erro de comunicação com o servidor.');
+    });
+  });
+
+});
+
+// Fechar quando abrir outro popover
+$s(document).on('click', '.btn-contato', function (e) {
+  e.stopPropagation();
+
+  // Fecha todos os outros
+  $s('.btn-contato').not(this).popover('hide');
+});
+
+$s(document).on('shown.bs.popover', function () {
+    $s('[data-toggle="tooltip"]').tooltip({
+        container: 'body',
+        trigger: 'hover'
     });
 });

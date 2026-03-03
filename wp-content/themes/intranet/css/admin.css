@@ -291,6 +291,68 @@ div#categorias-contatodiv{
     text-align: center;
 }
 
+.popover-forma-contato.popover {
+    border-radius: 0;
+}
+
+.popover-forma-contato.bs-popover-right .arrow::before {
+    border-width: 0.6rem 0.8rem .6rem 0;
+}
+
+.popover-forma-contato .popover-body {
+    padding: 0;
+}
+
+.popover-forma-contato p {
+    margin-bottom: 0;
+    padding: 7px 12px;
+}
+
+.popover-forma-contato .form-check {
+    padding: 5px 10px 10px;
+}
+
+.popover-forma-contato .form-check:nth-of-type(odd) {
+    background: #f7f7f7;
+}
+
+.popover-forma-contato .form-check:nth-of-type(even) {
+    background: #ffffff;
+}
+
+.popover-forma-contato .form-check .form-check-input{
+    position: relative;
+    margin-top: 2px;
+    border-color: #0F59C8;
+}
+
+.popover-forma-contato .form-check .form-check-input:checked::before {
+    background: #0F59C8;
+    margin: .2rem;
+}
+
+.popover-forma-contato .form-check .form-check-label,
+.popover-forma-contato p,
+.legenda-tabela {
+    font-size: 13px;
+    line-height: 18px;
+    font-weight: 600;
+}
+
+.btn-contato {
+    background: #78A5FF;
+    border-color: #78A5FF;
+    margin-bottom: 8px;
+}
+
+.remove-participante-sorteado{
+    margin-bottom: 8px;
+}
+
+#lista-participantes-sorteados .nome{
+    display: initial;
+}
+
 #menu-posts-cortesias {
     display: none;
 }

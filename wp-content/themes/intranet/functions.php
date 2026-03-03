@@ -974,11 +974,21 @@ function clean($string) {
 }
 
 // Inclui o JS para alterar o tipo de campo no alt das imagens
-function custom_admin_js() {
-    $url = get_bloginfo('template_directory') . '/js/wp-admin.js';
-    echo '"<script type="text/javascript" src="'. $url . '"></script>"';
-}
-add_action('admin_footer', 'custom_admin_js');
+add_action('admin_enqueue_scripts', function () {
+
+    wp_enqueue_script(
+        'custom-admin-js',
+        get_template_directory_uri() . '/js/wp-admin.js',
+        ['jquery'],
+        '1.0',
+        true
+    );
+
+    wp_localize_script('custom-admin-js', 'wpContato', [
+        'ajaxurl'  => admin_url('admin-ajax.php'),
+        'themeUrl' => get_template_directory_uri(),
+    ]);
+});
 
 // Altera o texto da label
 add_filter(  'gettext',  'dirty_translate'  );
@@ -4588,7 +4598,7 @@ function custom_single_post_endpoint($request) {
     $post_data['sorteados'] = [];
 	$post_data['datas_dispo'] = [];
 
-	$genero = get_field('genero_taxo', $post->ID);
+	$genero = get_field('genero_taxo', $post->ID); // Tipo de evento
 	$local = get_field('local', $post->ID);
 	$local_outros = get_field('local_outros', $post->ID);
 
@@ -5375,20 +5385,20 @@ function acf_local_atualiza_endereco_com_observer() {
     <?php
 }
 
-// Registrar taxonomia "Gênero" para posts
+// Registrar taxonomia "Gênero / Tipo de evento" para posts
 add_action('init', 'registrar_taxonomia_genero');
 function registrar_taxonomia_genero() {
     register_taxonomy('genero', ['post', 'cortesias'], [
         'labels' => [
-            'name' => 'Gêneros',
-            'singular_name' => 'Gênero',
-            'search_items' => 'Buscar Gêneros',
-            'all_items' => 'Todos os Gêneros',
-            'edit_item' => 'Editar Gênero',
-            'update_item' => 'Atualizar Gênero',
-            'add_new_item' => 'Adicionar novo Gênero',
-            'new_item_name' => 'Nome do novo Gênero',
-            'menu_name' => 'Gêneros',
+            'name' => 'Tipos de Evento',
+            'singular_name' => 'Tipo de Evento',
+            'search_items' => 'Buscar Tipos de Evento',
+            'all_items' => 'Todos os Tipos de Evento',
+            'edit_item' => 'Editar Tipo de Evento',
+            'update_item' => 'Atualizar Tipo de Evento',
+            'add_new_item' => 'Adicionar novo Tipo de Evento',
+            'new_item_name' => 'Nome do novo Tipo de Evento',
+            'menu_name' => 'Tipos de Evento',
         ],
         'public' => true,
         'hierarchical' => false, // tipo "tag"
@@ -5401,17 +5411,17 @@ function registrar_taxonomia_genero() {
     ]);
 }
 
-// Alterar texto de ajuda da descrição do gênero e nome
+// Alterar texto de ajuda da descrição e nome do gênero / tipo de evento 
 add_filter('gettext', 'alterar_texto_ajuda_descricao_genero', 20, 3);
 function alterar_texto_ajuda_descricao_genero($translated_text, $text, $domain) {
     // Altere apenas na tela de edição da taxonomia 'genero'
     if (is_admin() && isset($_GET['taxonomy']) && $_GET['taxonomy'] === 'genero') {
         if ($translated_text === 'A descrição não está em destaque por padrão, entretanto alguns temas podem mostrá-la.') {
-            return 'Insira uma breve descrição sobre esse gênero de evento (uso interno, opcional).';
+            return 'Insira uma breve descrição sobre esse tipo de evento (uso interno, opcional).';
         }
 
 		if ($translated_text === 'O nome é como aparece em seu site.') {
-            return 'Esse nome será exibido como o gênero do evento na notícia do sorteio (ex: Visita Cultural, Show Musical).';
+            return 'Esse nome será exibido como o tipo do evento nas notícias de sorteio e cortesias (ex: Visita Cultural, Show Musical).';
         }
     }
     return $translated_text;
@@ -5932,7 +5942,7 @@ function custom_single_cortesia_endpoint( $post, $selected_fields = []) {
     $post_data['sorteados'] = [];
 	$post_data['datas_dispo'] = [];
 
-	$genero = get_field('genero_taxo', $post->ID);
+	$genero = get_field('genero_taxo', $post->ID); // Tipo de evento
 	$local = get_field('local', $post->ID);
 	$local_outros = get_field('local_outros', $post->ID);
 	$requerConfirmacao = get_field('confirm_presen', $post->ID);
@@ -6422,5 +6432,43 @@ function render_autor_original_comentario_metabox($comment) {
         echo '<p>—</p>';
     }
 }
+
+add_action('wp_ajax_salvar_forma_contato', function () {    
+
+    $user_id      = intval($_POST['user_id'] ?? 0);
+    $tipo_contato = sanitize_text_field($_POST['tipo_contato'] ?? '');
+    $tipo_evento  = sanitize_text_field($_POST['tipo_evento'] ?? '');
+
+    if (!$user_id || !$tipo_contato || !$tipo_evento) {
+        wp_send_json_error('Dados inválidos.');
+    }
+
+    global $wpdb;
+
+    $tabela = ($tipo_evento === 'cortesias')
+        ? $wpdb->prefix . 'cortesias_inscricoes'
+        : $wpdb->prefix . 'inscricoes';
+
+    $res = $wpdb->update(
+        $tabela,
+        ['tipo_contato' => $tipo_contato],
+        ['id' => $user_id],
+        ['%s'],
+        ['%d']
+    );
+
+    // erro SQL
+    if ($res === false) {
+        wp_send_json_error('Erro ao atualizar o banco.');
+    }
+
+    // nenhuma linha afetada
+    if ($res === 0) {
+        wp_send_json_error('Nenhuma alteração foi feita.');
+    }
+
+    // sucesso
+    wp_send_json_success('Forma de contato atualizada.');
+});
 
 /** ------------------------------------------------------------------------------- */

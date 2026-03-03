@@ -103,7 +103,7 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 		}		
 
 		$dataEvento = obter_datas_evento_formatadas( get_the_ID() );
-		$genero = get_field('genero_taxo', get_the_ID());
+		$genero = get_field('genero_taxo', get_the_ID()); // Tipo de evento
 		$duracao = get_field('duracao');
 		$class_indicativa = get_field('class_indicativa');
 		$local = get_field('local');
@@ -128,7 +128,7 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 			}
 			
 			if($genero){
-				echo '<strong>Gênero: </strong> ' . $genero->name . '</br>';
+				echo '<strong>Tipo de Evento: </strong> ' . $genero->name . '</br>';
 			}
 			if($duracao){
 				echo '<strong>Duração: </strong> ' . $duracao . '</br>';

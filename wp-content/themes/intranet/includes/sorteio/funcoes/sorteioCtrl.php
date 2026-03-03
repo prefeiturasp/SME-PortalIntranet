@@ -162,6 +162,12 @@ function retorna_lista_sorteados_html($post_id, $data, $unica = false, $sancao =
 	$localInscri = '';
 	$itens = '';
 
+	$icones = [
+        1 => 'icon-telefone.svg',
+        2 => 'icon-email.svg',
+        3 => 'icon-whatsapp.svg'
+    ];
+
 	$arrTodosConfirmados = [];
 
 	$qtdIngressoSorteio = get_post_meta(get_the_id(), 'qtd_sorteada', true);
@@ -237,6 +243,8 @@ function retorna_lista_sorteados_html($post_id, $data, $unica = false, $sancao =
 			$escondeRemover = '';
 		}
 
+		$tipo_contato = $linha['tipo_contato'];
+
 		// $resHistorico = $wpdb->get_results("SELECT historico_emails FROM $tabela WHERE id = $id AND post_id = $post_id", ARRAY_A);
 		$arrHistorico = json_decode($linha['historico_emails']);
 
@@ -246,11 +254,17 @@ function retorna_lista_sorteados_html($post_id, $data, $unica = false, $sancao =
 		$dataConfirmacao = explode('-', $dataConf[0]);
 		$dataHoraEnvioSorteado = 'E-mail enviado dia: '.$dataConfirmacao[2].'/'.$dataConfirmacao[1].'/'.$dataConfirmacao[0].' às '.$dataConf[1];
 		$statusNotificado = $arrHistorico->vencedor->enviado == '1' ? 'SIM' : 'NÃO';
+		if($tipo_contato != 0){
+			$icone_contato = '<img src="' . get_stylesheet_directory_uri() . '/img/' . $icones[$tipo_contato] . '" class="icone-contato">';
+		} else {
+			$icone_contato = '';
+		}
 
 		$item = file_get_contents(get_template_directory().'/includes/sorteio/conteudo-tab-view.html');
 		$item = str_replace('{ID}',                 	$id,                                  							$item);
 		$confirmacaoPresenca == '2' ? $item = str_replace('{DESABILITAR}', 'disabled', $item) : $item = str_replace('{DESABILITAR}', '', $item);
 		$item = str_replace('{TAG}',                	$tag,                                          					$item);
+		$item = str_replace('{ICONE-NOME}',         	$icone_contato,                                 					$item);
 		$item = str_replace('{ORDEM}',              	$i,                                            					$item);
 		$item = str_replace('{DIRETORIO_URI}',      	get_stylesheet_directory_uri(),                					$item);
 		$item = str_replace('{NOME}',               	esc_html(strtoupper($linha['nome_completo'])), 					$item);
@@ -262,11 +276,13 @@ function retorna_lista_sorteados_html($post_id, $data, $unica = false, $sancao =
 		$item = str_replace('{TELEFONE}',           	esc_html($linha['telefone_comercial']),        					$item);
 		$item = str_replace('{DRE}',                	esc_html($linha['dre']),                       					$item);
 		$item = str_replace('{CONTATO-CHECADO}',        $contato,                                      					$item); 
+		$item = str_replace('{TIPO-CONTATO}',           $tipo_contato,                                      			$item);
+		$item = str_replace('{TEMPLATE-URI}',           get_template_directory_uri(),                         			$item);
 		$item = str_replace('{PRESENCA-CHECADA}',       $confPresenca,                                 					$item); 
 		$item = str_replace('{EMAILINSTRUCAO-CHECADO}', $enviouEmailInstrucoes,                        			  		$item);
 		$item = str_replace('{UNIDADE}',                esc_html($linha['unidade_setor']),             		      		$item);
-		$item = str_replace('{IMG-CANCELA-SORTEADO}',   get_template_directory_uri().'/img/remove-participante.png',  	$item);
-		$item = str_replace('{IMG-EMAIL-ENVIADO}',      get_template_directory_uri().'/img/email-enviado.png',  	    $item);
+		$item = str_replace('{IMG-CANCELA-SORTEADO}',   get_template_directory_uri().'/img/remove-participante.svg',  	$item);
+		$item = str_replace('{IMG-EMAIL-ENVIADO}',      get_template_directory_uri().'/img/email-enviado.svg',  	    $item);
 		$item = str_replace('{DESCRICAO-ENVIO-EMAIL}',  $dataHoraEnvioSorteado,  	    								$item);
 		$item = str_replace('{ESCONDE}',            	$esconde,  														$item);
 		$item = str_replace('{ESCONDE-REMOVER}',        $escondeRemover, 											    $item);
@@ -287,6 +303,11 @@ function retorna_lista_sorteados_html($post_id, $data, $unica = false, $sancao =
 	
 	$html = str_replace('{OCULTAR-BOTAO}',   '',  $html);
 	$html = str_replace('{OCULTAR-CONFIRMADOS}',   '',  $html);
+	$html = str_replace('{LEGENDAS}',   '<p class="legenda-tabela">
+											<img src="' . get_template_directory_uri().'/img/icon-telefone.svg" alt="icone Telefone" class="mr-1"> Contatado por telefone
+											<img src="' . get_template_directory_uri().'/img/icon-email.svg" alt="icone Email" class="mr-1 ml-3"> Contatado por e-mail
+											<img src="' . get_template_directory_uri().'/img/icon-whatsapp.svg" alt="icone Whatsapp" class="mr-1 ml-3"> Contatado por WhatsApp
+										</p>',  $html);
 
 	if($requerConfirmacao){
 		$html = str_replace('{OCULTAR-TODOS}',   'd-none',  $html);
@@ -569,6 +590,11 @@ function aplicar_sancao_ajax() {
                 ]
             );
 
+			// Atualiza a inscrição informando que o participante não compareceu ao evento
+			$data = array( 'compareceu' => 0 );
+            $where = array( 'id' => $id_participante );
+            $wpdb->update( $tabela_inscricoes, $data, $where );
+
             $aplicados[] = $cpf;
         }
     }
@@ -587,12 +613,33 @@ function desbloquear_usuario_ajax() {
         wp_send_json_error('ID da sanção não enviado');
     }
 
+	$tabela_sancoes = $wpdb->prefix . 'inscricao_sancoes';
+
+	$motivo = sanitize_text_field( $_POST['motivo'] ); // e = erro administrativo | j = justificada
     $sancao_id = intval($_POST['sancao_id']);
-    $tabela_sancoes = $wpdb->prefix . 'inscricao_sancoes';
+	$sancao_data = get_sancao_by_id( $sancao_id );
 
     $delete = $wpdb->delete($tabela_sancoes, ['id' => $sancao_id], ['%d']);
 
     if($delete !== false) {
+
+		if ( $motivo == 'e' ) {
+			$tabela_inscricoes = $sancao_data->tipo_noticia == 'c' ? $wpdb->prefix . 'cortesias_inscricoes' :  $wpdb->prefix . 'inscricoes';
+
+			$data = ['compareceu' => true];
+			$where = ['id' => $sancao_data->id_inscricao];
+			$wpdb->update( $tabela_inscricoes, $data, $where );
+		}
+
+		// Insere o registro na tabela de histórico de sanções
+		registrar_historico_sancao(
+			$sancao_data->evento_id,
+			$sancao_data->id_inscricao,
+			$sancao_data->cpf,
+			$sancao_data->tipo_noticia,
+			$motivo
+		);
+
         wp_send_json_success();
     } else {
         wp_send_json_error('Falha ao remover a sanção');
@@ -2742,4 +2789,67 @@ function get_premio_por_data($post_id, $data_procurada) {
     }
 
     return null;
+}
+
+function registrar_historico_sancao(
+	int $post_id,
+	int $inscricao_id,
+	string $cpf,
+	string $tipo_noticia,
+	string $motivo,
+	string $acao = 'r'
+	) {
+
+    global $wpdb;
+
+    
+    $tabela_historico = $wpdb->prefix . 'historico_sancoes';
+		
+	if ( !in_array( $acao, ['a','r'] ) ) { // a = aplicar | r = revogar
+		throw new InvalidArgumentException('Ação inválida para histórico de sanção.');
+	}
+
+	if ( !in_array( $tipo_noticia, ['s','c'] ) ) { // s = sorteio | c = cortesia
+		throw new InvalidArgumentException('Tipo de notícia inválido');
+	}
+
+    $insert = $wpdb->insert(
+        $tabela_historico,
+        [
+            'post_id'       => $post_id,
+            'inscricao_id'  => $inscricao_id,
+            'cpf'           => sanitize_text_field( $cpf ),
+            'tipo'          => $tipo_noticia,
+            'acao'          => $acao,
+            'motivo' 		=> sanitize_text_field( $motivo ),
+            'user_id'       => get_current_user_id(),
+            'created_at'    => current_time( 'mysql' ),
+        ],
+        [
+            '%d',
+            '%d',
+            '%s',
+            '%s',
+            '%s',
+            '%s',
+            '%d',
+            '%s'
+        ]
+    );
+
+    return $insert;
+}
+
+function get_sancao_by_id( int $sancao_id ) {
+	global $wpdb;
+
+	$tabela_sancoes = $wpdb->prefix . 'inscricao_sancoes';
+
+	return $wpdb->get_row(
+        $wpdb->prepare("
+            SELECT *
+            FROM {$tabela_sancoes}
+            WHERE id = %d
+        ", $sancao_id)
+    );
 }
