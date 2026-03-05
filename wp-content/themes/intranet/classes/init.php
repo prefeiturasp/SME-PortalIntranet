@@ -24,6 +24,9 @@ require_once __ROOT__.'/classes/sancao/sancao.php';
 //Histórico de envio de e-mails de instrução dos sorteios
 require_once __ROOT__.'/classes/HistoricoEmails/HistoricoEmails.php';
 
+//Tela de histórico de participações no painel adminstrativo
+require_once __ROOT__.'/classes/HistoricoParticipacoes/HistoricoParticipacoes.php';
+
 require_once __ROOT__.'/classes/Cpt/Cpt.php';
 require_once __ROOT__.'/classes/Cpt/CptPosts.php';
 require_once __ROOT__.'/classes/Cpt/CptNoticias.php';

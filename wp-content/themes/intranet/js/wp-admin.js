@@ -391,3 +391,51 @@ $s(document).on('shown.bs.popover', function () {
         trigger: 'hover'
     });
 });
+
+// ==============================
+// Calendário dos sorteios (widget)
+// ==============================
+
+jQuery(function($){
+    $(document).on('click', '.js-bloco-toggle .js-toggle-lista', function(e){
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        var $bloco = $(this).closest('.js-bloco-toggle');
+        var $lista = $bloco.find('.js-lista-conteudo');
+        var $icon  = $bloco.find('.js-toggle-icon');
+
+        $lista.stop(true,true).slideToggle(200);
+        $icon.toggleClass('is-open');
+
+    });
+});
+
+// ==============================
+// Histórico de participantes
+// ==============================
+
+jQuery(document).ready(function($) {
+    var tabelaEventos = $('.historico-participantes#tabela-eventos').DataTable({
+        ordering: false,
+        lengthChange: false,
+        searching: true,
+        dom: 'rtip',
+        pageLength: 10,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+        }
+    });
+
+    // Busca personalizada
+    $('.filtro-eventos-participante #evento-input').on('keyup', function() {
+        tabelaEventos.search($(this).val()).draw();
+    });
+
+    // Botão limpar
+    $('.filtro-eventos-participante #btn-limpar-filtro').on('click', function() {
+        $('.filtro-eventos-participante #evento-input').val('');
+        tabelaEventos.search('').draw();
+    });
+});
