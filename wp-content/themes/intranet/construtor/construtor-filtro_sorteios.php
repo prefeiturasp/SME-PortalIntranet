@@ -352,7 +352,6 @@ if (!empty($partes_texto)) {
                     $data_final   = $_GET['dataFim'] . ' 23:59:59';
 
                     $args_for_query1['meta_query'][] = array(
-                        'relation' => 'OR',
                         [
                             'key'     => 'evento_datas_$_data', // % pega qualquer índice do repeater
                             'value'   => [ $data_inicial, $data_final ],
@@ -360,13 +359,12 @@ if (!empty($partes_texto)) {
                             'type'    => 'DATETIME',
                         ],
                         [
-                            'key'     => 'evento_datas_$_data',
-                            'compare' => 'NOT EXISTS',
-                        ],
+                            'key' => 'tipo_evento',
+                            'value' => 'data',
+                        ]
                     );
 
                     $args_for_query2['meta_query'][] = array(
-                        'relation' => 'OR',
                         [
                             'key'     => 'evento_datas_$_data', // % pega qualquer índice do repeater
                             'value'   => [ $data_inicial, $data_final ],
@@ -374,9 +372,9 @@ if (!empty($partes_texto)) {
                             'type'    => 'DATETIME',
                         ],
                         [
-                            'key'     => 'evento_datas_$_data',
-                            'compare' => 'NOT EXISTS',
-                        ],
+                            'key' => 'tipo_evento',
+                            'value' => 'data',
+                        ]
                     );
                 }
 
