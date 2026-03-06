@@ -1792,7 +1792,7 @@ add_action('admin_footer', function () {
 });
 
 // Obtem adata do próximo sorteio de um evento com multiplas datas
-function obter_proxima_data_sorteio( $post_id ) {
+function obter_proxima_data_sorteio( $post_id, $semana = true ) {
 
     $hoje = obter_data_com_timezone('Y-m-d', 'America/Sao_Paulo');
 	$tipo_evento = get_field( 'tipo_evento', $post_id );
@@ -1812,24 +1812,24 @@ function obter_proxima_data_sorteio( $post_id ) {
 			return strcmp( $a['data_sorteio'], $b['data_sorteio'] );
 		} );
 
-		return !empty( $datas_futuras ) ? formatar_data_por_extenso( str_replace( '-', '', $datas_futuras[0]['data_sorteio'] ), false ) : null;
+		return !empty( $datas_futuras ) ? formatar_data_por_extenso( str_replace( '-', '', $datas_futuras[0]['data_sorteio'] ), false, $semana ) : null;
     }
 	
 	if ( $data_sorteio = get_field( 'data_sorteio', $post_id ) ) {
 
-		return  formatar_data_por_extenso(  str_replace( '-', '', $data_sorteio ), false );
+		return  formatar_data_por_extenso(  str_replace( '-', '', $data_sorteio ), false, $semana );
 	}
 
 	if ( $tipo_evento === 'periodo' ) {
 		$info_periodo_evento = get_field( 'evento_periodo', $post_id );
 
-		return formatar_data_por_extenso( str_replace( '-', '', $info_periodo_evento['data_sorteio'] ), false );
+		return formatar_data_por_extenso( str_replace( '-', '', $info_periodo_evento['data_sorteio'] ), false, $semana );
 	}
 
 	return null;
 }
 
-function obter_ultima_data_sorteio( $post_id ) {
+function obter_ultima_data_sorteio( $post_id, $semana = true ) {
 
 	$tipo_evento = get_field( 'tipo_evento', $post_id );
 	$evento_datas = get_field( 'evento_datas', $post_id );
@@ -1844,18 +1844,18 @@ function obter_ultima_data_sorteio( $post_id ) {
 			return strcmp( $b['data_sorteio'], $a['data_sorteio'] );
 		} );
 
-    	return !empty( $evento_datas ) ? formatar_data_por_extenso( str_replace( '-', '', $evento_datas[0]['data_sorteio'] ), false ) : null;
+    	return !empty( $evento_datas ) ? formatar_data_por_extenso( str_replace( '-', '', $evento_datas[0]['data_sorteio'] ), false, $semana ) : null;
     }
 
 	if ( $data_sorteio = get_field( 'data_sorteio', $post_id ) ) {
 
-		return formatar_data_por_extenso( str_replace( '-', '', $data_sorteio ), false );
+		return formatar_data_por_extenso( str_replace( '-', '', $data_sorteio ), false, $semana );
 	}
 
 	if ( $tipo_evento === 'periodo' ) {
 		$info_periodo_evento = get_field( 'evento_periodo', $post_id );
 
-		return formatar_data_por_extenso( str_replace( '-', '', $info_periodo_evento['data_sorteio'] ), false );
+		return formatar_data_por_extenso( str_replace( '-', '', $info_periodo_evento['data_sorteio'] ), false, $semana );
 	}
 
 	return null;

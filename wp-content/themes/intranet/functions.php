@@ -54,7 +54,7 @@ function custom_setup() {
 	}
 
 	if (function_exists('add_image_size')) {
-		add_image_size('home-thumb', 250, 166);
+		add_image_size('home-thumb', 578, 470, true);
 		add_image_size('default-image', 825, 470, true);
 		add_image_size('img-dest', 1000, 400, true);
 	}
@@ -4294,12 +4294,13 @@ add_action('wp_enqueue_scripts', 'adicionar_seletor_emojis_comentarios');
  * 
  * @param string $data_original Data no formato dd/mm/yyyy
  * @param bool $capitalizar Se true, capitaliza o primeiro caractere (padrão: true)
+ * @param bool $semana Se true, inclui o dia da semana (padrão: true)
  * @return string Data formatada ou string vazia em caso de erro
  */
-function formatar_data_por_extenso($data_original, $capitalizar = true) {
-    
-	$data = null;
-    
+function formatar_data_por_extenso($data_original, $capitalizar = true, $semana = true) {
+
+    $data = null;
+
     // Verifica se a data está no formato dd/mm/aaaa
     if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $data_original)) {
         $data = DateTime::createFromFormat('d/m/Y', $data_original);
@@ -4308,12 +4309,17 @@ function formatar_data_por_extenso($data_original, $capitalizar = true) {
     elseif (preg_match('/^\d{8}$/', $data_original)) {
         $data = DateTime::createFromFormat('Ymd', $data_original);
     }
-    
+
     if ($data === false) {
         return '';
     }
 
-    // Tenta usar IntlDateFormatter (mais moderno)
+    // Define o formato dependendo se deve mostrar o dia da semana
+    $formato = $semana
+        ? "EEEE, 'dia' d 'de' MMMM 'de' yyyy"
+        : "'dia' d 'de' MMMM 'de' yyyy";
+
+    // Tenta usar IntlDateFormatter
     if (class_exists('IntlDateFormatter')) {
         try {
             $formatter = new IntlDateFormatter(
@@ -4322,21 +4328,22 @@ function formatar_data_por_extenso($data_original, $capitalizar = true) {
                 IntlDateFormatter::NONE,
                 null,
                 null,
-                "EEEE, 'dia' d 'de' MMMM 'de' yyyy"
+                $formato
             );
+
             $data_formatada = $formatter->format($data);
-            
+
             if ($capitalizar) {
                 $data_formatada = mb_convert_case($data_formatada, MB_CASE_TITLE, "UTF-8");
             }
-            
+
             return $data_formatada;
         } catch (Exception $e) {
-            // Continua para o método alternativo se falhar
+            // Continua para método alternativo
         }
     }
 
-    // Método alternativo para quando Intl não está disponível
+    // Método alternativo
     $dias_semana = array(
         'Sunday'    => 'Domingo',
         'Monday'    => 'Segunda-feira',
@@ -4362,16 +4369,25 @@ function formatar_data_por_extenso($data_original, $capitalizar = true) {
         'December'  => 'dezembro'
     );
 
-    $dia_semana_ingles = $data->format('l');
     $mes_ingles = $data->format('F');
-    
-    $data_formatada = sprintf(
-        '%s, %d de %s de %Y',
-        $dias_semana[$dia_semana_ingles],
-        $data->format('d'),
-        $meses[$mes_ingles],
-        $data->format('Y')
-    );
+
+    if ($semana) {
+        $dia_semana_ingles = $data->format('l');
+        $data_formatada = sprintf(
+            '%s, dia %d de %s de %Y',
+            $dias_semana[$dia_semana_ingles],
+            $data->format('d'),
+            $meses[$mes_ingles],
+            $data->format('Y')
+        );
+    } else {
+        $data_formatada = sprintf(
+            'dia %d de %s de %Y',
+            $data->format('d'),
+            $meses[$mes_ingles],
+            $data->format('Y')
+        );
+    }
 
     if ($capitalizar) {
         $data_formatada = mb_convert_case($data_formatada, MB_CASE_TITLE, "UTF-8");
@@ -4625,8 +4641,9 @@ function custom_posts_endpoint($request) {
 					: 'Ingressos gratuitos por ordem de inscrição, enquanto houver disponibilidade'; 
 			} else {
 
-				$texto_subtitulo = ( $status == 'encerrados' ) ? 'Sorteio' : 'Sorteio será realizado';
-				$dataSorteio = ( $status == 'encerrados' ) ? obter_ultima_data_sorteio( $post->ID ) : obter_proxima_data_sorteio( $post->ID );
+				$texto_subtitulo = ( $status == 'encerrados' ) ? 'Sorteio' : 'Sorteio';
+				$dataSorteio = ( $status == 'encerrados' ) ? obter_ultima_data_sorteio( $post->ID, false ) : obter_proxima_data_sorteio( $post->ID, false
+				 );
 				$post_data['subtitulo'] = $texto_subtitulo . ' ' . $dataSorteio;
 			}
 			
@@ -4647,6 +4664,18 @@ function custom_posts_endpoint($request) {
 				}
 			}
 
+			$tipo_evento = get_field('tipo_evento', $post->ID);
+			if ($tipo_evento == 'data') {
+				$datas_disponiveis = array();
+				$datas_eventos = get_field('evento_datas', $post->ID);
+				if($datas_eventos){
+					foreach ($datas_eventos as $data_evento) {
+						$datas_disponiveis[] = $data_evento['data'];
+					}
+					$post_data['datas_disponiveis'] = filtrar_ordenar_datas_futuras($datas_disponiveis);
+				}
+			}
+
 			// Custom fields (meta)
 			if (in_array('meta', $selected_fields)) {
 				$meta_fields = get_post_meta($post->ID);
@@ -4658,7 +4687,7 @@ function custom_posts_endpoint($request) {
 			// Imagem destacada (thumbnail)
 			if (in_array('thumbnail', $selected_fields)) {
 				$thumbnail_id = get_post_thumbnail_id($post->ID);
-				$post_data['thumbnail'] = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'default-image') : '';
+				$post_data['thumbnail'] = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'home-thumb') : '';
 			}
 			
 			$data[] = $post_data;
@@ -6613,3 +6642,30 @@ add_action('wp_ajax_salvar_forma_contato', function () {
     // sucesso
     wp_send_json_success('Forma de contato atualizada.');
 });
+
+/***
+ * Filtra um array de datas, retornando apenas aquelas que são futuras em relação à data atual.
+ * @param array $datas Array de strings de datas (formato reconhecido pelo DateTime)
+ * @param string $timezone Timezone para comparação (padrão: 'America/Sao_Paulo')
+ * @return array Array filtrado contendo apenas as datas futuras
+ */
+function filtrar_ordenar_datas_futuras(array $datas, $timezone = 'America/Sao_Paulo') {
+    $agora = new DateTime('now', new DateTimeZone($timezone));
+
+    $datas_futuras = array_filter($datas, function ($data) use ($agora, $timezone) {
+        try {
+            $data_obj = new DateTime($data, new DateTimeZone($timezone));
+            return $data_obj > $agora;
+        } catch (Exception $e) {
+            return false;
+        }
+    });
+
+    usort($datas_futuras, function ($a, $b) use ($timezone) {
+        $data_a = new DateTime($a, new DateTimeZone($timezone));
+        $data_b = new DateTime($b, new DateTimeZone($timezone));
+        return $data_a <=> $data_b;
+    });
+
+    return array_values($datas_futuras);
+}
