@@ -190,10 +190,45 @@ endif;
     //Script para cópia do e-mail do destinatário e cópia do conteúdo do envio
     jQuery(function ($) {
         $('.btn-copiar-conteudo').on('click', function () {
-            const conteudo = $(this).closest('.modal-content').find('.content-body').text().trim();
-            navigator.clipboard.writeText( conteudo );
-            toastr["success"]("Conteúdo copiado com sucesso.")
-        })
+
+            var htmlOriginal = $(this)
+                .closest('.modal-content')
+                .find('.content-body')
+                .html();
+
+            var temp = document.createElement('div');
+            temp.innerHTML = htmlOriginal;
+
+            // Converter emojis do WordPress
+            temp.querySelectorAll('img.emoji').forEach(function(img){
+                img.replaceWith(img.alt);
+            });
+
+            // Converter <br> em quebra de linha
+            temp.querySelectorAll('br').forEach(function(br){
+                br.replaceWith("\n");
+            });
+
+            // Parágrafos
+            temp.querySelectorAll('p').forEach(function(p){
+                p.append("\n");
+            });
+
+            // Listas
+            temp.querySelectorAll('li').forEach(function(li){
+                li.prepend("• ");
+                li.append("\n");
+            });
+
+            var texto = temp.textContent.trim();
+
+            navigator.clipboard.writeText(texto).then(function () {
+                toastr["success"]("Conteúdo copiado com sucesso.");
+            }).catch(function () {
+                toastr["error"]("Não foi possível copiar o conteúdo.");
+            });
+
+        });
 
         $('.copiar-email').on('click', function () {
             const conteudo = $(this).parent('span').text().trim();

@@ -262,53 +262,82 @@ class Historico_Participacoes {
     }
 
     private function get_eventos_participante(string $cpf) {
+
         global $wpdb;
 
-        $sorteios = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT 
+        $tabela_destinatarios = $wpdb->prefix . 'historico_envios_destinatarios';
+
+        $query = $wpdb->prepare(
+            "
+            SELECT 
+                e.*,
+                CASE 
+                    WHEN h.inscricao_id IS NULL THEN 0
+                    ELSE 1
+                END AS tem_historico
+
+            FROM (
+
+                SELECT 
                     i.id,
                     i.post_id,
                     i.sorteado,
                     i.confirmou_presenca,
+                    i.prazo_confirmacao,
                     i.enviou_email_instrucoes,
                     i.compareceu,
+                    i.tipo_contato,
                     i.data_inscricao,
                     p.post_title AS nome_evento,
                     'sorteio' AS tipo
+
                 FROM {$wpdb->prefix}inscricoes i
-                INNER JOIN {$wpdb->posts} p ON p.ID = i.post_id
-                WHERE i.cpf = %s",
-                $cpf
-            )
 
-        );
+                INNER JOIN {$wpdb->posts} p
+                    ON p.ID = i.post_id
 
-        $cortesias = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT 
+                WHERE i.cpf = %s
+
+
+                UNION ALL
+
+
+                SELECT 
                     i.id,
                     i.post_id,
+                    NULL AS sorteado,
                     i.confirmou_presenca,
+                    i.prazo_confirmacao,
                     i.enviou_email_instrucoes,
                     i.compareceu,
+                    i.tipo_contato,
                     i.data_inscricao,
                     p.post_title AS nome_evento,
                     'cortesia' AS tipo
+
                 FROM {$wpdb->prefix}cortesias_inscricoes i
-                INNER JOIN {$wpdb->posts} p ON p.ID = i.post_id
-                WHERE i.cpf = %s",
-                $cpf
-            )
+
+                INNER JOIN {$wpdb->posts} p
+                    ON p.ID = i.post_id
+
+                WHERE i.cpf = %s
+
+            ) e
+
+            LEFT JOIN (
+                SELECT DISTINCT inscricao_id
+                FROM {$tabela_destinatarios}
+            ) h
+
+            ON h.inscricao_id = e.id
+
+            ORDER BY e.data_inscricao DESC
+            ",
+            $cpf,
+            $cpf
         );
 
-        $eventos = array_merge( $sorteios, $cortesias );
-
-        usort($eventos, function ($a, $b) {
-            return strtotime($b->data_inscricao) - strtotime($a->data_inscricao);
-        });
-
-        return $eventos;
+        return $wpdb->get_results($query);
     }
 
     private function check_sancao_ativa_participante( string $cpf ) {

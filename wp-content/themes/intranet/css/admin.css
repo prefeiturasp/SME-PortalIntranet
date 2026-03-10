@@ -386,3 +386,7 @@ div#categorias-contatodiv{
     color: #d63638;
     font-weight: 600;
 }
+
+.tooltip .arrow{
+    margin-left: 0;
+}

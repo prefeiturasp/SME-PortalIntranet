@@ -439,3 +439,125 @@ jQuery(document).ready(function($) {
         tabelaEventos.search('').draw();
     });
 });
+
+// ==============================
+// Botão para ver email de instruções
+// ==============================
+
+jQuery(function($){
+
+    $(document).on('click', '.ver-email-instrucao', function(e){
+
+        e.preventDefault();
+
+        var inscricao_id = $(this).data('inscricao');
+
+        $('#email-participante-nome').text('');
+        $('#email-participante-email1').text('');
+        $('#email-participante-email2').text('');
+
+        $('#email-evento').text('');
+        $('#email-admin').text('');
+        $('#email-data').text('');
+
+        $('#email-mensagem').html('Carregando...');
+
+        $.ajax({
+
+            url: ajaxurl,
+            type: 'POST',
+
+            data:{
+                action: 'buscar_email_instrucao',
+                inscricao_id: inscricao_id
+            },
+
+            success:function(response){
+
+                console.log(response);
+
+                if(response.success){
+
+                    $('#email-participante-nome')
+                        .text(response.data.nome);
+
+                    $('#email-participante-email1')
+                        .text(response.data.email1);
+
+                    $('#email-participante-email2')
+                        .text(response.data.email2);
+
+                    $('#email-evento')
+                        .text(response.data.evento);
+
+                    $('#email-admin')
+                        .text(response.data.admin);
+
+                    $('#email-data')
+                        .text(response.data.data_envio);
+
+                    $('#email-mensagem')
+                        .html(response.data.mensagem);
+
+                }else{
+
+                    $('#email-mensagem')
+                        .html('Nenhuma informação encontrada.');
+
+                }
+
+                $('#modalEmailInstrucao').modal('show');
+
+            },
+
+            error:function(){
+
+                $('#email-mensagem')
+                    .html('Erro ao carregar os dados.');
+
+                $('#modalEmailInstrucao').modal('show');
+
+            }
+
+        });
+
+    });
+
+    $(document).on('click', '#copiar-dados-email', function () {
+        var htmlOriginal = $('#email-mensagem').html();
+
+        var temp = document.createElement('div');
+        temp.innerHTML = htmlOriginal;
+
+        // Converter emojis do WordPress (<img class="emoji"> → emoji real)
+        temp.querySelectorAll('img.emoji').forEach(function(img){
+            img.replaceWith(img.alt);
+        });
+
+        // Converter <br> em quebra de linha
+        temp.querySelectorAll('br').forEach(function(br){
+            br.replaceWith("\n");
+        });
+
+        // Converter parágrafos em quebra de linha
+        temp.querySelectorAll('p').forEach(function(p){
+            p.append("\n");
+        });
+
+        // Converter itens de lista
+        temp.querySelectorAll('li').forEach(function(li){
+            li.prepend("• ");
+            li.append("\n");
+        });
+
+        var texto = temp.textContent.trim();
+
+        navigator.clipboard.writeText(texto).then(function () {
+            toastr.success('Conteúdo copiado com sucesso!');
+        }).catch(function () {
+            toastr.error('Não foi possível copiar o conteúdo.');
+        });
+    });
+
+
+});
