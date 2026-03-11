@@ -219,3 +219,23 @@ jQuery(function ($) {
               });
     })
 });
+
+jQuery(function ($) {
+    const swiper = new Swiper('.main-content-slider', {
+        slidesPerView: 1,
+        speed: 500,
+        loop: true,
+        navigation: {
+            nextEl: '.custom-next',
+            prevEl: '.custom-prev',
+        },
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true
+        },
+        autoplay: {
+            delay: 10000,
+            disableOnInteraction: false,
+        },
+    });
+});
