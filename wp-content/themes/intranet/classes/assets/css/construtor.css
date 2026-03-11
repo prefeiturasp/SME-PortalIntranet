@@ -56,6 +56,10 @@ hr.hr-divisor-branca {
 }
 
 /*Custom Abas*/
+#nav-tabContent .tab-pane {
+	max-width: 100% !important;
+}
+
 .fx_all .tab-pane{
 	background: none !important;
 }
@@ -1721,4 +1725,316 @@ form#commentform {
     background-color: rgba(105, 161, 217, 0.80);
     color: #fff;
     font-weight: 700;
+}
+
+/* Bloco sorteios/cortesias em destaque (fx_cl1_destaques_sorteios_cortesias_1_1) */
+
+.row-equal-height{
+    align-items:stretch;
+}
+
+.side-cards{
+
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.side-card{
+    height: 120px;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    display: block;
+    text-decoration: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.side-card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 6px 14px rgba(0,0,0,0.15);
+}
+
+.side-card img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.side-card-title{
+    position:absolute;
+    font-family: "Raleway", sans-serif;
+    text-align:center;
+    font-size:14px;
+    font-weight:600;
+    color:#726969;
+    bottom:0;
+    left:0;
+    right:0;
+    background-color: #f7f7f7;
+    padding:4px;
+}
+
+.slider-column{
+    display:flex;
+}
+
+.main-content-slider{
+    flex:1;
+    height:100%;
+}
+
+.slide-item{
+    background:#f7f7f7;
+    border-radius:16px;
+    overflow:hidden;
+    height:100%;
+}
+
+.slide-item .slide-content .evento-info {
+    font-family: "Raleway", sans-serif;
+}
+
+.slide-item .slide-content .data-item {
+    font-size: 1rem;
+}
+
+.slide-item .slide-content .data {
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.slide-item .slide-content .title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #14447C;
+    font-family: "Open Sans", sans-serif;
+}
+
+.slide-item .slide-content .post_like a {
+    text-decoration: none;
+    color: #666666 !important;
+    font-family: "Raleway", sans-serif;
+}
+
+.slide-item .slide-content .post_like a span {
+    font-size: 10px;
+}
+
+.slide-item .slide-content .badge {
+    font-family: "Open Sans", sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    border-radius: 10px;
+}
+
+.slide-item .slide-content .badge-inscricao {
+    background-color: #01C74B;
+    color: #ffffff;
+}
+
+.slide-item .slide-content .badge-sorteio {
+    background-color: #3982AC;
+    color: #ffffff;
+}
+
+.slide-image img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.custom-prev,
+.custom-next{
+    position: absolute;
+    bottom: 20px;
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(230,230,230,0.9);
+    cursor: pointer;
+}
+
+.custom-prev{
+    left:24px;
+    z-index: 50;
+}
+
+.custom-next{
+    right:24px;
+    z-index: 50;
+}
+
+.badge-cortesia{
+    background:#ff8a3d;
+    color:white;
+}
+
+.main-content-slider{
+    height:100%;
+}
+
+.swiper-slide{
+    height:auto;
+}
+
+/* Novos cards da página de listagem de eventos */
+
+.item-sorteio.item-ativos{
+    box-shadow: 0px 0px 32px 0px rgba(0, 0, 0, 0.07);
+    padding-top: 10px;
+    padding-left: 10px;
+    min-width: 540px;
+    min-height: 206px;
+    border-radius: 12px;
+}
+
+.item-sorteio.item-ativos .sorteio-conteudo{
+    min-height: 180px;
+}
+
+.item-sorteio.item-ativos img{
+    border-radius: 0;
+}
+
+.item-sorteio.item-ativos .event-thumbnail img{
+    border-radius: 10px;
+}
+
+.item-sorteio.item-ativos h3{
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #14447C
+}
+
+.item-sorteio.item-ativos h3 a {
+    color: #14447C;
+    text-decoration: none;
+}
+
+.item-sorteio.item-ativos h3 a:hover {
+    text-decoration: underline;
+}
+
+.item-sorteio.item-ativos .pp_like{
+    color: #666666;
+    font-size: 10px;
+    line-height: 18px;
+    font-family: "Raleway", sans-serif;
+}
+
+.item-sorteio.item-ativos .data,
+.item-sorteio.item-ativos .infos-evento {
+    font-family: "Raleway", sans-serif;
+    color: #3E3232;
+}
+
+.item-sorteio.item-ativos .infos-evento {
+    border-left: 1px solid #B8B8B8;
+    padding-left: 10px;
+    min-height: 125px;
+}
+
+.item-sorteio.item-ativos p{
+    font-size: 13px;
+    line-height: 18px;
+    margin-bottom: 5px;
+}
+
+.item-sorteio.item-ativos p.data {
+    font-weight: 500;
+    font-size: 1rem;
+    line-height: 18px;
+    margin-bottom: 10px;
+}
+
+.item-sorteio.item-ativos p strong{
+    font-weight: 600;
+}
+
+.item-sorteio.item-ativos .post-type-tag {
+    background: rgba(8, 99, 151, 0.8);
+    border-radius: 10px;
+    width: 158px;
+    display: block;
+    height: 30px;
+    font-size: 12px;
+    padding: 7px 11px;
+    line-height: 120%;
+    font-weight: 800;
+    text-transform: capitalize;
+}
+
+.item-sorteio.item-ativos .post-type-tag.cortesia-tag{
+    background: rgba(255, 110, 20, 0.9);
+}
+
+.item-sorteio.item-ativos .post-type-tag.inscricao-tag {
+    background: #01C74BCC;
+}
+
+.all-dates {
+    display: flex;
+    align-items: flex-start;
+}
+
+.all-dates p {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.datas-grid {
+    flex: 1;
+}
+
+.datas-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    margin-bottom: 10px;
+}
+
+.data-item {
+    padding: 0 5px;
+    text-align: center;
+    border-left: 1px solid #B8B8B8;
+    font-size: 13px;
+    line-height: 18px;
+}
+
+/* Remove borda da última coluna */
+.data-item:nth-child(4n + 1) {
+    border-left: none;
+}
+
+@media (max-width: 768px){
+
+    .item-sorteio.item-ativos {
+        min-width: 100%;
+        padding-right: 10px;
+    }
+
+    .custom-prev,
+    .custom-next{
+        top: 25%;
+        bottom: auto;
+        transform: translateY(-50%);
+        width: 36px;
+        height: 36px;
+        background: rgba(255,255,255,0.9);
+    }
+
+    .custom-prev{
+        left:20px;
+    }
+
+    .custom-next{
+        right:20px;
+    }
+
+    .main-content-slider .swiper-pagination {
+        position: absolute !important;
+        top: 40% !important;
+    }
 }

@@ -22,9 +22,9 @@ jQuery(document).ready(function($) {
             var likes="";
 
             if(result.likecount == 1){
-                likes = result.likecount + " like";
+                likes = result.likecount + " Like";
             } else {
-                likes = result.likecount + " likes";
+                likes = result.likecount + " Likes";
             }            
 
             jQuery('span', current).text(likes);

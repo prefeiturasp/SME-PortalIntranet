@@ -12,6 +12,7 @@ Text Domain: sme-portal-intranet
 
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 
 /* =WordPress Core
 -------------------------------------------------------------- */
@@ -3036,4 +3037,8 @@ table.datatables td{
 
 .exibir-lista-sorteados{
     display: none;
+}
+
+.container {
+    max-width: 1340px;
 }

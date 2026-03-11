@@ -424,6 +424,10 @@ class Construtor extends Util
 											elseif( get_row_layout() == 'filtro_sorteios' ):
 												get_template_part( 'construtor/construtor', 'filtro_sorteios' );
 
+											// Carrossel de sorteios e cortesias em destaque
+											elseif( get_row_layout() == 'fx_cl1_destaques_sorteios_cortesias_1_1' ):
+												get_template_part( 'construtor/construtor', 'sorteios_cortesias_destaques' );
+
 											// Integracao Pagina
 											elseif( get_row_layout() == 'integrar_pagina' ):
 

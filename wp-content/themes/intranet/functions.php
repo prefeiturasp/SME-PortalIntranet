@@ -6731,5 +6731,77 @@ function buscar_email_instrucao(){
         'mensagem'      => $result->mensagem
 
     ]);
+}
 
+// Exibe apenas evento não encerrados nas opções de seleção do campo
+add_filter('acf/fields/relationship/query/name=sorteios_cortesias_destaques', function($args) {
+
+	$agora = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+    $args['meta_query'] = [
+        [
+            'key'     => 'enc_inscri',
+            'value'   => $agora,
+            'compare' => '>=',
+            'type'    => 'NUMERIC'
+        ]
+    ];
+
+    return $args;
+
+}, 10, 1);
+
+// Remove os eventos encerrados da listagem do campo
+add_filter('acf/load_value/name=sorteios_cortesias_destaques', function($value, $post_id, $field) {
+
+    if (empty($value)) {
+        return $value;
+    }
+
+    $agora = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+    $validos = [];
+
+    foreach ($value as $evento_id) {
+        $data = get_field( 'enc_inscri', $evento_id, false );
+
+        if ( !$data ) {
+            continue;
+        }
+
+        if ( $data >= $agora ) {
+            $validos[] = $evento_id;
+        }
+    }
+
+    return $validos;
+
+}, 10, 3);
+
+/**
+ * Função para verificar se o usuário logado (Perfil servidor),
+ * está inscrito no evento Sorteio/Cortesia
+*/
+function check_usuario_inscrito_evento( int $post_id ) {
+	global $wpdb;
+
+	$user_id = get_current_user_id();
+	$perfil_parceiro = get_user_meta( $user_id, 'parceira', true );
+
+	if ( $perfil_parceiro ) {
+		return false;
+	}
+
+	$tipo_post = get_post_type_label( $post_id );
+	$tabela_inscricoes = $tipo_post === 'cortesias' ? $wpdb->prefix . 'cortesias_inscricoes' : $wpdb->prefix . 'inscricoes';
+
+	$tem_inscricao = $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT 1
+			FROM $tabela_inscricoes
+			WHERE user_id = %d
+				AND post_id = %d",
+			$user_id, $post_id
+		)
+	);
+
+	return boolval( $tem_inscricao );
 }
