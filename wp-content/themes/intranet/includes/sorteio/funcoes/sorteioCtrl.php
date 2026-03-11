@@ -990,10 +990,10 @@ function processa_ajax_exibir_lista_pagina(){//** OK */
 
 		if ($confirmacao === 'true') {	
 			update_post_meta($idPost, 'exibe_resultado_pagina', '1'); 
-			$msg = 'Exibindo lista de resultados na pagina do sorteio';
+			$msg = 'Exibindo a lista de resultados na página';
 		} else if ($confirmacao === 'false') {
 			update_post_meta($idPost, 'exibe_resultado_pagina', '0'); 
-			$msg = 'Escondendo lista de resultados na pagina do sorteio';
+			$msg = 'Escondendo a lista de resultados na página';
 		}
 		
 		wp_send_json(
