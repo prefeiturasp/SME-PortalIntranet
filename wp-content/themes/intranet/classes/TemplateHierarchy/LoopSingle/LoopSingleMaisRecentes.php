@@ -80,7 +80,7 @@ class LoopSingleMaisRecentes
 												}
 											?>
 										</p>
-										<span class="badge badge-pill badge-primary d-none">
+										<span class="badge badge-pill badge-primary">
 											<?php echo esc_html( ucfirst( $post_type ) ); ?>
 										</span>										
 										<a href="<?= get_the_permalink(); ?>" class="link-modal"><h2><?= $status_prefix . get_the_title(); ?></h2></a>
