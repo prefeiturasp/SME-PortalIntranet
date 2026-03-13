@@ -92,7 +92,7 @@ $eventos = new WP_Query( $eventos_args );
                                                         $total_like1 = $wpdb->num_rows;
                                                     ?>
                                                     <a class="pp_like <?php if($l==1) {echo "likes text-danger "; } ?>d-flex flex-column justify-content-center align-items-center" id="pp_like_<?php echo get_the_id(); ?>" href="#" data-id="<?php echo get_the_id(); ?>">
-                                                        <i class="fa fa-lg fa-heart" aria-hidden="true"></i>
+                                                        <img src="<?php echo esc_url( get_template_directory_uri() . '/img/icone-likes.svg' ); ?>" alt="like">
                                                         <span><?php echo $total_like1; ?> <?php echo $total_like1 == 1 ? 'Like' : 'Likes'; ?></span>
                                                     </a>
                                                 </div>
