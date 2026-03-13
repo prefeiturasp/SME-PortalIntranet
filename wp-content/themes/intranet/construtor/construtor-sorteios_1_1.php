@@ -328,7 +328,7 @@
                         
                             <div class="col-12 col-md-6 mb-4">
                                 <div class="item-sorteio item-ativos">
-                                    <div class="sorteio-conteudo row m-0">
+                                    <div class="row h-100 m-0">
                                         <div class="col-12 col-md-4 p-0">
                                             <?php 
                                                 $image = get_the_post_thumbnail( $post_id, 'home-thumb', array( 'class' => 'img-fluid' ) );
@@ -346,35 +346,10 @@
                                         </div>
 
                                         <div class="col-12 col-md-8 mt-md-0 pl-md-2 mt-2 pl-0">
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <div class="row">
-                                                        <h3 class="col-10">
-                                                            <a href="<?= get_the_permalink(); ?>"><?= $status_prefix . get_the_title(); ?></a>
-                                                        </h3>
-                                                        <div class="col-2">
-                                                            <?php 
-                                                                global $wpdb;
-                                                                $l = 0;
-                                                                $postid = get_the_id();
-                                                                $clientip  = get_client_ip();
-                                                                $row1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid' AND clientip = '$clientip'");
-                                                                if(!empty($row1)){
-                                                                    $l = 1;
-                                                                }
-                                                                $totalrow1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid'");
-                                                                $total_like1 = $wpdb->num_rows;
-                                                            ?>
-
-                                                            <div class="post_like">
-                                                                <a class="pp_like <?php if($l==1) {echo "likes "; } ?>d-flex flex-column justify-content-center align-items-center" id="pp_like_<?php echo get_the_id(); ?>" href="#" data-id="<?php echo get_the_id(); ?>">
-                                                                    <i class="fa fa-2x fa-heart" aria-hidden="true"></i>
-                                                                    <span class="text-dark"><?php echo $total_like1; ?> <?php echo $total_like1 == 1 ? 'Like' : 'Likes'; ?></span>
-                                                                </a>
-                                                            </div> 
-                                                        </div>
-                                                    </div>
-
+                                            <div class="row h-100">
+                                                <div class="col-12 col-md-10 d-flex flex-column">
+                                                    <h3><a href="<?= get_the_permalink(); ?>"><?= $status_prefix . get_the_title(); ?></a></h3>
+                                                    
                                                     <div class="infos-evento">
                                                         <?php if ( $post_type === 'sorteio' ) : ?>
                                                             <p class="data">
@@ -446,35 +421,52 @@
                                                         endif;
                                                         ?>
                                                     </div>
+                                                    <div class="mt-auto d-flex">
+                                                        <?php if ( check_usuario_inscrito_evento( get_the_ID() ) ) : ?>
+                                                            <span class="post-type-tag inscricao-tag p-2 mr-2">
+                                                                <i class="fa fa-check-circle" aria-hidden="true"></i> Inscrição realizada
+                                                            </span>
+                                                        <?php endif; ?>
 
-                                                    <div class="row mt-2">
-                                                        <div class="col-12">
-                                                            <div class="evento-tags d-flex mb-3 px-1">
-                                                                <?php if ( check_usuario_inscrito_evento( get_the_ID() ) ) : ?>
-                                                                    <span class="post-type-tag inscricao-tag p-2 mr-2">
-                                                                        <i class="fa fa-check-circle" aria-hidden="true"></i> Inscrição realizada
-                                                                    </span>
-                                                                <?php endif; ?>
+                                                        <?php
+                                                        if ( $post_type ) : 
+                                                                if($post_type == 'cortesias'){
+                                                                    $class_tag = 'cortesia-tag';
+                                                                    $label_tag = 'Cortesia';
+                                                                } else {
+                                                                    $class_tag = '';
+                                                                    $label_tag = 'Sorteio';
+                                                                }
+                                                            ?>
+                                                            <span class="post-type-tag <?= $class_tag ?? '' ?> mt-auto">
+                                                                <?= esc_html( $label_tag ); ?>
+                                                            </span>
+                                                            <?php
+                                                        endif;
+                                                        ?>
+                                                    </div>
+                                                </div>
+                                                           
+                                                <div class="col-2">
+                                                    <?php 
+                                                        global $wpdb;
+                                                        $l = 0;
+                                                        $postid = get_the_id();
+                                                        $clientip  = get_client_ip();
+                                                        $row1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid' AND clientip = '$clientip'");
+                                                        if(!empty($row1)){
+                                                            $l = 1;
+                                                        }
+                                                        $totalrow1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid'");
+                                                        $total_like1 = $wpdb->num_rows;
+                                                    ?>
 
-                                                                <?php
-                                                                if ( $post_type ) : 
-                                                                        if($post_type == 'cortesias'){
-                                                                            $class_tag = 'cortesia-tag';
-                                                                            $label_tag = 'Cortesia';
-                                                                        } else {
-                                                                            $class_tag = '';
-                                                                            $label_tag = 'Sorteio';
-                                                                        }
-                                                                    ?>
-                                                                    <span class="post-type-tag <?= $class_tag ?? '' ?>">
-                                                                        <?= esc_html( $label_tag ); ?>
-                                                                    </span>
-                                                                    <?php
-                                                                endif;
-                                                                ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>   
+                                                    <div class="post_like">
+                                                        <a class="pp_like <?php if($l==1) {echo "likes "; } ?>d-flex flex-column justify-content-center align-items-center" id="pp_like_<?php echo get_the_id(); ?>" href="#" data-id="<?php echo get_the_id(); ?>">
+                                                            <i class="fa fa-2x fa-heart" aria-hidden="true"></i>
+                                                            <span class="text-dark"><?php echo $total_like1; ?> <?php echo $total_like1 == 1 ? 'Like' : 'Likes'; ?></span>
+                                                        </a>
+                                                    </div> 
                                                 </div>
                                             </div>
                                         </div>
