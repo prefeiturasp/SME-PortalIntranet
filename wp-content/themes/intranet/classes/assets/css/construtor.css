@@ -1726,3 +1726,20 @@ form#commentform {
     color: #fff;
     font-weight: 700;
 }
+
+.datas-eventos span {
+    padding: 4px 10px;
+    border-right: 1px solid #ddd;
+}
+
+.datas-eventos {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}
+
+.datas-select {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+}

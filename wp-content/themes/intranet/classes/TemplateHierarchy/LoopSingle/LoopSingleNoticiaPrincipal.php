@@ -119,7 +119,7 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 			echo '<strong>O que é: </strong> ' . get_the_title() . '</br>';
 			
 			if(!empty($dataEvento) && $this->tipo_evento === 'data'){
-				echo '<strong>Data: </strong> ' . $dataEvento . '</br>';
+				echo '<strong>Data: </strong> <div class="datas-eventos">' . $dataEvento . '</div></br>';
 			}
 
 			//Aparece apenas em sorteios do tipo Período
@@ -535,40 +535,42 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 											<label for="datas">Selecione a(s) data(s) que deseja participar: <span>*</span></label>
 										<?php endif; ?>
 										
-										<?php foreach ( $datas_disponivies as $data ) : ?>
-											<?php
-											$data_hora = $data['data']; // formato Y-m-d H:i:s
-											$disponivel = verifica_disponibilidade_data_inscricao(get_the_id(), $data_hora);
+										<div class="datas-select">
+											<?php foreach ( $datas_disponivies as $data ) : ?>
+												<?php
+												$data_hora = $data['data']; // formato Y-m-d H:i:s
+												$disponivel = verifica_disponibilidade_data_inscricao(get_the_id(), $data_hora);
 
-											if ( $disponivel ) :
-												$id_input = 'data-' . preg_replace('/[^0-9]/', '', $data_hora); // remove caracteres não numéricos
-												$label_formatada = date('d/m/Y H\hi', strtotime($data_hora)); // dd/mm/aaaa hh(h)mm
-											?>
-												<div class="form-check">
-													<input
-														class="form-check-input"
-														type="checkbox"
-														name="datas[]"
-														value="<?php echo esc_attr( $data_hora ); ?>"
-														id="<?php echo esc_attr( $id_input ); ?>"
-													>
-													<?php
-														$timestamp = strtotime($data_hora);
-														$hora = date('H', $timestamp);
-														$minutos = date('i', $timestamp);
+												if ( $disponivel ) :
+													$id_input = 'data-' . preg_replace('/[^0-9]/', '', $data_hora); // remove caracteres não numéricos
+													$label_formatada = date('d/m/Y H\hi', strtotime($data_hora)); // dd/mm/aaaa hh(h)mm
+												?>
+													<div class="form-check">
+														<input
+															class="form-check-input"
+															type="checkbox"
+															name="datas[]"
+															value="<?php echo esc_attr( $data_hora ); ?>"
+															id="<?php echo esc_attr( $id_input ); ?>"
+														>
+														<?php
+															$timestamp = strtotime($data_hora);
+															$hora = date('H', $timestamp);
+															$minutos = date('i', $timestamp);
 
-														if ($minutos === '00') {
-															$label_formatada = date('d/m/Y', $timestamp) . " {$hora}h";
-														} else {
-															$label_formatada = date('d/m/Y', $timestamp) . " {$hora}h{$minutos}";
-														}
-													?>
-													<label class="form-check-label" for="<?php echo esc_attr( $id_input ); ?>">
-														<?php echo esc_html( $label_formatada ); ?>
-													</label>
-												</div>
-											<?php endif; ?>
-										<?php endforeach; ?>
+															if ($minutos === '00') {
+																$label_formatada = date('d/m/Y', $timestamp) . " {$hora}h";
+															} else {
+																$label_formatada = date('d/m/Y', $timestamp) . " {$hora}h{$minutos}";
+															}
+														?>
+														<label class="form-check-label" for="<?php echo esc_attr( $id_input ); ?>">
+															<?php echo esc_html( $label_formatada ); ?>
+														</label>
+													</div>
+												<?php endif; ?>
+											<?php endforeach; ?>
+										</div>
 									</div>							
 								</div>
 							<?php endif; ?>
