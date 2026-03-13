@@ -123,7 +123,7 @@ class LoopCortesiasNoticiaPrincipal extends LoopCortesias
 			echo '<strong>O que é: </strong> ' . get_the_title() . '</br>';
 			
 			if(!empty($dataEvento) && $this->tipo_evento === 'data'){
-				echo '<strong>Data: </strong> ' . $dataEvento . '</br>';
+				echo '<strong>Data: </strong> <div class="datas-eventos">' . $dataEvento . '</div></br>';
 			}
 
 			//Aparece apenas em sorteios do tipo Período
@@ -603,40 +603,41 @@ class LoopCortesiasNoticiaPrincipal extends LoopCortesias
 										<?php else : ?>
 											<label for="data-selecionada">Selecione a data que deseja participar: <span>*</span></label>
 										<?php endif; ?>
-										
-										<?php
-										foreach ( $datas_disponivies as $data ) :
-											$data_hora = $data->data_evento;
-											$id_input = 'data-' . $data->id; // remove caracteres não numéricos
-											$label_formatada = date('d/m/Y H\hi', strtotime($data_hora)); // dd/mm/aaaa hh(h)mm
-											?>
-											<div class="form-check">
-												<input
-													class="form-check-input"
-													type="radio"
-													name="data"
-													value="<?php echo esc_attr( $data->id ); ?>"
-													id="<?php echo esc_attr( $id_input ); ?>"
-													<?php checked( $data->id, old( 'data'  ) ); ?>
-												>
-												<?php
-													$timestamp = strtotime($data_hora);
-													$hora = date('H', $timestamp);
-													$minutos = date('i', $timestamp);
-
-													if ($minutos === '00') {
-														$label_formatada = date('d/m/Y', $timestamp) . " {$hora}h";
-													} else {
-														$label_formatada = date('d/m/Y', $timestamp) . " {$hora}h{$minutos}";
-													}
-												?>
-												<label class="form-check-label" for="<?php echo esc_attr( $id_input ); ?>">
-													<?php echo esc_html( $label_formatada ); ?>
-												</label>
-											</div>
+										<div class="datas-select">
 											<?php
-										endforeach;
-										?>
+											foreach ( $datas_disponivies as $data ) :
+												$data_hora = $data->data_evento;
+												$id_input = 'data-' . $data->id; // remove caracteres não numéricos
+												$label_formatada = date('d/m/Y H\hi', strtotime($data_hora)); // dd/mm/aaaa hh(h)mm
+												?>
+												<div class="form-check">
+													<input
+														class="form-check-input"
+														type="radio"
+														name="data"
+														value="<?php echo esc_attr( $data->id ); ?>"
+														id="<?php echo esc_attr( $id_input ); ?>"
+														<?php checked( $data->id, old( 'data'  ) ); ?>
+													>
+													<?php
+														$timestamp = strtotime($data_hora);
+														$hora = date('H', $timestamp);
+														$minutos = date('i', $timestamp);
+
+														if ($minutos === '00') {
+															$label_formatada = date('d/m/Y', $timestamp) . " {$hora}h";
+														} else {
+															$label_formatada = date('d/m/Y', $timestamp) . " {$hora}h{$minutos}";
+														}
+													?>
+													<label class="form-check-label" for="<?php echo esc_attr( $id_input ); ?>">
+														<?php echo esc_html( $label_formatada ); ?>
+													</label>
+												</div>
+												<?php
+											endforeach;
+											?>
+										</div>
 									</div>							
 								</div>
 								<?php

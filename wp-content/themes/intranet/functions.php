@@ -5697,18 +5697,19 @@ function obter_datas_evento_formatadas(int $post_id) {
 			// Pega a hora formatada, adaptando sua função para receber o datetime completo
 			$hora_formatada = obter_hora_formatada($data_hora);
 
-			return "{$data_formatada} {$hora_formatada}";
+			return "<span>{$data_formatada} {$hora_formatada}</span>";
 
 		}, $datas_evento);
 
-		return implode(' | ', $lista_datas);
+		return implode('', $lista_datas);
 	}
 
-	if ($data_evento = get_field('data_evento', $post_id, false)) {
-		$dt = DateTime::createFromFormat('Ymd', $data_evento);
-		$data_formatada = $dt ? $dt->format('d/m/Y') : '';
-		$data_formatada = formatar_data_por_extenso($data_formatada, false);
-		return trim($data_formatada);
+	if ($data_evento = get_field('data_evento', $post_id)) {
+
+		$data_formatada = date('d/m/Y', strtotime($data_evento));
+		$hora_formatada = obter_hora_formatada($data_evento);
+
+		return "{$data_formatada} {$hora_formatada}";
 	}
 
 	return null;
