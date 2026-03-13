@@ -307,6 +307,7 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 				$ativo = false;
 				$tabela_sancoes = $wpdb->prefix . 'inscricao_sancoes';
 				$cpf = get_field('cpf', 'user_' . $user_id);
+				$cpf = preg_replace('/\D/', '', $cpf);
 				
 				$sancao_usuario = $wpdb->get_var($wpdb->prepare(
 					"SELECT data_validade FROM $tabela_sancoes WHERE cpf = %s",

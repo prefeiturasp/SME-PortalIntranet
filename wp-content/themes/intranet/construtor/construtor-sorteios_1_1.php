@@ -340,7 +340,7 @@
                                                 </div>
                                             <?php else: ?>
                                                 <div class="event-thumbnail">
-                                                    <img src="<?= wp_get_upload_dir()['baseurl'] . '/2026/02/placeholder-sme-novo.jpg'; ?>" class="img-fluid rounded" alt="Imagem de ilustração categoria">
+                                                    <img src="<?php echo esc_url( get_template_directory_uri() . '/img/placeholder-sme-novo.jpg' ); ?>" class="img-fluid rounded" alt="Imagem de ilustração categoria">
                                                 </div>
                                             <?php endif; ?>
                                         </div>
@@ -350,14 +350,14 @@
                                                 <div class="col-12 col-md-10 d-flex flex-column">
                                                     <h3><a href="<?= get_the_permalink(); ?>"><?= $status_prefix . get_the_title(); ?></a></h3>
                                                     
-                                                    <div class="infos-evento">
+                                                    <div class="infos-evento my-2">
                                                         <?php if ( $post_type === 'sorteio' ) : ?>
                                                             <p class="data">
                                                                 <?php
                                                                     $dataSorteio = get_field('data_sorteio', get_the_ID());
-                                                                    $dataSorteio =  $exibicao === 'encerrados' ? obter_ultima_data_sorteio( get_the_ID() ) : obter_proxima_data_sorteio( get_the_ID() );
+                                                                    $dataSorteio =  $exibicao === 'encerrados' ? obter_ultima_data_sorteio( get_the_ID(), false ) : obter_proxima_data_sorteio( get_the_ID(), false );
                                                                     if($dataSorteio){
-                                                                        $texto_subtitulo = $exibicao === 'encerrados' ? 'Sorteio' : 'O sorteio será realizado';
+                                                                        $texto_subtitulo = $exibicao === 'encerrados' ? 'Sorteio' : 'Sorteio';
                                                                         echo $texto_subtitulo . ' ' . $dataSorteio;	
                                                                     }
                                                                 ?>
@@ -447,7 +447,7 @@
                                                     </div>
                                                 </div>
                                                            
-                                                <div class="col-2">
+                                                <div class="col-12 col-md-2 mt-2">
                                                     <?php 
                                                         global $wpdb;
                                                         $l = 0;
@@ -463,8 +463,8 @@
 
                                                     <div class="post_like">
                                                         <a class="pp_like <?php if($l==1) {echo "likes "; } ?>d-flex flex-column justify-content-center align-items-center" id="pp_like_<?php echo get_the_id(); ?>" href="#" data-id="<?php echo get_the_id(); ?>">
-                                                            <i class="fa fa-2x fa-heart" aria-hidden="true"></i>
-                                                            <span class="text-dark"><?php echo $total_like1; ?> <?php echo $total_like1 == 1 ? 'Like' : 'Likes'; ?></span>
+                                                            <img src="<?php echo esc_url( get_template_directory_uri() . '/img/icone-likes.svg' ); ?>" alt="like">
+                                                            <span><?php echo $total_like1; ?> <?php echo $total_like1 == 1 ? 'Like' : 'Likes'; ?></span>
                                                         </a>
                                                     </div> 
                                                 </div>
