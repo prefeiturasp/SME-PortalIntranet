@@ -6473,3 +6473,67 @@ add_action('wp_ajax_salvar_forma_contato', function () {
 });
 
 /** ------------------------------------------------------------------------------- */
+
+add_action('wp_ajax_buscar_email_instrucao', 'buscar_email_instrucao');
+
+function buscar_email_instrucao(){
+
+    global $wpdb;
+
+    $inscricao_id = intval($_POST['inscricao_id']);
+
+    $tabela_envios = $wpdb->prefix . 'historico_envios';
+    $tabela_destinatarios = $wpdb->prefix . 'historico_envios_destinatarios';
+
+    $query = $wpdb->prepare(
+        "
+        SELECT
+            dest.nome_completo,
+            dest.email_institucional,
+            dest.email_secundario,
+            env.data_envio,
+            env.mensagem,
+            p.post_title,
+			u.display_name
+
+        FROM {$tabela_envios} env
+
+        LEFT JOIN {$tabela_destinatarios} dest
+            ON dest.envio_id = env.id
+
+        LEFT JOIN {$wpdb->posts} p
+            ON p.ID = env.post_id
+
+        LEFT JOIN {$wpdb->users} u
+            ON u.ID = env.user_id
+
+        WHERE dest.inscricao_id = %d
+
+		ORDER BY env.data_envio DESC
+
+        LIMIT 1
+        ",
+        $inscricao_id
+    );
+
+    $result = $wpdb->get_row($query);
+
+    if(!$result){
+
+        wp_send_json_error('Nenhum resultado encontrado');
+
+    }
+
+    wp_send_json_success([
+
+        'nome'          => $result->nome_completo,
+        'email1'        => $result->email_institucional,
+        'email2'        => $result->email_secundario,
+        'evento'        => $result->post_title,
+        'admin'         => $result->display_name,
+        'data_envio'    => date('d/m/Y H:i', strtotime($result->data_envio)),
+        'mensagem'      => $result->mensagem
+
+    ]);
+
+}
