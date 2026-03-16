@@ -352,3 +352,41 @@ div#categorias-contatodiv{
 #lista-participantes-sorteados .nome{
     display: initial;
 }
+
+/* Calendario dos sorteios (widget) */
+
+.js-bloco-toggle .js-toggle-icon {
+    transition: transform 0.2s ease;
+}
+.js-bloco-toggle .js-toggle-icon.is-open {
+    transform: rotate(180deg);
+}
+
+/* Histórico de participantes */
+
+.historico-participantes#tabela-eventos thead tr th {
+    font-weight: 700;
+}
+
+.historico-participantes#tabela-eventos tbody tr td.nome-evento {
+    font-weight: 600;
+}
+
+.filtro-eventos-participante #btn-limpar-filtro {
+    color: #DD823B;
+    border-color: #DD823B;
+}
+
+.filtro-eventos-participante #btn-limpar-filtro:hover {
+    color: #FFFFFF;
+    background-color: #DD823B;
+}
+
+#historico_participante_busca .notice-error {
+    color: #d63638;
+    font-weight: 600;
+}
+
+.tooltip .arrow{
+    margin-left: 0;
+}

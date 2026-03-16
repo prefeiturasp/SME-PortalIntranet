@@ -1,12 +1,3 @@
-<style>
-.js-toggle-icon {
-    transition: transform 0.2s ease;
-}
-.js-toggle-icon.is-open {
-    transform: rotate(180deg);
-}
-</style>
-
 <?php
 
 wp_enqueue_style( 'widgets-dashboard' );
@@ -151,21 +142,3 @@ if ( empty( $eventos ) && empty( $cortesias ) ) {
     echo "<p>{$mensagem}</p>";
 };
 ?>
-
-<script>
-    jQuery(function($){
-        $(document).on('click', '.js-toggle-lista', function(e){
-
-            e.preventDefault();
-            e.stopImmediatePropagation();
-
-            var $bloco = $(this).closest('.js-bloco-toggle');
-            var $lista = $bloco.find('.js-lista-conteudo');
-            var $icon  = $bloco.find('.js-toggle-icon');
-
-            $lista.stop(true,true).slideToggle(200);
-            $icon.toggleClass('is-open');
-
-        });
-    });
-</script>

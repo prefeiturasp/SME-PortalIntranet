@@ -395,3 +395,173 @@ $s(document).on('shown.bs.popover', function () {
         trigger: 'hover'
     });
 });
+
+// ==============================
+// Calendário dos sorteios (widget)
+// ==============================
+
+jQuery(function($){
+    $(document).on('click', '.js-bloco-toggle .js-toggle-lista', function(e){
+
+        e.preventDefault();
+        e.stopImmediatePropagation();
+
+        var $bloco = $(this).closest('.js-bloco-toggle');
+        var $lista = $bloco.find('.js-lista-conteudo');
+        var $icon  = $bloco.find('.js-toggle-icon');
+
+        $lista.stop(true,true).slideToggle(200);
+        $icon.toggleClass('is-open');
+
+    });
+});
+
+// ==============================
+// Histórico de participantes
+// ==============================
+
+jQuery(document).ready(function($) {
+    var tabelaEventos = $('.historico-participantes#tabela-eventos').DataTable({
+        ordering: false,
+        lengthChange: false,
+        searching: true,
+        dom: 'rtip',
+        pageLength: 10,
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+        }
+    });
+
+    // Busca personalizada
+    $('.filtro-eventos-participante #evento-input').on('keyup', function() {
+        tabelaEventos.search($(this).val()).draw();
+    });
+
+    // Botão limpar
+    $('.filtro-eventos-participante #btn-limpar-filtro').on('click', function() {
+        $('.filtro-eventos-participante #evento-input').val('');
+        tabelaEventos.search('').draw();
+    });
+});
+
+// ==============================
+// Botão para ver email de instruções
+// ==============================
+
+jQuery(function($){
+
+    $(document).on('click', '.ver-email-instrucao', function(e){
+
+        e.preventDefault();
+
+        var inscricao_id = $(this).data('inscricao');
+
+        $('#email-participante-nome').text('');
+        $('#email-participante-email1').text('');
+        $('#email-participante-email2').text('');
+
+        $('#email-evento').text('');
+        $('#email-admin').text('');
+        $('#email-data').text('');
+
+        $('#email-mensagem').html('Carregando...');
+
+        $.ajax({
+
+            url: ajaxurl,
+            type: 'POST',
+
+            data:{
+                action: 'buscar_email_instrucao',
+                inscricao_id: inscricao_id
+            },
+
+            success:function(response){
+
+                console.log(response);
+
+                if(response.success){
+
+                    $('#email-participante-nome')
+                        .text(response.data.nome);
+
+                    $('#email-participante-email1')
+                        .text(response.data.email1);
+
+                    $('#email-participante-email2')
+                        .text(response.data.email2);
+
+                    $('#email-evento')
+                        .text(response.data.evento);
+
+                    $('#email-admin')
+                        .text(response.data.admin);
+
+                    $('#email-data')
+                        .text(response.data.data_envio);
+
+                    $('#email-mensagem')
+                        .html(response.data.mensagem);
+
+                }else{
+
+                    $('#email-mensagem')
+                        .html('Nenhuma informação encontrada.');
+
+                }
+
+                $('#modalEmailInstrucao').modal('show');
+
+            },
+
+            error:function(){
+
+                $('#email-mensagem')
+                    .html('Erro ao carregar os dados.');
+
+                $('#modalEmailInstrucao').modal('show');
+
+            }
+
+        });
+
+    });
+
+    $(document).on('click', '#copiar-dados-email', function () {
+        var htmlOriginal = $('#email-mensagem').html();
+
+        var temp = document.createElement('div');
+        temp.innerHTML = htmlOriginal;
+
+        // Converter emojis do WordPress (<img class="emoji"> → emoji real)
+        temp.querySelectorAll('img.emoji').forEach(function(img){
+            img.replaceWith(img.alt);
+        });
+
+        // Converter <br> em quebra de linha
+        temp.querySelectorAll('br').forEach(function(br){
+            br.replaceWith("\n");
+        });
+
+        // Converter parágrafos em quebra de linha
+        temp.querySelectorAll('p').forEach(function(p){
+            p.append("\n");
+        });
+
+        // Converter itens de lista
+        temp.querySelectorAll('li').forEach(function(li){
+            li.prepend("• ");
+            li.append("\n");
+        });
+
+        var texto = temp.textContent.trim();
+
+        navigator.clipboard.writeText(texto).then(function () {
+            toastr.success('Conteúdo copiado com sucesso!');
+        }).catch(function () {
+            toastr.error('Não foi possível copiar o conteúdo.');
+        });
+    });
+
+
+});
