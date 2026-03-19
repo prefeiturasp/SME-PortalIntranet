@@ -6781,6 +6781,10 @@ add_filter('acf/load_value/name=sorteios_cortesias_destaques', function($value, 
  * está inscrito no evento Sorteio/Cortesia
 */
 function check_usuario_inscrito_evento( int $post_id ) {
+
+	//Função desativada até que seja implementada a página de inscrições
+	return false;
+
 	global $wpdb;
 
 	$user_id = get_current_user_id();

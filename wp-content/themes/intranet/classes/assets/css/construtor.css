@@ -1839,10 +1839,16 @@ form#commentform {
     color: #ffffff;
 }
 
+.slide-image {
+    position: relative;
+    overflow: hidden;
+}
+
 .slide-image img{
+    position: relative;
     width:100%;
     height:100%;
-    object-fit:cover;
+    object-fit:contain;
 }
 
 .custom-prev,
@@ -1880,6 +1886,19 @@ form#commentform {
     height:auto;
 }
 
+.carro-destaques.swiper-pagination {
+    width: 5rem !important;
+    left: 20% !important;
+}
+
+@media (max-width: 768px){
+    .carro-destaques.swiper-pagination {
+        position: absolute !important;
+        top: 36% !important;
+        margin-left: 16%;
+    }    
+}
+
 /* Novos cards da página de listagem de eventos */
 
 .item-sorteio {
@@ -1907,8 +1926,40 @@ form#commentform {
     border-radius: 0;
 }
 
+/* .item-sorteio.item-ativos .event-thumbnail {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #000;
+    border-radius: 12px;
+} */
+
+.item-sorteio.item-ativos .event-thumbnail {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.item-sorteio.item-ativos .event-thumbnail .bg,
+.slide-item .slide-image .bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(20px);
+    transform: scale(1.1);
+    border-radius: 12px;
+}
+
 .item-sorteio.item-ativos .event-thumbnail img{
-    border-radius: 10px;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .item-sorteio.item-ativos h3{
@@ -1945,6 +1996,11 @@ form#commentform {
     margin-bottom: 5px;
 }
 
+.item-sorteio.item-ativos .infos-evento .all-dates a {
+    font-size: 12px;
+    text-decoration: none;
+}
+
 .item-sorteio.item-ativos p{
     font-size: 13px;
     line-height: 18px;
@@ -1962,7 +2018,7 @@ form#commentform {
     font-weight: 600;
 }
 
-.item-sorteio.item-ativos .post-type-tag {
+.post-type-tag {
     background: rgba(8, 99, 151, 0.8);
     border-radius: 10px;
     width: 158px;
@@ -1975,11 +2031,11 @@ form#commentform {
     text-transform: capitalize;
 }
 
-.item-sorteio.item-ativos .post-type-tag.cortesia-tag{
+.post-type-tag.cortesia-tag{
     background: rgba(255, 110, 20, 0.9);
 }
 
-.item-sorteio.item-ativos .post-type-tag.inscricao-tag {
+.post-type-tag.inscricao-tag {
     background: #01C74BCC;
 }
 
@@ -2045,4 +2101,162 @@ form#commentform {
         position: absolute !important;
         top: 40% !important;
     }
+}
+
+/* Carrossel de eventos (Sorteios e Cortesias) */
+
+.carro-eventos .card-content {
+    flex: 1;
+}
+
+.carro-eventos .evento-item {
+    box-shadow: 0px 0px 12px 0px #00000012;
+    background-color: #FFFFFF;
+    border-radius: 12px;
+}
+
+.carro-eventos .evento-item .img-column .image-wrapper {
+    position: relative;
+    display: block;
+}
+
+.image-wrapper img {
+    display: block;
+    width: 100%;
+    border-radius: 12px;
+}
+
+.image-wrapper .overlay-encerrado {
+    position: absolute;
+    overflow: hidden;
+    inset: 0;
+}
+
+.image-wrapper .overlay-encerrado::before {
+    font-family: 'Open Sans', sans-serif;
+    content: "Encerrado";
+    position: absolute;
+    top: 15px;
+    left: -42px;
+    width: 145px;
+    text-align: center;
+    letter-spacing: 0.80px;
+    transform: rotate(-45deg);
+    background: rgba(247, 22, 6, 0.9);
+    color: #fff;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 6px 0;
+    z-index: 2;
+}
+
+.carro-eventos .evento-item .titulo a {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 20px;
+    color: #14447C;
+    text-decoration: none;
+}
+
+.carro-eventos .evento-item .subtitulo p {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.25px;
+    line-height: 18px;
+    color: #3E3232;
+}
+
+.carro-eventos .evento-item .subtitulo p.local {
+    font-size: 12px;
+}
+
+.carro-eventos .evento-item .post-type-tag.inscricao-tag {
+    width: 80%;
+}
+
+.carro-eventos .title-ativi {
+    justify-content: space-between;
+}
+
+.carro-eventos .title-ativi h2 {
+    font-family: 'Raleway', sans-serif;
+    text-transform: none;
+    font-weight: 600;
+    color: #3E3232;
+}
+
+.carro-eventos .title-ativi h2::before {
+    content: "";
+    display: inline-block;
+    margin-right: 6px;
+    margin-bottom: 2px;
+    width: 4px;
+    height: 10px;
+    border-radius: 12px;
+    background-color: #F81539;
+}
+
+.carro-eventos .title-ativi .controls-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.carro-eventos .title-ativi .controls-wrapper a {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1rem;
+    font-weight: bold;
+    color: #3E3232;
+}
+
+.carro-eventos .title-ativi .slider-controls .arrows {
+    width: 100px;
+    height: 40px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.carro-eventos .title-ativi .slider-controls .slick-arrow{
+    cursor: pointer;
+    padding: 6px 12px;
+    border-radius: 12px;
+    background-color: #f5f5f5;
+    color: #000000;
+    font-size: 1.2rem;
+}
+
+.carro-eventos .slick-slide {
+    padding: 10px;
+}
+
+.carro-eventos .slick-track {
+    display: flex !important;
+}
+
+.carro-eventos .slick-slide {
+    height: auto !important;
+    display: flex !important;
+}
+
+.carro-eventos .slick-slide > div {
+    display: flex;
+    width: 100%;
+}
+
+/* Paginação */
+
+.eventos-paginacao .pagination-prog .wp-pagenavi span,
+.eventos-paginacao .pagination-prog .wp-pagenavi a {
+    font-family: 'Open Sans', sans-serif;
+    color: #333333;
+    margin-right: 5px;
+    border-radius: 8px;
+    text-decoration: none;
+}
+
+.eventos-paginacao .pagination-prog .wp-pagenavi a:hover,
+.eventos-paginacao .pagination-prog .wp-pagenavi span.current {
+    color: #FFFFFF;
 }

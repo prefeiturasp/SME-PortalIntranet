@@ -14,7 +14,6 @@
             $exibir_data = get_sub_field('exibir_data');
             $exibicao = get_sub_field('sel_exib');
             $current_date = date('Ymd');
-            $status_prefix = $exibicao === 'encerrados' ? 'ENCERRADO - ' : '';
                                    
             $args_for_query1 = array(
                 'post_type' => ['post', 'cortesias'],
@@ -329,26 +328,33 @@
                             <div class="col-12 col-md-6 mb-4">
                                 <div class="item-sorteio item-ativos">
                                     <div class="row h-100 m-0">
-                                        <div class="col-12 col-md-4 p-0">
+                                        <a href="<?php echo esc_url( get_the_permalink() ); ?>" class="col-12 col-md-6 p-0 image-wrapper">
                                             <?php 
-                                                $image = get_the_post_thumbnail( $post_id, 'home-thumb', array( 'class' => 'img-fluid' ) );
+                                                $image = get_the_post_thumbnail_url( $post_id, 'default-image' );
+                                                $image_bg = get_the_post_thumbnail_url( $post_id, 'thumbnail' );
                                                 $post_type = get_post_type_label( get_the_ID() );
                                             ?>
                                             <?php if($image): ?>
                                                 <div class="event-thumbnail">
-                                                    <?= $image; ?>
+                                                    <div class="bg" style="background-image: url('<?php echo esc_url( $image_bg ); ?>');"></div>
+                                                    <img src="<?php echo esc_url( $image ); ?>" class="img-fluid">
                                                 </div>
                                             <?php else: ?>
                                                 <div class="event-thumbnail">
-                                                    <img src="<?php echo esc_url( get_template_directory_uri() . '/img/placeholder-sme-novo.jpg' ); ?>" class="img-fluid rounded" alt="Imagem de ilustração categoria">
+                                                    <?php $imagem_padrao = get_field( 'sorteios_cortesias_placeholder', 'options' ); ?>
+                                                    <div class="bg" style="background-image: url('<?php echo esc_url( $image ); ?>');"></div>
+                                                    <img src="<?php echo esc_url( $imagem_padrao ); ?>" class="img-fluid rounded" alt="Imagem de ilustração categoria">
                                                 </div>
                                             <?php endif; ?>
-                                        </div>
+                                            <?php if ( $exibicao === 'encerrados' ) : ?>
+                                                <div class="overlay-encerrado"></div>
+                                            <?php endif; ?>
+                                        </a>
 
-                                        <div class="col-12 col-md-8 mt-md-0 pl-md-2 mt-2 pl-0">
+                                        <div class="col-12 col-md-6 mt-md-0 pl-md-2 mt-2 pl-0">
                                             <div class="row h-100">
                                                 <div class="col-12 col-md-10 d-flex flex-column">
-                                                    <h3><a href="<?= get_the_permalink(); ?>"><?= $status_prefix . get_the_title(); ?></a></h3>
+                                                    <h3><a href="<?= get_the_permalink(); ?>"><?php echo esc_html( get_the_title() ); ?></a></h3>
                                                     
                                                     <div class="infos-evento my-2">
                                                         <?php if ( $post_type === 'sorteio' ) : ?>
@@ -378,48 +384,53 @@
                                                             <p><strong>Local: </strong><?php echo esc_html( $local_term->name ); ?></p>	
                                                         <?php endif; ?>
 
-                                                        <?php
-                                                        if( $tipo_evento == 'premio' ) : ?>
-                                                            <p><strong>Prêmio:</strong> Consulte detalhes</p>
+                                                        <?php if ( $exibicao != 'encerrados' ) : ?>
                                                             <?php
-                                                        elseif ($tipo_evento == 'data') :
+                                                            if( $tipo_evento == 'premio' ) : ?>
+                                                                <p><strong>Prêmio:</strong> Consulte detalhes</p>
+                                                                <?php
+                                                            elseif ($tipo_evento == 'data') :
 
-                                                            $datas_evento_info = get_field( 'evento_datas' );
-                                                            $datas_evento = wp_list_pluck( $datas_evento_info, 'data' );
-                                                            $datas_disponiveis = filtrar_ordenar_datas_futuras( $datas_evento );
+                                                                $datas_evento_info = get_field( 'evento_datas' );
+                                                                $datas_evento = wp_list_pluck( $datas_evento_info, 'data' );
+                                                                $datas_disponiveis = filtrar_ordenar_datas_futuras( $datas_evento );
 
-                                                            if ( !empty( $datas_disponiveis ) ) {
-                                                                $total = count( $datas_disponiveis );
-                                                                $format = $total > 1 ? 'd/m' : 'd/m/Y';
-                                                                $label = _n( 'Data', 'Datas', $total );
-                                                                
-                                                            }
-                                                            ?>
-                                                            <?php if ( !empty( $datas_disponiveis ) ) : ?>
-                                                                <div class="all-dates">
-                                                                    <p><strong><?php echo esc_html( $label ); ?>:</strong> </p>
-                                                                    <div class="datas-grid">
-                                                                        <?php
-                                                                        foreach ($datas_disponiveis as $data) :
-                                                                            $dt = new DateTime($data);
-                                                                            ?>
-                                                                            <div class="data-item">
-                                                                                <?php echo esc_html( $dt->format($format) ); ?>
-                                                                            </div>
+                                                                if ( !empty( $datas_disponiveis ) ) {
+                                                                    $total = count( $datas_disponiveis );
+                                                                    $format = $total > 1 ? 'd/m' : 'd/m/Y';
+                                                                    $label = _n( 'Data', 'Datas', $total );
+                                                                    
+                                                                }
+                                                                ?>
+                                                                <?php if ( !empty( $datas_disponiveis ) ) : ?>
+                                                                    <div class="all-dates">
+                                                                        <p><strong><?php echo esc_html( $label ); ?>:</strong> </p>
+                                                                        <div class="datas-grid">
                                                                             <?php
-                                                                        endforeach;
-                                                                        ?>
+                                                                            foreach ( array_chunk( $datas_disponiveis, 3 )[0] as $data) :
+                                                                                $dt = new DateTime($data);
+                                                                                ?>
+                                                                                <div class="data-item">
+                                                                                    <?php echo esc_html( $dt->format($format) ); ?>
+                                                                                </div>
+                                                                                <?php
+                                                                            endforeach;
+                                                                            ?>
+                                                                        </div>
+                                                                        <?php if ( count( $datas_disponiveis ) > 3 ) : ?>
+                                                                            <a href="<?php echo esc_url( get_the_permalink() ); ?>">... Ver mais</a>
+                                                                        <?php endif; ?>
                                                                     </div>
-                                                                </div>
-                                                            <?php endif; ?>
-                                                            <?php
-                                                        elseif ($tipo_evento == 'periodo') :
-                                                            $info_periodo_evento = get_field( 'evento_periodo' );
+                                                                <?php endif; ?>
+                                                                <?php
+                                                            elseif ($tipo_evento == 'periodo') :
+                                                                $info_periodo_evento = get_field( 'evento_periodo' );
+                                                                ?>
+                                                                    <p><strong>Periodo: </strong><?php echo esc_html( $info_periodo_evento['descricao'] ); ?></p>
+                                                                <?php
+                                                            endif;
                                                             ?>
-                                                                <p><strong>Periodo: </strong><?php echo esc_html( $info_periodo_evento['descricao'] ); ?></p>
-                                                            <?php
-                                                        endif;
-                                                        ?>
+                                                        <?php endif; ?>
                                                     </div>
                                                     <div class="mt-auto d-flex">
                                                         <?php if ( check_usuario_inscrito_evento( get_the_ID() ) ) : ?>
@@ -447,7 +458,7 @@
                                                     </div>
                                                 </div>
                                                            
-                                                <div class="col-12 col-md-2 mt-2">
+                                                <div class="col-12 col-md-2 mt-2 p-0">
                                                     <?php 
                                                         global $wpdb;
                                                         $l = 0;
@@ -477,7 +488,7 @@
                         <!-- end of the loop -->
                     </div>
                 
-                    <div class="container mt-4">
+                    <div class="container mt-4 eventos-paginacao">
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="pagination-prog text-center">

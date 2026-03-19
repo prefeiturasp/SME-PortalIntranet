@@ -62,16 +62,22 @@ $eventos = new WP_Query( $eventos_args );
                             $local = get_field('local');
                             $local_term =  get_term( $local ) ?: false;
 
+                            $image = get_the_post_thumbnail_url( get_the_ID(), 'default-image' );
+                            $image_bg = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail' );
+
+                            if ( !$image ) {
+                                $image = get_field( 'sorteios_cortesias_placeholder', 'options' );
+                                $image_bg = $image;
+                            }
+
                             ?>
                             <div class="swiper-slide">
                                 <div class="slide-item">
                                     <div class="row g-0 h-100">
-                                        <div class="col-md-6 slide-image">
-                                            <img 
-                                                src="<?php echo esc_url( get_thumb( get_the_ID(), 'home-thumb' )[0] ); ?>" 
-                                                alt="<?php the_title(); ?>"
-                                            >
-                                        </div>
+                                        <a href="<?php echo esc_url( get_the_permalink() ); ?>" class="col-md-6 slide-image p-0">
+                                            <div class="bg" style="background-image: url('<?php echo esc_url( $image_bg ); ?>');"></div>
+                                            <img src="<?php echo esc_url( $image ); ?>" alt="<?php the_title(); ?>">
+                                        </a>
 
                                         <div class="col-md-6 slide-content pl-md-3 pr-md-5 p-4 d-flex flex-column justify-content-center">
                                             <div class="row mb-4">
@@ -118,9 +124,8 @@ $eventos = new WP_Query( $eventos_args );
                                                 <?php endif; ?>
                                                 
                                                 <?php if ( $tipo_evento === 'premio' ) : ?>
-                                                    <p class="text-muted small">
-                                                        Prêmio: Consulte detalhes
-                                                    </p>
+                                                    <p><strong> Prêmio: </strong>Consulte detalhes</p>
+                                                    
                                                 <?php elseif ( $tipo_evento === 'data' ) :
                                                     $datas_evento_info = get_field( 'evento_datas' );
                                                     $datas_evento = wp_list_pluck( $datas_evento_info, 'data' );
@@ -137,7 +142,7 @@ $eventos = new WP_Query( $eventos_args );
                                                             <p><strong><?php echo esc_html( $label ); ?>:</strong> </p>
                                                             <div class="datas-grid">
                                                                 <?php
-                                                                foreach ($datas_disponiveis as $data) :
+                                                                foreach ( array_chunk( $datas_disponiveis, 4 )[0] as $data ) :
                                                                     $dt = new DateTime($data);
                                                                     ?>
                                                                     <div class="data-item">
@@ -147,6 +152,9 @@ $eventos = new WP_Query( $eventos_args );
                                                                 endforeach;
                                                                 ?>
                                                             </div>
+                                                            <?php if ( count( $datas_disponiveis ) > 4 ) : ?>
+                                                                <a class="text-decoration-none" href="<?php echo esc_url( get_the_permalink() ); ?>">... Ver mais</a>
+                                                            <?php endif; ?>
                                                         </div>
                                                     <?php endif; ?>
                                                 <?php elseif ( $tipo_evento === 'periodo' ) :
@@ -182,7 +190,7 @@ $eventos = new WP_Query( $eventos_args );
                         <?php endwhile; wp_reset_postdata(); ?>
                     </div>
 
-                    <div class="swiper-pagination"></div>
+                    <div class="carro-destaques swiper-pagination"></div>
                 </div>
 
                 <button class="custom-prev">
