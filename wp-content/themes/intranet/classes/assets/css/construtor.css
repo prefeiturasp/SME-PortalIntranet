@@ -1796,8 +1796,13 @@ form#commentform {
     font-family: "Raleway", sans-serif;
 }
 
+.slide-item .slide-content .evento-info a {
+    font-size: 14px;
+    text-decoration: underline;
+}
+
 .slide-item .slide-content .data-item {
-    font-size: 1rem;
+    font-size: 14px;
 }
 
 .slide-item .slide-content .data {
@@ -2014,8 +2019,21 @@ form#commentform {
     margin-bottom: 10px;
 }
 
+.item-sorteio.item-ativos p.datas-disponiveis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .item-sorteio.item-ativos p strong{
     font-weight: 600;
+}
+
+.item-sorteio.item-ativos .infos-evento a{
+    font-size: 12px;
+    text-decoration: underline;
+    font-weight: 500;
+    margin-bottom: 5px;
 }
 
 .post-type-tag {

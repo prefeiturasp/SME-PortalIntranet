@@ -379,8 +379,10 @@ if (!empty($_GET)) {
 																<?php $imagem_padrao = get_field( 'sorteios_cortesias_placeholder', 'options' ); ?>
 																<img src="<?php echo esc_url( $imagem_padrao ); ?>" class="img-fluid" alt="Imagem de ilustração categoria">
 															<?php endif; ?>
-
-															<div class="overlay-encerrado"></div>
+															
+															<?php if ( $exibicao == 'encerrados' ) : ?>
+																<div class="overlay-encerrado"></div>
+															<?php endif; ?>
 														</div>
 													</div>
 
@@ -408,7 +410,7 @@ if (!empty($_GET)) {
 															?>
 
 															<div class="post_like">
-																<a class="pp_like likes d-flex flex-column justify-content-center align-items-center pp_like <?php if($l==1) {echo "likes"; } ?>" id="pp_like_<?php echo get_the_id(); ?>" href="#" data-id="<?php echo get_the_id(); ?>">
+																<a class="pp_like likes d-flex flex-column justify-content-center align-items-center <?php if($l==1) {echo "likes"; } ?>" id="pp_like_<?php echo get_the_id(); ?>" href="#" data-id="<?php echo get_the_id(); ?>">
 																	<img src="<?php echo esc_url( get_template_directory_uri() . '/img/icone-likes.svg' ); ?>" alt="like" class="w-30">
 																	<span><?php echo $total_like1; ?> <?php echo $total_like1 == 1 ? 'Like' : 'Likes'; ?></span>
 																</a>		

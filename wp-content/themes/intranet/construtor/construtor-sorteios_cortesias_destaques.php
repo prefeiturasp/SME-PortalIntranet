@@ -133,7 +133,7 @@ $eventos = new WP_Query( $eventos_args );
 
                                                     if ( !empty( $datas_disponiveis ) ) {
                                                         $total = count( $datas_disponiveis );
-                                                        $format = $total > 1 ? 'd/m' : 'd/m/Y';
+                                                        $format = $total > 1 ? 'd/m' : 'd/m';
                                                         $label = _n( 'Data', 'Datas', $total );  
                                                     }
                                                     ?>
@@ -142,20 +142,26 @@ $eventos = new WP_Query( $eventos_args );
                                                             <p><strong><?php echo esc_html( $label ); ?>:</strong> </p>
                                                             <div class="datas-grid">
                                                                 <?php
-                                                                foreach ( array_chunk( $datas_disponiveis, 4 )[0] as $data ) :
+                                                                foreach ( array_chunk( $datas_disponiveis, 8 )[0] as $data ) :
                                                                     $dt = new DateTime($data);
+
+                                                                    $hora = $dt->format( 'H' );
+                                                                    $minuto = $dt->format( 'i' );
+                                                                    $hora_fomatada = $minuto == '00' ? "{$hora}h" : "{$hora}h{$minuto}";
                                                                     ?>
                                                                     <div class="data-item">
-                                                                        <?php echo esc_html( $dt->format($format) ); ?>
+                                                                        <?php echo esc_html( $dt->format($format) . ' ' . $hora_fomatada ); ?>
                                                                     </div>
                                                                     <?php
                                                                 endforeach;
                                                                 ?>
                                                             </div>
-                                                            <?php if ( count( $datas_disponiveis ) > 4 ) : ?>
-                                                                <a class="text-decoration-none" href="<?php echo esc_url( get_the_permalink() ); ?>">... Ver mais</a>
-                                                            <?php endif; ?>
                                                         </div>
+                                                        <?php if ( $total > 8 ) : ?>
+                                                            <a href="<?php echo esc_url( get_the_permalink() ); ?>">
+                                                                Ver todas as datas e horários
+                                                            </a>
+                                                        <?php endif; ?>
                                                     <?php endif; ?>
                                                 <?php elseif ( $tipo_evento === 'periodo' ) :
                                                     $info_periodo_evento = get_field( 'evento_periodo' );
