@@ -4642,8 +4642,7 @@ function custom_posts_endpoint($request) {
 			} else {
 
 				$texto_subtitulo = ( $status == 'encerrados' ) ? 'Sorteio' : 'Sorteio';
-				$dataSorteio = ( $status == 'encerrados' ) ? obter_ultima_data_sorteio( $post->ID, false ) : obter_proxima_data_sorteio( $post->ID, false
-				 );
+				$dataSorteio = ( $status == 'encerrados' ) ? obter_ultima_data_sorteio( $post->ID ) : obter_proxima_data_sorteio( $post->ID, false );
 				$post_data['subtitulo'] = $texto_subtitulo . ' ' . $dataSorteio;
 			}
 			
@@ -4686,8 +4685,8 @@ function custom_posts_endpoint($request) {
 			
 			// Imagem destacada (thumbnail)
 			if (in_array('thumbnail', $selected_fields)) {
-				$thumbnail_id = get_post_thumbnail_id($post->ID);
-				$post_data['thumbnail'] = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'home-thumb') : '';
+				$thumbnail_url = get_the_post_thumbnail_url( $post->ID, 'default-image' );
+				$post_data['thumbnail'] = $thumbnail_url ? $thumbnail_url : get_field( 'sorteios_cortesias_placeholder', 'options' ); 
 			}
 			
 			$data[] = $post_data;

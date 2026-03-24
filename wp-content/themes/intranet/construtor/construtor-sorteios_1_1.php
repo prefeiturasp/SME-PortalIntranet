@@ -342,7 +342,7 @@
                                             <?php else: ?>
                                                 <div class="event-thumbnail">
                                                     <?php $imagem_padrao = get_field( 'sorteios_cortesias_placeholder', 'options' ); ?>
-                                                    <div class="bg" style="background-image: url('<?php echo esc_url( $image ); ?>');"></div>
+                                                    <div class="bg" style="background-image: url('<?php echo esc_url( $imagem_padrao ); ?>');"></div>
                                                     <img src="<?php echo esc_url( $imagem_padrao ); ?>" class="img-fluid rounded" alt="Imagem de ilustração categoria">
                                                 </div>
                                             <?php endif; ?>
@@ -353,7 +353,7 @@
 
                                         <div class="col-12 col-md-6 mt-md-0 pl-md-2 mt-2 pl-0">
                                             <div class="row h-100">
-                                                <div class="col-12 col-md-10 d-flex flex-column">
+                                                <div class="col-12 col-md-10 d-flex flex-column pr-0">
                                                     <h3><a href="<?= get_the_permalink(); ?>"><?php echo esc_html( get_the_title() ); ?></a></h3>
                                                     
                                                     <div class="infos-evento my-2">
@@ -396,31 +396,35 @@
                                                                 $datas_disponiveis = filtrar_ordenar_datas_futuras( $datas_evento );
 
                                                                 if ( !empty( $datas_disponiveis ) ) {
+                                                                    $lista_datas = [];
                                                                     $total = count( $datas_disponiveis );
-                                                                    $format = $total > 1 ? 'd/m' : 'd/m/Y';
                                                                     $label = _n( 'Data', 'Datas', $total );
                                                                     
                                                                 }
                                                                 ?>
                                                                 <?php if ( !empty( $datas_disponiveis ) ) : ?>
-                                                                    <div class="all-dates">
-                                                                        <p><strong><?php echo esc_html( $label ); ?>:</strong> </p>
-                                                                        <div class="datas-grid">
-                                                                            <?php
-                                                                            foreach ( array_chunk( $datas_disponiveis, 3 )[0] as $data) :
-                                                                                $dt = new DateTime($data);
-                                                                                ?>
-                                                                                <div class="data-item">
-                                                                                    <?php echo esc_html( $dt->format($format) ); ?>
-                                                                                </div>
-                                                                                <?php
-                                                                            endforeach;
-                                                                            ?>
-                                                                        </div>
-                                                                        <?php if ( count( $datas_disponiveis ) > 3 ) : ?>
-                                                                            <a href="<?php echo esc_url( get_the_permalink() ); ?>">... Ver mais</a>
-                                                                        <?php endif; ?>
-                                                                    </div>
+                                                                    <?php
+                                                                    foreach ( array_chunk( $datas_disponiveis, 3 )[0] as $data) {
+                                                                        $dt = new DateTime($data);
+                                                                        $data = ( $total > 1 ) ? $dt->format( 'd/m' ) : $dt->format( 'd/m/Y' );
+
+                                                                        $hora = $dt->format( 'H' );
+                                                                        $minuto = $dt->format( 'i' );
+                                                                        $hora_fomatada = $minuto == '00' ? "{$hora}h" : "{$hora}h{$minuto}";
+
+                                                                        $data_formatada = "{$data} {$hora_fomatada}";
+                                                                        $lista_datas[] = $data_formatada;
+                                                                    }
+                                                                    ?>
+                                                                    <p class="datas-disponiveis">
+                                                                        <strong><?php echo esc_html( $label ); ?>:</strong>
+                                                                        <?php echo esc_html( implode( ' | ', $lista_datas ) ); ?>
+                                                                    </p>
+                                                                    <?php if ( $total >= 3 ) : ?>
+                                                                        <a href="<?php echo esc_url( get_the_permalink() ); ?>">
+                                                                            Ver todas as datas e horários
+                                                                        </a>
+                                                                    <?php endif; ?>
                                                                 <?php endif; ?>
                                                                 <?php
                                                             elseif ($tipo_evento == 'periodo') :
