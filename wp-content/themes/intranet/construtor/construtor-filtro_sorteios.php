@@ -11,6 +11,11 @@
         'hide_empty' => false, // Inclui tags mesmo que não tenham posts associados
     ));
 
+    $tax_tipo_eventos = get_terms([
+        'taxonomy' => 'genero',
+        'hide_empty' => false
+    ]);
+
     function formatar_data($data_original) {
         if (empty($data_original)) return '';
         
@@ -28,12 +33,17 @@
 
 <div class="container">
     <div class="row">
-        <div class="col-sm-12">
+        <div class="col-sm-12 mb-4" id="filtro-eventos">
 
             <nav>
+                <?php if( $titulo ) : ?>
+                    <div class="title-form mt-3">
+                        <h2><?php echo esc_html( $titulo ); ?></h2>
+                    </div>
+                <?php endif; ?>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     <button 
-                        class="nav-link <?= $filtro === 'aberto' ? 'active' : '' ?>" 
+                        class="nav-link <?= $filtro === 'aberto' ? 'active' : '' ?> col-12 col-md-4" 
                         id="sort-ativos-tab" 
                         data-toggle="tab" 
                         data-target="#sort-ativos" 
@@ -42,10 +52,11 @@
                         aria-controls="sort-ativos" 
                         aria-selected="<?= $filtro === 'aberto' ? 'true' : 'false' ?>"
                     >
+                        <img src="<?php echo esc_url( get_template_directory_uri() . '/img/inscricoes-abertas-icon.png' ); ?>" alt="Inscrições abertas">
                         Inscrições Abertas
                     </button>
                     <button 
-                        class="nav-link <?= $filtro === 'encerrado' ? 'active' : '' ?>" 
+                        class="nav-link <?= $filtro === 'encerrado' ? 'active' : '' ?> col-12 col-md-4" 
                         id="sort-encerrados-tab" 
                         data-toggle="tab" 
                         data-target="#sort-encerrados" 
@@ -54,189 +65,211 @@
                         aria-controls="sort-encerrados" 
                         aria-selected="<?= $filtro === 'encerrado' ? 'true' : 'false' ?>"
                     >
+                        <img src="<?php echo esc_url( get_template_directory_uri() . '/img/inscricoes-encerradas-icon.png' ); ?>" alt="Inscrições abertas">
                         Inscrições Encerradas
                     </button>
                 </div>
             </nav>
 
             <div class="tab-content" id="nav-tabContent">
-
+                <!-- Tab de eventos ativos -->
                 <div class="tab-pane fade <?= $filtro === 'aberto' ? 'show active' : '' ?>" id="sort-ativos" role="tabpanel" aria-labelledby="sort-ativos-tab">
                     <form action="<?= $pagBusca; ?>" method="get" class="filtro-sorteios">
                 
-                        <?php if($titulo): ?>
-                            <div class="title-form">
-                                <h2><?= $titulo; ?></h2>
-                            </div>
-                        <?php endif; ?>
-
                         <div class="form-row mb-2">
-                            <div class="col">
+                            <div class="col-md-6">
                                 <label for="nome-evento-ativo" class="form-label">Busque pelo Nome do Evento</label>
                                 <input type="text" class="form-control" name="nome-evento" id="nome-evento-ativo" placeholder="Digite o nome ou parte do nome do evento" value="<?php echo isset($_GET['nome-evento']) ? esc_attr($_GET['nome-evento']) : ''; ?>">
-                            </div>
-                            <div class="invalid-feedback fieldError" style="display: none;">
-                                Preencha ao menos um dos campos do formulário.
-                            </div>
-                        </div>
 
-                        <div class="form-row"> 
-                            
-                            <div class="col-md-6 date-group mb-2">
-                                <label class="form-label" for="dataInicio">Busque por intervalo de datas</label>
-                                <div class="form-row align-items-center">                            
-                                    <div class="col-12 col-sm">                                
-                                        <input 
-                                            type="date" 
-                                            class="form-control" 
-                                            name="dataInicio" 
-                                            id="dataInicio"
-                                            value="<?php echo isset($_GET['dataInicio']) ? esc_attr($_GET['dataInicio']) : ''; ?>"
-                                        >
-                                    </div>
-                                    <div class="col-12 col-sm-auto align-self-end text-center">
-                                        <span class="text-muted">até</span>
-                                    </div>
-                                    <div class="col-12 col-sm">                                
-                                        <input 
-                                            type="date" 
-                                            class="form-control" 
-                                            name="dataFim" 
-                                            id="dataFim"
-                                            value="<?php echo isset($_GET['dataFim']) ? esc_attr($_GET['dataFim']) : ''; ?>"
-                                        >
-                                    </div>
-                                </div>
-
-                                <div class="invalid-feedback dataError" style="display: none;">
-                                    A data de início não pode ser maior que a data final!
+                                <div class="invalid-feedback fieldError" style="display: none;">
+                                    Preencha ao menos um dos campos do formulário.
                                 </div>
                             </div>
-
                             
-                            
-                            <div class="col-md-6 mb-2">
-                                <label for="local-ativo" class="form-label">Busque pelo Local do Evento</label>
-
-                                <select class="form-control select-local" id="local-ativo" name="local">
-                                    <option value=''>Digite ou selecione um local</option>
-                                    <?php if ($tags) : ?>
-                                        <?php foreach ($tags as $tag) : ?>
+                            <div class="col-md-6">
+                                <label for="tipo-evento-ativo" class="form-label">Tipo de Evento</label>
+                                <select class="form-control select-tipo-evento" id="tipo-evento-ativo" name="tipo-evento">
+                                    <option value="">Tipo de Evento</option>
+                                    <?php if ( $tax_tipo_eventos ) : ?>
+                                        <?php foreach ( $tax_tipo_eventos as $tax_tipo ) : ?>
                                             <option 
-                                                value="<?php echo esc_attr($tag->term_id); ?>" 
-                                                <?php echo (isset($_GET['local']) && $_GET['local'] == $tag->term_id) ? 'selected' : ''; ?>
-                                            >
-                                                <?php echo esc_html($tag->name); ?>
+                                                value="<?php echo esc_attr($tax_tipo->term_id); ?>" 
+                                                <?php echo (isset($_GET['tipo-evento']) && $_GET['tipo-evento'] == $tax_tipo->term_id) ? 'selected' : ''; ?>
+                                                >
+                                                <?php echo esc_html( $tax_tipo->name ); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
                                 </select>
                             </div>
-
                         </div>
-                        
-                        <!-- Botão de submit (opcional) -->
-                        <div class="form-row mt-3">
-                            <div class="col-12 d-flex justify-content-end">
+
+                        <div class="form-row"> 
+                            <div class="col-12 col-md-9 mt-3">
+                                <div class="form-row mais-filtros" style="display: none;"> 
+                                    <div class="col-md-8 date-group mb-2">
+                                        <label class="form-label" for="dataInicio">Busque por intervalo de datas</label>
+                                        <div class="form-row align-items-center">                            
+                                            <div class="col-12 col-sm">                                
+                                                <input 
+                                                    type="date" 
+                                                    class="form-control" 
+                                                    name="dataInicio" 
+                                                    id="dataInicio"
+                                                    value="<?php echo isset($_GET['dataInicio']) ? esc_attr($_GET['dataInicio']) : ''; ?>"
+                                                >
+                                            </div>
+                                            <div class="col-12 col-sm-auto align-self-end text-center">
+                                                <span class="text-muted">até</span>
+                                            </div>
+                                            <div class="col-12 col-sm">                                
+                                                <input 
+                                                    type="date" 
+                                                    class="form-control" 
+                                                    name="dataFim" 
+                                                    id="dataFim"
+                                                    value="<?php echo isset($_GET['dataFim']) ? esc_attr($_GET['dataFim']) : ''; ?>"
+                                                >
+                                            </div>
+                                        </div>
+
+                                        <div class="invalid-feedback dataError" style="display: none;">
+                                            A data de início não pode ser maior que a data final!
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4 mb-2">
+                                        <label for="local-ativo" class="form-label">Busque pelo Local do Evento</label>
+
+                                        <select class="form-control select-local" id="local-ativo" name="local">
+                                            <option value=''>Digite ou selecione um local</option>
+                                            <?php if ($tags) : ?>
+                                                <?php foreach ($tags as $tag) : ?>
+                                                    <option 
+                                                        value="<?php echo esc_attr($tag->term_id); ?>" 
+                                                        <?php echo (isset($_GET['local']) && $_GET['local'] == $tag->term_id) ? 'selected' : ''; ?>
+                                                    >
+                                                        <?php echo esc_html($tag->name); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Botão de submit (opcional) -->
+                            <div class="col-12 col-md-3 d-flex align-items-end justify-content-end my-2 form-buttons">
                                 <input type="hidden" name="filtro" value="aberto">
-                                <a href="<?= $pagSorteio; ?>" class="btn btn-outline-primary mr-2">Limpar filtros</a>
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> Buscar Eventos</button>
+                                <a href="<?= $pagSorteio; ?>" class="btn mr-2">Limpar filtros</a>
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> Buscar</button>
                             </div>
                         </div>
 
+                        <span class="expandir-filtros py-2 px-3"><i class="fa fa-angle-down fa-lg" aria-hidden="true"></i></span>
                     </form>
                 </div>
-
+                
+                <!-- Tab de eventos encerrados -->
                 <div class="tab-pane fade <?= $filtro === 'encerrado' ? 'show active' : '' ?>" id="sort-encerrados" role="tabpanel" aria-labelledby="sort-encerrados-tab">
                     <form action="<?= $pagBusca; ?>" method="get" class="filtro-sorteios">
-                
-                        <?php if($titulo): ?>
-                            <div class="title-form">
-                                <h2><?= $titulo; ?></h2>
-                            </div>
-                        <?php endif; ?>
 
                         <div class="form-row mb-2">
-                            <div class="col">
+                            <div class="col-md-6">
                                 <label for="nome-evento" class="form-label">Busque pelo Nome do Evento</label>
                                 <input type="text" class="form-control" name="nome-evento" id="nome-evento" placeholder="Digite o nome ou parte do nome do evento" value="<?php echo isset($_GET['nome-evento']) ? esc_attr($_GET['nome-evento']) : ''; ?>">
-                            </div>
-                            <div class="invalid-feedback fieldError" style="display: none;">
-                                Preencha ao menos um dos campos do formulário.
-                            </div>
-                        </div>
 
-                        <div class="form-row"> 
-                            
-                            <div class="col-md-6 date-group mb-2">
-                                <label class="form-label" for="dataInicio">Busque por intervalo de datas</label>
-                                <div class="form-row align-items-center">                            
-                                    <div class="col-12 col-sm">                                
-                                        <input 
-                                            type="date" 
-                                            class="form-control" 
-                                            name="dataInicio" 
-                                            id="dataInicio"
-                                            value="<?php echo isset($_GET['dataInicio']) ? esc_attr($_GET['dataInicio']) : ''; ?>"
-                                        >
-                                    </div>
-                                    <div class="col-12 col-sm-auto align-self-end text-center">
-                                        <span class="text-muted">até</span>
-                                    </div>
-                                    <div class="col-12 col-sm">                                
-                                        <input 
-                                            type="date" 
-                                            class="form-control" 
-                                            name="dataFim" 
-                                            id="dataFim"
-                                            value="<?php echo isset($_GET['dataFim']) ? esc_attr($_GET['dataFim']) : ''; ?>"
-                                        >
-                                    </div>
-                                </div>
-
-                                <div class="invalid-feedback dataError" style="display: none;">
-                                    A data de início não pode ser maior que a data final!
+                                <div class="invalid-feedback fieldError" style="display: none;">
+                                    Preencha ao menos um dos campos do formulário.
                                 </div>
                             </div>
 
-                            
-                            
-                            <div class="col-md-6 mb-2">
-                                <label for="opcoes" class="form-label">Busque pelo Local do Evento</label>
-
-                                <select class="form-control select2-search" id="opcoes" name="local">
-                                    <option value=''>Digite ou selecione um local</option>
-                                    <?php if ($tags) : ?>
-                                        <?php foreach ($tags as $tag) : ?>
+                            <div class="col-md-6">
+                                <label for="tipo-evento-encerrado" class="form-label">Tipo de Evento</label>
+                                <select class="form-control select-tipo-evento" id="tipo-evento-encerrado" name="tipo-evento">
+                                    <option value="">Tipo de Evento</option>
+                                    <?php if ( $tax_tipo_eventos ) : ?>
+                                        <?php foreach ( $tax_tipo_eventos as $tax_tipo ) : ?>
                                             <option 
-                                                value="<?php echo esc_attr($tag->term_id); ?>" 
-                                                <?php echo (isset($_GET['local']) && $_GET['local'] == $tag->term_id) ? 'selected' : ''; ?>
-                                            >
-                                                <?php echo esc_html($tag->name); ?>
+                                                value="<?php echo esc_attr($tax_tipo->term_id); ?>" 
+                                                <?php echo (isset($_GET['tipo-evento']) && $_GET['tipo-evento'] == $tax_tipo->term_id) ? 'selected' : ''; ?>
+                                                >
+                                                <?php echo esc_html( $tax_tipo->name ); ?>
                                             </option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
                                 </select>
                             </div>
-
                         </div>
-                        
-                        <!-- Botão de submit (opcional) -->
-                        <div class="form-row mt-3">
-                            <div class="col-12 d-flex justify-content-end">
+
+                        <div class="form-row"> 
+                            <div class="col-12 col-md-9 mt-3">
+                                <div class="form-row mais-filtros" style="display: none;">
+
+                                    <div class="col-md-8 date-group mb-2">
+                                        <label class="form-label" for="dataInicio">Busque por intervalo de datas</label>
+                                        <div class="form-row align-items-center">                            
+                                            <div class="col-12 col-sm">                                
+                                                <input 
+                                                    type="date" 
+                                                    class="form-control" 
+                                                    name="dataInicio" 
+                                                    id="dataInicio"
+                                                    value="<?php echo isset($_GET['dataInicio']) ? esc_attr($_GET['dataInicio']) : ''; ?>"
+                                                >
+                                            </div>
+                                            <div class="col-12 col-sm-auto align-self-end text-center">
+                                                <span class="text-muted">até</span>
+                                            </div>
+                                            <div class="col-12 col-sm">                                
+                                                <input 
+                                                    type="date" 
+                                                    class="form-control" 
+                                                    name="dataFim" 
+                                                    id="dataFim"
+                                                    value="<?php echo isset($_GET['dataFim']) ? esc_attr($_GET['dataFim']) : ''; ?>"
+                                                >
+                                            </div>
+                                        </div>
+
+                                        <div class="invalid-feedback dataError" style="display: none;">
+                                            A data de início não pode ser maior que a data final!
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="col-md-4 mb-2">
+                                        <label for="opcoes" class="form-label">Busque pelo Local do Evento</label>
+
+                                        <select class="form-control select2-search" id="opcoes" name="local">
+                                            <option value=''>Digite ou selecione um local</option>
+                                            <?php if ($tags) : ?>
+                                                <?php foreach ($tags as $tag) : ?>
+                                                    <option 
+                                                        value="<?php echo esc_attr($tag->term_id); ?>" 
+                                                        <?php echo (isset($_GET['local']) && $_GET['local'] == $tag->term_id) ? 'selected' : ''; ?>
+                                                    >
+                                                        <?php echo esc_html($tag->name); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </select>
+                                    </div>
+
+                                </div>
+                            </div>
+                            
+                            <div class="col-12 col-md-3 d-flex align-items-end justify-content-end my-2 form-buttons">
                                 <input type="hidden" name="filtro" value="encerrado">
-                                <a href="<?= $pagSorteio; ?>" class="btn btn-outline-primary mr-2">Limpar filtros</a>
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> Buscar Eventos</button>
+                                <a href="<?= $pagSorteio; ?>" class="btn mr-2">Limpar filtros</a>
+                                <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> Buscar</button>
                             </div>
                         </div>
-
+                        
+                        <span class="expandir-filtros py-2 px-3"><i class="fa fa-angle-down fa-lg" aria-hidden="true"></i></span>
                     </form>
                 </div>
-
-            </div>
-            
-        </div>
-        
+            </div>  
+        </div>  
     </div>
 </div>
 
@@ -270,6 +303,20 @@ if (isset($_GET['local']) && !empty($_GET['local'])) {
             $partes_texto[] = "| " . $tag->name;
         } else {
             $partes_texto[] = $tag->name;
+        }
+    }
+}
+
+// Verifica e processa o tipo de evento (taxonomia de genero)
+if ( isset( $_GET['tipo-evento'] ) && !empty( $_GET['tipo-evento'] ) ) {
+    $tipo_evento_id = intval( $_GET['tipo-evento'] );
+    $tax_tipo_evento = get_term_by( 'term_id', $tipo_evento_id, 'genero' );
+    
+    if ( $tax_tipo_evento && !is_wp_error( $tax_tipo_evento ) ) {
+        if ( !empty( $partes_texto ) ) {
+            $partes_texto[] = "| " . $tax_tipo_evento->name;
+        } else {
+            $partes_texto[] = $tax_tipo_evento->name;
         }
     }
 }
@@ -345,6 +392,23 @@ if (!empty($partes_texto)) {
                         'taxonomy' => 'post_tag',
                         'field'    => 'term_id',
                         'terms'    => $tag_id,
+                    );
+                }
+
+                // Filtro por Tipo de Evento (se passado via $_GET)
+                if (isset($_GET['tipo-evento']) && !empty($_GET['tipo-evento'])) {
+                    $tipo_evento_id = intval( $_GET['tipo-evento'] ); 
+                    
+                    $args_for_query1['tax_query'][] = array(
+                        'taxonomy' => 'genero',
+                        'field'    => 'term_id',
+                        'terms'    => $tipo_evento_id,
+                    );
+
+                    $args_for_query2['tax_query'][] = array(
+                        'taxonomy' => 'genero',
+                        'field'    => 'term_id',
+                        'terms'    => $tipo_evento_id,
                     );
                 }
                 
@@ -479,18 +543,15 @@ if (!empty($partes_texto)) {
                                     <div class="col-12 col-md-6 p-0 image-wrapper">
                                         <?php 
                                             $image = get_the_post_thumbnail_url( $post_id, 'default-image' );
-                                            $image_bg = get_the_post_thumbnail_url( $post_id, 'thumbnail' );
                                             $post_type = get_post_type_label( get_the_ID() );
                                         ?>
                                         <?php if($image): ?>
                                             <div class="event-thumbnail">
-                                                <div class="bg" style="background-image: url('<?php echo esc_url( $image_bg ); ?>');"></div>
                                                 <img src="<?php echo esc_url( $image ); ?>" class="img-fluid">
                                             </div>
                                         <?php else: ?>
                                             <div class="event-thumbnail">
                                                 <?php $imagem_padrao = get_field( 'sorteios_cortesias_placeholder', 'options' ); ?>
-                                                <div class="bg" style="background-image: url('<?php echo esc_url( $imagem_padrao ); ?>');"></div>
                                                 <img src="<?php echo esc_url( $imagem_padrao ); ?>" class="img-fluid rounded" alt="Imagem de ilustração categoria">
                                             </div>
                                         <?php endif; ?>
@@ -670,6 +731,34 @@ if (!empty($partes_texto)) {
 <script>
 
     jQuery(document).ready(function() {
+        
+        const expandirFiltros = localStorage.getItem('expandir-filtro-eventos');
+
+        if ( expandirFiltros ) {
+            toggleFiltrosEventos();
+        }
+
+        jQuery('.expandir-filtros').on('click', function () {
+            console.log('expandir')
+            toggleFiltrosEventos()
+        })
+
+        // Função para ocultar e exibir os campos adicionais no filtro de eventos
+        function toggleFiltrosEventos() {
+
+            let $filtrosContainer =  jQuery('.mais-filtros');
+            let $btnExpandirFiltros = jQuery('.expandir-filtros i');
+            
+            if ($filtrosContainer.hasClass('filtros-ativos')) {
+                $filtrosContainer.slideUp(300).removeClass('filtros-ativos')
+                $btnExpandirFiltros.removeClass('fa-angle-up').addClass('fa-angle-down');
+                localStorage.removeItem('expandir-filtro-eventos')
+            } else {
+                $filtrosContainer.slideDown(300).addClass('filtros-ativos');
+                $btnExpandirFiltros.removeClass('fa-angle-down').addClass('fa-angle-up');
+                localStorage.setItem('expandir-filtro-eventos', true);
+            }
+        }
 
         // Inicializa o Select2
         jQuery('.select-local, .select2-search').select2({
@@ -689,7 +778,23 @@ if (!empty($partes_texto)) {
             }
         });
 
-        
+        // Inicializa o Select2 o campo Tipo de Evento
+        jQuery('#tipo-evento-ativo, #tipo-evento-encerrado').select2({
+            placeholder: "Tipo de Evento",
+            allowClear: true,
+            width: '100%',
+            language: {
+                noResults: function() {
+                    return "Nenhum tipo de evento encontrado";
+                },
+                searching: function() {
+                    return "Buscando…";
+                },
+                inputTooShort: function() {
+                    return "Digite pelo menos um caractere";
+                },
+            }
+        }); 
 
         jQuery('.tab-pane.active .select2-search').trigger('change.select2');
 
@@ -701,6 +806,7 @@ if (!empty($partes_texto)) {
             const dataInicio = form.find('input[name="dataInicio"]').val();
             const dataFim = form.find('input[name="dataFim"]').val();
             const local = form.find('select[name="local"]').val();
+            const tipoEvento = form.find('select[name="tipo-evento"]').val();
 
             const errorMsgData = form.find('.dataError');   // mensagens de data
             const errorMsgField = form.find('.fieldError'); // mensagens gerais
@@ -716,7 +822,7 @@ if (!empty($partes_texto)) {
             let hasError = false;
 
             // 1. Pelo menos um campo deve ser preenchido
-            if (!nomeEvento && !dataInicio && !dataFim && !local) {
+            if (!nomeEvento && !dataInicio && !dataFim && !local && !tipoEvento) {
                 hasError = true;
                 errorMsgField.text("Preencha ao menos um dos campos do formulário.").show();
             }
@@ -770,6 +876,7 @@ if (!empty($partes_texto)) {
         syncFields('input[name="dataInicio"]');
         syncFields('input[name="dataFim"]');
         syncFields('select[name="local"]');
+        syncFields('select[name="tipo-evento"]');
 
     });
 

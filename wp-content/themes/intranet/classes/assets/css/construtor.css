@@ -1801,17 +1801,23 @@ form#commentform {
     text-decoration: underline;
 }
 
-.slide-item .slide-content .data-item {
+.slide-item .slide-content .evento-info p{
     font-size: 14px;
 }
 
+.slide-item .slide-content .evento-info p.datas-disponiveis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .slide-item .slide-content .data {
-    font-size: 1.4rem;
+    font-size: 1.1rem;
     font-weight: 600;
 }
 
 .slide-item .slide-content .title {
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     font-weight: 600;
     color: #14447C;
     font-family: "Open Sans", sans-serif;
@@ -1844,16 +1850,11 @@ form#commentform {
     color: #ffffff;
 }
 
-.slide-image {
-    position: relative;
-    overflow: hidden;
-}
-
 .slide-image img{
-    position: relative;
     width:100%;
     height:100%;
-    object-fit:contain;
+    object-fit: cover;
+    object-position: left;
 }
 
 .custom-prev,
@@ -1893,14 +1894,21 @@ form#commentform {
 
 .carro-destaques.swiper-pagination {
     width: 5rem !important;
-    left: 20% !important;
+    left: 30% !important;
+}
+
+.datas-grid-destaques {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin-bottom: 10px;
 }
 
 @media (max-width: 768px){
     .carro-destaques.swiper-pagination {
         position: absolute !important;
         top: 36% !important;
-        margin-left: 16%;
+        margin-left: 5%;
     }    
 }
 
@@ -1964,7 +1972,8 @@ form#commentform {
     position: relative;
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;
+    object-position: left;
 }
 
 .item-sorteio.item-ativos h3{
@@ -2117,7 +2126,7 @@ form#commentform {
 
     .main-content-slider .swiper-pagination {
         position: absolute !important;
-        top: 40% !important;
+        top: 34% !important;
     }
 }
 
@@ -2277,4 +2286,98 @@ form#commentform {
 .eventos-paginacao .pagination-prog .wp-pagenavi a:hover,
 .eventos-paginacao .pagination-prog .wp-pagenavi span.current {
     color: #FFFFFF;
+}
+
+/* Novo filtro de Sorteios e Cortesias */
+
+#filtro-eventos {
+    font-family: "Raleway", sans-serif;
+}
+
+#filtro-eventos .title-form h2 {
+    color: #FFA513;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#filtro-eventos #nav-tab {
+    border: none;
+}
+
+#filtro-eventos #nav-tab .nav-link {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    margin-right: 15px;
+    text-align: left;
+    padding-bottom: 1.2rem;
+    padding-top: 1.2rem;
+    border-radius: 20px;
+    border: none;
+    background-color: #FFFFFF;
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.07);
+}
+
+#filtro-eventos #nav-tab .nav-link.active {
+    border: 1.5px solid #14447C;
+}
+
+#filtro-eventos #nav-tab .nav-link img {
+    background-color: #E8EDF2;
+    border-radius: 12px;
+    margin-right: 12px;
+}
+
+#filtro-eventos #nav-tabContent {
+    position: relative;
+}
+
+#filtro-eventos #nav-tabContent .expandir-filtros {
+    position: absolute;
+    left: 50%;
+    bottom: -20px;
+    transform: translateX(-50%);
+    border-radius: 12px;
+    background-color: #D9D9D9;
+    color: #3E3232;
+}
+
+#filtro-eventos #nav-tabContent .tab-pane form {
+    box-shadow: 0px 0px 8px 0px rgba(0, 0, 0, 0.07);
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    padding: 28px;
+}
+
+#filtro-eventos #nav-tabContent .tab-pane form input,
+#filtro-eventos #nav-tabContent .select2-container--default .select2-selection--single {
+    border-radius: 6px;
+}
+
+#filtro-eventos #nav-tabContent .tab-pane form input,
+#filtro-eventos #nav-tabContent .select2-container--default .select2-selection--single .select2-selection__rendered,
+#filtro-eventos #nav-tabContent .select2-container--default .select2-selection--single .select2-selection__placeholder {
+    font-size: 14px;
+}
+
+#filtro-eventos #nav-tabContent .tab-pane form input::placeholder,
+#filtro-eventos #nav-tabContent .select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: #00000040;
+}
+
+#filtro-eventos #nav-tabContent .tab-pane form label {
+    font-weight: 600;
+    color: #6F6C90;
+}
+
+#filtro-eventos #nav-tabContent .tab-pane form .form-buttons a,
+#filtro-eventos #nav-tabContent .tab-pane form .form-buttons button {
+    border-radius: 8px;
+}
+
+#filtro-eventos #nav-tabContent .tab-pane form .form-buttons a {
+    border: 1px solid #D9D9D9;
+    color: #000000E0;
 }
