@@ -331,18 +331,15 @@
                                         <a href="<?php echo esc_url( get_the_permalink() ); ?>" class="col-12 col-md-6 p-0 image-wrapper">
                                             <?php 
                                                 $image = get_the_post_thumbnail_url( $post_id, 'default-image' );
-                                                $image_bg = get_the_post_thumbnail_url( $post_id, 'thumbnail' );
                                                 $post_type = get_post_type_label( get_the_ID() );
                                             ?>
                                             <?php if($image): ?>
                                                 <div class="event-thumbnail">
-                                                    <div class="bg" style="background-image: url('<?php echo esc_url( $image_bg ); ?>');"></div>
                                                     <img src="<?php echo esc_url( $image ); ?>" class="img-fluid">
                                                 </div>
                                             <?php else: ?>
                                                 <div class="event-thumbnail">
                                                     <?php $imagem_padrao = get_field( 'sorteios_cortesias_placeholder', 'options' ); ?>
-                                                    <div class="bg" style="background-image: url('<?php echo esc_url( $imagem_padrao ); ?>');"></div>
                                                     <img src="<?php echo esc_url( $imagem_padrao ); ?>" class="img-fluid rounded" alt="Imagem de ilustração categoria">
                                                 </div>
                                             <?php endif; ?>
@@ -399,14 +396,14 @@
                                                                     $lista_datas = [];
                                                                     $total = count( $datas_disponiveis );
                                                                     $label = _n( 'Data', 'Datas', $total );
-                                                                    
+                                                                    $format = ( $total > 1 ) ? 'd/m' : 'd/m/Y';
                                                                 }
                                                                 ?>
                                                                 <?php if ( !empty( $datas_disponiveis ) ) : ?>
                                                                     <?php
                                                                     foreach ( array_chunk( $datas_disponiveis, 3 )[0] as $data) {
                                                                         $dt = new DateTime($data);
-                                                                        $data = ( $total > 1 ) ? $dt->format( 'd/m' ) : $dt->format( 'd/m/Y' );
+                                                                        $data = $dt->format( $format );
 
                                                                         $hora = $dt->format( 'H' );
                                                                         $minuto = $dt->format( 'i' );

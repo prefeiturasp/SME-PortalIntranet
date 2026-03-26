@@ -61,30 +61,26 @@ $eventos = new WP_Query( $eventos_args );
                             $tipo_evento = get_field( 'tipo_evento' );
                             $local = get_field('local');
                             $local_term =  get_term( $local ) ?: false;
-
                             $image = get_the_post_thumbnail_url( get_the_ID(), 'default-image' );
-                            $image_bg = get_the_post_thumbnail_url(get_the_ID(), 'thumbnail' );
 
                             if ( !$image ) {
                                 $image = get_field( 'sorteios_cortesias_placeholder', 'options' );
-                                $image_bg = $image;
                             }
 
                             ?>
                             <div class="swiper-slide">
                                 <div class="slide-item">
                                     <div class="row g-0 h-100">
-                                        <a href="<?php echo esc_url( get_the_permalink() ); ?>" class="col-md-6 slide-image p-0">
-                                            <div class="bg" style="background-image: url('<?php echo esc_url( $image_bg ); ?>');"></div>
+                                        <a href="<?php echo esc_url( get_the_permalink() ); ?>" class="col-md-8 slide-image p-0">
                                             <img src="<?php echo esc_url( $image ); ?>" alt="<?php the_title(); ?>">
                                         </a>
 
-                                        <div class="col-md-6 slide-content pl-md-3 pr-md-5 p-4 d-flex flex-column justify-content-center">
+                                        <div class="col-md-4 slide-content pl-md-3 pr-md-5 p-4 d-flex flex-column justify-content-center">
                                             <div class="row mb-4">
                                                 <a href="<?php echo esc_url( get_the_permalink() ); ?>" class="title col-10">
                                                     <?php the_title(); ?>
                                                 </a>
-                                                <div class="post_like col-2 pt-2">
+                                                <div class="post_like col-2 py-2 px-0">
                                                     <?php 
                                                         global $wpdb;
                                                         $l = 0;
@@ -132,32 +128,34 @@ $eventos = new WP_Query( $eventos_args );
                                                     $datas_disponiveis = filtrar_ordenar_datas_futuras( $datas_evento );
 
                                                     if ( !empty( $datas_disponiveis ) ) {
+                                                        $lista_datas = [];
                                                         $total = count( $datas_disponiveis );
                                                         $format = $total > 1 ? 'd/m' : 'd/m';
                                                         $label = _n( 'Data', 'Datas', $total );  
                                                     }
                                                     ?>
                                                     <?php if ( !empty( $datas_disponiveis ) ) : ?>
-                                                        <div class="all-dates">
-                                                            <p><strong><?php echo esc_html( $label ); ?>:</strong> </p>
-                                                            <div class="datas-grid">
-                                                                <?php
-                                                                foreach ( array_chunk( $datas_disponiveis, 8 )[0] as $data ) :
-                                                                    $dt = new DateTime($data);
 
-                                                                    $hora = $dt->format( 'H' );
-                                                                    $minuto = $dt->format( 'i' );
-                                                                    $hora_fomatada = $minuto == '00' ? "{$hora}h" : "{$hora}h{$minuto}";
-                                                                    ?>
-                                                                    <div class="data-item">
-                                                                        <?php echo esc_html( $dt->format($format) . ' ' . $hora_fomatada ); ?>
-                                                                    </div>
-                                                                    <?php
-                                                                endforeach;
-                                                                ?>
-                                                            </div>
-                                                        </div>
-                                                        <?php if ( $total > 8 ) : ?>
+                                                        <?php
+                                                        foreach ( array_chunk( $datas_disponiveis, 3 )[0] as $data ) {
+                                                            $dt = new DateTime($data);
+
+                                                            $data = $dt->format( $format );
+                                                            $hora = $dt->format( 'H' );
+                                                            $minuto = $dt->format( 'i' );
+                                                            $hora_fomatada = $minuto == '00' ? "{$hora}h" : "{$hora}h{$minuto}";
+                                                            
+                                                            $data_formatada = "{$data} {$hora_fomatada}";
+                                                            $lista_datas[] = $data_formatada;
+                                                        }
+                                                        ?>
+
+                                                        <p class="datas-disponiveis">
+                                                            <strong><?php echo esc_html( $label ); ?>:</strong>
+                                                            <?php echo esc_html( implode( ' | ', $lista_datas ) ); ?>
+                                                        </p>
+
+                                                        <?php if ( $total >= 3 ) : ?>
                                                             <a href="<?php echo esc_url( get_the_permalink() ); ?>">
                                                                 Ver todas as datas e horários
                                                             </a>
