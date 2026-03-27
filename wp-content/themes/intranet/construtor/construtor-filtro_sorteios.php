@@ -671,7 +671,7 @@ if (!empty($partes_texto)) {
                                                 </div>
                                             </div>
                                                         
-                                            <div class="col-12 col-md-2 mt-2">
+                                            <div class="col-12 col-md-2 mt-2 p-0">
                                                 <?php 
                                                     global $wpdb;
                                                     $l = 0;
@@ -733,6 +733,13 @@ if (!empty($partes_texto)) {
     jQuery(document).ready(function() {
         
         const expandirFiltros = localStorage.getItem('expandir-filtro-eventos');
+        const params = new URLSearchParams(window.location.search);
+
+            if (params.toString().length > 0) {
+                jQuery('html, body').animate({
+                    scrollTop: jQuery('#filtro-eventos').offset().top - 20
+                }, 500);
+            }
 
         if ( expandirFiltros ) {
             toggleFiltrosEventos();
