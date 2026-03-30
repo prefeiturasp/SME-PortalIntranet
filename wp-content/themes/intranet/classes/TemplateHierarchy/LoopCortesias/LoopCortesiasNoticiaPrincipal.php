@@ -396,11 +396,11 @@ class LoopCortesiasNoticiaPrincipal extends LoopCortesias
 									<?php if(!$parceira): ?>
 										<label for="emailInsti">E-mail Institucional ou de Uso Principal <span>*</span></label>
 										<?php if ($user_email && strpos($user_email, '@sme.prefeitura') !== false) : ?>								
-											<input type="text" name="emailInstiDisa" class="form-control" id="emailInsti" value="<?= $user_email; ?>" disabled>
+											<input type="email" name="emailInstiDisa" class="form-control" id="emailInsti" value="<?= $user_email; ?>" disabled>
 											<input type="hidden" name="emailInsti" value="<?= $user_email; ?>">
 										<?php else: ?>
 											<input
-												type="text"
+												type="email"
 												name="emailInsti"
 												class="form-control"
 												id="emailInsti"
@@ -411,7 +411,7 @@ class LoopCortesiasNoticiaPrincipal extends LoopCortesias
 									<?php else: ?>
 										<label for="emailInsti">E-mail Institucional ou de Uso Principal <span>*</span></label>
 										<input
-											type="text"
+											type="email"
 											name="emailInsti"
 											class="form-control"
 											id="emailInsti"
@@ -456,10 +456,10 @@ class LoopCortesiasNoticiaPrincipal extends LoopCortesias
 								<div class="form-group col">
 									<label for="emailSec">E-mail Secundário <span>*</span></label>
 									<?php if ($user_email && strpos($user_email, '@sme.prefeitura') == false && !$parceira) : ?>								
-										<input type="text"  name="emailSec" class="form-control" id="emailSec" value="<?= $user_email; ?>">
+										<input type="email"  name="emailSec" class="form-control" id="emailSec" value="<?= $user_email; ?>">
 									<?php else: ?>
 										<input
-											type="text" 
+											type="email" 
 											name="emailSec"
 											class="form-control"
 											id="emailSec"

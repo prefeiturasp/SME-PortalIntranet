@@ -108,6 +108,9 @@ if (
 }
 
 define('WP_MEMORY_LIMIT', '3056M');
+
+define( 'MEDIA_TRASH', true );
+define( 'EMPTY_TRASH_DAYS', 30 );
 /* Isto é tudo, pode parar de editar! :) */
 
 /** Caminho absoluto para o diretório WordPress. */

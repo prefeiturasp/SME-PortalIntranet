@@ -6808,3 +6808,265 @@ function check_usuario_inscrito_evento( int $post_id ) {
 
 	return boolval( $tem_inscricao );
 }
+
+/**
+ * Retorna os posts em que um arquivo de mídia está vinculado
+ */
+function obter_posts_by_attachment_id( $attachment_id ) {
+    global $wpdb;
+
+    $posts_data = [];
+
+    $results = $wpdb->get_results($wpdb->prepare("
+        SELECT p.ID, p.post_title, p.post_name
+        FROM $wpdb->posts p
+        INNER JOIN $wpdb->postmeta pm ON p.ID = pm.post_id
+        WHERE pm.meta_key = '_thumbnail_id'
+        AND pm.meta_value = %d
+        AND p.post_status != 'trash'
+        LIMIT 10
+    ", $attachment_id));
+
+    if ( !empty( $results ) && !is_wp_error( $results ) ) {
+        foreach( $results as $row ) {
+            $posts_data[] = [
+                'id'        => $row->ID,
+                'title'     => $row->post_title,
+                'permalink' => get_edit_post_link($row->ID),
+            ];
+        }
+    }
+
+    return $posts_data;
+}
+
+/** Validações para exclusão de midia */
+add_filter( 'pre_trash_post', 'bloquear_exclusao_imagem_em_uso', 10, 2 );
+function bloquear_exclusao_imagem_em_uso( $trash, $post ) {
+
+    $action = $_REQUEST['action'] ?? null;
+
+	if ( $post->post_type !== 'attachment' || $action === 'delete-post' ) {
+		return $trash;
+	}
+
+    $results = obter_posts_by_attachment_id( $post->ID );
+
+    if ( !empty( $results ) ) {
+        
+        if ( wp_doing_ajax() ) {
+            wp_send_json_error([
+                'message' =>'Este arquivo não pode ser excluído pois está sendo utilizado em:',
+                'posts' => $results],
+            400);
+        }
+
+        wp_redirect(add_query_arg([
+            'trash_media_error'   => 1,
+            'media_id' => $post->ID
+        ], wp_get_referer()));
+
+        exit;
+    }
+}
+
+
+/** Adiciona no modal de detalhamento da midia as informações de uso (Postagens vinculadas) */
+add_filter('attachment_fields_to_edit', 'adicionar_uso_modal_midia', 10, 2);
+function adicionar_uso_modal_midia($fields, $post) {
+
+    $post_id = $_REQUEST['post_id'] ?? $_REQUEST['post'] ?? null;
+
+    // Não exibe a informação caso o modal esteja sendo exibido na tela de edição de um post.
+    if ( $post_id ) {
+        return $fields;
+    }
+
+    $posts_vinculados = obter_posts_by_attachment_id( $post->ID );
+
+    if ( !empty( $posts_vinculados ) ) {
+  
+        $html = '<ul style="margin:0;">';
+
+        foreach ( $posts_vinculados as $post ) {
+
+            $html .= '<li>';
+            $html .= '<a href="' . esc_url( $post['permalink'] ) . '" target="_blank">';
+            $html .= esc_html( $post['title'] . ' - ID ' . $post['id'] );
+            $html .= '</a>';
+            $html .= '</li>';
+        }
+
+        $html .= '</ul>';
+
+
+        $fields['used_in'] = [
+            'label' => 'Utilizado em',
+            'input' => 'html',
+            'html'  => $html,
+        ];
+    }
+
+    return $fields;
+}
+
+/** Adiciona informações de data e do usuário que enviou o arquivo para a lixeira na tabela de postmeta.  */
+add_action( 'wp_trash_post', 'salvar_informacoes_envio_lixeira' );
+function salvar_informacoes_envio_lixeira( $post_id ) {
+
+    if ( get_post_type( $post_id ) !== 'attachment' ) {
+        return;
+    }
+
+    $user_id = get_current_user_id();
+
+    if ( !$user_id ) {
+        return;
+    }
+
+    update_post_meta( $post_id, '_trashed_by_user', $user_id );
+    update_post_meta( $post_id, '_trashed_at', current_time( 'mysql' ) );
+}
+
+/** Adiciona a coluna "Excluido por" na tabela de listagem de midias na lixeira. */
+add_filter('manage_upload_columns', function($columns) {
+    if ( isset( $_GET['attachment-filter'] ) &&  $_GET['attachment-filter'] === 'trash' ) {
+        $columns['trashed_info'] = 'Excluído por';
+    }
+
+    return $columns;
+});
+
+/** Adiciona as informações na coluna "Excluido por" na tabela de listagem de midias na lixeira. */
+add_action('manage_media_custom_column', function( $column_name, $post_id ) {
+
+    if ($column_name !== 'trashed_info') {
+        return;
+    }
+
+    $user_id = get_post_meta( $post_id, '_trashed_by_user', true );
+    $date    = get_post_meta( $post_id, '_trashed_at', true );
+    $user = get_user_by( 'id', $user_id );
+
+    if ( !$user || !$date ) {
+        echo '—';
+        return;
+    }
+
+    echo '<spam>' . esc_html($user->display_name) . ' - em: ' . date( 'd/m/Y H:i', strtotime($date) ) . '</spam><br>';
+
+}, 10, 2);
+
+/** Exibe a mensagem de erro ao tentar enviar uma midia que está sendo utilizada para a lixeira */
+add_action('admin_notices', function() {
+
+    if ( empty( $_GET['trash_media_error'] ) ) {
+        return;
+    }
+
+    $attachment_id = intval( $_GET['media_id'] );
+    $posts_vinculados = obter_posts_by_attachment_id( $attachment_id );
+
+    if ( !empty( $posts_vinculados ) ) {
+
+        echo '<div class="notice notice-error is-dismissible">';
+        echo '<p><strong>Este arquivo não pode ser excluído pois está sendo utilizado em:</strong></p>';
+
+        $html = '<ul style="margin-left:20px; list-style:disc;">';
+
+        foreach ( $posts_vinculados as $post ) {
+
+            $html .= '<li>';
+            $html .= '<a href="' . esc_url( $post['permalink'] ) . '" target="_blank">';
+            $html .= esc_html( $post['title'] . ' - ID ' . $post['id'] );
+            $html .= '</a>';
+            $html .= '</li>';
+        }
+
+        $html .= '</ul>';
+
+        echo $html;
+
+        echo '</div>';
+    }
+});
+
+/** Adiciona o javascript necessário para exibir as mensagens de validação na exclusão de midia via requisições ajax */
+add_action('admin_footer', function() {
+?>
+<script>
+jQuery(function($) {
+
+    function escapeHtml(text) {
+        return $('<div>').text(text).html();
+    }
+
+    function renderMediaErrorNotice(response) {
+
+        if (!response || response.success !== false || !response.data) {
+            return;
+        }
+
+        let message = response.data.message || 'Erro ao processar a ação.';
+        let html = '<div class="notice notice-error is-dismissible">';
+        html += '<p><strong>' + escapeHtml(message) + '</strong></p>';
+
+        if (response.data.posts && response.data.posts.length) {
+            html += `
+                <ul style="margin-left:20px; list-style:disc;">
+                    ${response.data.posts.map(post => `
+                        <li>
+                            <a href="${post.permalink}" target="_blank">
+                                ${escapeHtml(post.title)} - ID  ${escapeHtml(post.id)}
+                            </a>
+                        </li>
+                    `).join('')}
+                </ul>
+            `;
+        }
+
+        html += '</div>';
+
+        let notice = $(html);
+
+        $('.notice.notice-error').remove();
+
+        let target = $('.wrap h1');
+
+        if (!target.length) {
+            target = $('#wpbody-content');
+        }
+
+        target.first().after(notice);
+    }
+
+    $(document).ajaxComplete(function(event, xhr, settings) {
+
+        if (!settings.data || !settings.data.includes('action=save-attachment')) {
+            return;
+        }
+
+        try {
+            let response = JSON.parse(xhr.responseText);
+            
+            if (response.success) {
+                $('.notice.notice-error').remove();   
+            } else {
+                renderMediaErrorNotice(response);
+            }
+
+            if (wp.media && wp.media.frame) {
+                let library = wp.media.frame.state().get('library');
+
+                if (library) {
+                    library._requery(true);
+                }
+            }
+        } catch (e) {}
+
+    });
+
+});
+</script>
+<?php
+});
