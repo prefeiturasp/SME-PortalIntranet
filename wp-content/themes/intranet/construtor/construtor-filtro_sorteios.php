@@ -543,15 +543,19 @@ if (!empty($partes_texto)) {
                                     <div class="col-12 col-md-6 p-0 image-wrapper">
                                         <?php 
                                             $image = get_the_post_thumbnail_url( $post_id, 'default-image' );
+                                            $image_bg = get_the_post_thumbnail_url( $post_id, 'thumbnail' );
                                             $post_type = get_post_type_label( get_the_ID() );
                                         ?>
                                         <?php if($image): ?>
                                             <div class="event-thumbnail">
+                                                <div class="bg" style="background-image: url('<?php echo esc_url( $image_bg ); ?>');"></div>
                                                 <img src="<?php echo esc_url( $image ); ?>" class="img-fluid">
                                             </div>
                                         <?php else: ?>
                                             <div class="event-thumbnail">
                                                 <?php $imagem_padrao = get_field( 'sorteios_cortesias_placeholder', 'options' ); ?>
+
+                                                <div class="bg" style="background-image: url('<?php echo esc_url( $imagem_padrao ); ?>');"></div>
                                                 <img src="<?php echo esc_url( $imagem_padrao ); ?>" class="img-fluid rounded" alt="Imagem de ilustração categoria">
                                             </div>
                                         <?php endif; ?>
