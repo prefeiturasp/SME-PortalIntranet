@@ -396,14 +396,14 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 									<?php if(!$parceira): ?>
 										<label for="emailInsti">E-mail Institucional ou de Uso Principal <span>*</span></label>
 										<?php if ($user_email && strpos($user_email, '@sme.prefeitura') !== false) : ?>								
-											<input type="text" name="emailInstiDisa" class="form-control" id="emailInsti" value="<?= $user_email; ?>" disabled>
+											<input type="email" name="emailInstiDisa" class="form-control" id="emailInsti" value="<?= $user_email; ?>" disabled>
 											<input type="hidden" name="emailInsti" value="<?= $user_email; ?>">
 										<?php else: ?>
-											<input type="text" name="emailInsti" class="form-control" id="emailInsti" placeholder="email@sme.prefeitura.sp.gov.br">
+											<input type="email" name="emailInsti" class="form-control" id="emailInsti" placeholder="email@sme.prefeitura.sp.gov.br">
 										<?php endif; ?>
 									<?php else: ?>
 										<label for="emailInsti">E-mail Principal <span>*</span></label>
-										<input type="text" name="emailInsti" class="form-control" id="emailInsti" placeholder="Insira seu e-mail principal">
+										<input type="email" name="emailInsti" class="form-control" id="emailInsti" placeholder="Insira seu e-mail principal">
 									<?php endif; ?>
 									
 								</div>
@@ -435,9 +435,9 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 								<div class="form-group col">
 									<label for="emailSec">E-mail Secundário <span>*</span></label>
 									<?php if ($user_email && strpos($user_email, '@sme.prefeitura') == false && !$parceira) : ?>								
-										<input type="text"  name="emailSec" class="form-control" id="emailSec" value="<?= $user_email; ?>">
+										<input type="email"  name="emailSec" class="form-control" id="emailSec" value="<?= $user_email; ?>">
 									<?php else: ?>
-										<input type="text"  name="emailSec" class="form-control" id="emailSec" placeholder="email@provedor.com.br">
+										<input type="email"  name="emailSec" class="form-control" id="emailSec" placeholder="email@provedor.com.br">
 									<?php endif; ?>
 								</div>
 

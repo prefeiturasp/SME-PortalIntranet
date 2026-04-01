@@ -390,3 +390,57 @@ div#categorias-contatodiv{
 .tooltip .arrow{
     margin-left: 0;
 }
+
+/* Tabela e detalhes do menu de midia */
+
+table.wp-list-table.media {
+    display: inline-table;
+}
+
+.compat-field-used_in {
+    border-top: 1px solid #dcdcde;
+    padding-top: 16px !important;
+}
+.compat-field-used_in th.label {
+    min-width: 0;
+    vertical-align: top;
+    padding-top: 12px;
+}
+
+.compat-field-used_in th.label span {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #0073aa;
+}
+
+.compat-field-used_in td.field {
+    background: #FFFFFF;
+    border: 1px solid #e6f1f1;
+    border-left: 4px solid #0073aa;
+    padding: 10px;
+    border-radius: 4px;
+}
+.compat-field-used_in th.label {
+    vertical-align: top;
+    padding-top: 12px;
+    font-weight: 600;
+}
+
+.compat-field-used_in td.field ul {
+    margin: 8px 0 0;
+    padding-left: 18px;
+}
+
+.compat-field-used_in td.field li {
+    margin-bottom: 4px;
+}
+
+.compat-field-used_in td.field a {
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.compat-field-used_in td.field a:hover {
+    text-decoration: underline;
+}
