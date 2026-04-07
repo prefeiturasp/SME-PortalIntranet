@@ -11,7 +11,7 @@ Text Domain: sme-portal-intranet
 */
 
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,400i,700,700i&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 
 /* =WordPress Core
@@ -2885,18 +2885,50 @@ div.star-rating-on a {
 
 .msg-encerrado {
     background: #FFFFFF;
-    border: 1px solid #0F42B2;
-    color: #042B5B;
+    color: #000000;
     margin-top: 20px;
     margin-bottom: 30px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.08);
+    font-weight: 500;
 }
 
 .msg-encerrado h3 {
-    color: #042B5B !important;
+    color: #000000 !important;
     font-style: normal;
-    font-weight: bold;
+    font-weight: 600;
+    font-size: 18px;
+    margin: 15px 0 30px;
+}
+
+.msg-encerrado .btn-cancela-inscri{
+    background: #14447C;
+    color: #FFFFFF;
+    border-radius: 8px;
+    border: 0;
+    font-weight: 500;
+    padding: 10px 35px;
+}
+
+.msg-encerrado .icone-sucesso,
+.msg-encerrado .icone-alerta {    
     font-size: 20px;
-    margin: 30px 0;
+    
+    display: inline-block;
+    padding: 6px 13px;
+    border-radius: 5px;
+    margin-top: 25px;
+}
+
+.msg-encerrado .icone-sucesso{
+    color: #00b600;
+    background: #C4F4D0;
+}
+
+.msg-encerrado .icone-alerta{
+    color: #e9b415;
+    background: #f2ebd7;
 }
 
 .comment-respond .form-submit {
@@ -2913,8 +2945,9 @@ div.star-rating-on a {
 }
 
 .title-info{
-    color: #FA6718;
+    color: #14447C;
     font-weight: bold;
+    font-size: 20px;
 }
 
 .filtro-sorteios{
@@ -3041,4 +3074,160 @@ table.datatables td{
 
 .container {
     max-width: 1420px;
+}
+
+.content-sorteio .infos-topo-noticia {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 20px 45px 0;
+}
+
+.content-sorteio .infos-topo-noticia {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    padding: 20px 45px 0;
+    margin-bottom: 50px;
+}
+
+.content-sorteio .infos-topo-noticia .image-wrapper{
+    position: relative;
+    display: block;
+}
+
+.content-sorteio .infos-topo-noticia img{
+    margin-bottom: -25px;
+    border-radius: 12px;
+}
+
+.content-sorteio .titulo-noticia-principal{
+    color: #0F42B2;
+    font-size: 30px !important;
+    font-weight: 600;
+    text-decoration: none;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.content-sorteio .data{
+    font-size: 12px;
+    font-style: normal;
+    font-family: 'Raleway', sans-serif;
+}
+
+.content-sorteio .infos-noticia{
+    font-family: 'Raleway', sans-serif;
+}
+
+.content-sorteio .infos-noticia h3{
+    font-size: 20px;
+    font-weight: 500;
+}
+
+.content-sorteio .post_like .pp_like{
+    font-size: 12px;
+    font-family: 'Raleway', sans-serif;
+    color: #666666;
+}
+
+.content-sorteio .post_like .pp_like:hover .icon-like{
+    transform: scale(1.15);
+    transition: 0.2s;
+}
+
+.content-sorteio .post_like .icon-like {
+    background-image: url(../intranet/img/icone-likes.svg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    width: 20px;
+    height: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.content-sorteio .post_like .pp_like.likes .icon-like,
+.content-sorteio .post_like .pp_like.liked .icon-like{
+    background-image: url(../intranet/img/icone-likes-liked.svg);
+}
+
+.informacoes-evento{
+    background: #FFFFFF;
+    backdrop-filter: blur(20px);
+    box-shadow: 0px 20px 40px 0px rgba(0, 0, 0, 0.25);
+    border-radius: 12px;
+    padding: 20px; 
+    margin-bottom: 30px;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.informacoes-evento .fa{
+    color: #FFA513;
+    font-size: 30px;
+    margin-right: 15px;
+}
+
+.informacoes-evento tr td{
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.informacoes-evento td .divisor{
+    background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0) 100%);
+    height: 1px;
+    width: 100%;
+    display: block;
+}
+
+.informacoes-evento .badge-inscricao {
+    background-color: #01C74B;
+    color: #ffffff;
+    width: fit-content;
+    margin-right: 10px;
+}
+
+.informacoes-evento .badge-inscricao .fa{
+    color: #ffffff;
+    font-size: 14px;
+    margin-right: 5px;
+}
+
+.informacoes-evento .badge-inscricao,
+.informacoes-evento .post-type-tag{
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.bg-cards{
+    background-color: #FFFFFF;
+}
+
+.bg-cards .card {
+    box-shadow: -2px 2px 4px 0px rgba(0, 0, 0, 0.1);
+    border: 0;
+    background: #F7F7F7;
+    border-radius: 12px;
+    color: #726969;
+    font-size: 18px;
+    font-family: 'Raleway', sans-serif;
+    text-align: center;
+    transition: 0.2s;
+}
+
+.bg-cards .card:hover {
+    transform: scale(1.025);
+    transition: 0.2s;
+}
+
+.bg-cards .card .card-img-top{
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.bg-cards .card .card-body{
+    padding: 8px 10px;
+}
+
+.bg-cards .card p{
+    font-weight: bold;
+    margin: 0;
 }

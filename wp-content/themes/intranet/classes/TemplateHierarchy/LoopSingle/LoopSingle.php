@@ -22,8 +22,9 @@ class LoopSingle extends Util
 		echo '<div class="container mt-5">';
 			echo '<div class="row">';
 				new LoopSingleNoticiaPrincipal();
-				new LoopSingleMaisRecentes(get_the_ID());
+				new LoopSingleInformacoesEvento();
 				new LoopSingleRelacionadas(get_the_ID());
+				new LoopSingleMaisRecentes(get_the_ID());
 			echo '</div>';
 		echo '</div>';
 

@@ -20,8 +20,7 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 	public function montaHtmlNoticiaPrincipal(){
 		if (have_posts()):
 			while (have_posts()): the_post();
-			echo "<article class='col-12 col-lg-8 content-article content-explica news-content' data-tipo-evento='{$this->tipo_evento}'>";
-			$this->getDataPublicacaoAlteracao();
+			echo "<article class='col-12 col-lg-8 content-article content-explica news-content content-sorteio' data-tipo-evento='{$this->tipo_evento}'>";
 
 			$current_date = date('Ymd');
 
@@ -29,35 +28,57 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 			$enc_inscri = get_field('enc_inscri');
 
 			// Verificando se a data de encerramento é menor que a data atual
-			$status_prefix = ($enc_inscri < $current_date) ? 'ENCERRADO - ' : '';
+			$status_prefix = ($enc_inscri < $current_date) ? '<div class="overlay-encerrado"></div>' : '';
 			$texto_subtitulo = ($enc_inscri < $current_date) ? 'Sorteio' : 'Sorteio será realizado';
 
-			echo '<h2 class="titulo-noticia-principal mb-3" id="'.get_post_field( 'post_name', get_post() ).'">'. $status_prefix . get_the_title().'</h2>';
-			//echo $this->getSubtitulo(get_the_ID(), 'h3');
-			$dataSorteio = ($enc_inscri < $current_date) ? obter_ultima_data_sorteio( get_the_ID() ) : obter_proxima_data_sorteio( get_the_ID() );
-			if($dataSorteio){
-				echo '<h3>' . $texto_subtitulo . ' ' . $dataSorteio . '</h3>';	
-			}				
-			//echo "<hr><br>";
-			
-			$image = get_the_post_thumbnail( $post_id, 'default-image', array( 'class' => 'img-fluid mb-4 d-block mx-auto my-0' ) );
-			if($image) :
-				echo $image;			
-			endif;
+			echo '<div class="infos-topo-noticia">';
 
-			$content = get_the_content();
-			if (trim(wp_strip_all_tags($content)) !== '') {
-				echo "<hr><br>";
-				the_content();	
-			}
+				echo '<div class="row">';
+					echo '<div class="col-11">';
+						echo '<h2 class="titulo-noticia-principal mb-3" id="'.get_post_field( 'post_name', get_post() ).'">' . get_the_title().'</h2>';
+
+						$dataSorteio = ($enc_inscri < $current_date) ? obter_ultima_data_sorteio( get_the_ID() ) : obter_proxima_data_sorteio( get_the_ID() );
+						if($dataSorteio){
+							echo '<h3>' . $texto_subtitulo . ' ' . $dataSorteio . '.</h3>';	
+						}
+					echo '</div>';
+					echo '<div class="col-1 pl-0">';
+						$this->getPostLikes();
+					echo '</div>';
+				echo '</div>';
+				$this->getDataPublicacaoAlteracao();
 				
-			echo "<hr>";
+				
+				$image = get_the_post_thumbnail( $post_id, 'default-image', array( 'class' => 'img-fluid mx-auto' ) );
+				if($image) :
+					echo $image;
+					echo $status_prefix;
+				else :
+					$image = get_field( 'sorteios_cortesias_placeholder', 'options' );
+					if($image)
+						echo '<img src="' . $image . '" class="img-fluid mx-auto" alt="Logo da Secretaria Municipal de Educação de São Paulo">';
+						echo $status_prefix;
+				endif;			
 
-			$this->getInfoVisita();
+			echo '</div>';
 
-			$this->getFormInscri();			
+			echo '<div class="infos-noticia">';
 
-			$this->getPostLikes();
+				
+
+				$content = get_the_content();
+				if (trim(wp_strip_all_tags($content)) !== '') {
+					echo "<hr><br>";
+					the_content();	
+				}
+					
+				
+
+				$this->getInfoVisita();
+
+				$this->getFormInscri();			
+
+			echo '</div>';
 
 			echo '</article>';
 			endwhile;
@@ -66,7 +87,7 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 	}
 	public function getDataPublicacaoAlteracao(){
 		//padrão de horario G\hi
-		echo '<p class="data"><span class="display-autor">Publicado em: '.get_the_date('d/m/Y G\hi').' | Atualizado em: '.get_the_modified_date('d/m/Y');
+		echo '<p class="data">Publicado em: '.get_the_date('d/m/Y G\hi').' | Atualizado em: '.get_the_modified_date('d/m/Y');
 		 
 			$term_obj_list = get_the_terms( get_the_ID(), 'category' );
 			$i = 0;
@@ -84,99 +105,23 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 				}                                        
 			}
 		
-		echo '</span></p>';
+		echo '</p>';
 	}
 
-	public function getInfoVisita(){
-		if ($this->tipo_evento == 'premio') {
-			echo '<p class="title-info">Informações do Sorteio:</p>';
-		} else {
-			echo '<p class="title-info">Informação da Visita/Evento:</p>';
-		}
-
-		$resumo = get_field('resumo');
-		$link = get_field('link_infos');
-		$tituloLink = get_field('texto_do_link');
-
-		if($resumo){
-			echo '<p>' . $resumo . '</p>';
-		}		
-
-		$dataEvento = obter_datas_evento_formatadas( get_the_ID() );
-		$genero = get_field('genero_taxo', get_the_ID()); // Tipo de evento
-		$duracao = get_field('duracao');
-		$class_indicativa = get_field('class_indicativa');
-		$local = get_field('local');
-		$local_outros = get_field('local_outros');
-		$endereco = get_field('endereco');
-
-		if ( $this->tipo_evento === 'periodo' ) {
-			$info_periodo_evento = get_field( 'evento_periodo', get_the_ID() );
-		}
-		
-		echo '<p>';
-
-			echo '<strong>O que é: </strong> ' . get_the_title() . '</br>';
-			
-			if(!empty($dataEvento) && $this->tipo_evento === 'data'){
-				echo '<strong>Data: </strong> ' . $dataEvento . '</br>';
-			}
-
-			//Aparece apenas em sorteios do tipo Período
-			if( isset( $info_periodo_evento['descricao'] ) && !empty( $info_periodo_evento['descricao'] ) ){
-				echo '<strong>Período: </strong> ' . esc_html( $info_periodo_evento['descricao'] ) . '</br>';
-			}
-			
-			if($genero){
-				echo '<strong>Tipo de Evento: </strong> ' . $genero->name . '</br>';
-			}
-			if($duracao){
-				echo '<strong>Duração: </strong> ' . $duracao . '</br>';
-			}
-			if($class_indicativa){
-				echo '<strong>Classificação Indicativa: </strong> ' . $class_indicativa . '</br>';
-			}
-			if($local && $local != 'outros'){
-				$term = get_term($local);
-
-				if ($term && !is_wp_error($term)) {
-					echo '<strong>Local: </strong> ' . $term->name . '</br>';
-				}
-				
-			}
-			if($local && $local == 'outros'){
-				echo '<strong>Local: </strong> ' . $local_outros . '</br>';
-			}
-			if($endereco){
-				echo '<strong>Endereço: </strong> ' . $endereco . '</br>';
-			} elseif($local && $local != 'outros' && $term->description){
-				echo '<strong>Endereço: </strong> ' . $term->description . '</br>';
-			}
-		echo '</p>';
-
-		if($link){
-			if ($tituloLink) {
-				echo '<p><strong>Link para mais informações:</strong> <a href="' . $link . '" target="_blank">' . $tituloLink . '</a></p>';
-			} else {
-				echo '<p><strong>Link para mais informações:</strong> <a href="' . $link . '" target="_blank">Saiba Mais</a></p>';
-			}
-		}
+	public function getInfoVisita(){		
 
 		$regras_info = get_field('regras_info');
 
 		if($regras_info){
-			echo '<hr>';
 			echo '<p class="title-info">Informações importantes:</p>';
 			echo $regras_info;
 		}
-
-		echo '<p class="title-info">Boa sorte a todos!</p>';
-		echo '<hr>';
 
 		//EXIBE LISTA DE CONTEMPLADOS DO SORTEIO
 		echo do_shortcode('[exibe_tab_resultado_pagina]');
 		
 	}
+
 	public function getFormInscri(){
 		$user_id = get_current_user_id();
 		$current_date = obter_data_com_timezone('Ymd', 'America/Sao_Paulo');
@@ -335,15 +280,21 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 					
 					//if(!$this->verificaExibicaoListaSorteados()){ ?>
 						<div class="msg-encerrado text-center">
+							<div class="icone-sucesso">
+								<i class="fa fa-check-square" aria-hidden="true"></i>
+							</div>
 							<h3>Sua inscrição foi realizada com sucesso!</h3>
 							<p>Agora é só aguardar e torcer, o sorteio será realizado <strong><?= $dataSorteio ?>,</strong><br>
 							e a lista de ganhadores será divulgada nesta página e por e-mail. Fique atento!</p>
-							<button id="cancelarInscricao" class="btn btn-outline-primary mb-4">Cancelar Inscrição</button>
+							<button id="cancelarInscricao" class="btn btn-cancela-inscri mb-4">Cancelar Inscrição</button>
 						</div>
 					<?php //}
 				} elseif($ativo && !$parceira) { // usuario com sação
 					?>
 						<div class="msg-encerrado text-center">
+							<div class="icone-alerta">
+								<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+							</div>
 							<h3>Atenção!</h3>
 							<p>Você está impedido de se inscrever em qualquer sorteio, devido à sua ausência em um evento anterior. Você poderá participar de novos sorteios a partir de <?= $dataPermissao; ?></p>
 						</div>
@@ -661,6 +612,9 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 
 				$dataSorteio = obter_ultima_data_sorteio( get_the_ID() );
 				echo '<div class="msg-encerrado text-center">';
+					echo '<div class="icone-alerta">';
+						echo '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>';
+					echo '</div>';
 					echo '<h3>Inscrições Encerradas!</h3>';
 					echo '<p>O sorteio será realizado ' . $dataSorteio . ', <br>a lista de ganhadores será divulgada nesta página. Fique atento!</p>';
 				echo '</div>';
@@ -681,7 +635,7 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 	}
 
 	public function getPostLikes(){
-		echo '<div class="d-flex justify-content-between">';
+		echo '<div class="d-flex justify-content-end align-items-center">';
 			echo '<div class="likes">';
 			
 				global $wpdb;
@@ -708,37 +662,13 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 				}
 
 				echo '<div class="post_like">';
-					echo '<a class="pp_like ' . $likes . '" id="pp_like_' . get_the_id() . '" href="#" data-id="' . get_the_id() . '"><i class="fa fa-heart" aria-hidden="true"></i></i> <span>' . $total_like1 . ' ' . $text_total . '</span></a>';
+					echo '<a class="pp_like ' . $likes . '" id="pp_like_' . get_the_id() . '" href="#" data-id="' . get_the_id() . '"><div class="icon-like"></div><span>' . $total_like1 . ' ' . $text_total . '</span></a>';
 				echo '</div>';
 				
 			echo '</div>';			
 		echo '</div>';
 	}
-	public function getArquivosAnexos(){
-		$unsupported_mimes  = array( 'image/jpeg', 'image/gif', 'image/png', 'image/bmp', 'image/tiff', 'image/x-icon' );
-		$all_mimes          = get_allowed_mime_types();
-		$accepted_mimes     = array_diff( $all_mimes, $unsupported_mimes );
-
-		$attachments = get_posts( array(
-			'post_type' => 'attachment',
-			'post_mime_type'    => $accepted_mimes,
-			'posts_per_page' => -1,
-			'post_parent' => get_the_ID(),
-			'orderby'	=> 'ID',
-			'order'	=> 'ASC',
-			'exclude'     => get_post_thumbnail_id()
-		) );
-		if ( $attachments ) {
-			echo '<section id="arquivos-anexos">';
-			echo '<h2>Arquivos Anexos</h2>';
-			foreach ( $attachments as $attachment ) {
-				echo '<article>';
-				echo '<p><a target="_blank" style="font-size:26px" href="'.$attachment->guid.'"><i class="fa fa-file-text-o fa-3x" aria-hidden="true"></i> Ir para '. $attachment->post_title.'</a></p>';
-				echo '<article>';
-			}
-			echo '</section>';
-		}
-	}
+	
 	public function getCategorias($id_post){
 		$categorias = get_the_category($id_post);
 		foreach ($categorias as $categoria){
