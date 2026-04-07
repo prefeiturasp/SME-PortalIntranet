@@ -736,7 +736,7 @@ if (!empty($partes_texto)) {
 
     jQuery(document).ready(function() {
         
-        const expandirFiltros = localStorage.getItem('expandir-filtro-eventos');
+        const expandirFiltros = sessionStorage.getItem('expandir-filtro-eventos');
         const params = new URLSearchParams(window.location.search);
 
             if (params.toString().length > 0) {
@@ -763,11 +763,11 @@ if (!empty($partes_texto)) {
             if ($filtrosContainer.hasClass('filtros-ativos')) {
                 $filtrosContainer.slideUp(300).removeClass('filtros-ativos')
                 $btnExpandirFiltros.removeClass('fa-angle-up').addClass('fa-angle-down');
-                localStorage.removeItem('expandir-filtro-eventos')
+                sessionStorage.removeItem('expandir-filtro-eventos')
             } else {
                 $filtrosContainer.slideDown(300).addClass('filtros-ativos');
                 $btnExpandirFiltros.removeClass('fa-angle-down').addClass('fa-angle-up');
-                localStorage.setItem('expandir-filtro-eventos', true);
+                sessionStorage.setItem('expandir-filtro-eventos', true);
             }
         }
 
