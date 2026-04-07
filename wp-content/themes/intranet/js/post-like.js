@@ -33,6 +33,7 @@ jQuery(document).ready(function($) {
             }
             if(result.dislike == 1){
                 jQuery(current).removeClass('liked');
+                jQuery(current).removeClass('likes');
             } 
             jQuery(current).show();
         });

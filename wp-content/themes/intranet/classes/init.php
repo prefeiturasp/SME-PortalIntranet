@@ -58,6 +58,7 @@ require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleMenuInter
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleNoticiaPrincipal.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleMaisRecentes.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleRelacionadas.php';
+require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleInformacoesEvento.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopNoticias/LoopNoticias.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopNoticias/LoopNoticiasCabecalho.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopNoticias/LoopNoticiasNoticiaPrincipal.php';
