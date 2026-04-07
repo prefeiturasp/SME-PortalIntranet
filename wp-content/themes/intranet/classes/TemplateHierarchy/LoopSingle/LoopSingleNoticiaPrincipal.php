@@ -51,13 +51,17 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 				
 				$image = get_the_post_thumbnail( $post_id, 'default-image', array( 'class' => 'img-fluid mx-auto' ) );
 				if($image) :
-					echo $image;
-					echo $status_prefix;
+					echo '<div class="image-wrapper">';
+						echo $image;
+						echo $status_prefix;
+					echo '</div>';
 				else :
 					$image = get_field( 'sorteios_cortesias_placeholder', 'options' );
 					if($image)
-						echo '<img src="' . $image . '" class="img-fluid mx-auto" alt="Logo da Secretaria Municipal de Educação de São Paulo">';
-						echo $status_prefix;
+						echo '<div class="image-wrapper">';
+							echo '<img src="' . $image . '" class="img-fluid mx-auto" alt="Logo da Secretaria Municipal de Educação de São Paulo">';
+							echo $status_prefix;
+						echo '</div>';
 				endif;			
 
 			echo '</div>';
