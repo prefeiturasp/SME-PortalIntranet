@@ -4455,6 +4455,13 @@ add_action('rest_api_init', function() {
 					return is_string($param); // Validação básica
 				}
 			],
+			'genero_ids' => [
+				'description' => 'IDs dos tipos de evento (genero) para filtrar (separados por vírgula)',
+				'type' => 'string',
+				'validate_callback' => function( $param ) {
+					return is_string( $param );
+				}
+			],
 			'search' => [
 				'description' => 'Nome do evento a ser buscado',
 				'type' => 'string',
@@ -4518,6 +4525,22 @@ function custom_posts_endpoint($request) {
 			'taxonomy' => 'post_tag',
 			'field'    => 'term_id',
 			'terms'    => $tag_ids,
+		);		
+    }
+
+	// Adiciona tipo de evento (genero) se fornecido
+	if ( $genero_ids = $request->get_param( 'genero_ids' ) ) {				
+
+		$args1['tax_query'][] = array(
+			'taxonomy' => 'genero',
+			'field'    => 'term_id',
+			'terms'    => $genero_ids,
+		);
+		
+		$args2['tax_query'][] = array(
+			'taxonomy' => 'genero',
+			'field'    => 'term_id',
+			'terms'    => $genero_ids,
 		);		
     }
     
