@@ -6442,7 +6442,16 @@ function custom_single_cortesia_endpoint( $post, $selected_fields = []) {
 	$post_data['datas_dispo'] = $datas_disponivies;
 
     
-	$post_data['teste'] = 'teste 123';
+	if($tipo_evento == 'premio'){
+		$datas_disponivies = get_field('evento_premios', $post->ID);
+		$post_data['premios'] = array();
+		if($datas_disponivies){
+			foreach ($datas_disponivies as $data) {
+				$post_data['premios'][] = esc_html( $data['premio'] );
+			}
+		}
+	}
+	
     return new WP_REST_Response($post_data, 200);
 }
 
