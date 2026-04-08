@@ -13,6 +13,7 @@ class LoopSingleCabecalho extends LoopSingle
 	}
 
 	public function cabecalhoDetalheNoticia(){
+		$colunas = get_field('colunas', 'options') ?: 4;
 		$cards = get_field( 'cards', 'options' );
 		
 		if($cards){
@@ -23,7 +24,7 @@ class LoopSingleCabecalho extends LoopSingle
 
 							<?php foreach ($cards as $card) : ?>
 
-								<div class="col-sm-4">
+								<div class="col-sm-<?= $colunas ?>">
 									<a href="<?= $card['link']; ?>">
 										<div class="card">
 											<img class="card-img-top" src="<?= $card['imagem']['url']; ?>" alt="<?= $card['image']['alt']; ?>">

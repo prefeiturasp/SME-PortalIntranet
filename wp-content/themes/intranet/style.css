@@ -2825,13 +2825,14 @@ div.star-rating-on a {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+    font-family: 'Raleway', sans-serif;
 }
 
 .form-title h3 {
-    color: #FA6718 !important;
+    color: #14447C !important;
     font-style: normal;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .form-title .inscri-limite {
@@ -3097,6 +3098,7 @@ table.datatables td{
 .content-sorteio .infos-topo-noticia img{
     margin-bottom: -25px;
     border-radius: 12px;
+    display: inline;
 }
 
 .content-sorteio .titulo-noticia-principal{
@@ -3158,6 +3160,11 @@ table.datatables td{
     padding: 20px; 
     margin-bottom: 30px;
     font-family: 'Open Sans', sans-serif;
+}
+
+.informacoes-evento a {
+    color: #000000;
+    text-decoration: underline;
 }
 
 .informacoes-evento .fa{
