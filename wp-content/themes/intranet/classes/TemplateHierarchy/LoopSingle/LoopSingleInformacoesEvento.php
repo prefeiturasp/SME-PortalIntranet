@@ -186,7 +186,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                         echo '<tr>';
                             echo '<td class="align-top"><i class="fa fa-link" aria-hidden="true"></i></td>';
                             echo '<td><strong>Link para mais informações:</strong>';
-                                echo '<ul>';
+                                echo '<ul><strong>';
                                     echo '<li><a href="' . $link . '" target="_blank">' . ($tituloLink ? $tituloLink : 'Saiba Mais') . '</a></li>';
                                     foreach ($links as $link) {
                                         if (empty($link['link_infos']) && empty($link['texto_do_link'])) {
@@ -196,7 +196,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                                         }
                                         echo '<li><a href="' . $link['link_infos'] . '" target="_blank">' . $link['texto_do_link'] . '</a></li>';
                                     }
-                                echo '</ul>';
+                                echo '</strong></ul>';
                             echo '</td>';
                         echo '</tr>';
                        

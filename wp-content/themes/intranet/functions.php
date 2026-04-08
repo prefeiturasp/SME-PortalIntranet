@@ -4660,11 +4660,11 @@ function custom_posts_endpoint($request) {
 
 			if ( $post_type === 'cortesias' ) {
 				$post_data['subtitulo'] = ( $status == 'encerrados' )
-					? 'Evento encerrado. Consulte mais detalhes na notícia'
-					: 'Ingressos gratuitos por ordem de inscrição, enquanto houver disponibilidade'; 
+					? 'Benefício encerrado. Consulte mais detalhes na notícia.'
+					: 'Resgate por ordem de inscrição, conforme disponibilidade.'; 
 			} else {
 
-				$texto_subtitulo = ( $status == 'encerrados' ) ? 'Sorteio' : 'Sorteio';
+				$texto_subtitulo = ( $status == 'encerrados' ) ? 'Sorteio' : 'Sorteio s';
 				$dataSorteio = ( $status == 'encerrados' ) ? obter_ultima_data_sorteio( $post->ID ) : obter_proxima_data_sorteio( $post->ID, false );
 				$post_data['subtitulo'] = $texto_subtitulo . ' ' . $dataSorteio;
 			}
@@ -4815,13 +4815,14 @@ function custom_single_post_endpoint($request) {
 
 		if($dataSorteio && $post_type === 'sorteio'){
 			$texto_subtitulo = ($enc_inscri < $current_date) ? 'Sorteio' : 'Sorteio será realizado';
-			$post_data['subtitulo'] = $texto_subtitulo . ' ' . $dataSorteio;	
+			$post_data['subtitulo'] = $texto_subtitulo . ' ' . $dataSorteio;
+			$post_data['post_status'] = ($enc_inscri < $current_date) ? 'encerrado' : 'ativo';
 		}
 
 		if ( $post_type === 'cortesias' ) {
 			$texto_subtitulo = ($enc_inscri < $current_date)
-				? 'Evento encerrado. Consulte mais detalhes na notícia'
-				: 'Ingressos gratuitos por ordem de inscrição, enquanto houver disponibilidade';
+				? 'Benefício encerrado. Consulte mais detalhes na notícia.'
+				: 'Resgate por ordem de inscrição, conforme disponibilidade.';
 			$post_data['subtitulo'] = $texto_subtitulo;
 		}
 
@@ -5011,13 +5012,19 @@ function custom_single_post_endpoint($request) {
     // Imagem destacada
     if (in_array('thumbnail', $selected_fields)) {
         $thumbnail_id = get_post_thumbnail_id($post->ID);
-        $post_data['thumbnail'] = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'default-image') : '';
+        $post_data['thumbnail'] = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'default-image') : get_field( 'sorteios_cortesias_placeholder', 'options' );
     }
 
 	$tipo_evento = get_field('tipo_evento', $post->ID);
 	if($tipo_evento == 'premio'){
 		$datas_disponivies = get_field('evento_premios', $post->ID);
 		$post_data['tipo_evento'] = 'premio';
+		$post_data['premios'] = array();
+		if($datas_disponivies){
+			foreach ($datas_disponivies as $data) {
+				$post_data['premios'][] = esc_html( $data['premio'] );
+			}
+		}
 	} elseif ($tipo_evento == 'data') {
 		$datas_disponivies = get_field('evento_datas', $post->ID);
 	}
@@ -5839,34 +5846,50 @@ function buscar_datas_inscricao() {
 // Retorna a data/hora do evento formatada (Eventos de única e multiplas datas)
 function obter_datas_evento_formatadas(int $post_id) {
 
-	if ($datas_evento = get_field('evento_datas', $post_id)) {
+    $dias_semana = [
+        'Sunday' => 'domingo',
+        'Monday' => 'segunda-feira',
+        'Tuesday' => 'terça-feira',
+        'Wednesday' => 'quarta-feira',
+        'Thursday' => 'quinta-feira',
+        'Friday' => 'sexta-feira',
+        'Saturday' => 'sábado',
+    ];
 
-		$lista_datas = array_map(function ($item) {
+    if ($datas_evento = get_field('evento_datas', $post_id)) {
 
-			// $item['data'] contém data e hora no formato Y-m-d H:i:s
-			$data_hora = $item['data'];
+        $lista_datas = array_map(function ($item) use ($dias_semana) {
 
-			$data_formatada = date('d/m/Y', strtotime($data_hora));
+            $data_hora = $item['data'];
+            $timestamp = strtotime($data_hora);
 
-			// Pega a hora formatada, adaptando sua função para receber o datetime completo
-			$hora_formatada = obter_hora_formatada($data_hora);
+            $data_formatada = date('d/m', $timestamp);
+            $hora_formatada = obter_hora_formatada($data_hora);
 
-			return "{$data_formatada} {$hora_formatada}";
+            $dia_semana_en = date('l', $timestamp);
+            $dia_semana = $dias_semana[$dia_semana_en];
 
-		}, $datas_evento);
+            return "{$data_formatada} às {$hora_formatada} – {$dia_semana}";
 
-		return implode(' | ', $lista_datas);
-	}
+        }, $datas_evento);
 
-	if ($data_evento = get_field('data_evento', $post_id)) {
+        return implode('<br>', $lista_datas);
+    }
 
-		$data_formatada = date('d/m/Y', strtotime($data_evento));
-		$hora_formatada = obter_hora_formatada($data_evento);
+    if ($data_evento = get_field('data_evento', $post_id)) {
 
-		return "{$data_formatada} {$hora_formatada}";
-	}
+        $timestamp = strtotime($data_evento);
 
-	return null;
+        $data_formatada = date('d/m', $timestamp);
+        $hora_formatada = obter_hora_formatada($data_evento);
+
+        $dia_semana_en = date('l', $timestamp);
+        $dia_semana = $dias_semana[$dia_semana_en];
+
+        return "{$data_formatada} às {$hora_formatada} – {$dia_semana}";
+    }
+
+    return null;
 }
 
 // Retorna a hora no formato necessário para a exibição nos sorteios
@@ -6188,11 +6211,12 @@ function custom_single_cortesia_endpoint( $post, $selected_fields = []) {
 		$enc_inscri = get_field('enc_inscri', $post_id);
 
 		// Verificando se a data de encerramento é menor que a data atual
-		$status_prefix = ($enc_inscri < $current_date) ? 'ENCERRADO - ' : '';
+		$status_prefix = ($enc_inscri < $current_date) ? '' : '';
+		$post_data['post_status'] = ($enc_inscri < $current_date) ? 'encerrado' : 'ativo';
 		$post_data['title_prefix'] = $status_prefix;
 		$texto_subtitulo = ($enc_inscri < $current_date)
-			? 'Evento encerrado. Consulte mais detalhes na notícia'
-			: 'Ingressos gratuitos por ordem de inscrição, enquanto houver disponibilidade';
+			? 'Benefício encerrado. Consulte mais detalhes na notícia.'
+			: 'Resgate por ordem de inscrição, conforme disponibilidade.';
 		$post_data['subtitulo'] = $texto_subtitulo;
 		$publicado = get_the_date('d/m/Y G\hi', $post_id);
 
@@ -6410,7 +6434,7 @@ function custom_single_cortesia_endpoint( $post, $selected_fields = []) {
     // Imagem destacada
     if (in_array('thumbnail', $selected_fields)) {
         $thumbnail_id = get_post_thumbnail_id($post->ID);
-        $post_data['thumbnail'] = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'default-image') : '';
+        $post_data['thumbnail'] = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'default-image') : get_field( 'sorteios_cortesias_placeholder', 'options' );
     }
 
 	$tipo_evento = get_field('tipo_evento', $post->ID);
