@@ -56,6 +56,7 @@ require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingle.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleCabecalho.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleMenuInterno.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleNoticiaPrincipal.php';
+require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleFormInscricao.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleMaisRecentes.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleRelacionadas.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleInformacoesEvento.php';
@@ -79,6 +80,7 @@ require_once __ROOT__.'/classes/TemplateHierarchy/LoopCortesias/LoopCortesiasCab
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopCortesias/LoopCortesiasNoticiaPrincipal.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopCortesias/LoopCortesiasMaisRecentes.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopCortesias/LoopCortesiasRelacionadas.php';
+require_once __ROOT__.'/classes/TemplateHierarchy/LoopCortesias/LoopCortesiasFormInscricao.php';
 
 require_once __ROOT__.'/classes/TemplateHierarchy/ArchiveAgenda/ArchiveAgendaGetDatasEventos.php';
 //require_once __ROOT__.'/classes/TemplateHierarchy/ArchiveContato/ArchiveContatoMetabox.php';

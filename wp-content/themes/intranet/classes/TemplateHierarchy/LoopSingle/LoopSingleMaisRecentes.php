@@ -20,7 +20,7 @@ class LoopSingleMaisRecentes
 
 	public function montaHtmlMaisRecentes(){
 		$link = get_field('pag_sorteios', 'conf-lateral');
-		echo '<div class="col-lg-12 col-sm-12 news-recents">';
+		echo '<div class="col-lg-12 col-sm-12 news-recents order-5">';
 			echo '<div class="recados-destaques noticias-recentes">';
 				echo '<div class="recados-title d-flex justify-content-between align-items-center">';
 					echo '<h3>MAIS RECENTES</h3>';

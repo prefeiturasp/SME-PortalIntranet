@@ -3,6 +3,8 @@ namespace Classes\TemplateHierarchy\LoopSingle;
 
 class LoopSingleInformacoesEvento extends LoopSingle
 {
+    private $tipo_evento;
+    
 	public function __construct()
 	{
         // Tipo do evento (datas, periodo, premiacao)
@@ -13,7 +15,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
 	public function getInformacoesEvento(){
 		
 
-		echo '<div class="col-lg-4 col-sm-12">';
+		echo '<div class="col-lg-4 col-sm-12 order-2">';
             echo '<div class="informacoes-evento">';
                
                 $resumo = get_field('resumo');
