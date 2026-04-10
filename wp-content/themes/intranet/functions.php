@@ -23,6 +23,7 @@ remove_filter('term_description', 'wpautop');
 remove_filter('the_excerpt', 'wpautop');
 
 add_action('after_setup_theme', 'custom_setup');
+require_once get_template_directory() . '/classes/walker-comments.php';
 
 /**
  * @codeCoverageIgnore
@@ -3672,58 +3673,20 @@ function custom_comment_reply_link($args = array(), $comment = null, $post = nul
     return $args['before'] . $link . $args['after'];
 }
 
-function custom_comment_callback($comment, $args, $depth) {
-    // Verifica o tipo de comentário (comentário, pingback, trackback)
-    $tag = ('div' === $args['style']) ? 'div' : 'li';
-    ?>
-    <<?php echo $tag; ?> id="comment-<?php comment_ID(); ?>" <?php comment_class(empty($args['has_children']) ? '' : 'parent'); ?>>
-        <article id="div-comment-<?php comment_ID(); ?>" class="comment-body">
-            
-                <div class="comment-author vcard">
-                    <?php
-                    // Exibe o avatar do comentário
-                    if (0 != $args['avatar_size']) {
-                        echo get_avatar($comment, $args['avatar_size'], '', '', array('class' => 'avatar avatar-32 img-fluid'));
-                    }
-                    // Exibe o nome do autor do comentário
-                    printf(__(' <cite class="fn">%s</cite>'), get_comment_author_link());
-                    ?>
-                    <span class="says">disse:</span>
-                </div><!-- .comment-author -->
+function contar_respostas($comment_id) {
+    $children = get_comments([
+        'parent' => $comment_id,
+        'status' => 'approve'
+    ]);
 
-                <div class="comment-metadata">
-                    <a href="<?php echo esc_url(get_comment_link($comment, $args)); ?>">
-                        <time datetime="<?php comment_time('c'); ?>">
-                            <?php
-                            printf(__('%1$s at %2$s'), get_comment_date(), get_comment_time());
-                            ?>
-                        </time>
-                    </a>
-                    <?php edit_comment_link(__('Edit'), '<span class="edit-link">', '</span>'); ?>
-                </div><!-- .comment-metadata -->
+    $total = count($children);
 
-                <?php if ('0' == $comment->comment_approved) : ?>
-                    <p class="comment-awaiting-moderation"><?php _e('Your comment is awaiting moderation.'); ?></p>
-                <?php endif; ?>
-           
+    foreach ($children as $child) {
+        $total += contar_respostas($child->comment_ID);
+    }
 
-            <div class="comment-content">
-                <?php comment_text(); ?>
-            </div><!-- .comment-content -->
-
-            <div class="reply">
-                <?php
-                // Usa a função personalizada para gerar o link de resposta
-                echo custom_comment_reply_link(array(
-                    'depth'     => $depth,
-                    'max_depth' => $args['max_depth'],
-                ), $comment, get_the_ID());
-                ?>
-            </div><!-- .reply -->
-        </article><!-- .comment-body -->
-    <?php
+    return $total;
 }
-
 
 add_action('init', 'save_redirect_to_in_session');
 function save_redirect_to_in_session() {

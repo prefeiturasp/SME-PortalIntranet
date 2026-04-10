@@ -35,7 +35,7 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 			echo '<div class="infos-topo-noticia">';
 
 				echo '<div class="row">';
-					echo '<div class="col-11">';
+					echo '<div class="col-10">';
 						echo '<h2 class="titulo-noticia-principal mb-3" id="'.get_post_field( 'post_name', get_post() ).'">' . get_the_title().'</h2>';
 
 						$dataSorteio = ($enc_inscri < $current_date) ? obter_ultima_data_sorteio( get_the_ID() ) : obter_proxima_data_sorteio( get_the_ID() );
@@ -43,7 +43,7 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 							echo '<h3>' . $texto_subtitulo . ' ' . $dataSorteio . '.</h3>';	
 						}
 					echo '</div>';
-					echo '<div class="col-1 pl-0">';
+					echo '<div class="col-2 pl-0">';
 						$this->getPostLikes();
 					echo '</div>';
 				echo '</div>';

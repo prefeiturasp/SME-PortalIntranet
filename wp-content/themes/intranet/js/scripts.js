@@ -243,3 +243,39 @@ jQuery(function ($) {
         });
     }
 });
+
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('toggle-replies')) {
+
+        const btn = e.target;
+        const li = btn.closest('li');
+        const children = li.querySelector('.children');
+
+        if (!children) return;
+
+        const isCollapsed = children.classList.contains('collapsed');
+
+        if (!isCollapsed) {
+            // FECHAR
+            children.style.maxHeight = children.scrollHeight + 'px';
+
+            requestAnimationFrame(() => {
+                children.style.maxHeight = '0px';
+                children.classList.add('collapsed');
+            });
+
+            btn.textContent = 'Ver mais';
+
+        } else {
+            // ABRIR
+            children.classList.remove('collapsed');
+            children.style.maxHeight = children.scrollHeight + 'px';
+
+            setTimeout(() => {
+                children.style.maxHeight = 'none';
+            }, 300);
+
+            btn.textContent = 'Ver menos';
+        }
+    }
+});
