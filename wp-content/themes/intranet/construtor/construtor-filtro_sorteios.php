@@ -750,7 +750,6 @@ if (!empty($partes_texto)) {
         }
 
         jQuery('.expandir-filtros').on('click', function () {
-            console.log('expandir')
             toggleFiltrosEventos()
         })
 
