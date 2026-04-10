@@ -85,7 +85,7 @@ if (!class_exists('Custom_Walker_Comment')) {
             <?php
         }
 
-        public function end_el(&$output, $comment, $depth, $args) {
+        public function end_el(&$output, $data_object, $depth = 0, $args = array()) {
             $tag = ('div' === $args['style']) ? 'div' : 'li';
             $output .= "</{$tag}>";
         }
