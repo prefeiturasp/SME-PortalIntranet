@@ -4432,6 +4432,11 @@ add_action('rest_api_init', function() {
 					return is_string($param); // Validação básica
 				}
 			],
+			'ignore_sticky_posts' => [
+				'description' => 'Ignora posts fixos (sticky)',
+				'type' => 'boolean',
+				'default' => false,
+			],
         ],
         'permission_callback' => '__return_true'
     ]);
@@ -4458,6 +4463,7 @@ function custom_posts_endpoint($request) {
 	global $wpdb;
 
 	$sticky = get_option( 'sticky_posts' );
+	$ignore_sticky_posts = $request->get_param('ignore_sticky_posts');
 
     $args1 = [
         'post_type' => ['post', 'cortesias'],
@@ -4474,6 +4480,11 @@ function custom_posts_endpoint($request) {
 		'fields' => 'ids',
 		'post__not_in' => $sticky, 
     ];
+
+	if($ignore_sticky_posts){
+		$args2['post__not_in'] = [];
+		$args2['ignore_sticky_posts'] = 1;
+	}
     
 	// Adiciona tag se fornecido
     if ($tag_ids = $request->get_param('tag_ids')) {				
@@ -4567,7 +4578,11 @@ function custom_posts_endpoint($request) {
 
     $selected_fields = explode(',', $request->get_param('fields'));
 
-	$allTheIDs = array_merge($query1->posts,$query2->posts);
+	if($ignore_sticky_posts){
+		$allTheIDs = $query2->posts;
+	} else {
+		$allTheIDs = array_merge($query1->posts,$query2->posts);
+	}
 
 	if($status == 'encerrados'){
 		$args = array(
@@ -4608,6 +4623,11 @@ function custom_posts_endpoint($request) {
 			if (in_array('date', $selected_fields)) $post_data['date'] = $post->post_date;
 			if (in_array('slug', $selected_fields)) $post_data['slug'] = $post->post_name;
 
+			$current_date = date('Ymd');
+			$enc_inscri = get_field('enc_inscri', $post->ID);
+			$status = ($enc_inscri < $current_date) ? 'encerrados' : 'ativos';
+			$post_data['status'] = $status;
+
 			$categories = get_the_category($post->ID);
 
 			// Extrai apenas os nomes das categorias
@@ -4627,7 +4647,7 @@ function custom_posts_endpoint($request) {
 					: 'Resgate por ordem de inscrição, conforme disponibilidade.'; 
 			} else {
 
-				$texto_subtitulo = ( $status == 'encerrados' ) ? 'Sorteio' : 'Sorteio s';
+				$texto_subtitulo = ( $status == 'encerrados' ) ? 'Sorteio' : 'Sorteio será realizado';
 				$dataSorteio = ( $status == 'encerrados' ) ? obter_ultima_data_sorteio( $post->ID ) : obter_proxima_data_sorteio( $post->ID, false );
 				$post_data['subtitulo'] = $texto_subtitulo . ' ' . $dataSorteio;
 			}
