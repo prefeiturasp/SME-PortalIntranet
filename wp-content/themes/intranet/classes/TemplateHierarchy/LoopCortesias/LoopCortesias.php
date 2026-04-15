@@ -26,8 +26,13 @@ class LoopCortesias extends Util
 			echo '<div class="row">';
 				new LoopCortesiasNoticiaPrincipal();
 				new LoopSingleInformacoesEvento();
-				new LoopCortesiasRelacionadas(get_the_ID());
-				new LoopSingleMaisRecentes(get_the_ID());				
+				new LoopCortesiasRelacionadas(get_the_ID());		
+			echo '</div>';
+		echo '</div>';
+
+		echo '<div class="container-fluid pt-5 posts-recentes">';
+			echo '<div class="row">';				
+				new LoopSingleMaisRecentes(get_the_ID());		
 			echo '</div>';
 		echo '</div>';
 	
