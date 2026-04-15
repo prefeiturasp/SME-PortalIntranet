@@ -807,6 +807,7 @@ form.form-recados label {
     margin-bottom: 15px;
     display: -webkit-box;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
     overflow: hidden; 
     white-space: normal; 
 }
@@ -860,6 +861,7 @@ form.form-recados label {
 .sorteios {
     display: -webkit-box;
     -webkit-line-clamp: 1;
+    line-clamp: 1;
     overflow: hidden;
     white-space: normal;
 }

@@ -23,12 +23,15 @@ class LoopSingle extends Util
 			echo '<div class="row">';
 				new LoopSingleNoticiaPrincipal();
 				new LoopSingleInformacoesEvento();
-				new LoopSingleRelacionadas(get_the_ID());
-				new LoopSingleMaisRecentes(get_the_ID());
+				new LoopSingleRelacionadas(get_the_ID());				
 			echo '</div>';
 		echo '</div>';
 
-			
+		echo '<div class="container-fluid pt-5 posts-recentes">';
+			echo '<div class="row">';
+				new LoopSingleMaisRecentes(get_the_ID());
+			echo '</div>';
+		echo '</div>';
 
 		$this->fechaContainer($container_geral_tags);
 	}

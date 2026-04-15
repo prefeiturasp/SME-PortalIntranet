@@ -3347,3 +3347,46 @@ table.datatables td{
         column-count: 1;
     }
 }
+
+.posts-recentes {
+    background: #FFFFFF;
+    margin-bottom: -15px;
+    padding-bottom: 15px;
+}
+
+.recent-posts-slider {
+    margin: 0 -10px;
+}
+
+.carrosel-sorteio{
+    padding: 10px;
+}
+
+.carrosel-sorteio .item-sorteio.item-ativos{
+    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.07);
+}
+
+.recentes-title{
+    font-family: 'Raleway', sans-serif;
+    margin-bottom: 10px;
+}
+
+.recentes-title h3,
+.recentes-title a {
+    font-weight: bold;
+    color: #3E3232;
+}
+
+.recentes-title h3{
+    font-size: 20px;
+}
+
+.recentes-title a {
+    font-size: 16px;
+}
+
+.recentes-nav .btn {
+    background: #f5f5f5;
+    border-radius: 9px;
+    margin-left: 20px;
+}
