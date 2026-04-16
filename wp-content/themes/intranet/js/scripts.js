@@ -175,24 +175,41 @@ $s(document).ready(function () {
 
         const $table = $s(this);
         const count = $table.find('tbody tr').length;
+        const $collapse = $table.closest('.collapse').parent();
 
-        $table.DataTable({
+        let currentTable = $table.DataTable({
             pageLength: 5,
             lengthChange: false,
             ordering: false,
-            paging: count >= 5,
-            searching: count >= 5,
+            paging: count > 5,
+            searching: true,
             info: false,
             stripeClasses: [],
             autoWidth: false,
             language: {
                 url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json',
                 searchPlaceholder: 'Sorteados',
-            }
-            
+                paginate: {
+                    previous: '<i class="fa fa-chevron-left"></i>',
+                    next: '<i class="fa fa-chevron-right"></i>'
+                }
+            },
+            pagingType: "simple_numbers",
+            dom: 'rtip',
         });
 
         $table.removeClass('dataTable');
+
+        //Busca personalizada
+        $collapse.find('.input-nome-participante').on('keyup', function() {
+            currentTable.search($s(this).val()).draw();
+        });
+
+        // Botão limpar
+        $collapse.find('.btn-limpar-filtro').on('click', function() {
+            $collapse.find('.input-nome-participante').val('');
+            currentTable.search('').draw();
+        });
     });
 });
 
@@ -279,3 +296,34 @@ document.addEventListener('click', function(e) {
         }
     }
 });
+
+/*
+Controla os eventos relacionados aos collapses de listagem
+dos participantes contemplados no evento.
+*/
+jQuery(function($) {
+
+    function atualizarFiltro($collapse, event) {
+
+        const $bloco = $collapse.closest('.conteudo-tab-lista-sorteados');
+        const $filter = $bloco.find('.filtro-contemplados');
+        const showFilter = $bloco.find('.dataTables_paginate').length // Se a paginação estiver ativa, exibe também o filtro de busca
+
+        if (event === 'hide.bs.collapse') {
+            $filter.addClass('d-none');
+        }
+
+        if (showFilter && event === 'show.bs.collapse' ) {
+            $filter.removeClass('d-none');
+        }
+
+    }
+
+    $(document).on('show.bs.collapse', '#accordion-sorteados .collapse', function(){
+        atualizarFiltro($(this), 'show.bs.collapse')
+    });
+
+    $(document).on('hide.bs.collapse', '#accordion-sorteados .collapse', function(){
+        atualizarFiltro($(this), 'hide.bs.collapse')
+    });
+})

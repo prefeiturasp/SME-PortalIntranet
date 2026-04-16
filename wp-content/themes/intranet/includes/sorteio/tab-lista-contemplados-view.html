@@ -1,33 +1,46 @@
 <div class="card conteudo-tab-lista-sorteados mb-4">
     <div class="card-header row d-flex align-items-center justify-content-between" id="heading-{ITEM-ID}">
-        <div class="col col-md-11">
-            <div
-                data-toggle="collapse"
-                data-target="#sorteados-{ITEM-ID}"
-                aria-expanded="true"
-                aria-controls="sorteados-{ITEM-ID}"
-                >
-                <span>{TEXTO-COLLAPSE}</span>
+        <div class="col col-md-12">
+            <div class="bloco-titulo">
+                <div
+                    class="card-header-titulo collapsed"
+                    data-toggle="collapse"
+                    data-target="#sorteados-{ITEM-ID}"
+                    aria-expanded="true"
+                    aria-controls="sorteados-{ITEM-ID}"
+                    >
+                    <span>{TEXTO-COLLAPSE}</span>
+                    <span class="btn-expandir"></span>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-12 col-md-4"></div>
+                    <div class="col-12 col-md-8 mt-4 mt-md-0">
+                        <div class="form-group filtro-contemplados d-none">
+                            <div class="row">
+                                <div class="col-12 col-md-9">
+                                    <input type="text" class="form-control input-nome-participante" placeholder="Buscar pelo nome">
+                                </div>
+                    
+                                <div class="col-12 col-md-3 mt-2 mt-md-0 align-self-end">
+                                    <button class="btn btn-block btn-outline-primary btn-limpar-filtro">Limpar</button>
+                                </div>
+                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>        
-        <div class="col-1">
-            <span
-                class="dashicons dashicons-arrow-down-alt2 collapsed"
-                data-toggle="collapse"
-                data-target="#sorteados-{ITEM-ID}"
-                aria-expanded="true"
-                aria-controls="sorteados-{ITEM-ID}"
-                >
-            </span>
-        </div>
     </div>
     <div id="sorteados-{ITEM-ID}" class="collapse" aria-labelledby="headingOne" data-parent="#accordion-sorteados">
         <div class="row card-body">
             <div class="container">
-                <table class="table datatables container border rounded">
+                <table class="table datatables container border rounded p-0">
                     <thead class="d-none">
                         <tr>
                             <td>Nome</td>
+                            <td></td>
                             <td>Tipo</td>
                         </tr>
                     </thead>

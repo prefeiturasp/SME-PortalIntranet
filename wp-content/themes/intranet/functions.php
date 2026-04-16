@@ -4885,10 +4885,10 @@ function custom_single_post_endpoint($request) {
 						$html = str_replace('{CONTEUDO-LISTA-SORTEADOS}', $itens, $html);
 						$html = str_replace('{DATA-SORTEIO}', $dataSorteio, $html);
 						if($tipo_evento == 'premio'){
-							$texto = 'Contemplados <strong>' . $data['premio'] . '</strong>';
+							$texto = 'Contemplados ' . $data['premio'];
 							$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 						} else {
-							$texto = 'Contemplados para evento do dia <strong>' . $dataEvento . '</strong>';
+							$texto = 'Contemplados para evento do dia ' . $dataEvento;
 							$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 						}
 						$html = str_replace('{ITEM-ID}', $data['data_sorteio'] . '-' . $key, $html);
@@ -6240,7 +6240,7 @@ function custom_single_cortesia_endpoint( $post, $selected_fields = []) {
 					return strtotime($a['data']) - strtotime($b['data']);
 				});
 
-				foreach ($datas_disponiveis as $data) {
+				foreach ($datas_disponiveis as $key => $data) {
 					$where_confirmacao = '';
 
 					if ($requerConfirmacao) {
@@ -6269,7 +6269,7 @@ function custom_single_cortesia_endpoint( $post, $selected_fields = []) {
 						$dataEvento = date('d/m/Y H\hi', strtotime($data['data']));
 						$dataEvento = str_replace('h00', 'h', $dataEvento);
 
-						foreach ($resultados as $key => $linha) {
+						foreach ($resultados as $linha) {
 							if (isset($linha['user_id'])) {
 								$tipo = get_user_meta($linha['user_id'], 'parceira', true);
 								if ($tipo == 1) {
@@ -6294,10 +6294,10 @@ function custom_single_cortesia_endpoint( $post, $selected_fields = []) {
 						$html = file_get_contents(get_template_directory().'/includes/sorteio/tab-lista-contemplados-view.html');
 						$html = str_replace('{CONTEUDO-LISTA-SORTEADOS}', $itens, $html);
 						if($tipo_evento == 'premio'){
-							$texto = 'Contemplados <strong>' . $data['premio'] . '</strong>';
+							$texto = 'Contemplados ' . $data['premio'];
 							$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 						} else {
-							$texto = 'Contemplados para evento do dia <strong>' . $dataEvento . '</strong>';
+							$texto = 'Contemplados para evento do dia ' . $dataEvento;
 							$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 						}
 						$html = str_replace('{ITEM-ID}', $data['data_sorteio'] . '-' . $key, $html);

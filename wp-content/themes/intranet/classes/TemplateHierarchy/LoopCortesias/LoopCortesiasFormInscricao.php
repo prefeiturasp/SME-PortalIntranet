@@ -441,9 +441,9 @@ class LoopCortesiasFormInscricao extends LoopCortesias
 															$dia_semana = $dias_semana[date('l', $timestamp)] ?? '';
 
 															if ($minutos === '00') {
-																$label_formatada = date('d/m', $timestamp) . " {$hora}h, {$dia_semana}";
+																$label_formatada = date('d/m', $timestamp) . " às {$hora}h, {$dia_semana}";
 															} else {
-																$label_formatada = date('d/m', $timestamp) . " {$hora}h{$minutos}, {$dia_semana}";
+																$label_formatada = date('d/m', $timestamp) . " às {$hora}h{$minutos}, {$dia_semana}";
 															}
 														?>
 														<label class="form-check-label" for="<?php echo esc_attr( $id_input ); ?>">

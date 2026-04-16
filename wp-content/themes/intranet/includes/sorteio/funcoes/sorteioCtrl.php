@@ -1075,7 +1075,7 @@ function exibeTabResultadoPagina($idPost = false){//** OK */
 
 		if($tipo_evento == 'premio'){
 			$datas_disponiveis = get_field('evento_premios', $post_id);
-			echo '<div class="row mb-4 exibir-lista-sorteados">';
+			echo '<div class="mb-4 exibir-lista-sorteados">';
 				echo '<div class="col">';
 					echo '<span class="title-info">Lista de contemplados do sorteio</span>';
 					echo '<p>Se o seu nome estiver entre os contemplados, acesse o e-mail cadastrado e verifique o local de retirada do seu prêmio.</p>';
@@ -1087,7 +1087,7 @@ function exibeTabResultadoPagina($idPost = false){//** OK */
 				$datas_disponiveis = get_field('evento_datas', $post_id);
 			}
 			
-			echo '<div class="row mb-4 exibir-lista-sorteados">';
+			echo '<div class="mb-4 exibir-lista-sorteados">';
 				echo '<div class="col">';
 					echo '<span class="title-info">Lista de contemplados do sorteio</span>';
 					echo '<p>Se o seu nome estiver entre os contemplados, acesse o e-mail cadastrado e veja se é necessário confirmar sua presença.</p>';
@@ -1149,12 +1149,12 @@ function exibeTabResultadoPagina($idPost = false){//** OK */
 
 					if ( $tipo_evento == 'premio' ) {
 
-						$texto = 'Contemplados <strong>' . $data['premio'] . '</strong>';
+						$texto = 'Contemplados ' . $data['premio'];
 						$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 
 					} else {
 
-						$texto = 'Contemplados para evento do dia <strong>' . $dataEvento . '</strong>';
+						$texto = 'Contemplados para evento do dia ' . $dataEvento;
 						$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 					}
 

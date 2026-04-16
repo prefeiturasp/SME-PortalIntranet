@@ -3025,25 +3025,6 @@ div.star-rating-on a {
     justify-content: flex-start !important;
 }
 
-/* Accordion de listagem dos sorteados */
-
-#accordion-sorteados .card {
-    border: 1px solid #A4A4A4;
-    border-radius: 10px;
-}
-
-#accordion-sorteados .card .card-header {
-    background-color: #f3f3f3 !important;
-}
-
-#accordion-sorteados .card .card-header .col-1 .dashicons-arrow-down-alt2 {
-    transition: transform 0.3s ease;
-}
-
-#accordion-sorteados .card .card-header .col-1 .dashicons-arrow-down-alt2:not(.collapsed) {
-    transform: rotate(180deg);
-}
-
 /* Tabela de listagem dos sorteados */
 
 table.datatables td{
@@ -3389,4 +3370,150 @@ table.datatables td{
     background: #f5f5f5;
     border-radius: 9px;
     margin-left: 20px;
+}
+
+/* Lista de divulgação dos contemplados */
+
+.infos-noticia .exibir-lista-sorteados {
+    font-family: 'Raleway', sans-serif;
+    background-color: #FFFFFF;
+    border-radius: 10px;
+    padding: 12px 8px 4px 8px;
+}
+
+.infos-noticia .exibir-lista-sorteados .title-info {
+    font-size: 18px;
+    font-weight: 600;
+    color: #14447C;
+}
+
+.infos-noticia .exibir-lista-sorteados p {
+    margin-top: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333333;
+}
+
+#accordion-sorteados .card {
+    border: 1px solid #D4D7E5;
+    border-radius: 10px;
+}
+
+#accordion-sorteados .card .card-header {
+    background-color: #FFFFFF !important;
+    font-weight: 600;
+    border-bottom: none;
+}
+
+#accordion-sorteados .card .card-header-titulo {
+    display: flex;
+    justify-content: space-between;
+}
+
+#accordion-sorteados .card .card-header-titulo .btn-expandir {
+    font-size: 14px;
+    font-weight: 800;
+    color: #565973;
+    min-width: 75px;
+}
+
+#accordion-sorteados .card .card-header-titulo .btn-expandir::after {
+    content: "Ver mais";
+}
+
+#accordion-sorteados .card .card-header-titulo:not(.collapsed) .btn-expandir::after {
+    content: "Ver menos";
+}
+
+#accordion-sorteados .card .card-header .data-sorteio {
+    font-size: 14px;
+    font-weight: 600;
+    color: #14447C;
+}
+
+#accordion-sorteados table.datatables {
+    border: none !important;
+    border-collapse: separate !important;
+    border-spacing: 0 12px !important;
+}
+
+#accordion-sorteados table.datatables tr td small {
+    font-family: 'Raleway', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+#accordion-sorteados table.datatables.no-footer {
+    border-bottom: none !important;
+}
+
+#accordion-sorteados table.datatables tbody tr {
+    background: transparent;
+}
+
+#accordion-sorteados table.datatables tbody tr td {
+    background: #FFFFFF;
+    padding: 16px;
+    border: 1px solid #0000001A;
+    border-left: none;
+    border-right: none;
+    vertical-align: middle;
+}
+
+#accordion-sorteados table.datatables tbody tr td:first-child {
+    border-left: 1px solid #0000001A;
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+}
+
+#accordion-sorteados table.datatables tbody tr td:last-child {
+    border-right: 1px solid #0000001A;
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+}
+
+#accordion-sorteados table.datatables .nome-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+#accordion-sorteados table.datatables .nome-wrapper .icone {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ffe08a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#accordion-sorteados .dataTables_paginate {
+    float: none !important;
+    text-align: center;
+}
+
+#accordion-sorteados .dataTables_paginate .paginate_button {
+    border: 1px solid #F1F1F1;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background-color: #FFFFFF;
+    color: #333333 !important;
+}
+
+#accordion-sorteados .dataTables_paginate .paginate_button:hover {
+    background: #14447C !important;
+    color: #FFFFFF !important;
+}
+
+#accordion-sorteados .dataTables_paginate .paginate_button.current {
+    background: #14447C !important;
+    color: #FFFFFF !important;
+}
+
+@media (max-width: 480px) {
+    table.datatables .nome-wrapper .icone {
+        display: none;
+    }
 }
