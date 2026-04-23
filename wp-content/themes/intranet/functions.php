@@ -579,8 +579,8 @@ if( function_exists('acf_add_options_page') ) {
     ));
 
 	acf_add_options_sub_page(array(
-        'page_title' 	=> 'Gratuidade e sorteios',
-        'menu_title'	=> 'Gratuidade e sorteios',
+        'page_title' 	=> 'Ordem de inscrição e sorteios',
+        'menu_title'	=> 'Ordem de inscrição e sorteios',
         'parent_slug'	=> 'conf-geral',
         'capability'	=> 'publish_pages',
 		'update_button' => __('Atualizar', 'acf'),
@@ -6475,8 +6475,8 @@ function alerta_configuracoes_incompletas_sorteio_cortesia() {
     }
 
     echo '<div class="notice notice-error">';
-    echo '<p><strong>Atenção:</strong> É necessário concluir as configurações de sorteios/cortesias.</p>';
-    echo '<p>Conclua as configurações em Opções Gerais > <a href="' . admin_url( 'admin.php?page=acf-options-gratuidade-e-sorteios' ) . '">Gratuidade e sorteios</a>.</p>';
+    echo '<p><strong>Atenção:</strong> É necessário concluir as configurações de sorteios/ordem de inscrição.</p>';
+    echo '<p>Conclua as configurações em Opções Gerais > <a href="' . admin_url( 'admin.php?page=acf-options-ordem-de-inscricao-e-sorteios' ) . '">Ordem de Inscrição e sorteios</a>.</p>';
     echo '</div>';
 }
 

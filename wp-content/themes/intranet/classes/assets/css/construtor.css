@@ -2166,6 +2166,7 @@ form#commentform {
 
 .post-type-tag.inscricao-tag {
     background: #01C74BCC;
+    max-width: fit-content
 }
 
 .all-dates {

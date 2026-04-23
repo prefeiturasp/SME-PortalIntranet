@@ -3153,7 +3153,7 @@ table.datatables td{
     text-decoration: underline;
 }
 
-.informacoes-evento .fa{
+.informacoes-evento table .fa{
     color: #FFA513;
     font-size: 30px;
     margin-right: 15px;
@@ -3188,6 +3188,10 @@ table.datatables td{
 .informacoes-evento .post-type-tag{
     display: inline-block;
     margin-top: 10px;
+}
+
+.informacoes-evento .post-type-tag{
+    text-transform: none;
 }
 
 .bg-cards{

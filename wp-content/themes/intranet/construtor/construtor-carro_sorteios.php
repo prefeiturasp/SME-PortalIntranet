@@ -442,28 +442,31 @@ if (!empty($_GET)) {
 
 													<div class="col-12 mt-auto">
 														<div class="d-flex mb-3">
-															<?php if ( check_usuario_inscrito_evento( get_the_ID() ) ) : ?>
-																<span class="post-type-tag inscricao-tag p-2 mr-2">
-																	<i class="fa fa-check-circle" aria-hidden="true"></i> Inscrição realizada
-																</span>
-															<?php endif; ?>
-
 															<?php
 															if ( $post_type ) : 
 																	if($post_type == 'cortesias'){
 																		$class_tag = 'cortesia-tag';
-																		$label_tag = 'Cortesia';
+																		$label_tag = 'Ordem de Inscrição';
+																		$label_icon = 'fa fa-bolt';
 																	} else {
 																		$class_tag = '';
 																		$label_tag = 'Sorteio';
+																		$label_icon = 'fa fa-cube';
 																	}
 																?>
 																<span class="post-type-tag <?= $class_tag ?? '' ?>">
+																	<i class="<?php echo esc_html( $label_icon ); ?>" aria-hidden="true"></i>
 																	<?= esc_html( $label_tag ); ?>
 																</span>
 																<?php
 															endif;
 															?>
+
+															<?php if ( check_usuario_inscrito_evento( get_the_ID() ) ) : ?>
+																<span class="post-type-tag inscricao-tag p-2 ml-2">
+																	<i class="fa fa-check-circle" aria-hidden="true"></i> Inscrito
+																</span>
+															<?php endif; ?>
 														</div>
 													</div>
 												</div>	

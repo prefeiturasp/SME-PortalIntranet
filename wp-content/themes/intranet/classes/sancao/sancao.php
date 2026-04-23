@@ -90,7 +90,7 @@ class Sancao_Options_Page {
         global $wpdb;
 
         $sorteios = $wpdb->get_results("
-            SELECT p.ID, p.post_title, p.post_date, 'Sorteio' AS tipo
+            SELECT p.ID, p.post_title, p.post_date, 'sorteio' AS tipo
             FROM int_inscricoes i
             INNER JOIN int_posts p ON p.ID = i.post_id
             WHERE i.sorteado = 1
@@ -101,7 +101,7 @@ class Sancao_Options_Page {
         ");
 
         $cortesias = $wpdb->get_results("
-            SELECT p.ID, p.post_title, p.post_date, 'Cortesia' AS tipo
+            SELECT p.ID, p.post_title, p.post_date, 'cortesia' AS tipo
             FROM int_cortesias_inscricoes i
             INNER JOIN int_posts p ON p.ID = i.post_id
             AND p.post_type = 'cortesias'
@@ -124,7 +124,8 @@ class Sancao_Options_Page {
                 echo '<select id="post_id_select" name="post_id" class="form-control">';
                 echo '<option value="">Selecione um evento...</option>'; // Corrigido
                 foreach ( $results as $row ) {
-                    echo '<option data-tipo="' . esc_attr(strtolower($row->tipo)) . '" value="' . esc_attr($row->ID) . '">' . esc_html($row->post_title) . ' (' . esc_html($row->ID) . ') - ' . esc_html($row->tipo) . '</option>';
+                    $label = $row->tipo == 'cortesia' ? 'Ordem de Inscrição' : 'Sorteio';
+                    echo '<option data-tipo="' . esc_attr($row->tipo) . '" value="' . esc_attr($row->ID) . '">' . esc_html($row->post_title) . ' (' . esc_html($row->ID) . ') - ' . esc_html($label) . '</option>';
                 }
                 echo '</select>';
             echo '</div>';

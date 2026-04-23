@@ -25,7 +25,7 @@ class CptCortesias extends Cpt
 	}
 
 	public function personalizar_labels( $labels ) {
-		$labels->add_new_item = 'Add Gratuidade e Cortesias';
+		$labels->add_new_item = 'Add Ordem de Inscrição';
 
 		return $labels;
 	}
