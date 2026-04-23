@@ -53,7 +53,7 @@ class Historico_Emails {
         ");
 
         $cortesias = $wpdb->get_results("
-            SELECT p.ID, p.post_title, p.post_date, 'Cortesia' AS tipo
+            SELECT p.ID, p.post_title, p.post_date, 'Ordem de Inscrição' AS tipo
             FROM {$wpdb->posts} p
             WHERE p.post_type = 'cortesias'
             AND p.post_status = 'publish'

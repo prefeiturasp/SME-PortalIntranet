@@ -110,7 +110,7 @@ extract( $args );
 								<?php if ( isset( $cortesias[$label] ) && !empty( $cortesias[$label] ) ) : ?>
 									<div class="js-bloco-toggle mb-4 border-light border-bottom pb-2">
 										<div class="cabecalho-lista d-flex justify-content-between js-toggle-lista">
-											<strong>Cortesias</strong>
+											<strong>Ordem de Inscrição</strong>
 											<i class="fa fa-angle-up js-toggle-icon"></i>
 										</div>
 										<ul class="community-events-results activity-block last mt-2 mb-2 js-lista-conteudo">

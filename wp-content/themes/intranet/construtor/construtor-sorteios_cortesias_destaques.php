@@ -169,21 +169,23 @@ $eventos = new WP_Query( $eventos_args );
                                             </div>
 
                                             <div class="mt-3">
-                                                <?php if ( check_usuario_inscrito_evento( get_the_ID() ) ) : ?>
-                                                    <span class="badge badge-inscricao px-3 py-2">
-                                                        <i class="fa fa-check-circle" aria-hidden="true"></i> Inscrição realizada
-                                                    </span>
-                                                <?php endif; ?>
-                                                
                                                 <?php if ( $tipo_post === 'cortesias' ) : ?>
                                                     <span class="badge badge-cortesia px-3 py-2">
-                                                        Cortesia
+                                                        <i class="fa fa-bolt" aria-hidden="true"></i>
+                                                        Ordem de Inscrição
                                                     </span>
                                                 <?php endif; ?>
 
                                                 <?php if ( $tipo_post === 'sorteio' ) : ?>
                                                     <span class="badge badge-sorteio px-3 py-2">
+                                                        <i class="fa fa-cube" aria-hidden="true"></i>
                                                         Sorteio
+                                                    </span>
+                                                <?php endif; ?>
+
+                                                <?php if ( check_usuario_inscrito_evento( get_the_ID() ) ) : ?>
+                                                    <span class="badge badge-inscricao px-3 py-2">
+                                                        <i class="fa fa-check-circle" aria-hidden="true"></i> Inscrito
                                                     </span>
                                                 <?php endif; ?>
                                             </div>

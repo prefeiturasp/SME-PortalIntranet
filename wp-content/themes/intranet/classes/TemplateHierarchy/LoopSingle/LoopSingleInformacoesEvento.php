@@ -223,17 +223,21 @@ class LoopSingleInformacoesEvento extends LoopSingle
                     }
                 echo '</table>';
 
+                if($post_type === 'cortesias'){
+                    echo '<span class="post-type-tag cortesia-tag">';
+                        echo '<i class="fa fa-bolt" aria-hidden="true"></i> Ordem de Inscrição';
+                    echo '</span>';
+                } else {
+                    echo '<span class="post-type-tag">';
+                        echo '<i class="fa fa-cube" aria-hidden="true"></i> Sorteio';
+                    echo '</span>';
+                }
+
                 if ( check_usuario_inscrito_evento( get_the_ID() ) ) : 
-                    echo '<span class="post-type-tag badge-inscricao">';
-                        echo '<i class="fa fa-check-circle" aria-hidden="true"></i> Inscrição realizada';
+                    echo '<span class="post-type-tag badge-inscricao ml-2">';
+                        echo '<i class="fa fa-check-circle" aria-hidden="true"></i> Inscrito';
                     echo '</span>';
                 endif;
-
-                if($post_type === 'cortesias'){
-                    echo '<span class="post-type-tag cortesia-tag">Cortesia</span>';
-                } else {
-                    echo '<span class="post-type-tag">Sorteio</span>';
-                }
                 
             echo '</div>';  
 		echo '</div>';

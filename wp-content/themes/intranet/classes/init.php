@@ -189,5 +189,5 @@ $cptSmeExplicaExtend = new \Classes\Cpt\CptSmeExplica();
 $cptMuralProf = new \Classes\Cpt\Cpt('mural-professores', 'mural-professores', 'Mural dos Professores', 'Todas as Publicações', 'mural-professores', 'mural-professores', null, null, null, 'dashicons-external', true);
 $cptMuralProfExtend = new \Classes\Cpt\CptMuralProf();
 
-$cptCortesias = new \Classes\Cpt\Cpt('cortesias', 'cortesias', 'Gratuidade e cortesias', 'Gratuidade e cortesias', 'cortesias', 'cortesias', null, null, null, 'dashicons-tickets', true);
+$cptCortesias = new \Classes\Cpt\Cpt('cortesias', 'cortesias', 'Ordem de Inscrição', 'Ordem de Inscrição', 'cortesias', 'cortesias', null, null, null, 'dashicons-superhero', true);
 $cptCortesiasExtend = new \Classes\Cpt\CptCortesias();
