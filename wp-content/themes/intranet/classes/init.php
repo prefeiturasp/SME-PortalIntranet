@@ -11,6 +11,8 @@ require_once __ROOT__.'/classes/Usuarios/Editor/Editor.php';
 require_once __ROOT__.'/classes/Usuarios/Colaborador/Colaborador.php';
 require_once __ROOT__.'/classes/Usuarios/Administrador/Administrador.php';
 require_once __ROOT__.'/classes/Usuarios/Assessor/Assessor.php';
+require_once __ROOT__.'/classes/Usuarios/GestorUnidade/GestorUnidade.php';
+require_once __ROOT__.'/classes/Usuarios/AdminPortal/AdminPortal.php';
 //require_once __ROOT__.'/classes/Usuarios/Dre/Dre.php';
 require_once __ROOT__.'/classes/Usuarios/EnviarParaRevisao.php';
 require_once __ROOT__.'/classes/Usuarios/CamposAdicionais.php';
@@ -26,6 +28,9 @@ require_once __ROOT__.'/classes/HistoricoEmails/HistoricoEmails.php';
 
 //Tela de histórico de participações no painel adminstrativo
 require_once __ROOT__.'/classes/HistoricoParticipacoes/HistoricoParticipacoes.php';
+
+//Curriculos Cadastrados
+require_once __ROOT__.'/classes/Curriculos/CurriculosCadastrados.php';
 
 require_once __ROOT__.'/classes/Cpt/Cpt.php';
 require_once __ROOT__.'/classes/Cpt/CptPosts.php';
@@ -48,6 +53,7 @@ require_once __ROOT__.'/classes/Cpt/CptParceiros.php';
 require_once __ROOT__.'/classes/Cpt/CptSmeExplica.php';
 require_once __ROOT__.'/classes/Cpt/CptMuralProf.php';
 require_once __ROOT__.'/classes/Cpt/CptCortesias.php';
+require_once __ROOT__.'/classes/Cpt/CptOportunidades.php';
 
 require_once __ROOT__.'/classes/TemplateHierarchy/Page.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/Tag.php';
@@ -148,6 +154,9 @@ $cptAgendaSecretarioExtend = new \Classes\Cpt\CptAgendaSecretario();
 
 $cptAgendaSecretarioNew = new \Classes\Cpt\Cpt('agendanew', 'agendanew', 'Calendário Escolar', 'Todos os Eventos', 'Eventos', 'Eventos', null, null, null, 'dashicons-calendar-alt', true);
 $cptAgendaSecretarioNewExtend = new \Classes\Cpt\CptAgendaSecretarioNew();
+
+$cptOportunidade = new \Classes\Cpt\Cpt('oportunidade', 'oportunidade', 'Portal de Oportunidades', 'Todas as Oportunidades', 'Oportunidades', 'Oportunidade', null, null, null, 'dashicons-list-view', true);
+$cptOportunidadeExtend = new \Classes\Cpt\CptOportunidades();
 
 //$cptContatoSme = new \Classes\Cpt\Cpt('contato', 'contato', 'Contatos SME', 'Todos os Contatos', 'Contatos', 'Contato', null, null, null ,'dashicons-email-alt', true);
 //$cptContatoSmeExtend = new \Classes\Cpt\CptContato();
