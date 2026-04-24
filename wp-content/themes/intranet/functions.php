@@ -591,7 +591,7 @@ if( function_exists('acf_add_options_page') ) {
         'page_title' 	=> 'Comentários',
         'menu_title'	=> 'Comentários',
         'parent_slug'	=> 'conf-geral',
-        'capability'	=> 'create_users',
+        'capability'	=> 'delete_users',
 		'update_button' => __('Atualizar', 'acf'),
 		'updated_message' => __("Configurações atualizadas com sucesso", 'acf'),
     ));
@@ -7109,3 +7109,30 @@ jQuery(function($) {
 </script>
 <?php
 });
+
+add_filter('editable_roles', function($roles) {
+
+    if (current_user_can('admin_portal')) {
+        return array_intersect_key($roles, array_flip([
+            'gestor_unidade',
+            'admin_portal'
+        ]));
+    }
+
+    return $roles;
+});
+
+function ocultar_menus_admin_portal() {
+
+    if (current_user_can('admin_portal') || current_user_can('gestor_unidade')) {
+
+        remove_menu_page('edit.php'); // Posts
+        remove_menu_page('upload.php'); // Mídia 
+        remove_menu_page('edit-comments.php'); // Comentários
+        remove_menu_page('tools.php'); // Ferramentas
+		remove_menu_page('tutorial_slug'); // Tutoriais
+
+    }
+
+}
+add_action('admin_menu', 'ocultar_menus_admin_portal', 999);

@@ -108,6 +108,28 @@ class Administrador
 			$this->role_object->add_cap( 'promote_users' );
 			$this->role_object->add_cap( 'enroll_users' );
 			$this->role_object->add_cap( 'manage_network_users' );
+
+			$this->role_object->add_cap( 'edit_oportunidades' );
+			$this->role_object->add_cap( 'publish_oportunidades' );
+			$this->role_object->add_cap( 'delete_oportunidades' );
+
+			$this->role_object->add_cap( 'edit_oportunidade' );
+			$this->role_object->add_cap( 'delete_oportunidade' );
+			$this->role_object->add_cap( 'assign_oportunidade' );
+			$this->role_object->add_cap( 'read_oportunidade' );
+			$this->role_object->add_cap( 'read_private_oportunidades' );
+			$this->role_object->add_cap( 'edit_others_oportunidades' );
+			$this->role_object->add_cap( 'edit_published_oportunidades' );
+			$this->role_object->add_cap( 'delete_others_oportunidades' );
+			$this->role_object->add_cap( 'delete_private_oportunidades' );
+			$this->role_object->add_cap( 'delete_published_oportunidades' );
+			$this->role_object->add_cap( 'manage_oportunisdades' );
+
+			$this->role_object->add_cap( 'manage_locais' );
+			$this->role_object->add_cap( 'edit_locais' );
+			$this->role_object->add_cap( 'delete_locais' );
+			$this->role_object->add_cap( 'assign_locais' );
+			$this->role_object->add_cap( 'read_locais' );
 		}
 	}
 
