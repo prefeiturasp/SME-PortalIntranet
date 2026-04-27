@@ -317,6 +317,7 @@ jQuery(document).ready(function ($) {
                 title: 'Preenchimento obrigatório!',
                 html: `<p>Por favor, preencha os seguintes campos obrigatórios:</p><ul style="text-align:left">${camposComErro.map(c => `<li>${c}</li>`).join('')}</ul>`,
                 confirmButtonText: 'Ok',
+                confirmButtonColor: '#14447C'
             });
         }
     });

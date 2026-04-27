@@ -3,6 +3,8 @@
 namespace Classes\TemplateHierarchy\LoopCortesias;
 
 use Classes\Lib\Util;
+use Classes\TemplateHierarchy\LoopSingle\LoopSingleCabecalho;
+use Classes\TemplateHierarchy\LoopSingle\LoopSingleInformacoesEvento;
 use Classes\TemplateHierarchy\LoopSingle\LoopSingleMaisRecentes;
 
 class LoopCortesias extends Util
@@ -18,13 +20,19 @@ class LoopCortesias extends Util
 		$container_geral_css = array('container-fluid', 'row');
 		$this->abreContainer($container_geral_tags, $container_geral_css);
 
-		new LoopCortesiasCabecalho();
+		new LoopSingleCabecalho();
 
 		echo '<div class="container mt-5">';
 			echo '<div class="row">';
 				new LoopCortesiasNoticiaPrincipal();
-				new LoopSingleMaisRecentes(get_the_ID());
-				new LoopCortesiasRelacionadas(get_the_ID());
+				new LoopSingleInformacoesEvento();
+				new LoopCortesiasRelacionadas(get_the_ID());		
+			echo '</div>';
+		echo '</div>';
+
+		echo '<div class="container-fluid pt-5 posts-recentes">';
+			echo '<div class="row">';				
+				new LoopSingleMaisRecentes(get_the_ID());		
 			echo '</div>';
 		echo '</div>';
 	

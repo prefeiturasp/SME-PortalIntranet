@@ -162,6 +162,9 @@ class LoadDependences
 		wp_register_script('quilljs', 'https://cdn.quilljs.com/1.3.6/quill.js', [], '1.3.6');
 		wp_enqueue_script('quilljs');
 
+		wp_register_style( 'swiper-slider', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css' );
+		wp_register_script( 'swiper-slider', 'https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js' );
+
 		// ###### WIDGETS
 		wp_register_script('widgets', STM_THEME_URL . 'js/widgets.js?v=1.0');
 		wp_register_style('widgets-dashboard', STM_THEME_URL . 'css/widgets.css?v=1.0');
