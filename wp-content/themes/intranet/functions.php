@@ -6847,3 +6847,30 @@ function check_usuario_inscrito_evento( int $post_id ) {
 
 	return boolval( $tem_inscricao );
 }
+
+/***
+ * Filtra um array de datas, retornando apenas aquelas que são futuras em relação à data atual.
+ * @param array $datas Array de strings de datas (formato reconhecido pelo DateTime)
+ * @param string $timezone Timezone para comparação (padrão: 'America/Sao_Paulo')
+ * @return array Array filtrado contendo apenas as datas futuras
+ */
+function filtrar_ordenar_datas_futuras(array $datas, $timezone = 'America/Sao_Paulo') {
+    $agora = new DateTime('now', new DateTimeZone($timezone));
+
+    $datas_futuras = array_filter($datas, function ($data) use ($agora, $timezone) {
+        try {
+            $data_obj = new DateTime($data, new DateTimeZone($timezone));
+            return $data_obj > $agora;
+        } catch (Exception $e) {
+            return false;
+        }
+    });
+
+    usort($datas_futuras, function ($a, $b) use ($timezone) {
+        $data_a = new DateTime($a, new DateTimeZone($timezone));
+        $data_b = new DateTime($b, new DateTimeZone($timezone));
+        return $data_a <=> $data_b;
+    });
+
+    return array_values($datas_futuras);
+}
