@@ -56,7 +56,11 @@
                     <td><?php echo esc_html( $evento->post_id ); ?></td>
                     <td class="nome-evento">
                         <?php echo esc_html( $evento->nome_evento ); ?><br>
-                        <span class="badge badge-primary px-2"><?php echo esc_html( mb_strtoupper( $evento->tipo ) ); ?></span>
+                        <?php if ( $evento->tipo == 'cortesia' ) : ?>
+                            <span class="badge badge-warning px-2">ORDEM DE INSCRIÇÃO</span>
+                        <?php else: ?>
+                            <span class="badge badge-primary px-2">SORTEIO</span>
+                        <?php endif; ?>
                     </td>
                     <td>
                         <?php

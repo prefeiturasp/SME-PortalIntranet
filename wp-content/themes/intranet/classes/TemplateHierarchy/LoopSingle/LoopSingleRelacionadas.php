@@ -17,11 +17,8 @@ class LoopSingleRelacionadas extends LoopSingle
 	}
 
 	public function init(){
-		echo '<div class="col-12 mt-5 mb-3 news-comment">
-			<div class="rel-infos pb-3">
-				<div class="rel-title d-flex justify-content-between align-items-center">
-					<h2>Comentários</h2>
-				</div>';
+		echo '<div class="col-12 mt-5 mb-3 news-comment order-4">
+			<div class="comentarios-posts pb-3">';
 				comments_template();
 			echo '</div>';
 		echo '</div>';

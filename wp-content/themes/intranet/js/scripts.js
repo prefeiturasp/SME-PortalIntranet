@@ -165,28 +165,51 @@ new WOW().init();
 
 $s('#telefone').mask('(00) 00000-0000');
 
+$s('.check-search').click(function() {
+    $s('.check-search').not(this).prop('checked', false);
+});
+
 /* Scripts da tabela de listagem dos sorteados */
 $s(document).ready(function () {
     $s('table.datatables').each(function () {
 
         const $table = $s(this);
         const count = $table.find('tbody tr').length;
+        const $collapse = $table.closest('.collapse').parent();
 
-        $table.DataTable({
-            pageLength: 10,
+        let currentTable = $table.DataTable({
+            pageLength: 5,
             lengthChange: false,
             ordering: false,
-            paging: count >= 10,
-            searching: count >= 10,
+            paging: count > 5,
+            searching: true,
             info: false,
             stripeClasses: [],
             autoWidth: false,
             language: {
-                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
-            }
+                url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json',
+                searchPlaceholder: 'Sorteados',
+                paginate: {
+                    previous: '<i class="fa fa-chevron-left"></i>',
+                    next: '<i class="fa fa-chevron-right"></i>'
+                }
+            },
+            pagingType: "simple_numbers",
+            dom: 'rtip',
         });
 
         $table.removeClass('dataTable');
+
+        //Busca personalizada
+        $collapse.find('.input-nome-participante').on('keyup', function() {
+            currentTable.search($s(this).val()).draw();
+        });
+
+        // Botão limpar
+        $collapse.find('.btn-limpar-filtro').on('click', function() {
+            $collapse.find('.input-nome-participante').val('');
+            currentTable.search('').draw();
+        });
     });
 });
 
@@ -212,17 +235,95 @@ jQuery(function ($) {
                 willChange: 'transform'
               });
     })
-
-    $(document).on('click', '.modal-body .menu-menu-superior-container a.nav-link', function () {
-        $(this).parent().addClass('show');
-        $(this).parent().find('.dropdown-menu')
-        .addClass('show')
-        .css({
-            position: 'absolute',
-            top: '0px',
-            left: '0px',
-            transform: 'translate3d(-7px, 29px, 0px)',
-            willChange: 'transform'
-          });
-    })
 });
+
+jQuery(function ($) {
+    let mainSlider = $(document).find('.main-content-slider');
+
+    if (mainSlider.length) {
+        const swiper = new Swiper('.main-content-slider', {
+            slidesPerView: 1,
+            speed: 500,
+            loop: true,
+            navigation: {
+                nextEl: '.custom-next',
+                prevEl: '.custom-prev',
+            },
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true
+            },
+            autoplay: {
+                delay: 10000,
+                disableOnInteraction: false,
+            },
+        });
+    }
+});
+
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('toggle-replies')) {
+
+        const btn = e.target;
+        const li = btn.closest('li');
+        const children = li.querySelector('.children');
+
+        if (!children) return;
+
+        const isCollapsed = children.classList.contains('collapsed');
+
+        if (!isCollapsed) {
+            // FECHAR
+            children.style.maxHeight = children.scrollHeight + 'px';
+
+            requestAnimationFrame(() => {
+                children.style.maxHeight = '0px';
+                children.classList.add('collapsed');
+            });
+
+            btn.textContent = 'Ver mais';
+
+        } else {
+            // ABRIR
+            children.classList.remove('collapsed');
+            children.style.maxHeight = children.scrollHeight + 'px';
+
+            setTimeout(() => {
+                children.style.maxHeight = 'none';
+            }, 300);
+
+            btn.textContent = 'Ver menos';
+        }
+    }
+});
+
+/*
+Controla os eventos relacionados aos collapses de listagem
+dos participantes contemplados no evento.
+*/
+jQuery(function($) {
+
+    function atualizarFiltro($collapse, event) {
+
+        const $bloco = $collapse.closest('.conteudo-tab-lista-sorteados');
+        const $filter = $bloco.find('.filtro-contemplados');
+        const showFilter = $bloco.find('.dataTables_paginate').length // Se a paginação estiver ativa, exibe também o filtro de busca
+
+        if (event === 'hide.bs.collapse') {
+            $filter.addClass('d-none');
+        }
+
+        if (showFilter && event === 'show.bs.collapse' ) {
+            $filter.removeClass('d-none');
+        }
+
+    }
+
+    $(document).on('show.bs.collapse', '#accordion-sorteados .collapse', function(){
+        atualizarFiltro($(this), 'show.bs.collapse')
+    });
+
+    $(document).on('hide.bs.collapse', '#accordion-sorteados .collapse', function(){
+        atualizarFiltro($(this), 'hide.bs.collapse')
+    });
+})

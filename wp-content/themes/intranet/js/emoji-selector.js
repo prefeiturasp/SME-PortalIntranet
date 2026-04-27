@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Cria botão
     const emojiButton = document.createElement('button');
-    emojiButton.innerHTML = '😀';
+    emojiButton.innerHTML = '<i class="fa fa-smile-o" aria-hidden="true"></i>';
     emojiButton.classList.add('btn', 'btn-sm', 'btn-emoji');
     emojiButton.type = 'button';
     emojiButton.style.cssText = 'cursor: pointer; font-size: 1.5em;';

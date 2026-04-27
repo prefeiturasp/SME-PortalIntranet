@@ -56,8 +56,10 @@ require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingle.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleCabecalho.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleMenuInterno.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleNoticiaPrincipal.php';
+require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleFormInscricao.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleMaisRecentes.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleRelacionadas.php';
+require_once __ROOT__.'/classes/TemplateHierarchy/LoopSingle/LoopSingleInformacoesEvento.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopNoticias/LoopNoticias.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopNoticias/LoopNoticiasCabecalho.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopNoticias/LoopNoticiasNoticiaPrincipal.php';
@@ -79,6 +81,7 @@ require_once __ROOT__.'/classes/TemplateHierarchy/LoopCortesias/LoopCortesiasCab
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopCortesias/LoopCortesiasNoticiaPrincipal.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopCortesias/LoopCortesiasMaisRecentes.php';
 require_once __ROOT__.'/classes/TemplateHierarchy/LoopCortesias/LoopCortesiasRelacionadas.php';
+require_once __ROOT__.'/classes/TemplateHierarchy/LoopCortesias/LoopCortesiasFormInscricao.php';
 
 require_once __ROOT__.'/classes/TemplateHierarchy/ArchiveAgenda/ArchiveAgendaGetDatasEventos.php';
 //require_once __ROOT__.'/classes/TemplateHierarchy/ArchiveContato/ArchiveContatoMetabox.php';
@@ -185,5 +188,5 @@ $cptSmeExplicaExtend = new \Classes\Cpt\CptSmeExplica();
 $cptMuralProf = new \Classes\Cpt\Cpt('mural-professores', 'mural-professores', 'Mural dos Professores', 'Todas as Publicações', 'mural-professores', 'mural-professores', null, null, null, 'dashicons-external', true);
 $cptMuralProfExtend = new \Classes\Cpt\CptMuralProf();
 
-$cptCortesias = new \Classes\Cpt\Cpt('cortesias', 'cortesias', 'Gratuidade e cortesias', 'Gratuidade e cortesias', 'cortesias', 'cortesias', null, null, null, 'dashicons-tickets', true);
+$cptCortesias = new \Classes\Cpt\Cpt('cortesias', 'cortesias', 'Ordem de Inscrição', 'Ordem de Inscrição', 'cortesias', 'cortesias', null, null, null, 'dashicons-superhero', true);
 $cptCortesiasExtend = new \Classes\Cpt\CptCortesias();

@@ -133,7 +133,7 @@ function gerar_aba_sancoes() {
                 $r->nome_completo ?: ' - ',
                 $r->email_institucional ?: ' - ',
                 $r->evento_id ?: ' - ',
-                $r->tipo_noticia === 's' ? 'Sorteio' : 'Cortesia',
+                $r->tipo_noticia === 's' ? 'Sorteio' : 'Ordem de Inscrição',
                 $r->evento_titulo ?: ' - ',
                 $r->data_aplicacao ? date('d/m/Y', strtotime($r->data_aplicacao)) : ' - ',
                 $r->data_validade ? date('d/m/Y', strtotime($r->data_validade)) : ' - ',

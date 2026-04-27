@@ -790,6 +790,25 @@
 			$('#sort-ativos').addClass('show active');
 		}
 		
+		$('.recent-posts-slider').slick({
+			slidesToShow: 1,
+			rows: 2,
+			slidesPerRow: 2,
+			arrows: true,
+			adaptiveHeight: false,
+			prevArrow: $('.recentes-nav-prev'),
+    		nextArrow: $('.recentes-nav-next'),
+			responsive: [
+				{
+					breakpoint: 768,
+					settings: {
+						rows: 1,
+						slidesPerRow: 1
+					}
+				}
+			]
+		});
+
 	});
 </script>
 <?php if($_GET['updated']): ?>

@@ -17,28 +17,25 @@ if (!empty($_GET)) {
 
 ?>
 
-<div class="container carro-sorteios">
+<div class="container carro-eventos mb-5">
     <div class="row">
         <div class="col-12">
 
-			<div class="title-ativi">
-				<?php
-				if($titulo)
-					echo '<h2>' . $titulo . '</h2>';
-				?>
-				<hr>
-				<?php
-					if($link)
-						echo '<a href="' . $link . '">Ver todos</a>';
-				?>
+			<div class="title-ativi my-3">
+				<?php if ( $titulo ) : ?>
+					<h2><?php echo esc_html( $titulo ); ?></h2>
+				<?php endif; ?>
+				<div class="controls-wrapper">
+					<?php if ( $link ) : ?>
+						<a href="<?php echo esc_url( $link ); ?>">Ver todos</a>
+						<div class="slider-controls">
+							<div class="arrows ml-md-4"></div>
+						</div>
+					<?php endif; ?>
+				</div>
 			</div>
 
-			
 			<div class="sorteios" id="sorteios">
-
-
-				
-
 							<?php
 
 							$urlPage = get_the_permalink();
@@ -51,7 +48,6 @@ if (!empty($_GET)) {
 							$exibir_data = get_sub_field('exibir_data');
 							$exibicao = get_sub_field('sel_exib');
 							$current_date = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
-							$status_prefix = $exibicao === 'encerrados' ? 'ENCERRADO - ' : '';
 												
 							$args_for_query1 = array(
 								'post_type' => ['post', 'cortesias'],
@@ -320,8 +316,8 @@ if (!empty($_GET)) {
 								'paged' => $paged,
 								'ignore_sticky_posts' => 1,
 								'meta_key' => 'enc_inscri',
-								'orderby' => 'meta_value_num', 
-								'order' => 'DESC'
+								'orderby' => 'meta_value_num', // ou 'meta_value' se for YYYY-MM-DD
+								'order' => 'DESC' // ou 'DESC' se quiser do mais recente para o mais antigo
 							));
 							
 							?>
@@ -359,14 +355,20 @@ if (!empty($_GET)) {
 
 								<?php if ( $the_query->have_posts() ) : ?>
 									
-										<?php $has_posts = true; ?>
+									<?php $has_posts = true; ?>
 									
-										<?php while ( $the_query->have_posts() ) : $the_query->the_post(); ?>
-										
-											<div style="width: <?= $calc . 'px'; ?>">
-												<div class="mural sme-informe p-0 d-flex">
-													<div class="row m-0">
-														<div class="col-12 img-column mb-3 p-0">
+									<?php
+									while ( $the_query->have_posts() ) :
+										$the_query->the_post();
+										$post_type = get_post_type_label( get_the_ID() );
+										$local_id = get_field( 'local' );
+										$local =  get_term( $local_id );
+										?>
+										<div style="width: <?= $calc . 'px'; ?>">
+											<div class="mural sme-informe evento-item p-0">
+												<div class="row m-0 card-content">
+													<div class="col-12 img-column mb-2 p-3">
+														<div class="image-wrapper">
 															<?php 
 																$image = get_the_post_thumbnail( $post_id, 'default-image', array( 'class' => 'img-fluid' ) );
 																$post_type = get_post_type_label( get_the_ID() );
@@ -374,68 +376,104 @@ if (!empty($_GET)) {
 															<?php if($image): ?>
 																<?= $image; ?>
 															<?php else: ?>
-																<img src="<?= wp_get_upload_dir()['baseurl'] . '/2026/02/placeholder-sme-novo.jpg'; ?>" class="img-fluid rounded" alt="Imagem de ilustração categoria">
+																<?php $imagem_padrao = get_field( 'sorteios_cortesias_placeholder', 'options' ); ?>
+																<img src="<?php echo esc_url( $imagem_padrao ); ?>" class="img-fluid" alt="Imagem de ilustração categoria">
 															<?php endif; ?>
-															<?php if ( $post_type ) : ?>
-																<span class="post-type-tag position-absolute">
-																	<?php echo esc_html( mb_strtoupper( $post_type ) ); ?>
+															
+															<?php if ( $exibicao == 'encerrados' ) : ?>
+																<div class="overlay-encerrado"></div>
+															<?php endif; ?>
+														</div>
+													</div>
+
+													<div class="col-9 mb-2 titulo">                                        
+														<h2>
+															<a href="<?php echo esc_url( get_the_permalink() ); ?>">
+																<?php the_title(); ?>
+															</a>
+														</h2>                                                            
+													</div>
+
+													<div class="col-3 mb-2">
+														<div class="likes">
+															<?php 
+																global $wpdb;
+																$l = 0;
+																$postid = get_the_id();
+																$clientip  = get_client_ip();
+																$row1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid' AND clientip = '$clientip'");
+																if(!empty($row1)){
+																	$l = 1;
+																}
+																$totalrow1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid'");
+																$total_like1 = $wpdb->num_rows;
+															?>
+
+															<div class="post_like">
+																<a class="pp_like likes d-flex flex-column justify-content-center align-items-center <?php if($l==1) {echo "likes"; } ?>" id="pp_like_<?php echo get_the_id(); ?>" href="#" data-id="<?php echo get_the_id(); ?>">
+																	<img src="<?php echo esc_url( get_template_directory_uri() . '/img/icone-likes.svg' ); ?>" alt="like" class="w-30">
+																	<span><?php echo $total_like1; ?> <?php echo $total_like1 == 1 ? 'Like' : 'Likes'; ?></span>
+																</a>		
+															</div>
+														</div>
+													</div>
+
+													<div class="col-12 subtitulo">
+														<?php if ( $post_type === 'sorteio' ) : ?>
+															<p class="data">
+																<?php
+																	$dataSorteio =  obter_ultima_data_sorteio( get_the_ID() );
+																	if($dataSorteio){
+																		echo 'Sorteio ' . $dataSorteio;	
+																	}
+																?>
+															</p>
+														<?php endif; ?>
+														<?php if ( $post_type === 'cortesias' ) : ?>
+															<p class="data">
+																Evento encerrado. Consulte mais detalhes na notícia
+															</p>
+														<?php endif; ?>
+
+														<?php if ( !is_wp_error( $local ) ) : ?>
+															<p class="local"><strong>Local: </strong><?php echo esc_html( $local->name ); ?></p>
+														<?php endif; ?>
+													</div>
+
+													<div class="col-12 mt-auto">
+														<div class="d-flex mb-3">
+															<?php
+															if ( $post_type ) : 
+																	if($post_type == 'cortesias'){
+																		$class_tag = 'cortesia-tag';
+																		$label_tag = 'Ordem de Inscrição';
+																		$label_icon = 'fa fa-bolt';
+																	} else {
+																		$class_tag = '';
+																		$label_tag = 'Sorteio';
+																		$label_icon = 'fa fa-cube';
+																	}
+																?>
+																<span class="post-type-tag <?= $class_tag ?? '' ?>">
+																	<i class="<?php echo esc_html( $label_icon ); ?>" aria-hidden="true"></i>
+																	<?= esc_html( $label_tag ); ?>
+																</span>
+																<?php
+															endif;
+															?>
+
+															<?php if ( check_usuario_inscrito_evento( get_the_ID() ) ) : ?>
+																<span class="post-type-tag inscricao-tag p-2 ml-2">
+																	<i class="fa fa-check-circle" aria-hidden="true"></i> Inscrito
 																</span>
 															<?php endif; ?>
 														</div>
-
-														<div class="col-12">
-															<?php if ( $post_type === 'sorteio' ) : ?>
-																<p class="data">
-																	<?php
-																		$dataSorteio =  obter_ultima_data_sorteio( get_the_ID() );
-																		if($dataSorteio){
-																			echo 'Sorteio ' . $dataSorteio;	
-																		}
-																	?>
-																</p>
-															<?php endif; ?>
-															<?php if ( $post_type === 'cortesias' ) : ?>
-																<p class="data">
-																	Evento encerrado. Consulte mais detalhes na notícia.
-																</p>
-															<?php endif; ?>
-														</div>
-
-														<div class="col-12 col-md-9 mb-2">                                        
-															<h2><a href="<?= get_the_permalink(); ?>"><?= $status_prefix . get_the_title(); ?></a></h2>                                                            
-														</div>
-
-														<div class="col-12 col-md-3 mb-2">
-															<div class="likes">
-																<?php 
-																	global $wpdb;
-																	$l = 0;
-																	$postid = get_the_id();
-																	$clientip  = get_client_ip();
-																	$row1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid' AND clientip = '$clientip'");
-																	if(!empty($row1)){
-																		$l = 1;
-																	}
-																	$totalrow1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid'");
-																	$total_like1 = $wpdb->num_rows;
-																?>
-
-																<div class="post_like">
-																	<a class="pp_like <?php if($l==1) {echo "likes"; } ?>" id="pp_like_<?php echo get_the_id(); ?>" href="#" data-id="<?php echo get_the_id(); ?>"><span><?php echo $total_like1; ?> <?php echo $total_like1 == 1 ? 'like' : 'likes'; ?></span><br><i class="fa fa-heart" aria-hidden="true"></i></a>	
-																</div>
-
-															</div>
-														</div>
-
 													</div>
-													
-												</div>
+												</div>	
 											</div>
-										<?php endwhile; ?>
-										<!-- end of the loop -->
-															
-									
-								
+										</div>
+									<?php endwhile; ?>
+									<!-- end of the loop -->
 									<?php wp_reset_postdata(); ?>
 								
 								<?php else : ?>
@@ -481,6 +519,7 @@ wp_enqueue_script('slick');
             autoplaySpeed: 5000,
             prevArrow:'<span class="slick-arrow arrow-left"><i class="fa fa-chevron-left" aria-hidden="true"></i></span>',
             nextArrow:'<span class="slick-arrow arrow-right"><i class="fa fa-chevron-right" aria-hidden="true"></i></span>',
+			appendArrows: $s('.slider-controls .arrows'),
             responsive: [
 				{
 				breakpoint: 1024,

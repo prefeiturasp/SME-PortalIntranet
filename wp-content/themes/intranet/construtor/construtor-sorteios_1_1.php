@@ -14,7 +14,6 @@
             $exibir_data = get_sub_field('exibir_data');
             $exibicao = get_sub_field('sel_exib');
             $current_date = date('Ymd');
-            $status_prefix = $exibicao === 'encerrados' ? 'ENCERRADO - ' : '';
                                    
             $args_for_query1 = array(
                 'post_type' => ['post', 'cortesias'],
@@ -274,7 +273,7 @@
 
             $allTheIDs = array_merge($query1->posts,$query2->posts);
 
-            if ($exibicao == 'encerrados'){
+             if($exibicao == 'encerrados'){
                 $args = array(
                     'post_type' => ['post', 'cortesias'],
                     'post__in' => $allTheIDs,
@@ -295,6 +294,7 @@
                     'orderby' => 'post__in' 
                 );
             }
+
             //create new empty query and populate it with the other two
             $the_query = new WP_Query($args);
             
@@ -315,89 +315,188 @@
                     <!-- pagination here -->
                     <div class="row">
                         <!-- the loop -->
-                        <?php while ( $the_query->have_posts() ) : $the_query->the_post(); ?>
+                        <?php
+                        while ( $the_query->have_posts() ) :
+                            $the_query->the_post();
+
+                            $post_type = get_post_type_label( get_the_ID() );
+                            $tipo_evento = get_field( 'tipo_evento' );
+                            $local = get_field('local');
+                            $local_term =  get_term( $local ) ?: false;
+                            ?>
                         
-                            <div class="col-12 col-md-4 mb-4">
-                                <div class="mural sme-informe p-0 d-flex">
-                                    <div class="row m-0">
-                                        <div class="col-12 img-column mb-3 p-0">
+                            <div class="col-12 col-md-6 mb-4">
+                                <div class="item-sorteio item-ativos">
+                                    <div class="row h-100 m-0">
+                                        <a href="<?php echo esc_url( get_the_permalink() ); ?>" class="col-12 col-md-6 p-0 image-wrapper">
                                             <?php 
-                                                $image = get_the_post_thumbnail( $post_id, 'default-image', array( 'class' => 'img-fluid' ) );
+                                                $image = get_the_post_thumbnail_url( $post_id, 'default-image' );
+                                                $image_bg = get_the_post_thumbnail_url( $post_id, 'thumbnail' );
                                                 $post_type = get_post_type_label( get_the_ID() );
                                             ?>
                                             <?php if($image): ?>
-                                                <?= $image; ?>
-                                            <?php else: ?>
-                                                <img src="<?= wp_get_upload_dir()['baseurl'] . '/2026/02/placeholder-sme-novo.jpg'; ?>" class="img-fluid rounded" alt="Imagem de ilustração categoria">
-                                            <?php endif; ?>
-                                            <?php if ( $post_type ) : ?>
-                                                <span class="post-type-tag position-absolute">
-                                                    <?php echo esc_html( mb_strtoupper( $post_type ) ); ?>
-                                                </span>
-                                            <?php endif; ?>
-                                        </div>
-
-                                        <div class="col-12">
-                                            <?php if ( $post_type === 'sorteio' ) : ?>
-                                                <p class="data">
-                                                    <?php
-                                                        $dataSorteio = get_field('data_sorteio', get_the_ID());
-                                                        $dataSorteio =  $exibicao === 'encerrados' ? obter_ultima_data_sorteio( get_the_ID() ) : obter_proxima_data_sorteio( get_the_ID() );
-                                                        if($dataSorteio){
-                                                            $texto_subtitulo = $exibicao === 'encerrados' ? 'Sorteio' : 'O sorteio será realizado';
-                                                            echo $texto_subtitulo . ' ' . $dataSorteio;	
-                                                        }
-                                                    ?>
-                                                </p>
-                                            <?php endif; ?>
-                                            <?php if ( $post_type === 'cortesias' ) : ?>
-                                                <?php if ( $exibicao === 'encerrados' ) : ?>
-                                                    <p class="data">
-                                                        Evento encerrado. Consulte mais detalhes na notícia
-                                                    </p>
-                                                <?php else : ?>
-                                                    <p class="data">
-                                                        Ingressos gratuitos por ordem de inscrição, enquanto houver disponibilidade
-                                                    </p>
-                                                <?php endif; ?>
-                                            <?php endif; ?>
-                                        </div>
-
-                                        <div class="col-12 col-md-9 mb-2">                                        
-                                            <h2><a href="<?= get_the_permalink(); ?>"><?= $status_prefix . get_the_title(); ?></a></h2>                                                            
-                                        </div>
-
-                                        <div class="col-12 col-md-3 mb-2">
-                                            <div class="likes">
-                                                <?php 
-                                                    global $wpdb;
-                                                    $l = 0;
-                                                    $postid = get_the_id();
-                                                    $clientip  = get_client_ip();
-                                                    $row1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid' AND clientip = '$clientip'");
-                                                    if(!empty($row1)){
-                                                        $l = 1;
-                                                    }
-                                                    $totalrow1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid'");
-                                                    $total_like1 = $wpdb->num_rows;
-                                                ?>
-
-                                                <div class="post_like">
-                                                    <a class="pp_like <?php if($l==1) {echo "likes"; } ?>" id="pp_like_<?php echo get_the_id(); ?>" href="#" data-id="<?php echo get_the_id(); ?>"><span><?php echo $total_like1; ?> <?php echo $total_like1 == 1 ? 'like' : 'likes'; ?></span><br><i class="fa fa-heart" aria-hidden="true"></i></a>	
+                                                <div class="event-thumbnail">
+                                                    <div class="bg" style="background-image: url('<?php echo esc_url( $image_bg ); ?>');"></div>
+                                                    <img src="<?php echo esc_url( $image ); ?>" class="img-fluid">
                                                 </div>
+                                            <?php else: ?>
+                                                <div class="event-thumbnail">
+                                                    <?php $imagem_padrao = get_field( 'sorteios_cortesias_placeholder', 'options' ); ?>
+                                                    
+                                                    <div class="bg" style="background-image: url('<?php echo esc_url( $imagem_padrao ); ?>');"></div>
+                                                    <img src="<?php echo esc_url( $imagem_padrao ); ?>" class="img-fluid rounded" alt="Imagem de ilustração categoria">
+                                                </div>
+                                            <?php endif; ?>
+                                            <?php if ( $exibicao === 'encerrados' ) : ?>
+                                                <div class="overlay-encerrado"></div>
+                                            <?php endif; ?>
+                                        </a>
 
+                                        <div class="col-12 col-md-6 mt-md-0 pl-md-2 mt-2 pl-0">
+                                            <div class="row h-100">
+                                                <div class="col-12 col-md-10 d-flex flex-column pr-0">
+                                                    <h3><a href="<?= get_the_permalink(); ?>"><?php echo esc_html( get_the_title() ); ?></a></h3>
+                                                    
+                                                    <div class="infos-evento my-2">
+                                                        <?php if ( $post_type === 'sorteio' ) : ?>
+                                                            <p class="data">
+                                                                <?php
+                                                                    $dataSorteio = get_field('data_sorteio', get_the_ID());
+                                                                    $dataSorteio =  $exibicao === 'encerrados' ? obter_ultima_data_sorteio( get_the_ID(), false ) : obter_proxima_data_sorteio( get_the_ID(), false );
+                                                                    if($dataSorteio){
+                                                                        $texto_subtitulo = $exibicao === 'encerrados' ? 'Sorteio' : 'Sorteio';
+                                                                        echo $texto_subtitulo . ' ' . $dataSorteio;	
+                                                                    }
+                                                                ?>
+                                                            </p>
+                                                        <?php endif; ?>
+                                                        <?php if ( $post_type === 'cortesias' ) : ?>
+                                                            <?php if ( $exibicao === 'encerrados' ) : ?>
+                                                                <p class="data">
+                                                                    Evento encerrado. Consulte mais detalhes na notícia
+                                                                </p>
+                                                            <?php else : ?>
+                                                                <p class="data">
+                                                                    Ingressos gratuitos por ordem de inscrição, enquanto houver disponibilidade
+                                                                </p>
+                                                            <?php endif; ?>
+                                                        <?php endif; ?>
+                                                        <?php if ( $local_term && !is_wp_error( $local_term ) ) : ?>
+                                                            <p><strong>Local: </strong><?php echo esc_html( $local_term->name ); ?></p>	
+                                                        <?php endif; ?>
+
+                                                        <?php if ( $exibicao != 'encerrados' ) : ?>
+                                                            <?php
+                                                            if( $tipo_evento == 'premio' ) : ?>
+                                                                <p><strong>Prêmio:</strong> Consulte detalhes</p>
+                                                                <?php
+                                                            elseif ($tipo_evento == 'data') :
+
+                                                                $datas_evento_info = get_field( 'evento_datas' );
+                                                                $datas_evento = wp_list_pluck( $datas_evento_info, 'data' );
+                                                                $datas_disponiveis = filtrar_ordenar_datas_futuras( $datas_evento );
+
+                                                                if ( !empty( $datas_disponiveis ) ) {
+                                                                    $lista_datas = [];
+                                                                    $total = count( $datas_disponiveis );
+                                                                    $label = _n( 'Data', 'Datas', $total );
+                                                                    $format = ( $total > 1 ) ? 'd/m' : 'd/m/Y';
+                                                                }
+                                                                ?>
+                                                                <?php if ( !empty( $datas_disponiveis ) ) : ?>
+                                                                    <?php
+                                                                    foreach ( array_chunk( $datas_disponiveis, 3 )[0] as $data) {
+                                                                        $dt = new DateTime($data);
+                                                                        $data = $dt->format( $format );
+
+                                                                        $hora = $dt->format( 'H' );
+                                                                        $minuto = $dt->format( 'i' );
+                                                                        $hora_fomatada = $minuto == '00' ? "{$hora}h" : "{$hora}h{$minuto}";
+
+                                                                        $data_formatada = "{$data} {$hora_fomatada}";
+                                                                        $lista_datas[] = $data_formatada;
+                                                                    }
+                                                                    ?>
+                                                                    <p class="datas-disponiveis">
+                                                                        <strong><?php echo esc_html( $label ); ?>:</strong>
+                                                                        <?php echo esc_html( implode( ' | ', $lista_datas ) ); ?>
+                                                                    </p>
+                                                                    <?php if ( $total >= 3 ) : ?>
+                                                                        <a href="<?php echo esc_url( get_the_permalink() ); ?>">
+                                                                            Ver todas as datas e horários
+                                                                        </a>
+                                                                    <?php endif; ?>
+                                                                <?php endif; ?>
+                                                                <?php
+                                                            elseif ($tipo_evento == 'periodo') :
+                                                                $info_periodo_evento = get_field( 'evento_periodo' );
+                                                                ?>
+                                                                    <p><strong>Periodo: </strong><?php echo esc_html( $info_periodo_evento['descricao'] ); ?></p>
+                                                                <?php
+                                                            endif;
+                                                            ?>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <div class="mt-auto d-flex">
+                                                        <?php
+                                                        if ( $post_type ) : 
+                                                                if($post_type == 'cortesias'){
+                                                                    $class_tag = 'cortesia-tag';
+                                                                    $label_tag = 'Ordem de Inscrição';
+                                                                    $label_icon = 'fa fa-bolt';
+                                                                } else {
+                                                                    $class_tag = '';
+                                                                    $label_tag = 'Sorteio';
+                                                                    $label_icon = 'fa fa-cube';
+                                                                }
+                                                            ?>
+                                                            <span class="post-type-tag <?= $class_tag ?? '' ?> mt-auto">
+                                                                <i class="<?php echo esc_html( $label_icon ); ?>" aria-hidden="true"></i>
+                                                                <?= esc_html( $label_tag ); ?>
+                                                            </span>
+                                                            <?php
+                                                        endif;
+                                                        ?>
+
+                                                        <?php if ( check_usuario_inscrito_evento( get_the_ID() ) ) : ?>
+                                                            <span class="post-type-tag inscricao-tag p-2 ml-2">
+                                                                <i class="fa fa-check-circle" aria-hidden="true"></i> Inscrito
+                                                            </span>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                                           
+                                                <div class="col-12 col-md-2 mt-2 p-0">
+                                                    <?php 
+                                                        global $wpdb;
+                                                        $l = 0;
+                                                        $postid = get_the_id();
+                                                        $clientip  = get_client_ip();
+                                                        $row1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid' AND clientip = '$clientip'");
+                                                        if(!empty($row1)){
+                                                            $l = 1;
+                                                        }
+                                                        $totalrow1 = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$postid'");
+                                                        $total_like1 = $wpdb->num_rows;
+                                                    ?>
+
+                                                    <div class="post_like">
+                                                        <a class="pp_like <?php if($l==1) {echo "likes "; } ?>d-flex flex-column justify-content-center align-items-center" id="pp_like_<?php echo get_the_id(); ?>" href="#" data-id="<?php echo get_the_id(); ?>">
+                                                            <img src="<?php echo esc_url( get_template_directory_uri() . '/img/icone-likes.svg' ); ?>" alt="like">
+                                                            <span><?php echo $total_like1; ?> <?php echo $total_like1 == 1 ? 'Like' : 'Likes'; ?></span>
+                                                        </a>
+                                                    </div> 
+                                                </div>
                                             </div>
                                         </div>
-
-                                    </div>
-                                    
+                                    </div>  
                                 </div>
                             </div>
                         <?php endwhile; ?>
                         <!-- end of the loop -->
                     </div>
                 
-                    <div class="container mt-4">
+                    <div class="container mt-4 eventos-paginacao">
                         <div class="row">
                             <div class="col-sm-12">
                                 <div class="pagination-prog text-center">

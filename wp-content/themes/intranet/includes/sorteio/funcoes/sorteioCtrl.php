@@ -161,7 +161,6 @@ function retorna_lista_sorteados_html($post_id, $data, $unica = false, $sancao =
 	$i = 1;
 	$localInscri = '';
 	$itens = '';
-
 	$icones = [
         1 => 'icon-telefone.svg',
         2 => 'icon-email.svg',
@@ -300,7 +299,7 @@ function retorna_lista_sorteados_html($post_id, $data, $unica = false, $sancao =
 	$dataConf = str_replace(':', '-', $dataConf);
 		
 	$html = file_get_contents(get_template_directory().'/includes/sorteio/tab-view-conteudo-lista.html');
-	
+
 	$html = str_replace('{OCULTAR-BOTAO}',   '',  $html);
 	$html = str_replace('{OCULTAR-CONFIRMADOS}',   '',  $html);
 	$html = str_replace('{LEGENDAS}',   '<p class="legenda-tabela">
@@ -403,14 +402,7 @@ function exibir_lista_sorteados_por_data ($post_id = null) {//** OK */
 	if ( $tipo_evento === 'periodo' ) {
 
 		$info_periodo_evento = get_field( 'evento_periodo', get_the_ID() );
-		$dataObj = !empty($info_periodo_evento['data_sorteio'])
-		? DateTime::createFromFormat('d/m/Y', $info_periodo_evento['data_sorteio'])
-		: false;
-
-	$data_sorteio = ($dataObj instanceof DateTime)
-		? $dataObj->format('Ymd')
-		: (new DateTime())->format('Ymd');
-		
+		$data_sorteio = DateTime::createFromFormat('d/m/Y', $info_periodo_evento['data_sorteio'])->format('Ymd');
 		$label = 'Período';
 		$opcao_padrao = 'Selecione o período para resortear';
 		$opcoes_periodo = "<option value='{$data_sorteio}' selected>{$info_periodo_evento['descricao']}</option>";
@@ -577,7 +569,7 @@ function aplicar_sancao_ajax() {
                     'evento_id'      => $dados['post_id'],
                     'data_aplicacao' => $hoje,
                     'data_validade'  => $validade,
-					'id_inscricao'  => $id_participante,
+					'id_inscricao'   => $id_participante,
 					'tipo_noticia'	 => $tipo_noticia ?? 's',
                 ],
                 [
@@ -589,6 +581,7 @@ function aplicar_sancao_ajax() {
 					'%s'
                 ]
             );
+
 
 			// Atualiza a inscrição informando que o participante não compareceu ao evento
 			$data = array( 'compareceu' => 0 );
@@ -1082,7 +1075,7 @@ function exibeTabResultadoPagina($idPost = false){//** OK */
 
 		if($tipo_evento == 'premio'){
 			$datas_disponiveis = get_field('evento_premios', $post_id);
-			echo '<div class="row mb-4 exibir-lista-sorteados">';
+			echo '<div class="mb-4 exibir-lista-sorteados">';
 				echo '<div class="col">';
 					echo '<span class="title-info">Lista de contemplados do sorteio</span>';
 					echo '<p>Se o seu nome estiver entre os contemplados, acesse o e-mail cadastrado e verifique o local de retirada do seu prêmio.</p>';
@@ -1094,7 +1087,7 @@ function exibeTabResultadoPagina($idPost = false){//** OK */
 				$datas_disponiveis = get_field('evento_datas', $post_id);
 			}
 			
-			echo '<div class="row mb-4 exibir-lista-sorteados">';
+			echo '<div class="mb-4 exibir-lista-sorteados">';
 				echo '<div class="col">';
 					echo '<span class="title-info">Lista de contemplados do sorteio</span>';
 					echo '<p>Se o seu nome estiver entre os contemplados, acesse o e-mail cadastrado e veja se é necessário confirmar sua presença.</p>';
@@ -1156,12 +1149,12 @@ function exibeTabResultadoPagina($idPost = false){//** OK */
 
 					if ( $tipo_evento == 'premio' ) {
 
-						$texto = 'Contemplados <strong>' . $data['premio'] . '</strong>';
+						$texto = 'Contemplados ' . $data['premio'];
 						$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 
 					} else {
 
-						$texto = 'Contemplados para evento do dia <strong>' . $dataEvento . '</strong>';
+						$texto = 'Contemplados para evento do dia ' . $dataEvento;
 						$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 					}
 
@@ -1799,7 +1792,7 @@ add_action('admin_footer', function () {
 });
 
 // Obtem adata do próximo sorteio de um evento com multiplas datas
-function obter_proxima_data_sorteio( $post_id ) {
+function obter_proxima_data_sorteio( $post_id, $semana = true ) {
 
     $hoje = obter_data_com_timezone('Y-m-d', 'America/Sao_Paulo');
 	$tipo_evento = get_field( 'tipo_evento', $post_id );
@@ -1819,24 +1812,24 @@ function obter_proxima_data_sorteio( $post_id ) {
 			return strcmp( $a['data_sorteio'], $b['data_sorteio'] );
 		} );
 
-		return !empty( $datas_futuras ) ? formatar_data_por_extenso( str_replace( '-', '', $datas_futuras[0]['data_sorteio'] ), false ) : null;
+		return !empty( $datas_futuras ) ? formatar_data_por_extenso( str_replace( '-', '', $datas_futuras[0]['data_sorteio'] ), false, $semana ) : null;
     }
 	
 	if ( $data_sorteio = get_field( 'data_sorteio', $post_id ) ) {
 
-		return  formatar_data_por_extenso(  str_replace( '-', '', $data_sorteio ), false );
+		return  formatar_data_por_extenso(  str_replace( '-', '', $data_sorteio ), false, $semana );
 	}
 
 	if ( $tipo_evento === 'periodo' ) {
 		$info_periodo_evento = get_field( 'evento_periodo', $post_id );
 
-		return formatar_data_por_extenso( str_replace( '-', '', $info_periodo_evento['data_sorteio'] ), false );
+		return formatar_data_por_extenso( str_replace( '-', '', $info_periodo_evento['data_sorteio'] ), false, $semana );
 	}
 
 	return null;
 }
 
-function obter_ultima_data_sorteio( $post_id ) {
+function obter_ultima_data_sorteio( $post_id, $semana = true ) {
 
 	$tipo_evento = get_field( 'tipo_evento', $post_id );
 	$evento_datas = get_field( 'evento_datas', $post_id );
@@ -1851,18 +1844,18 @@ function obter_ultima_data_sorteio( $post_id ) {
 			return strcmp( $b['data_sorteio'], $a['data_sorteio'] );
 		} );
 
-    	return !empty( $evento_datas ) ? formatar_data_por_extenso( str_replace( '-', '', $evento_datas[0]['data_sorteio'] ), false ) : null;
+    	return !empty( $evento_datas ) ? formatar_data_por_extenso( str_replace( '-', '', $evento_datas[0]['data_sorteio'] ), false, $semana ) : null;
     }
 
 	if ( $data_sorteio = get_field( 'data_sorteio', $post_id ) ) {
 
-		return formatar_data_por_extenso( str_replace( '-', '', $data_sorteio ), false );
+		return formatar_data_por_extenso( str_replace( '-', '', $data_sorteio ), false, $semana );
 	}
 
 	if ( $tipo_evento === 'periodo' ) {
 		$info_periodo_evento = get_field( 'evento_periodo', $post_id );
 
-		return formatar_data_por_extenso( str_replace( '-', '', $info_periodo_evento['data_sorteio'] ), false );
+		return formatar_data_por_extenso( str_replace( '-', '', $info_periodo_evento['data_sorteio'] ), false, $semana );
 	}
 
 	return null;

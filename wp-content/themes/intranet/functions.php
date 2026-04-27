@@ -19,6 +19,7 @@ remove_filter('term_description', 'wpautop');
 remove_filter('the_excerpt', 'wpautop');
 
 add_action('after_setup_theme', 'custom_setup');
+require_once get_template_directory() . '/classes/walker-comments.php';
 
 function custom_setup() {
 	if ( !( current_user_can('editor') || current_user_can('administrator') ) && !is_admin() ) {
@@ -561,8 +562,8 @@ if( function_exists('acf_add_options_page') ) {
     ));
 
 	acf_add_options_sub_page(array(
-        'page_title' 	=> 'Gratuidade e sorteios',
-        'menu_title'	=> 'Gratuidade e sorteios',
+        'page_title' 	=> 'Ordem de inscrição e sorteios',
+        'menu_title'	=> 'Ordem de inscrição e sorteios',
         'parent_slug'	=> 'conf-geral',
         'capability'	=> 'publish_pages',
 		'update_button' => __('Atualizar', 'acf'),
@@ -3564,56 +3565,19 @@ function custom_comment_reply_link($args = array(), $comment = null, $post = nul
     return $args['before'] . $link . $args['after'];
 }
 
-function custom_comment_callback($comment, $args, $depth) {
-    // Verifica o tipo de comentário (comentário, pingback, trackback)
-    $tag = ('div' === $args['style']) ? 'div' : 'li';
-    ?>
-    <<?php echo $tag; ?> id="comment-<?php comment_ID(); ?>" <?php comment_class(empty($args['has_children']) ? '' : 'parent'); ?>>
-        <article id="div-comment-<?php comment_ID(); ?>" class="comment-body">
-            
-                <div class="comment-author vcard">
-                    <?php
-                    // Exibe o avatar do comentário
-                    if (0 != $args['avatar_size']) {
-                        echo get_avatar($comment, $args['avatar_size'], '', '', array('class' => 'avatar avatar-32 img-fluid'));
-                    }
-                    // Exibe o nome do autor do comentário
-                    printf(__(' <cite class="fn">%s</cite>'), get_comment_author_link());
-                    ?>
-                    <span class="says">disse:</span>
-                </div><!-- .comment-author -->
+function contar_respostas($comment_id) {
+    $children = get_comments([
+        'parent' => $comment_id,
+        'status' => 'approve'
+    ]);
 
-                <div class="comment-metadata">
-                    <a href="<?php echo esc_url(get_comment_link($comment, $args)); ?>">
-                        <time datetime="<?php comment_time('c'); ?>">
-                            <?php
-                            printf(__('%1$s at %2$s'), get_comment_date(), get_comment_time());
-                            ?>
-                        </time>
-                    </a>
-                    <?php edit_comment_link(__('Edit'), '<span class="edit-link">', '</span>'); ?>
-                </div><!-- .comment-metadata -->
+    $total = count($children);
 
-                <?php if ('0' == $comment->comment_approved) : ?>
-                    <p class="comment-awaiting-moderation"><?php _e('Your comment is awaiting moderation.'); ?></p>
-                <?php endif; ?>
-           
+    foreach ($children as $child) {
+        $total += contar_respostas($child->comment_ID);
+    }
 
-            <div class="comment-content">
-                <?php comment_text(); ?>
-            </div><!-- .comment-content -->
-
-            <div class="reply">
-                <?php
-                // Usa a função personalizada para gerar o link de resposta
-                echo custom_comment_reply_link(array(
-                    'depth'     => $depth,
-                    'max_depth' => $args['max_depth'],
-                ), $comment, get_the_ID());
-                ?>
-            </div><!-- .reply -->
-        </article><!-- .comment-body -->
-    <?php
+    return $total;
 }
 
 add_action('init', 'save_redirect_to_in_session');
@@ -4525,7 +4489,7 @@ function custom_posts_endpoint($request) {
 			} else {
 
 				$texto_subtitulo = ( $status == 'encerrados' ) ? 'Sorteio' : 'Sorteio será realizado';
-				$dataSorteio = ( $status == 'encerrados' ) ? obter_ultima_data_sorteio( $post->ID ) : obter_proxima_data_sorteio( $post->ID );
+				$dataSorteio = ( $status == 'encerrados' ) ? obter_ultima_data_sorteio( $post->ID ) : obter_proxima_data_sorteio( $post->ID, false );
 				$post_data['subtitulo'] = $texto_subtitulo . ' ' . $dataSorteio;
 			}
 
@@ -4548,8 +4512,8 @@ function custom_posts_endpoint($request) {
 			
 			// Imagem destacada (thumbnail)
 			if (in_array('thumbnail', $selected_fields)) {
-				$thumbnail_id = get_post_thumbnail_id($post->ID);
-				$post_data['thumbnail'] = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'default-image') : '';
+				$thumbnail_url = get_the_post_thumbnail_url( $post->ID, 'default-image' );
+				$post_data['thumbnail'] = $thumbnail_url ? $thumbnail_url : get_field( 'sorteios_cortesias_placeholder', 'options' ); 
 			}
 			
 			$data[] = $post_data;
@@ -4655,13 +4619,14 @@ function custom_single_post_endpoint($request) {
 
 		if($dataSorteio && $post_type === 'sorteio'){
 			$texto_subtitulo = ($enc_inscri < $current_date) ? 'Sorteio' : 'Sorteio será realizado';
-			$post_data['subtitulo'] = $texto_subtitulo . ' ' . $dataSorteio;	
+			$post_data['subtitulo'] = $texto_subtitulo . ' ' . $dataSorteio;
+			$post_data['post_status'] = ($enc_inscri < $current_date) ? 'encerrado' : 'ativo';
 		}
 
 		if ( $post_type === 'cortesias' ) {
 			$texto_subtitulo = ($enc_inscri < $current_date)
-				? 'Evento encerrado. Consulte mais detalhes na notícia'
-				: 'Ingressos gratuitos por ordem de inscrição, enquanto houver disponibilidade';
+				? 'Benefício encerrado. Consulte mais detalhes na notícia.'
+				: 'Resgate por ordem de inscrição, conforme disponibilidade.';
 			$post_data['subtitulo'] = $texto_subtitulo;
 		}
 
@@ -4741,10 +4706,10 @@ function custom_single_post_endpoint($request) {
 						$html = str_replace('{CONTEUDO-LISTA-SORTEADOS}', $itens, $html);
 						$html = str_replace('{DATA-SORTEIO}', $dataSorteio, $html);
 						if($tipo_evento == 'premio'){
-							$texto = 'Contemplados <strong>' . $data['premio'] . '</strong>';
+							$texto = 'Contemplados ' . $data['premio'];
 							$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 						} else {
-							$texto = 'Contemplados para evento do dia <strong>' . $dataEvento . '</strong>';
+							$texto = 'Contemplados para evento do dia ' . $dataEvento;
 							$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 						}
 						$html = str_replace('{ITEM-ID}', $data['data_sorteio'] . '-' . $key, $html);
@@ -4851,13 +4816,19 @@ function custom_single_post_endpoint($request) {
     // Imagem destacada
     if (in_array('thumbnail', $selected_fields)) {
         $thumbnail_id = get_post_thumbnail_id($post->ID);
-        $post_data['thumbnail'] = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'default-image') : '';
+        $post_data['thumbnail'] = $thumbnail_id ? wp_get_attachment_image_url($thumbnail_id, 'default-image') : get_field( 'sorteios_cortesias_placeholder', 'options' );
     }
 
 	$tipo_evento = get_field('tipo_evento', $post->ID);
 	if($tipo_evento == 'premio'){
 		$datas_disponivies = get_field('evento_premios', $post->ID);
 		$post_data['tipo_evento'] = 'premio';
+		$post_data['premios'] = array();
+		if($datas_disponivies){
+			foreach ($datas_disponivies as $data) {
+				$post_data['premios'][] = esc_html( $data['premio'] );
+			}
+		}
 	} elseif ($tipo_evento == 'data') {
 		$datas_disponivies = get_field('evento_datas', $post->ID);
 	}
@@ -6263,8 +6234,8 @@ function alerta_configuracoes_incompletas_sorteio_cortesia() {
     }
 
     echo '<div class="notice notice-error">';
-    echo '<p><strong>Atenção:</strong> É necessário concluir as configurações de sorteios/cortesias.</p>';
-    echo '<p>Conclua as configurações em Opções Gerais > <a href="' . admin_url( 'admin.php?page=acf-options-gratuidade-e-sorteios' ) . '">Gratuidade e sorteios</a>.</p>';
+    echo '<p><strong>Atenção:</strong> É necessário concluir as configurações de sorteios/ordem de inscrição.</p>';
+    echo '<p>Conclua as configurações em Opções Gerais > <a href="' . admin_url( 'admin.php?page=acf-options-ordem-de-inscricao-e-sorteios' ) . '">Ordem de Inscrição e sorteios</a>.</p>';
     echo '</div>';
 }
 
@@ -6799,3 +6770,80 @@ jQuery(function($) {
 </script>
 <?php
 });
+
+// Exibe apenas evento não encerrados nas opções de seleção do campo
+add_filter('acf/fields/relationship/query/name=sorteios_cortesias_destaques', function($args) {
+
+	$agora = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+    $args['meta_query'] = [
+        [
+            'key'     => 'enc_inscri',
+            'value'   => $agora,
+            'compare' => '>=',
+            'type'    => 'NUMERIC'
+        ]
+    ];
+
+    return $args;
+
+}, 10, 1);
+
+// Remove os eventos encerrados da listagem do campo
+add_filter('acf/load_value/name=sorteios_cortesias_destaques', function($value, $post_id, $field) {
+
+    if (empty($value)) {
+        return $value;
+    }
+
+    $agora = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+    $validos = [];
+
+    foreach ($value as $evento_id) {
+        $data = get_field( 'enc_inscri', $evento_id, false );
+
+        if ( !$data ) {
+            continue;
+        }
+
+        if ( $data >= $agora ) {
+            $validos[] = $evento_id;
+        }
+    }
+
+    return $validos;
+
+}, 10, 3);
+
+/**
+ * Função para verificar se o usuário logado (Perfil servidor),
+ * está inscrito no evento Sorteio/Cortesia
+*/
+function check_usuario_inscrito_evento( int $post_id ) {
+
+	//Função desativada até que seja implementada a página de inscrições
+	return false;
+
+	global $wpdb;
+
+	$user_id = get_current_user_id();
+	$perfil_parceiro = get_user_meta( $user_id, 'parceira', true );
+
+	if ( $perfil_parceiro ) {
+		return false;
+	}
+
+	$tipo_post = get_post_type_label( $post_id );
+	$tabela_inscricoes = $tipo_post === 'cortesias' ? $wpdb->prefix . 'cortesias_inscricoes' : $wpdb->prefix . 'inscricoes';
+
+	$tem_inscricao = $wpdb->get_var(
+		$wpdb->prepare(
+			"SELECT 1
+			FROM $tabela_inscricoes
+			WHERE user_id = %d
+				AND post_id = %d",
+			$user_id, $post_id
+		)
+	);
+
+	return boolval( $tem_inscricao );
+}

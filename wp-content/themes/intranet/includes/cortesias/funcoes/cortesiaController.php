@@ -857,7 +857,7 @@ function exibeTabResultadoCortesias($idPost = false){//** OK */
 	$html = '';
 	if ($exibicaoPagina == '1') {		
 			
-        echo '<div class="row mb-4 exibir-lista-sorteados">';
+        echo '<div class="mb-4 exibir-lista-sorteados">';
             echo '<div class="col">';
                 echo '<span class="title-info">Lista de participantes</span>';
                 echo '<p>Se o seu nome estiver na lista de participantes, acompanhe o e-mail cadastrado para verificar se há necessidade de confirmação da participação.</p>';
@@ -942,12 +942,12 @@ function exibeTabResultadoCortesias($idPost = false){//** OK */
 
 					if ( $tipo_evento == 'premio' ) {
 
-						$texto = 'Contemplados <strong>' . $data['premio'] . '</strong>';
+						$texto = 'Contemplados ' . $data['premio'];
 						$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 
 					} else {
 
-						$texto = 'Contemplados para evento do dia <strong>' . $dataEvento . '</strong>';
+						$texto = 'Contemplados para evento do dia ' . $dataEvento;
 						$html = str_replace('{TEXTO-COLLAPSE}', $texto, $html);
 					}
 
