@@ -7136,3 +7136,18 @@ function ocultar_menus_admin_portal() {
 
 }
 add_action('admin_menu', 'ocultar_menus_admin_portal', 999);
+
+/**
+ * Função para retornar o perfil do usuário logado servidor/parceiro
+*/
+function get_perfil_usuario_logado() {
+
+	$user_id = get_current_user_id();
+	$perfil_parceiro = get_user_meta( $user_id, 'parceira', true );
+
+	if ( $perfil_parceiro ) {
+		return 'parceiro';
+	}
+
+	return 'servidor';
+}

@@ -783,6 +783,7 @@
 		// Ativa a aba conforme GET
 		const params = new URLSearchParams(window.location.search);
 		const filtro = params.get('filtro');
+		const tab = params.get('tab');
 
 		if(filtro === 'encerrado'){
 			$('#sort-encerrados-tab').addClass('active');
@@ -790,6 +791,14 @@
 		} else {
 			$('#sort-ativos-tab').addClass('active');
 			$('#sort-ativos').addClass('show active');
+		}
+
+		if (tab === 'minhas-inscricoes') {
+			$('#nav-tab .nav-link').removeClass('active');
+			$('#nav-tabContent .tab-pane').removeClass('show active');
+
+			$('#nav-tab .nav-link#minhas-inscricoes-tab').addClass('active');
+			$('#nav-tabContent .tab-pane#minhas-inscricoes').addClass('show active');
 		}
 		
 		$('.recent-posts-slider').slick({

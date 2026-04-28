@@ -29,6 +29,9 @@
 
     $filtro = isset($_GET['filtro']) ? $_GET['filtro'] : 'aberto'; // padrão "aberto"
     $exibicao = $filtro == 'aberto' ? 'proximo' : 'encerrados';
+    $acao = $_GET['acao'] ? sanitize_text_field( $_GET['acao'] ) : null;
+    $active_tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : null;
+
 ?>
 
 <div class="container">
@@ -41,33 +44,60 @@
                         <h2><?php echo esc_html( $titulo ); ?></h2>
                     </div>
                 <?php endif; ?>
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <div class="nav nav-tabs d-flex" id="nav-tab" role="tablist">
                     <button 
-                        class="nav-link <?= $filtro === 'aberto' ? 'active' : '' ?> col-12 col-md-4" 
+                        class="nav-link flex-fill <?= $filtro === 'aberto' ? 'active' : '' ?>" 
                         id="sort-ativos-tab" 
                         data-toggle="tab" 
-                        data-target="#sort-ativos" 
                         type="button" 
                         role="tab" 
                         aria-controls="sort-ativos" 
                         aria-selected="<?= $filtro === 'aberto' ? 'true' : 'false' ?>"
-                    >
+                        data-tab="inscricoes-abertas"
+                        data-target="<?php echo esc_url( "{$pagBusca}" ); ?>"
+                        >
                         <img src="<?php echo esc_url( get_template_directory_uri() . '/img/inscricoes-abertas-icon.png' ); ?>" alt="Inscrições abertas">
                         Inscrições Abertas
                     </button>
                     <button 
-                        class="nav-link <?= $filtro === 'encerrado' ? 'active' : '' ?> col-12 col-md-4" 
+                        class="nav-link flex-fill <?= $filtro === 'encerrado' ? 'active' : '' ?>" 
                         id="sort-encerrados-tab" 
                         data-toggle="tab" 
-                        data-target="#sort-encerrados" 
                         type="button" 
                         role="tab" 
                         aria-controls="sort-encerrados" 
                         aria-selected="<?= $filtro === 'encerrado' ? 'true' : 'false' ?>"
-                    >
-                        <img src="<?php echo esc_url( get_template_directory_uri() . '/img/inscricoes-encerradas-icon.png' ); ?>" alt="Inscrições abertas">
+                        data-tab="inscricoes-encerradas"
+                        data-target="<?php echo esc_url( "{$pagBusca}" ); ?>"
+                        >
+                        <img src="<?php echo esc_url( get_template_directory_uri() . '/img/inscricoes-encerradas-icon.png' ); ?>" alt="Inscrições encerradas">
                         Inscrições Encerradas
                     </button>
+                    <?php
+                    if ( get_sub_field( 'exibir_tab_inscricoes' ) ) :
+                        $perfil_usuario = get_perfil_usuario_logado();
+                        $perfil_permitido = get_sub_field( 'visibilidade_aba_inscricoes' );
+
+                        if ( $perfil_permitido === 'todos' || $perfil_permitido === $perfil_usuario ) :
+                            ?>
+                            <button 
+                                class="nav-link flex-fill <?= $active_tab == 'minhas-inscricoes' ? 'active' : ''; ?>" 
+                                id="minhas-inscricoes-tab" 
+                                data-toggle="tab"  
+                                type="button" 
+                                role="tab" 
+                                aria-controls="minhas-inscricoes" 
+                                aria-selected="<?= $active_tab == 'minhas-inscricoes' ? 'true' : 'false' ?>"
+                                data-tab="minhas-inscricoes"
+                                data-target="<?php echo esc_url( "{$pagSorteio}?tab=minhas-inscricoes" ); ?>"
+                                >
+                                <img src="<?php echo esc_url( get_template_directory_uri() . '/img/minhas-inscricoes-icon.png' ); ?>" alt="Minhas inscrições">
+                                Minhas inscrições
+                            </button>
+                            <?php
+                        endif;
+                    endif;
+                    ?>
                 </div>
             </nav>
 
@@ -162,7 +192,9 @@
                             <div class="col-12 col-md-3 d-flex align-items-end justify-content-end my-2 form-buttons">
                                 <input type="hidden" name="filtro" value="aberto">
                                 <a href="<?= $pagSorteio; ?>" class="btn mr-2">Limpar filtros</a>
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> Buscar</button>
+                                <button type="submit" class="btn btn-primary" name="acao" value="buscar">
+                                    <i class="fa fa-search" aria-hidden="true"></i> Buscar
+                                </button>
                             </div>
                         </div>
 
@@ -261,10 +293,111 @@
                             <div class="col-12 col-md-3 d-flex align-items-end justify-content-end my-2 form-buttons">
                                 <input type="hidden" name="filtro" value="encerrado">
                                 <a href="<?= $pagSorteio; ?>" class="btn mr-2">Limpar filtros</a>
-                                <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> Buscar</button>
+                                <button type="submit" class="btn btn-primary" name="acao" value="buscar">
+                                    <i class="fa fa-search" aria-hidden="true"></i> Buscar
+                                </button>
                             </div>
                         </div>
                         
+                        <span class="expandir-filtros py-2 px-3"><i class="fa fa-angle-down fa-lg" aria-hidden="true"></i></span>
+                    </form>
+                </div>
+
+                <!-- Tab minhas inscrições -->
+                <div class="tab-pane fade <?= $active_tab === 'minhas-inscricoes' ? 'show active' : '' ?>" id="minhas-inscricoes" role="tabpanel" aria-labelledby="minhas-incricoes-tab">
+                    <form action="<?= $pagSorteio; ?>" method="get" class="filtro-sorteios">
+                        <div class="form-row mb-2">
+                            <div class="col-md-6">
+                                <label for="nome-evento-ativo" class="form-label">Filtro minhas inscrições</label>
+                                <input type="text" class="form-control" name="nome-evento" id="nome-evento-ativo" placeholder="Digite o nome ou parte do nome do evento" value="<?php echo isset($_GET['nome-evento']) ? esc_attr($_GET['nome-evento']) : ''; ?>">
+
+                                <div class="invalid-feedback fieldError" style="display: none;">
+                                    Preencha ao menos um dos campos do formulário.
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <label for="tipo-evento-ativo" class="form-label">Tipo de Evento</label>
+                                <select class="form-control select-tipo-evento" id="tipo-evento-ativo" name="tipo-evento">
+                                    <option value="">Tipo de Evento</option>
+                                    <?php if ( $tax_tipo_eventos ) : ?>
+                                        <?php foreach ( $tax_tipo_eventos as $tax_tipo ) : ?>
+                                            <option 
+                                                value="<?php echo esc_attr($tax_tipo->term_id); ?>" 
+                                                <?php echo (isset($_GET['tipo-evento']) && $_GET['tipo-evento'] == $tax_tipo->term_id) ? 'selected' : ''; ?>
+                                                >
+                                                <?php echo esc_html( $tax_tipo->name ); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row"> 
+                            <div class="col-12 col-md-9 mt-3">
+                                <div class="form-row mais-filtros" style="display: none;"> 
+                                    <div class="col-md-8 date-group mb-2">
+                                        <label class="form-label" for="dataInicio">Busque por intervalo de datas</label>
+                                        <div class="form-row align-items-center">                            
+                                            <div class="col-12 col-sm">                                
+                                                <input 
+                                                    type="date" 
+                                                    class="form-control" 
+                                                    name="dataInicio" 
+                                                    id="dataInicio"
+                                                    value="<?php echo isset($_GET['dataInicio']) ? esc_attr($_GET['dataInicio']) : ''; ?>"
+                                                >
+                                            </div>
+                                            <div class="col-12 col-sm-auto align-self-end text-center">
+                                                <span class="text-muted">até</span>
+                                            </div>
+                                            <div class="col-12 col-sm">                                
+                                                <input 
+                                                    type="date" 
+                                                    class="form-control" 
+                                                    name="dataFim" 
+                                                    id="dataFim"
+                                                    value="<?php echo isset($_GET['dataFim']) ? esc_attr($_GET['dataFim']) : ''; ?>"
+                                                >
+                                            </div>
+                                        </div>
+
+                                        <div class="invalid-feedback dataError" style="display: none;">
+                                            A data de início não pode ser maior que a data final!
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4 mb-2">
+                                        <label for="local-ativo" class="form-label">Busque pelo Local do Evento</label>
+
+                                        <select class="form-control select-local" id="local-ativo" name="local">
+                                            <option value=''>Digite ou selecione um local</option>
+                                            <?php if ($tags) : ?>
+                                                <?php foreach ($tags as $tag) : ?>
+                                                    <option 
+                                                        value="<?php echo esc_attr($tag->term_id); ?>" 
+                                                        <?php echo (isset($_GET['local']) && $_GET['local'] == $tag->term_id) ? 'selected' : ''; ?>
+                                                    >
+                                                        <?php echo esc_html($tag->name); ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Botão de submit (opcional) -->
+                            <div class="col-12 col-md-3 d-flex align-items-end justify-content-end my-2 form-buttons">
+                                <input type="hidden" name="filtro" value="aberto">
+                                <a href="<?= $pagSorteio; ?>" class="btn mr-2">Limpar filtros</a>
+                                <button type="submit" class="btn btn-primary" name="acao" value="buscar">
+                                    <i class="fa fa-search" aria-hidden="true"></i> Buscar
+                                </button>
+                            </div>
+                        </div>
+
                         <span class="expandir-filtros py-2 px-3"><i class="fa fa-angle-down fa-lg" aria-hidden="true"></i></span>
                     </form>
                 </div>
@@ -273,74 +406,76 @@
     </div>
 </div>
 
-<?php
-// Array para armazenar as partes do texto
-$partes_texto = [];
+<?php if ( $acao && $acao === 'buscar' ) : ?>
+    <?php
+    // Array para armazenar as partes do texto
+    $partes_texto = [];
 
-if(isset($_GET['nome-evento']) && $_GET['nome-evento'] != ''){
-    $partes_texto[] = sanitize_text_field($_GET['nome-evento']);
-}
+    if(isset($_GET['nome-evento']) && $_GET['nome-evento'] != ''){
+        $partes_texto[] = sanitize_text_field($_GET['nome-evento']);
+    }
 
-// Verifica e processa as datas
-$data_inicio = isset($_GET['dataInicio']) ? sanitize_text_field($_GET['dataInicio']) : '';
-$data_fim = isset($_GET['dataFim']) ? sanitize_text_field($_GET['dataFim']) : '';
+    // Verifica e processa as datas
+    $data_inicio = isset($_GET['dataInicio']) ? sanitize_text_field($_GET['dataInicio']) : '';
+    $data_fim = isset($_GET['dataFim']) ? sanitize_text_field($_GET['dataFim']) : '';
 
-if (!empty($data_inicio) && !empty($data_fim)) {
-    if (!empty($partes_texto)) {
-            $partes_texto[] = "| " . formatar_data($data_inicio) . " até " . formatar_data($data_fim);
-    } else {
-        $partes_texto[] = formatar_data($data_inicio) . " até " . formatar_data($data_fim);
-    }    
-}
-
-// Verifica e processa o local (tag)
-if (isset($_GET['local']) && !empty($_GET['local'])) {
-    $tag_id = intval($_GET['local']);
-    $tag = get_tag($tag_id);
-    
-    if ($tag && !is_wp_error($tag)) {
+    if (!empty($data_inicio) && !empty($data_fim)) {
         if (!empty($partes_texto)) {
-            $partes_texto[] = "| " . $tag->name;
+                $partes_texto[] = "| " . formatar_data($data_inicio) . " até " . formatar_data($data_fim);
         } else {
-            $partes_texto[] = $tag->name;
+            $partes_texto[] = formatar_data($data_inicio) . " até " . formatar_data($data_fim);
+        }    
+    }
+
+    // Verifica e processa o local (tag)
+    if (isset($_GET['local']) && !empty($_GET['local'])) {
+        $tag_id = intval($_GET['local']);
+        $tag = get_tag($tag_id);
+        
+        if ($tag && !is_wp_error($tag)) {
+            if (!empty($partes_texto)) {
+                $partes_texto[] = "| " . $tag->name;
+            } else {
+                $partes_texto[] = $tag->name;
+            }
         }
     }
-}
 
-// Verifica e processa o tipo de evento (taxonomia de genero)
-if ( isset( $_GET['tipo-evento'] ) && !empty( $_GET['tipo-evento'] ) ) {
-    $tipo_evento_id = intval( $_GET['tipo-evento'] );
-    $tax_tipo_evento = get_term_by( 'term_id', $tipo_evento_id, 'genero' );
-    
-    if ( $tax_tipo_evento && !is_wp_error( $tax_tipo_evento ) ) {
-        if ( !empty( $partes_texto ) ) {
-            $partes_texto[] = "| " . $tax_tipo_evento->name;
-        } else {
-            $partes_texto[] = $tax_tipo_evento->name;
+    // Verifica e processa o tipo de evento (taxonomia de genero)
+    if ( isset( $_GET['tipo-evento'] ) && !empty( $_GET['tipo-evento'] ) ) {
+        $tipo_evento_id = intval( $_GET['tipo-evento'] );
+        $tax_tipo_evento = get_term_by( 'term_id', $tipo_evento_id, 'genero' );
+        
+        if ( $tax_tipo_evento && !is_wp_error( $tax_tipo_evento ) ) {
+            if ( !empty( $partes_texto ) ) {
+                $partes_texto[] = "| " . $tax_tipo_evento->name;
+            } else {
+                $partes_texto[] = $tax_tipo_evento->name;
+            }
         }
     }
-}
 
-// Monta o texto final se houver filtros
-if (!empty($partes_texto)) {
-    if($_GET['filtro'] == 'aberto'){
-        $textoTitulo = "EVENTOS - Inscrições Abertas";
-        $status_prefix = '';
-    } else if($_GET['filtro'] == 'encerrado'){
-        $textoTitulo = "EVENTOS - Inscrições Encerradas";
-        $status_prefix = 'ENCERRADO - ';
-    }
-    echo '<div class="container">';
-        echo '<div class="row">';
-            echo '<div class="col-sm-12">';
-                echo '<div class="resultados-filtro mb-4">';
-                    echo '<a href="' . $pagSorteio . '"><strong>' . $textoTitulo . '</strong></a> / Resultados para: ' . implode(' ', $partes_texto);
+    // Monta o texto final se houver filtros
+    if (!empty($partes_texto)) {
+        if($_GET['filtro'] == 'aberto'){
+            $textoTitulo = "EVENTOS - Inscrições Abertas";
+            $status_prefix = '';
+        } else if($_GET['filtro'] == 'encerrado'){
+            $textoTitulo = "EVENTOS - Inscrições Encerradas";
+            $status_prefix = 'ENCERRADO - ';
+        }
+        echo '<div class="container">';
+            echo '<div class="row">';
+                echo '<div class="col-sm-12">';
+                    echo '<div class="resultados-filtro mb-4">';
+                        echo '<a href="' . $pagSorteio . '"><strong>' . $textoTitulo . '</strong></a> / Resultados para: ' . implode(' ', $partes_texto);
+                    echo '</div>';
                 echo '</div>';
             echo '</div>';
         echo '</div>';
-    echo '</div>';
-}
-?>
+    }
+    ?>
+<?php endif; ?>
 
 <div class="container">
     <div class="row">
@@ -373,74 +508,77 @@ if (!empty($partes_texto)) {
                     'post__not_in' => $sticky,   
                 );
 
-                if( isset($_GET['nome-evento']) && $_GET['nome-evento'] != ''){
-                    $args_for_query1['s'] = $_GET['nome-evento'];
-                    $args_for_query2['s'] = $_GET['nome-evento'];
-                }
+                if ( $acao && $acao === 'buscar' ) {
 
-                // Filtro por TAG (se passado via $_GET)
-                if (isset($_GET['local']) && !empty($_GET['local'])) {
-                    $tag_id = intval($_GET['local']); 
+                    if( isset($_GET['nome-evento']) && $_GET['nome-evento'] != ''){
+                        $args_for_query1['s'] = $_GET['nome-evento'];
+                        $args_for_query2['s'] = $_GET['nome-evento'];
+                    }
+
+                    // Filtro por TAG (se passado via $_GET)
+                    if (isset($_GET['local']) && !empty($_GET['local'])) {
+                        $tag_id = intval($_GET['local']); 
+                        
+                        $args_for_query1['tax_query'][] = array(
+                            'taxonomy' => 'post_tag',
+                            'field'    => 'term_id',
+                            'terms'    => $tag_id,
+                        );
+
+                        $args_for_query2['tax_query'][] = array(
+                            'taxonomy' => 'post_tag',
+                            'field'    => 'term_id',
+                            'terms'    => $tag_id,
+                        );
+                    }
+
+                    // Filtro por Tipo de Evento (se passado via $_GET)
+                    if (isset($_GET['tipo-evento']) && !empty($_GET['tipo-evento'])) {
+                        $tipo_evento_id = intval( $_GET['tipo-evento'] ); 
+                        
+                        $args_for_query1['tax_query'][] = array(
+                            'taxonomy' => 'genero',
+                            'field'    => 'term_id',
+                            'terms'    => $tipo_evento_id,
+                        );
+
+                        $args_for_query2['tax_query'][] = array(
+                            'taxonomy' => 'genero',
+                            'field'    => 'term_id',
+                            'terms'    => $tipo_evento_id,
+                        );
+                    }
                     
-                    $args_for_query1['tax_query'][] = array(
-                        'taxonomy' => 'post_tag',
-                        'field'    => 'term_id',
-                        'terms'    => $tag_id,
-                    );
+                    if( isset($_GET['dataInicio']) && $_GET['dataInicio'] != '' && isset($_GET['dataFim']) && $_GET['dataFim'] != ''){
+                        $data_inicial = $_GET['dataInicio'] . ' 00:00:00';
+                        $data_final   = $_GET['dataFim'] . ' 23:59:59';
 
-                    $args_for_query2['tax_query'][] = array(
-                        'taxonomy' => 'post_tag',
-                        'field'    => 'term_id',
-                        'terms'    => $tag_id,
-                    );
-                }
+                        $args_for_query1['meta_query'][] = array(
+                            [
+                                'key'     => 'evento_datas_$_data', // % pega qualquer índice do repeater
+                                'value'   => [ $data_inicial, $data_final ],
+                                'compare' => 'BETWEEN',
+                                'type'    => 'DATETIME',
+                            ],
+                            [
+                                'key' => 'tipo_evento',
+                                'value' => 'data',
+                            ]
+                        );
 
-                // Filtro por Tipo de Evento (se passado via $_GET)
-                if (isset($_GET['tipo-evento']) && !empty($_GET['tipo-evento'])) {
-                    $tipo_evento_id = intval( $_GET['tipo-evento'] ); 
-                    
-                    $args_for_query1['tax_query'][] = array(
-                        'taxonomy' => 'genero',
-                        'field'    => 'term_id',
-                        'terms'    => $tipo_evento_id,
-                    );
-
-                    $args_for_query2['tax_query'][] = array(
-                        'taxonomy' => 'genero',
-                        'field'    => 'term_id',
-                        'terms'    => $tipo_evento_id,
-                    );
-                }
-                
-                if( isset($_GET['dataInicio']) && $_GET['dataInicio'] != '' && isset($_GET['dataFim']) && $_GET['dataFim'] != ''){
-                    $data_inicial = $_GET['dataInicio'] . ' 00:00:00';
-                    $data_final   = $_GET['dataFim'] . ' 23:59:59';
-
-                    $args_for_query1['meta_query'][] = array(
-                        [
-                            'key'     => 'evento_datas_$_data', // % pega qualquer índice do repeater
-                            'value'   => [ $data_inicial, $data_final ],
-                            'compare' => 'BETWEEN',
-                            'type'    => 'DATETIME',
-                        ],
-                        [
-                            'key' => 'tipo_evento',
-                            'value' => 'data',
-                        ]
-                    );
-
-                    $args_for_query2['meta_query'][] = array(
-                        [
-                            'key'     => 'evento_datas_$_data', // % pega qualquer índice do repeater
-                            'value'   => [ $data_inicial, $data_final ],
-                            'compare' => 'BETWEEN',
-                            'type'    => 'DATETIME',
-                        ],
-                        [
-                            'key' => 'tipo_evento',
-                            'value' => 'data',
-                        ]
-                    );
+                        $args_for_query2['meta_query'][] = array(
+                            [
+                                'key'     => 'evento_datas_$_data', // % pega qualquer índice do repeater
+                                'value'   => [ $data_inicial, $data_final ],
+                                'compare' => 'BETWEEN',
+                                'type'    => 'DATETIME',
+                            ],
+                            [
+                                'key' => 'tipo_evento',
+                                'value' => 'data',
+                            ]
+                        );
+                    }
                 }
 
                 // Data de hoje no mesmo formato que o ACF salva (ex: Y-m-d ou Y-m-d H:i:s)
@@ -866,30 +1004,39 @@ if (!empty($partes_texto)) {
             }
         });
 
+        jQuery('button[data-tab]').on('click', function (e) {
+            e.preventDefault();
 
-        // ---- Sincronização entre os dois forms ----
-        function syncFields(selector) {
-            jQuery(document).on('input change', selector, function(e, triggeredBySync) {
-                if (triggeredBySync) return; // evita loop infinito
+            const tab = jQuery(this).data('tab');
+            const params = new URLSearchParams(window.location.search);
+            const page =  jQuery('.tab-pane.active form').attr('action');
 
-                const name = jQuery(this).attr('name');
-                const value = jQuery(this).val();
-
-                // Atualiza os outros campos de mesmo name
-                jQuery(`input[name="${name}"], select[name="${name}"]`).not(this).each(function() {
-                    if (jQuery(this).val() !== value) {
-                        jQuery(this).val(value).trigger('change', [true]); 
-                    }
-                });
+            jQuery('.tab-pane.active form').not('[type="hidden"]').serializeArray().forEach(field => {
+                if (field.value) {
+                    params.set(field.name, field.value);
+                }
             });
-        }
 
-        // Sincronizar estes campos:
-        syncFields('input[name="nome-evento"]');
-        syncFields('input[name="dataInicio"]');
-        syncFields('input[name="dataFim"]');
-        syncFields('select[name="local"]');
-        syncFields('select[name="tipo-evento"]');
+            if (tab === 'inscricoes-abertas') {
+                params.delete('tab');
+                params.set('filtro', 'aberto');
+
+                return window.location.href = `${jQuery(this).data('target')}?${params.toString()}`;
+            }
+
+            if (tab === 'inscricoes-encerradas') {
+                params.delete('tab');
+                params.set('filtro', 'encerrado');
+
+                return window.location.href = `${jQuery(this).data('target')}?${params.toString()}`;
+            }
+
+            if (tab === 'minhas-inscricoes') {
+                return window.location.href = jQuery(this).data('target');
+            }
+
+            window.location.href = `${page}?${params.toString()}`;
+        });
 
     });
 
