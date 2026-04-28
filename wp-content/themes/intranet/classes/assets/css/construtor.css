@@ -2410,6 +2410,7 @@ form#commentform {
 #filtro-eventos #nav-tab .nav-link {
     font-size: 1.1rem;
     font-weight: 700;
+    color: #596063;
     margin-top: 1.5rem;
     margin-bottom: 1.5rem;
     margin-right: 15px;
@@ -2423,6 +2424,7 @@ form#commentform {
 }
 
 #filtro-eventos #nav-tab .nav-link.active {
+    color: #14447C;
     border: 1.5px solid #14447C;
 }
 
@@ -2488,4 +2490,37 @@ form#commentform {
 .btn.disabled, .btn:disabled {
     opacity: .65;
     cursor: not-allowed;
+}
+
+/* Links de acesso rápido (fx_cl1_links_acesso_rapido_1_1) */
+#acesso-rapido .custom-card {
+
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 45.67%, rgba(229, 229, 229, 0.3) 100%);
+    border-radius:16px;
+    padding:30px 25px;
+    box-shadow:0 10px 25px rgba(0,0,0,0.08);
+    transition:all .2s ease;
+    display:flex;
+    flex-direction:column;
+    justify-content:flex-start;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: #313131;
+    text-decoration: none;
+}
+
+#acesso-rapido .custom-card:hover {
+    transform:translateY(-4px);
+    box-shadow:0 15px 35px rgba(0,0,0,0.12);
+}
+
+#acesso-rapido .custom-card .card-title {
+    font-weight: bold;
+    font-size: 20px;
+    color: #363636;
+}
+
+#acesso-rapido .custom-card .card-image img{
+    max-height:120px;
 }

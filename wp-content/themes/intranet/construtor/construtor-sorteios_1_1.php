@@ -1,3 +1,10 @@
+<?php
+$tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : null;
+if ( $tab === 'minhas-inscricoes' ) {
+    return get_template_part( 'construtor/construtor', 'minhas_inscricoes' );
+}
+?>
+
 <div class="container">
     <div class="row">
         <div class="col-12">
