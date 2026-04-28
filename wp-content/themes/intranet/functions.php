@@ -48,7 +48,7 @@ function custom_setup() {
 	}
 
 	if (function_exists('add_image_size')) {
-		add_image_size('home-thumb', 250, 166);
+		add_image_size('home-thumb', 578, 470, true);
 		add_image_size('default-image', 825, 470, true);
 		add_image_size('img-dest', 1000, 400, true);
 	}
@@ -4156,12 +4156,13 @@ add_action('wp_ajax_nopriv_cancelar_inscricao', 'cancelar_inscricao'); // Para u
  * 
  * @param string $data_original Data no formato dd/mm/yyyy
  * @param bool $capitalizar Se true, capitaliza o primeiro caractere (padrão: true)
+ * @param bool $semana Se true, inclui o dia da semana (padrão: true)
  * @return string Data formatada ou string vazia em caso de erro
  */
-function formatar_data_por_extenso($data_original, $capitalizar = true) {
-    
-	$data = null;
-    
+function formatar_data_por_extenso($data_original, $capitalizar = true, $semana = true) {
+
+    $data = null;
+
     // Verifica se a data está no formato dd/mm/aaaa
     if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $data_original)) {
         $data = DateTime::createFromFormat('d/m/Y', $data_original);
@@ -4170,12 +4171,17 @@ function formatar_data_por_extenso($data_original, $capitalizar = true) {
     elseif (preg_match('/^\d{8}$/', $data_original)) {
         $data = DateTime::createFromFormat('Ymd', $data_original);
     }
-    
+
     if ($data === false) {
         return '';
     }
 
-    // Tenta usar IntlDateFormatter (mais moderno)
+    // Define o formato dependendo se deve mostrar o dia da semana
+    $formato = $semana
+        ? "EEEE, 'dia' d 'de' MMMM 'de' yyyy"
+        : "'dia' d 'de' MMMM 'de' yyyy";
+
+    // Tenta usar IntlDateFormatter
     if (class_exists('IntlDateFormatter')) {
         try {
             $formatter = new IntlDateFormatter(
@@ -4184,21 +4190,22 @@ function formatar_data_por_extenso($data_original, $capitalizar = true) {
                 IntlDateFormatter::NONE,
                 null,
                 null,
-                "EEEE, d 'de' MMMM 'de' yyyy"
+                $formato
             );
+
             $data_formatada = $formatter->format($data);
-            
+
             if ($capitalizar) {
                 $data_formatada = mb_convert_case($data_formatada, MB_CASE_TITLE, "UTF-8");
             }
-            
+
             return $data_formatada;
         } catch (Exception $e) {
-            // Continua para o método alternativo se falhar
+            // Continua para método alternativo
         }
     }
 
-    // Método alternativo para quando Intl não está disponível
+    // Método alternativo
     $dias_semana = array(
         'Sunday'    => 'Domingo',
         'Monday'    => 'Segunda-feira',
@@ -4224,16 +4231,25 @@ function formatar_data_por_extenso($data_original, $capitalizar = true) {
         'December'  => 'dezembro'
     );
 
-    $dia_semana_ingles = $data->format('l');
     $mes_ingles = $data->format('F');
-    
-    $data_formatada = sprintf(
-        '%s, %d de %s de %Y',
-        $dias_semana[$dia_semana_ingles],
-        $data->format('d'),
-        $meses[$mes_ingles],
-        $data->format('Y')
-    );
+
+    if ($semana) {
+        $dia_semana_ingles = $data->format('l');
+        $data_formatada = sprintf(
+            '%s, dia %d de %s de %Y',
+            $dias_semana[$dia_semana_ingles],
+            $data->format('d'),
+            $meses[$mes_ingles],
+            $data->format('Y')
+        );
+    } else {
+        $data_formatada = sprintf(
+            'dia %d de %s de %Y',
+            $data->format('d'),
+            $meses[$mes_ingles],
+            $data->format('Y')
+        );
+    }
 
     if ($capitalizar) {
         $data_formatada = mb_convert_case($data_formatada, MB_CASE_TITLE, "UTF-8");
@@ -4301,12 +4317,24 @@ add_action('rest_api_init', function() {
 					return is_string($param); // Validação básica
 				}
 			],
+			'genero_ids' => [
+				'description' => 'IDs dos tipos de evento (genero) para filtrar (separados por vírgula)',
+				'type' => 'string',
+				'validate_callback' => function( $param ) {
+					return is_string( $param );
+				}
+			],
 			'search' => [
 				'description' => 'Nome do evento a ser buscado',
 				'type' => 'string',
 				'validate_callback' => function($param) {
 					return is_string($param); // Validação básica
 				}
+			],
+			'ignore_sticky_posts' => [
+				'description' => 'Ignora posts fixos (sticky)',
+				'type' => 'boolean',
+				'default' => false,
 			],
         ],
         'permission_callback' => '__return_true'
@@ -4330,11 +4358,11 @@ add_action('rest_api_init', function() {
 function custom_posts_endpoint($request) {
 
 	$status = $request->get_param('status');
-	$filtro = $request->get_param('filtro');
 
 	global $wpdb;
 
 	$sticky = get_option( 'sticky_posts' );
+	$ignore_sticky_posts = $request->get_param('ignore_sticky_posts');
 
     $args1 = [
         'post_type' => ['post', 'cortesias'],
@@ -4351,6 +4379,11 @@ function custom_posts_endpoint($request) {
 		'fields' => 'ids',
 		'post__not_in' => $sticky, 
     ];
+
+	if($ignore_sticky_posts){
+		$args2['post__not_in'] = [];
+		$args2['ignore_sticky_posts'] = 1;
+	}
     
 	// Adiciona tag se fornecido
     if ($tag_ids = $request->get_param('tag_ids')) {				
@@ -4365,6 +4398,22 @@ function custom_posts_endpoint($request) {
 			'taxonomy' => 'post_tag',
 			'field'    => 'term_id',
 			'terms'    => $tag_ids,
+		);		
+    }
+
+	// Adiciona tipo de evento (genero) se fornecido
+	if ( $genero_ids = $request->get_param( 'genero_ids' ) ) {				
+
+		$args1['tax_query'][] = array(
+			'taxonomy' => 'genero',
+			'field'    => 'term_id',
+			'terms'    => $genero_ids,
+		);
+		
+		$args2['tax_query'][] = array(
+			'taxonomy' => 'genero',
+			'field'    => 'term_id',
+			'terms'    => $genero_ids,
 		);		
     }
     
@@ -4428,7 +4477,11 @@ function custom_posts_endpoint($request) {
 
     $selected_fields = explode(',', $request->get_param('fields'));
 
-	$allTheIDs = array_merge($query1->posts,$query2->posts);
+	if($ignore_sticky_posts){
+		$allTheIDs = $query2->posts;
+	} else {
+		$allTheIDs = array_merge($query1->posts,$query2->posts);
+	}
 
 	if($status == 'encerrados'){
 		$args = array(
@@ -4469,6 +4522,11 @@ function custom_posts_endpoint($request) {
 			if (in_array('date', $selected_fields)) $post_data['date'] = $post->post_date;
 			if (in_array('slug', $selected_fields)) $post_data['slug'] = $post->post_name;
 
+			$current_date = date('Ymd');
+			$enc_inscri = get_field('enc_inscri', $post->ID);
+			$status = ($enc_inscri < $current_date) ? 'encerrados' : 'ativos';
+			$post_data['status'] = $status;
+
 			$categories = get_the_category($post->ID);
 
 			// Extrai apenas os nomes das categorias
@@ -4484,15 +4542,14 @@ function custom_posts_endpoint($request) {
 
 			if ( $post_type === 'cortesias' ) {
 				$post_data['subtitulo'] = ( $status == 'encerrados' )
-					? 'Evento encerrado. Consulte mais detalhes na notícia'
-					: 'Ingressos gratuitos por ordem de inscrição, enquanto houver disponibilidade'; 
+					? 'Benefício encerrado. Consulte mais detalhes na notícia.'
+					: 'Resgate por ordem de inscrição, conforme disponibilidade.'; 
 			} else {
 
 				$texto_subtitulo = ( $status == 'encerrados' ) ? 'Sorteio' : 'Sorteio será realizado';
 				$dataSorteio = ( $status == 'encerrados' ) ? obter_ultima_data_sorteio( $post->ID ) : obter_proxima_data_sorteio( $post->ID, false );
 				$post_data['subtitulo'] = $texto_subtitulo . ' ' . $dataSorteio;
 			}
-
 			
 			$totalrow = $wpdb->get_results( "SELECT id FROM $wpdb->post_like_table WHERE postid = '$post->ID'");
 			$total_like = $wpdb->num_rows;
@@ -4501,6 +4558,27 @@ function custom_posts_endpoint($request) {
 
 			//Tipo de post: Sorteio ou Cortesia
 			$post_data['post_type'] = $post_type;
+
+			$tag_id = get_field('local', $post->ID);
+			if ($tag_id) {
+				$tag = get_term($tag_id, 'post_tag');
+
+				if (!is_wp_error($tag)) {
+					$post_data['local_nome'] = $tag->name;
+				}
+			}
+
+			$tipo_evento = get_field('tipo_evento', $post->ID);
+			if ($tipo_evento == 'data') {
+				$datas_disponiveis = array();
+				$datas_eventos = get_field('evento_datas', $post->ID);
+				if($datas_eventos){
+					foreach ($datas_eventos as $data_evento) {
+						$datas_disponiveis[] = $data_evento['data'];
+					}
+					$post_data['datas_disponiveis'] = filtrar_ordenar_datas_futuras($datas_disponiveis);
+				}
+			}
 
 			// Custom fields (meta)
 			if (in_array('meta', $selected_fields)) {
@@ -5656,34 +5734,50 @@ function buscar_datas_inscricao() {
 // Retorna a data/hora do evento formatada (Eventos de única e multiplas datas)
 function obter_datas_evento_formatadas(int $post_id) {
 
-	if ($datas_evento = get_field('evento_datas', $post_id)) {
+    $dias_semana = [
+        'Sunday' => 'domingo',
+        'Monday' => 'segunda-feira',
+        'Tuesday' => 'terça-feira',
+        'Wednesday' => 'quarta-feira',
+        'Thursday' => 'quinta-feira',
+        'Friday' => 'sexta-feira',
+        'Saturday' => 'sábado',
+    ];
 
-		$lista_datas = array_map(function ($item) {
+    if ($datas_evento = get_field('evento_datas', $post_id)) {
 
-			// $item['data'] contém data e hora no formato Y-m-d H:i:s
-			$data_hora = $item['data'];
+        $lista_datas = array_map(function ($item) use ($dias_semana) {
 
-			$data_formatada = date('d/m/Y', strtotime($data_hora));
+            $data_hora = $item['data'];
+            $timestamp = strtotime($data_hora);
 
-			// Pega a hora formatada, adaptando sua função para receber o datetime completo
-			$hora_formatada = obter_hora_formatada($data_hora);
+            $data_formatada = date('d/m', $timestamp);
+            $hora_formatada = obter_hora_formatada($data_hora);
 
-			return "<span>{$data_formatada} {$hora_formatada}</span>";
+            $dia_semana_en = date('l', $timestamp);
+            $dia_semana = $dias_semana[$dia_semana_en];
 
-		}, $datas_evento);
+            return "{$data_formatada} às {$hora_formatada} – {$dia_semana}";
 
-		return implode('', $lista_datas);
-	}
+        }, $datas_evento);
 
-	if ($data_evento = get_field('data_evento', $post_id)) {
+        return implode('<br>', $lista_datas);
+    }
 
-		$data_formatada = date('d/m/Y', strtotime($data_evento));
-		$hora_formatada = obter_hora_formatada($data_evento);
+    if ($data_evento = get_field('data_evento', $post_id)) {
 
-		return "{$data_formatada} {$hora_formatada}";
-	}
+        $timestamp = strtotime($data_evento);
 
-	return null;
+        $data_formatada = date('d/m', $timestamp);
+        $hora_formatada = obter_hora_formatada($data_evento);
+
+        $dia_semana_en = date('l', $timestamp);
+        $dia_semana = $dias_semana[$dia_semana_en];
+
+        return "{$data_formatada} às {$hora_formatada} – {$dia_semana}";
+    }
+
+    return null;
 }
 
 // Retorna a hora no formato necessário para a exibição nos sorteios
