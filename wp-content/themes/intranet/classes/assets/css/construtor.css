@@ -2524,3 +2524,89 @@ form#commentform {
 #acesso-rapido .custom-card .card-image img{
     max-height:120px;
 }
+
+/* Tabela de listagem de inscrições. Aba de "Minhas inscrições". */
+
+div#minhas-inscricoes #tabela-inscricoes-participante {
+    font-family: 'Open Sans', sans-serif;
+    color: #1E1E1E;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+div#minhas-inscricoes #tabela-inscricoes-participante tbody tr,
+div#minhas-inscricoes #tabela-inscricoes-participante thead {
+    background-color: #FFFFFF;
+}
+
+div#minhas-inscricoes #tabela-inscricoes-participante tbody tr:nth-of-type(odd) {
+    background-color: #F9F9F9;
+}
+div#minhas-inscricoes #tabela-inscricoes-participante th,
+div#minhas-inscricoes #tabela-inscricoes-participante td {
+    border: 1px solid #F0F0F0;
+}
+
+div#minhas-inscricoes #tabela-inscricoes-participante a{
+    text-decoration: none;
+    color: #1E1E1E;
+}
+
+div#minhas-inscricoes #tabela-inscricoes-participante td .sorteio{
+    color: #14447C;
+}
+
+div#minhas-inscricoes #tabela-inscricoes-participante td .prazo-expirado,
+div#minhas-inscricoes #tabela-inscricoes-participante td .cortesia {
+    color: #e66f20;
+}
+
+div#minhas-inscricoes #tabela-inscricoes-participante td .presenca-confirmada,
+div#minhas-inscricoes #tabela-inscricoes-participante #resultado-inscricao strong {
+    color: #327D37;
+}
+
+.tabela-scroll {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tabela-scroll table {
+    min-width: 900px;
+}
+
+div#minhas-inscricoes .modal .modal-dialog {
+    width: 100%;
+    max-width: 900px;
+}
+
+div#minhas-inscricoes .modal .modal-content .modal-body p {
+    font-size: 1rem;
+}
+
+div#minhas-inscricoes .dataTables_paginate {
+    float: none !important;
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+div#minhas-inscricoes .dataTables_paginate .paginate_button {
+    border: 1px solid #F1F1F1;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background-color: #FFFFFF;
+    color: #333333 !important;
+}
+
+div#minhas-inscricoes .dataTables_paginate .paginate_button:hover {
+    background: #14447C !important;
+    color: #FFFFFF !important;
+}
+
+div#minhas-inscricoes .dataTables_paginate .paginate_button.current {
+    background: #14447C !important;
+    color: #FFFFFF !important;
+}

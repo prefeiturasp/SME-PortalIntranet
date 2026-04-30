@@ -6727,6 +6727,7 @@ function buscar_email_instrucao(){
             dest.email_secundario,
             env.data_envio,
             env.mensagem,
+			env.anexo,
             p.post_title,
 			u.display_name
 
@@ -6751,6 +6752,7 @@ function buscar_email_instrucao(){
     );
 
     $result = $wpdb->get_row($query);
+	$upload_dir = wp_upload_dir();
 
     if(!$result){
 
@@ -6766,7 +6768,8 @@ function buscar_email_instrucao(){
         'evento'        => $result->post_title,
         'admin'         => $result->display_name,
         'data_envio'    => date('d/m/Y H:i', strtotime($result->data_envio)),
-        'mensagem'      => $result->mensagem
+        'mensagem'      => $result->mensagem,
+		'anexo'			=> $result->anexo ? str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $result->anexo ) : null,
 
     ]);
 }
