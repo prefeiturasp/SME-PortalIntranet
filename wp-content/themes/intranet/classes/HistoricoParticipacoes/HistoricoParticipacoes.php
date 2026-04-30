@@ -261,7 +261,7 @@ class Historico_Participacoes {
         return $dados_mais_recentes;
     }
 
-    private function get_eventos_participante(string $cpf) {
+    public function get_eventos_participante(string $cpf) {
 
         global $wpdb;
 
@@ -340,7 +340,7 @@ class Historico_Participacoes {
         return $wpdb->get_results($query);
     }
 
-    private function check_sancao_ativa_participante( string $cpf ) {
+    public function check_sancao_ativa_participante( string $cpf ) {
         global $wpdb;
 
         $hoje = obter_data_com_timezone( 'Y-m-d', 'America/Sao_Paulo' );
@@ -348,7 +348,7 @@ class Historico_Participacoes {
 
         return $wpdb->get_row(
             $wpdb->prepare(
-                "SELECT id, data_validade FROM $tabela_sancoes WHERE cpf = %s AND data_validade > %s",
+                "SELECT id, id_inscricao, data_validade FROM $tabela_sancoes WHERE cpf = %s AND data_validade > %s",
                 $cpf,
                 $hoje
             ),

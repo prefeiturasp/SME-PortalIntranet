@@ -327,3 +327,106 @@ jQuery(function($) {
         atualizarFiltro($(this), 'hide.bs.collapse')
     });
 })
+
+/* Scripts da tabela de listagem das inscrições do usuário aba "Minhas Inscrições" */
+
+jQuery(function ($) {
+
+    const $table = $('#minhas-inscricoes #tabela-inscricoes-participante');
+
+    let instance = $table.DataTable({
+        pageLength: 10,
+        lengthChange: false,
+        ordering: false,
+        paging: true,
+        searching: false,
+        info: false,
+        stripeClasses: [],
+        autoWidth: false,
+        responsive: false,
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json',
+            searchPlaceholder: 'Sorteados',
+            paginate: {
+                previous: '<i class="fa fa-chevron-left"></i>',
+                next: '<i class="fa fa-chevron-right"></i>'
+            }
+        },
+        pagingType: "simple_numbers",
+        dom: 'rtip',
+    });
+
+    $table.removeClass('dataTable');
+    $table.removeClass('table-responsive');
+});
+
+/* Scripts do modal de instruções da listagem das inscrições do usuário aba "Minhas Inscrições" */
+
+jQuery(function($){
+
+    $(document).on('click', '.ver-email-instrucao', function(e){
+
+        e.preventDefault();
+
+        var inscricao_id = $(this).data('inscricao');
+
+        $('#email-participante-nome').text('');
+        $('#email-participante-email1').text('');
+        $('#email-participante-email2').text('');
+
+        $('.content-attachment').hide();
+        $('.content-attachment a').attr('href', '');
+
+        $('#email-evento').text('');
+        $('#email-data').text('');
+
+        $('#email-mensagem').html('Carregando...');
+
+        $.ajax({
+
+            url: ajax_obj.ajax_url,
+            type: 'POST',
+
+            data:{
+                action: 'buscar_email_instrucao',
+                inscricao_id: inscricao_id
+            },
+
+            success:function(response){
+                console.log(response)
+                if(response.success){
+
+                    $('#email-participante-nome').text(response.data.nome);
+                    $('#email-participante-email1').text(response.data.email1);
+                    $('#email-participante-email2').text(response.data.email2);
+                    $('#email-evento').text(response.data.evento);
+                    $('#email-data').text(response.data.data_envio);
+                    $('#email-mensagem').html(response.data.mensagem);
+
+                    if(response.data.anexo) {
+                        $('.content-attachment a').attr('href', response.data.anexo);
+                        $('.content-attachment').show();
+                    }
+
+                }else{
+
+                    $('#email-mensagem').html('Nenhuma informação encontrada.');
+
+                }
+
+                $('#modalEmailInstrucao').modal('show');
+
+            },
+
+            error:function(){
+
+                $('#email-mensagem').html('Erro ao carregar os dados.');
+                $('#modalEmailInstrucao').modal('show');
+
+            }
+
+        });
+
+    });
+
+});
