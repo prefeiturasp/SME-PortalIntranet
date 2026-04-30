@@ -5394,7 +5394,8 @@ include_once get_template_directory() . '/includes/cortesias/funcoes/cortesiaCon
 function alterar_rotulo_descricao_para_endereco() {
     $screen = get_current_screen();
 
-    if ( $screen && $screen->taxonomy === 'post_tag' ) {
+    if ( $screen && ( $screen->taxonomy === 'post_tag' || $screen->taxonomy === 'locais' ) ) {
+		$text_helper = ($screen->taxonomy === 'locais') ? 'Insira o endereço do local cadastrado para mostrar na publicação da oportunidade.' : 'Insira o endereço do local cadastrado para mostrar na publicação do sorteio.';
         ?>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -5405,8 +5406,8 @@ function alterar_rotulo_descricao_para_endereco() {
                 }
 
                 const addHelp = document.querySelector('#description-description');
-                if (addHelp) {
-                    addHelp.textContent = 'Insira o endereço do local cadastrado para mostrar na publicação do sorteio.';
+                if (addHelp) {					
+					addHelp.textContent = '<?= $text_helper; ?>';						
                 }
 
                 // Edição de Local existente (formulário com <tr>)
@@ -5416,8 +5417,8 @@ function alterar_rotulo_descricao_para_endereco() {
                 }
 
                 const editHelp = document.querySelector('#description-description');
-                if (editHelp) {
-                    editHelp.textContent = 'Insira o endereço do local cadastrado para mostrar na publicação do sorteio.';
+                if (editHelp) {					
+					editHelp.textContent = '<?= $text_helper; ?>';					
                 }
             });
         </script>
@@ -5436,61 +5437,76 @@ function alterar_coluna_descricao_para_endereco($columns) {
     return $columns;
 }
 add_filter('manage_edit-post_tag_columns', 'alterar_coluna_descricao_para_endereco');
+add_filter('manage_edit-locais_columns', 'alterar_coluna_descricao_para_endereco');
 
 
 // Preencher o campo de endereço com a descrição do local selecionado
-add_action('acf/input/admin_footer', 'acf_local_atualiza_endereco_com_observer');
-function acf_local_atualiza_endereco_com_observer() {
-    $screen = get_current_screen();
-    if ($screen->post_type !== 'post') return;
+add_action('acf/input/admin_footer', 'acf_auto_preencher_taxonomia');
+function acf_auto_preencher_taxonomia() {
 
-    $tags = get_terms([
-        'taxonomy' => 'post_tag',
+    $screen = get_current_screen();
+
+    $config = [
+        'post' => [
+            'taxonomy' => 'post_tag',
+            'select'   => "'" . getenv('ACF_KEY_S_LOCAL') . "'",
+            'input'    => "'" . getenv('ACF_KEY_S_ENDE') . "'",
+        ],
+        'oportunidade' => [
+            'taxonomy' => 'locais',
+            'select'   => "'" . getenv('ACF_KEY_O_LOCAL') . "'",
+            'input'    => "'" . getenv('ACF_KEY_O_ENDE') . "'",
+        ],
+    ];
+
+    $current = $config[$screen->post_type] ?? null;
+    if (!$current) return;
+
+    // Busca termos
+    $terms = get_terms([
+        'taxonomy' => $current['taxonomy'],
         'hide_empty' => false,
     ]);
 
     $dados = [];
-    foreach ($tags as $tag) {
-        $dados[$tag->term_id] = esc_js($tag->description);
+    foreach ($terms as $term) {
+        $dados[$term->term_id] = $term->description;
     }
 
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        
-		const descricoes = <?php echo json_encode($dados); ?>;
-		const select = document.querySelector('#acf-field_67eec90fad2a6');
-		const inputEndereco = document.querySelector('#acf-field_67eec95fcdafc');
 
-		function atualizarEndereco(termId) {
-			const descricao = descricoes[termId];
-			const hasDescricao = typeof descricao === 'string' && descricao.trim() !== '';
-			const hasValorAtual = inputEndereco.value.trim() !== '';
+        const descricoes = <?php echo json_encode($dados); ?>;
 
-			if (hasDescricao) {
-				// Só atualiza se for diferente do que já está
-				if (inputEndereco.value !== descricao) {
-					inputEndereco.value = descricao;
-				}
-				inputEndereco.setAttribute('readonly', 'readonly');
-			} else {
-				// Sem descrição: não sobrescreve se já existe valor
-				inputEndereco.removeAttribute('readonly');
+        const select = document.querySelector('#acf-<?= str_replace("'", "", $current['select']); ?>');
+        const inputEndereco = document.querySelector('#acf-<?= str_replace("'", "", $current['input']); ?>');
 
-				// Se já está vazio, mantém vazio; se tem valor, não mexe
-				if (!hasValorAtual) {
-					inputEndereco.value = '';
-				}
-			}
-		}
+        function atualizarEndereco(termId) {
+            const descricao = descricoes[termId];
+            const hasDescricao = typeof descricao === 'string' && descricao.trim() !== '';
+            const hasValorAtual = inputEndereco.value.trim() !== '';
 
+            if (hasDescricao) {
+                if (inputEndereco.value !== descricao) {
+                    inputEndereco.value = descricao;
+                }
+                inputEndereco.setAttribute('readonly', 'readonly');
+            } else {
+                inputEndereco.removeAttribute('readonly');
+
+                if (!hasValorAtual) {
+                    inputEndereco.value = '';
+                }
+            }
+        }
 
         function processarSelecao() {
             const termId = parseInt(select.value);
+
             if (!termId) return;
 
             if (!(termId in descricoes)) {
-                // novo termo
                 inputEndereco.value = '';
                 inputEndereco.removeAttribute('readonly');
             } else {
@@ -5499,14 +5515,13 @@ function acf_local_atualiza_endereco_com_observer() {
         }
 
         if (select && inputEndereco) {
+
             jQuery(select).on('select2:select', function () {
                 processarSelecao();
             });
 
-            // Executa a primeira vez
             processarSelecao();
 
-            // Observa mudanças no select (ex: novo termo adicionado via botão "+")
             const observer = new MutationObserver(() => {
                 processarSelecao();
             });
@@ -5516,10 +5531,32 @@ function acf_local_atualiza_endereco_com_observer() {
                 subtree: true,
             });
         }
+
     });
     </script>
     <?php
 }
+
+add_filter('acf/validate_value', function($valid, $value, $field){
+
+    // Só entra se já houver erro (ex: required do ACF)
+    if ($valid === true) {
+        return $valid;
+    }
+
+    // Mapeamento de mensagens por campo
+    $mensagens = [
+        'tipo_oportunidade' => 'Selecione ao menos uma opção para o tipo da oportunidade.',
+        'descricao'       => 'Preencha a descrição da oportunidade para continuar.',
+    ];
+
+    if (isset($mensagens[$field['name']])) {
+        return $mensagens[$field['name']];
+    }
+
+    return $valid;
+
+}, 10, 3);
 
 // Registrar taxonomia "Gênero / Tipo de evento" para posts
 add_action('init', 'registrar_taxonomia_genero');

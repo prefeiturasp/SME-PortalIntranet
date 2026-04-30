@@ -444,3 +444,14 @@ table.wp-list-table.media {
 .compat-field-used_in td.field a:hover {
     text-decoration: underline;
 }
+
+.info-admin {
+    background: #EFF6FF;
+    margin: 15px !important;
+    border-radius: 10px;
+    border: 1px solid #C9DAEE;
+}
+
+.info-admin ul {
+    margin-left: 15px;
+}
