@@ -455,3 +455,17 @@ table.wp-list-table.media {
 .info-admin ul {
     margin-left: 15px;
 }
+
+.conteudo-lista{
+    position: relative;
+}
+
+.fixar-btn{
+    position: sticky;
+    top: 35px;
+    z-index: 1050;
+}
+
+.modal-open .modal {
+    background: rgba(0, 0, 0, 0.5);
+}
