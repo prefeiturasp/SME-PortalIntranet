@@ -92,6 +92,7 @@ class CptOportunidades extends Cpt
                 ),
 
                 'map_meta_cap' => true,
+				'meta_box_cb' => false,
 
                 'capabilities' => array(
                     'manage_terms' => 'manage_locais',
