@@ -181,7 +181,7 @@ function get_situacao_inscricao( object $inscricao ) {
     }
 
     if ( !$inscricoes_abertas ) {
-        return "Sorteio " . obter_ultima_data_sorteio( $inscricao->post_id, false );
+        return "Sorteio realizado " . obter_ultima_data_sorteio( $inscricao->post_id, false );
     }
 
     return "Próximo sorteio " . obter_proxima_data_sorteio( $inscricao->post_id, false );
@@ -225,10 +225,18 @@ function get_status_participacao( object $inscricao ) {
     $prazo = new DateTime( $inscricao->prazo_confirmacao, new DateTimeZone( 'America/Sao_Paulo' ) );
     $agora = new DateTime('now', new DateTimeZone( 'America/Sao_Paulo' ) );
 
-    if ( boolval ($inscricao->confirmou_presenca ) ) {
+    if ( $inscricao->confirmou_presenca == 1 ) {
         return '
             <strong class="presenca-confirmada" data-toggle="tooltip" title="Sua presença foi confirmada.">
                 Confirmada
+            </strong>
+        ';
+    }
+
+    if ( $inscricao->confirmou_presenca == 2 ) {
+        return '
+            <strong class="text-secondary" data-toggle="tooltip" title="Você cancelou sua participação.">
+                Cancelou participação
             </strong>
         ';
     }
