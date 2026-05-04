@@ -469,3 +469,15 @@ table.wp-list-table.media {
 .modal-open .modal {
     background: rgba(0, 0, 0, 0.5);
 }
+
+.acf-field.acf-accordion:not(:last-child) {
+    margin-bottom: 10px;
+}
+
+.hide-label .acf-label {
+    display: none;
+}
+
+.acf-accordion.-open .acf-accordion-title {
+    background: #EEE;
+}
