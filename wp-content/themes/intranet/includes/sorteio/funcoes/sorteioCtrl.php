@@ -402,11 +402,16 @@ function exibir_lista_sorteados_por_data ($post_id = null) {//** OK */
 	if ( $tipo_evento === 'periodo' ) {
 
 		$info_periodo_evento = get_field( 'evento_periodo', get_the_ID() );
-		$data_sorteio = DateTime::createFromFormat('d/m/Y', $info_periodo_evento['data_sorteio'])->format('Ymd');
+
 		$label = 'Período';
 		$opcao_padrao = 'Selecione o período para resortear';
-		$opcoes_periodo = "<option value='{$data_sorteio}' selected>{$info_periodo_evento['descricao']}</option>";
+		$opcoes_periodo = '';
 		
+		if ( $info_periodo_evento && !empty( $info_periodo_evento['data_sorteio'] ) ) {
+			$data_sorteio = DateTime::createFromFormat('d/m/Y', $info_periodo_evento['data_sorteio'])->format('Ymd');
+			$opcoes_periodo = "<option value='{$data_sorteio}' selected>{$info_periodo_evento['descricao']}</option>";
+		}
+
 		$output = '
 			<label for="data-resorteada">' . $label . '</label>
 			<select id="data-resorteada" class="form-control" disabled>

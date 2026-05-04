@@ -18,11 +18,16 @@
             
             $qtds = retorna_quantidades_disponiveis( $post_id, $item['data'], false );
             $info_periodo_evento = get_field( 'evento_periodo', $post_id );
-            $data_sorteio = DateTime::createFromFormat( 'Y-m-d',  $info_periodo_evento['encerramento_inscricoes'] );
-            $data_sorteio->setTime(0, 0, 0);
-            $data_acord = $data_sorteio->format( 'Y-m-d-H-i-s' );
-            $item['data'] = $data_sorteio->format( 'Y-m-d H:i:s' );
             $label_collapse = "Total de Inscritos para o Período: <strong>{$info_periodo_evento['descricao']}</strong>" . ' - <span class="total-inscritos">' . $qtds['inscritos'] . _n( ' inscrito', ' inscritos', (int) $qtds['inscritos'] ) . '</span> - <span class="total-disponiveis">' . $qtds['disponiveis'] . _n( ' disponível', ' disponíveis', (int) $qtds['disponiveis'] ) . '</span>';
+
+            if ( $info_periodo_evento && !empty( $info_periodo_evento['encerramento_inscricoes'] ) ) {
+            
+                $data_sorteio = DateTime::createFromFormat( 'Y-m-d',  $info_periodo_evento['encerramento_inscricoes'] );
+                $data_sorteio->setTime(0, 0, 0);
+                $data_acord = $data_sorteio->format( 'Y-m-d-H-i-s' );
+                $item['data'] = $data_sorteio->format( 'Y-m-d H:i:s' );
+            }
+            
 
         } else {
             $qtds = retorna_quantidades_disponiveis( $post_id, $item['data'], true );
