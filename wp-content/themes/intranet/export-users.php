@@ -1,95 +1,92 @@
 <?php
-//require_once('../../../wp-include/pluggable.php');
 require_once("./././wp-load.php");
+
+global $wpdb;
+
 $date = date('d_m_y_h_i_s');
 $fileName = $date . '_usuarios_portal.csv';
- 
-header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-header('Content-Description: File Transfer');
-header("Content-type: text/csv");
+
+header("Content-Type: text/csv");
 header("Content-Disposition: attachment; filename={$fileName}");
-header("Expires: 0");
-header("Pragma: public");
 
-$fh = @fopen( 'php://output', 'w' );
+$fh = fopen('php://output', 'w');
 
-$headerDisplayed = false;
+// Cabeçalho
+fputcsv($fh, ['id', 'login', 'email', 'funcao', 'grupo', 'setor']);
 
-if($_GET['funcao'] == 'all'){
-	$blogusers = get_users( array( 'fields' => array( 'id', 'user_login', 'user_email' ) ) );
-} else {
-	$blogusers = get_users( 
-		array( 
-			'fields' => array( 'id', 'user_login', 'user_email' ),
-			'role__in' => array( $_GET['funcao'] )
-		)
-	);
-}
-
-
-$usuarios = array();
+$limit = 1000;
+$offset = 0;
 
 function convertFunc($funcao){
-	switch ($funcao):
-		case 'administrator':
-			return 'Administrador';
-			break;
-		case 'contributor':
-			return 'Colaborador';
-			break;
-		case 'editor':
-			return 'Editor';
-			break;
-		case 'assessor':
-			return 'Assessor';
-			break;
-		default:
-			return $funcao;
-	endswitch;
+    switch ($funcao):
+        case 'administrator': return 'Administrador';
+        case 'contributor': return 'Colaborador';
+        case 'editor': return 'Editor';
+        case 'assessor': return 'Assessor';
+        default: return $funcao;
+    endswitch;
 }
 
-foreach($blogusers as $user){
-	$user_meta = get_userdata($user->id);
-	$user_roles = $user_meta->roles;
-	$setor = get_field('setor', 'user_'. $user->id );
-	$grupos = get_field('grupo', 'user_'. $user->id );
-	$grupoTitle = '';
-	$i = 0;
-	if($grupos && $grupos != '' && $grupos[0] != ''){
-		foreach($grupos as $grupo){
-			$title = preg_replace("/&([a-z])[a-z]+;/i", "$1", htmlentities(trim( get_the_title($grupo) )));
-			if($i == 0){				
-				$grupoTitle .= $title;
-			} else {
-				$grupoTitle .= ', ' . $title;
-			}
-			$i++;
-		}				
-	}
+do {
 
-	$usuarios[] = array(
-		'id' => $user->id,
-		'login' => $user->user_login,
-		'email' => $user->user_email,
-		'funcao' => convertFunc($user_roles[0]),
-		'grupo' => $grupoTitle,
-		'setor' => $setor
-	);
+    $users = $wpdb->get_results($wpdb->prepare("
+        SELECT ID, user_login, user_email
+        FROM {$wpdb->users}
+        LIMIT %d OFFSET %d
+    ", $limit, $offset));
 
-}
+    if (empty($users)) break;
 
-foreach ( $usuarios as $data ) {
-    // Add a header row if it hasn't been added yet
-    if ( !$headerDisplayed ) {
-        // Use the keys from $data as the titles
-        fputcsv($fh, array_keys($data));
-        $headerDisplayed = true;
+    $user_ids = array_column($users, 'ID');
+    $ids_string = implode(',', array_map('intval', $user_ids));
+
+    // Buscar meta em lote
+    $meta = $wpdb->get_results("
+        SELECT user_id, meta_key, meta_value
+        FROM {$wpdb->usermeta}
+        WHERE user_id IN ($ids_string)
+    ");
+
+    $meta_map = [];
+    foreach ($meta as $m) {
+        $meta_map[$m->user_id][$m->meta_key] = maybe_unserialize($m->meta_value);
     }
- 
-    // Put the data into the stream
-    fputcsv($fh, $data);
-}
-// Close the file
+
+    foreach ($users as $user) {
+
+        $roles = $meta_map[$user->ID]['wp_capabilities'] ?? [];
+        $role = is_array($roles) ? array_key_first($roles) : '';
+
+        $setor = $meta_map[$user->ID]['setor'] ?? '';
+        $grupos = $meta_map[$user->ID]['grupo'] ?? [];
+
+        // Se grupo for array de IDs
+        $grupoTitle = '';
+        if (is_array($grupos) && !empty($grupos)) {
+            $grupo_ids = implode(',', array_map('intval', $grupos));
+
+            $titles = $wpdb->get_col("
+                SELECT post_title
+                FROM {$wpdb->posts}
+                WHERE ID IN ($grupo_ids)
+            ");
+
+            $grupoTitle = implode(', ', $titles);
+        }
+
+        fputcsv($fh, [
+            $user->ID,
+            $user->user_login,
+            $user->user_email,
+            convertFunc($role),
+            $grupoTitle,
+            $setor
+        ]);
+    }
+
+    $offset += $limit;
+
+} while (true);
+
 fclose($fh);
-// Make sure nothing else is sent, our file is done
 exit;
