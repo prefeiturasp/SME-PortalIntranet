@@ -1796,42 +1796,7 @@ function wpdocs_register_my_custom_submenu_page() {
 
 function wpdocs_my_custom_submenu_page_callback() {
     echo '<div class="wrap"><div id="icon-tools" class="icon32"></div>';
-        echo '<h2>Exportar Usuarios</h2><br>';
-		$blogusers = get_users( array( 'fields' => array( 'id', 'user_login', 'user_email' ) ) );
-		$usuarios = array();
-
-		foreach($blogusers as $user){
-			$user_meta = get_userdata($user->id);
-			$user_roles = $user_meta->roles;
-			$setor = get_field('setor', 'user_'. $user->id );
-			$grupos = get_field('grupo', 'user_'. $user->id );
-			$grupoTitle = '';
-			$i = 0;
-			if($grupos && $grupos != '' && $grupos[0] != ''){
-				foreach($grupos as $grupo){
-					if($i == 0){
-						$grupoTitle .= get_the_title($grupo);
-					} else {
-						$grupoTitle .= ', ' . get_the_title($grupo);
-					}
-					$i++;
-				}				
-			}
-
-			$usuarios[] = array(
-				'id' => $user->id,
-				'login' => $user->user_login,
-				'email' => $user->user_email,
-				'funcao' => $user_roles[0],
-				'grupos' => $grupoTitle,
-				'setor' => $setor
-			);
-
-		}
-
-		//echo "<pre>";
-		//print_r($usuarios);
-		//echo "</pre>";
+        echo '<h2>Exportar Usuarios</h2><br>';		
 	?>
 
 		<form action="<?= get_home_url(); ?>/export-users.php">
