@@ -3,19 +3,20 @@ require_once("./././wp-load.php");
 
 global $wpdb;
 
-$date = date('d_m_y_h_i_s');
+$limit  = 500;
+$offset = 0;
+
+$date = date('d_m_y_H_i_s');
 $fileName = $date . '_usuarios_portal.csv';
 
-header("Content-Type: text/csv");
+header("Content-Type: text/csv; charset=utf-8");
 header("Content-Disposition: attachment; filename={$fileName}");
+header("Cache-Control: no-store, no-cache");
 
 $fh = fopen('php://output', 'w');
 
-// Cabeçalho
+// Cabeçalho CSV
 fputcsv($fh, ['id', 'login', 'email', 'funcao', 'grupo', 'setor']);
-
-$limit = 1000;
-$offset = 0;
 
 function convertFunc($funcao){
     switch ($funcao):
@@ -27,8 +28,12 @@ function convertFunc($funcao){
     endswitch;
 }
 
-do {
+$role_filter = isset($_GET['funcao']) && $_GET['funcao'] !== 'all'
+    ? sanitize_text_field($_GET['funcao'])
+    : null;
 
+while (true) {
+    
     $users = $wpdb->get_results($wpdb->prepare("
         SELECT ID, user_login, user_email
         FROM {$wpdb->users}
@@ -52,24 +57,64 @@ do {
         $meta_map[$m->user_id][$m->meta_key] = maybe_unserialize($m->meta_value);
     }
 
+    $all_group_ids = [];
+
     foreach ($users as $user) {
-
-        $roles = $meta_map[$user->ID]['wp_capabilities'] ?? [];
-        $role = is_array($roles) ? array_key_first($roles) : '';
-
-        $setor = $meta_map[$user->ID]['setor'] ?? '';
         $grupos = $meta_map[$user->ID]['grupo'] ?? [];
 
-        // Se grupo for array de IDs
-        $grupoTitle = '';
-        if (is_array($grupos) && !empty($grupos)) {
-            $grupo_ids = implode(',', array_map('intval', $grupos));
+        if (is_array($grupos)) {
+            foreach ($grupos as $gid) {
+                $all_group_ids[] = (int)$gid;
+            }
+        }
+    }
 
-            $titles = $wpdb->get_col("
-                SELECT post_title
-                FROM {$wpdb->posts}
-                WHERE ID IN ($grupo_ids)
-            ");
+    $all_group_ids = array_unique($all_group_ids);
+    
+    $group_titles_map = [];
+
+    if (!empty($all_group_ids)) {
+        $ids = implode(',', $all_group_ids);
+
+        $results = $wpdb->get_results("
+            SELECT ID, post_title
+            FROM {$wpdb->posts}
+            WHERE ID IN ($ids)
+        ");
+
+        foreach ($results as $r) {
+            $group_titles_map[$r->ID] = $r->post_title;
+        }
+    }
+    
+    foreach ($users as $user) {
+
+        $meta_user = $meta_map[$user->ID] ?? [];
+
+        // ROLE
+        $roles = $meta_user[$wpdb->prefix . 'capabilities'] ?? [];
+        $role  = is_array($roles) ? array_key_first($roles) : '';
+
+        // FILTRO POR ROLE
+        if ($role_filter && $role !== $role_filter) {
+            continue;
+        }
+
+        // SETOR
+        $setor = $meta_user['setor'] ?? '';
+
+        // GRUPOS
+        $grupos = $meta_user['grupo'] ?? [];
+        $grupoTitle = '';
+
+        if (is_array($grupos)) {
+            $titles = [];
+
+            foreach ($grupos as $gid) {
+                if (isset($group_titles_map[$gid])) {
+                    $titles[] = $group_titles_map[$gid];
+                }
+            }
 
             $grupoTitle = implode(', ', $titles);
         }
@@ -83,10 +128,17 @@ do {
             $setor
         ]);
     }
-
+    
+    unset($meta_map, $group_titles_map, $all_group_ids);
+    
     $offset += $limit;
 
-} while (true);
+    // Evita buffer travado
+    if (ob_get_length()) {
+        ob_flush();
+    }
+    flush();
+}
 
 fclose($fh);
 exit;
