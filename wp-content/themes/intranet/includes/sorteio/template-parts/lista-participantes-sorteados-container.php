@@ -13,11 +13,15 @@
         } elseif ( $tipo_evento == 'periodo' ) {
 
             $info_periodo_evento = get_field( 'evento_periodo', $post_id );
-            $data_sorteio = DateTime::createFromFormat( 'd/m/Y',  $info_periodo_evento['data_sorteio'] );
-            $data_sorteio->setTime(0, 0, 0);
-            $data_acord = $data_sorteio->format( 'dmYHi' );
-            $item['data'] = $data_sorteio->format( 'Y-m-d H:i:s' );
             $label_collapse = "Sorteados do Período: <strong>{$info_periodo_evento['descricao']}</strong>";
+
+            if ( $info_periodo_evento && !empty( $info_periodo_evento['data_sorteio'] ) ) {
+
+                $data_sorteio = DateTime::createFromFormat( 'd/m/Y',  $info_periodo_evento['data_sorteio'] );
+                $data_sorteio->setTime(0, 0, 0);
+                $data_acord = $data_sorteio->format( 'dmYHi' );
+                $item['data'] = $data_sorteio->format( 'Y-m-d H:i:s' );
+            }
 
         } else {
             $label_collapse = date( 'd/m/Y H\hi', strtotime( $item['data'] ) );
