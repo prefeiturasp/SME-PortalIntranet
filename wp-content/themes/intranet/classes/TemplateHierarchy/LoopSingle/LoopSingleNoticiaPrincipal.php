@@ -46,9 +46,7 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 					echo '<div class="col-2 pl-0">';
 						$this->getPostLikes();
 					echo '</div>';
-				echo '</div>';
-				$this->getDataPublicacaoAlteracao();
-				
+				echo '</div>';	
 				
 				$image = get_the_post_thumbnail( get_the_ID(), 'default-image', array( 'class' => 'img-fluid mx-auto' ) );
 				if($image) :
