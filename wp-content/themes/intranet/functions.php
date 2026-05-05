@@ -1795,24 +1795,335 @@ function wpdocs_register_my_custom_submenu_page() {
 }
 
 function wpdocs_my_custom_submenu_page_callback() {
-    echo '<div class="wrap"><div id="icon-tools" class="icon32"></div>';
-        echo '<h2>Exportar Usuarios</h2><br>';		
-	?>
 
-		<form action="<?= get_home_url(); ?>/export-users.php">
-			<select name="funcao" id="">
-				<option value="all">Todos</option>
-				<option value="administrator">Administrador</option>
-				<option value="editor">Editor</option>
-				<option value="contributor">Colaborador</option>
-				<option value="assessor">Assessor</option>
-			</select>
-			<input type="submit" value="Exportar" class="button action">
-		</form>
+    echo '<div class="wrap">';
+    echo '<h2>Exportar Usuários</h2><br>';
+    ?>
+    <form id="exportForm">
+        <select name="funcao">
+            <option value="all">Todos</option>
+            <option value="administrator">Administrador</option>
+            <option value="editor">Editor</option>
+            <option value="contributor">Colaborador</option>
+            <option value="assessor">Assessor</option>
+            <option value="admin_portal">Admin do Portal</option>
+            <option value="gestor_unidade">Gestor de Unidade</option>
+        </select>
 
-	<?php
+        <input type="number" name="per_page" value="300" min="50" max="2000" style="width:100px;margin-left:10px;">
+        <label>Itens por lote</label>
+
+        <button type="submit" class="button button-primary" id="exportUsersBtn">
+            Gerar relatório
+        </button>
+
+        <div id="exportStatus" style="margin-top:10px;"></div>
+    </form>
+    <?php
     echo '</div>';
 }
+
+function convertFuncNova($funcao){
+    switch ($funcao):
+        case 'administrator': return 'Administrador';
+        case 'contributor': return 'Colaborador';
+        case 'editor': return 'Editor';
+        case 'assessor': return 'Assessor';
+		case 'admin_portal': return 'Admin do Portal';
+		case 'gestor_unidade': return 'Gestor de Unidade';
+		case 'subscriber': return 'Assinante';
+        default: return $funcao;
+    endswitch;
+}
+
+add_action('wp_ajax_start_export_users', function () {
+
+    global $wpdb;
+
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('Sem permissão');
+    }
+
+    $export_id = uniqid('export_');
+    $funcao = sanitize_text_field($_POST['funcao'] ?? 'all');
+
+    $per_page = (int) ($_POST['per_page'] ?? 300);
+    if ($per_page < 50) $per_page = 50;
+    if ($per_page > 2000) $per_page = 2000;
+
+    $upload_dir = wp_upload_dir();
+    $dir = $upload_dir['basedir'] . '/exports';
+
+    if (!file_exists($dir)) {
+        mkdir($dir, 0755, true);
+    }
+
+    // nome com data
+    $date = date('d_m_y_h_i_s');
+    $fileName = $date . '_usuarios_intranet.xlsx';
+
+    $csv  = $dir . "/{$export_id}.csv";
+    $xlsx = $dir . "/" . $fileName;
+
+    // cria CSV com header
+    $fh = fopen($csv, 'w');
+    fputcsv($fh, [
+        'Nome','RF','E-mail','Função',
+        'Novidades Email','Telefone',
+        'Novidades Whats','DRE','Cargo'
+    ]);
+    fclose($fh);
+
+    $total = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->users}");
+
+    update_option($export_id, [
+        'last_id'   => 0,
+        'done'      => false,
+        'csv'       => $csv,
+        'xlsx'      => $xlsx,
+        'funcao'    => $funcao,
+        'per_page'  => $per_page,
+        'total'     => (int) $total,
+        'processed' => 0
+    ]);
+
+    wp_send_json_success(['export_id' => $export_id]);
+});
+
+add_action('wp_ajax_process_export_users', function () {
+
+    global $wpdb;
+
+    $export_id = sanitize_text_field($_POST['export_id']);
+    $state = get_option($export_id);
+
+    if (!$state) {
+        wp_send_json_error('Export não encontrado');
+    }
+
+    if ($state['done']) {
+        wp_send_json_success(['done' => true]);
+    }
+
+    $per_page = $state['per_page'] ?? 300;
+    $last_id  = $state['last_id'];
+    $funcao   = $state['funcao'];
+
+    $results = $wpdb->get_results($wpdb->prepare("
+        SELECT 
+            u.ID,
+            u.user_login,
+            u.user_email,
+
+            MAX(CASE WHEN um.meta_key = '{$wpdb->prefix}capabilities' THEN um.meta_value END) as roles,
+            MAX(CASE WHEN um.meta_key = 'first_name' THEN um.meta_value END) as first_name,
+            MAX(CASE WHEN um.meta_key = 'last_name' THEN um.meta_value END) as last_name,
+            MAX(CASE WHEN um.meta_key = 'rf' THEN um.meta_value END) as rf,
+            MAX(CASE WHEN um.meta_key = 'nov_email' THEN um.meta_value END) as nov_email,
+            MAX(CASE WHEN um.meta_key = 'celular' THEN um.meta_value END) as celular,
+            MAX(CASE WHEN um.meta_key = 'nov_whats' THEN um.meta_value END) as nov_whats,
+            MAX(CASE WHEN um.meta_key = 'dre' THEN um.meta_value END) as dre,
+            MAX(CASE WHEN um.meta_key = 'cargo' THEN um.meta_value END) as cargo
+
+        FROM {$wpdb->users} u
+        LEFT JOIN {$wpdb->usermeta} um ON um.user_id = u.ID
+
+        WHERE u.ID > %d
+        GROUP BY u.ID
+        ORDER BY u.ID ASC
+        LIMIT %d
+    ", $last_id, $per_page));
+
+    if (empty($results)) {
+
+        require_once 'classes/Lib/SimpleXLSXGen.php';
+
+        $rows = array_map('str_getcsv', file($state['csv']));
+
+        $xlsx = \Classes\Lib\SimpleXLSXGenExp::fromArray($rows);
+        $xlsx->saveAs($state['xlsx']);
+
+        $state['done'] = true;
+        update_option($export_id, $state);
+
+        wp_send_json_success(['done' => true]);
+    }
+
+    $fh = fopen($state['csv'], 'a');
+
+    foreach ($results as $row) {
+
+        $role = '';
+        if ($row->roles) {
+            $rolesArray = maybe_unserialize($row->roles);
+            if (is_array($rolesArray)) {
+                $role = array_key_first($rolesArray);
+            }
+        }
+
+        if ($funcao !== 'all' && $role !== $funcao) {
+            continue;
+        }
+
+        $nome = trim(($row->first_name ?? '') . ' ' . ($row->last_name ?? ''));
+        if (!$nome) $nome = $row->user_login;
+
+        $conf_email = $row->nov_email == 1 ? 'Sim' : '-';
+        $conf_whats = $row->nov_whats == 1 ? 'Sim' : '-';
+
+        fputcsv($fh, [
+            $nome,
+            $row->rf,
+            $row->user_email,
+            convertFuncNova($role),
+            $conf_email,
+            $row->celular,
+            $conf_whats,
+            $row->dre,
+            $row->cargo
+        ]);
+    }
+
+    fclose($fh);
+
+    $state['last_id'] = end($results)->ID;
+    $state['processed'] += count($results);
+
+    update_option($export_id, $state);
+
+    wp_send_json_success([
+        'done' => false,
+        'processed' => $state['processed'],
+        'total' => $state['total']
+    ]);
+});
+
+add_action('wp_ajax_download_export_users', function () {
+
+    $export_id = sanitize_text_field($_GET['export_id']);
+    $state = get_option($export_id);
+
+    if (!$state || !$state['done']) {
+        wp_die('Arquivo não pronto');
+    }
+
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header('Content-Disposition: attachment; filename="usuarios.xlsx"');
+
+    readfile($state['xlsx']);
+
+    unlink($state['csv']);
+    unlink($state['xlsx']);
+    delete_option($export_id);
+
+    exit;
+});
+
+add_action('admin_footer', function () {
+	?>
+	<script>
+	(function(){
+
+		const form = document.getElementById('exportForm');
+		const btn = document.getElementById('exportUsersBtn');
+		const statusEl = document.getElementById('exportStatus');
+
+		if (!form) return;
+
+		form.addEventListener('submit', async function(e){
+
+			e.preventDefault();
+			btn.disabled = true;
+
+			const formData = new FormData(form);
+
+			let retries = 0;
+			const maxRetries = 3;
+
+			statusEl.innerText = 'Iniciando...';
+
+			try {
+
+				const start = await fetch(ajaxurl, {
+					method: 'POST',
+					body: new URLSearchParams({
+						action: 'start_export_users',
+						funcao: formData.get('funcao'),
+						per_page: formData.get('per_page')
+					})
+				});
+
+				const startData = await start.json();
+				const exportId = startData.data.export_id;
+
+				let done = false;
+
+				while (!done) {
+
+					try {
+
+						const res = await fetch(ajaxurl, {
+							method: 'POST',
+							headers: {'Content-Type':'application/x-www-form-urlencoded'},
+							body: new URLSearchParams({
+								action: 'process_export_users',
+								export_id: exportId
+							})
+						});
+
+						const data = await res.json();
+
+						if (!data.success) throw new Error();
+
+						done = data.data.done;
+
+						if (!done) {
+							const percent = Math.round(
+								(data.data.processed / data.data.total) * 100
+							);
+
+							statusEl.innerText =
+								`Processando ${percent}% (${data.data.processed}/${data.data.total}) | Lote: ${formData.get('per_page')}`;
+						} else {
+							statusEl.innerText = 'Finalizando...';
+						}
+
+						retries = 0;
+
+					} catch (err) {
+
+						retries++;
+
+						if (retries > maxRetries) {
+							throw new Error('Falha após várias tentativas');
+						}
+
+						statusEl.innerText = `Erro... tentando novamente (${retries}/${maxRetries})`;
+
+						await new Promise(r => setTimeout(r, 1000));
+					}
+
+					await new Promise(r => setTimeout(r, 150));
+				}
+
+				window.location.href =
+					ajaxurl + '?action=download_export_users&export_id=' + exportId;
+
+				statusEl.innerText = 'Concluído!';
+
+			} catch (e) {
+				statusEl.innerText = 'Erro na exportação';
+				console.error(e);
+			}
+
+			btn.disabled = false;
+
+		});
+
+	})();
+	</script>
+	<?php
+});
 
 // Incluir Pagina Importar Usuarios no menu Usuarios
 add_action('admin_menu', 'cadastro_usuarios_core_sso');
