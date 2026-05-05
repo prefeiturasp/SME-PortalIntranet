@@ -444,3 +444,17 @@ table.wp-list-table.media {
 .compat-field-used_in td.field a:hover {
     text-decoration: underline;
 }
+
+.conteudo-lista{
+    position: relative;
+}
+
+.fixar-btn{
+    position: sticky;
+    top: 35px;
+    z-index: 1050;
+}
+
+.modal-open .modal {
+    background: rgba(0, 0, 0, 0.5);
+}
