@@ -1832,6 +1832,7 @@ function convertFuncNova($funcao){
 		case 'admin_portal': return 'Admin do Portal';
 		case 'gestor_unidade': return 'Gestor de Unidade';
 		case 'subscriber': return 'Assinante';
+		case 'wpseo_editor': return 'Assinante';
         default: return $funcao;
     endswitch;
 }
@@ -2007,8 +2008,10 @@ add_action('wp_ajax_download_export_users', function () {
         wp_die('Arquivo não pronto');
     }
 
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header('Content-Disposition: attachment; filename="usuarios.xlsx"');
+    $filename = basename($state['xlsx']);
+
+	header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+	header('Content-Disposition: attachment; filename="' . $filename . '"');
 
     readfile($state['xlsx']);
 

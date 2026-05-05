@@ -163,7 +163,7 @@ function retorna_lista_cortesias_html($post_id, $data, $unica = false, $sancao =
     if(!empty($resultados)):
     ?>
         <div class="conteudo-lista" data-data="<?= esc_attr($data); ?>" data-tipo="<?= $premio; ?>">
-            <div class="row">
+            <div class="row fixar-btn">
                 <div class="col accordion-buttons">
                     <div class="text-right">
                         <button data-data="<?= esc_attr($data); ?>" class="btn btn-notificar-sorteados" disabled>
