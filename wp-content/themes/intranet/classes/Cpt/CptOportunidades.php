@@ -71,6 +71,7 @@ class CptOportunidades extends Cpt
 		register_post_type($this->cptSlug, $args);
 		flush_rewrite_rules();
 
+		// Locais
 		register_taxonomy(
             'locais',
             'oportunidade',
@@ -99,6 +100,72 @@ class CptOportunidades extends Cpt
                     'edit_terms'   => 'edit_locais',
                     'delete_terms' => 'delete_locais',
                     'assign_terms' => 'assign_locais',
+                )
+            )
+        );
+
+		// Coordenadorias
+		register_taxonomy(
+            'coordenadorias',
+            'oportunidade',
+            array(
+                'hierarchical' => true,
+
+                'labels' => array(
+                    'name'              => 'Coordenadorias',
+                    'singular_name'     => 'Coordenadoria',
+                    'search_items'      => 'Buscar Coordenadorias',
+                    'all_items'         => 'Todas as Coordenadorias',
+                    'parent_item'       => 'Coordenadoria Pai',
+                    'parent_item_colon' => 'Coordenadoria Pai:',
+                    'edit_item'         => 'Editar Coordenadoria',
+                    'update_item'       => 'Atualizar Coordenadoria',
+                    'add_new_item'      => 'Adicionar Nova Coordenadoria',
+                    'new_item_name'     => 'Nova Coordenadoria',
+                    'menu_name'         => 'Coordenadorias',
+                ),
+
+                'map_meta_cap' => true,
+				'meta_box_cb' => false,
+
+                'capabilities' => array(
+                    'manage_terms' => 'manage_coordenadorias',
+                    'edit_terms'   => 'edit_coordenadorias',
+                    'delete_terms' => 'delete_coordenadorias',
+                    'assign_terms' => 'assign_coordenadorias',
+                )
+            )
+        );
+
+		// Eixo de Atuação
+		register_taxonomy(
+            'eixos_atuacao',
+            'oportunidade',
+            array(
+                'hierarchical' => false,
+
+                'labels' => array(
+                    'name'              => 'Eixos de Atuação',
+                    'singular_name'     => 'Eixo de Atuação',
+                    'search_items'      => 'Buscar Eixos de Atuação',
+                    'all_items'         => 'Todos os Eixos de Atuação',
+                    'parent_item'       => 'Eixo de Atuação Pai',
+                    'parent_item_colon' => 'Eixo de Atuação Pai:',
+                    'edit_item'         => 'Editar Eixo de Atuação',
+                    'update_item'       => 'Atualizar Eixo de Atuação',
+                    'add_new_item'      => 'Adicionar Novo Eixo de Atuação',
+                    'new_item_name'     => 'Novo Eixo de Atuação',
+                    'menu_name'         => 'Eixos de Atuação',
+                ),
+
+                'map_meta_cap' => true,
+				'meta_box_cb' => false,
+
+                'capabilities' => array(
+                    'manage_terms' => 'manage_eixos_atuacao',
+                    'edit_terms'   => 'edit_eixos_atuacao',
+                    'delete_terms' => 'delete_eixos_atuacao',
+                    'assign_terms' => 'assign_eixos_atuacao',
                 )
             )
         );
