@@ -46,11 +46,26 @@ class AdminPortal
                 'edit_private_oportunidades'   => true,
                 'read_private_oportunidades'   => true,
 
+                // Locais
                 'manage_locais'                => true,
                 'edit_locais'                  => true,
                 'delete_locais'                => true,
                 'assign_locais'                => true,
                 'read_locais'                  => true,
+
+                // Coordenadorias
+                'manage_coordenadorias'        => true,
+                'edit_coordenadorias'          => true,
+                'delete_coordenadorias'        => true,
+                'assign_coordenadorias'        => true,
+                'read_coordenadorias'          => true,
+
+                // Eixos de Atuação
+                'manage_eixos_atuacao'         => true,
+                'edit_eixos_atuacao'           => true,
+                'delete_eixos_atuacao'         => true,
+                'assign_eixos_atuacao'         => true,
+                'read_eixos_atuacao'           => true,
             )
         );
 	}

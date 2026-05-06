@@ -1883,7 +1883,7 @@ function subpages_private(){
 		wp_update_post( $post_data );
 	}
 
-	print_r($data);
+	//print_r($data);
 
 	wp_die();
 }
@@ -5548,6 +5548,8 @@ add_filter('acf/validate_value', function($valid, $value, $field){
     $mensagens = [
         'tipo_oportunidade' => 'Selecione ao menos uma opção para o tipo da oportunidade.',
         'descricao'       => 'Preencha a descrição da oportunidade para continuar.',
+		'eixo_atuacao' => 'Selecione um eixo de atuação',
+		'setor' => 'Selecione um setor',
     ];
 
     if (isset($mensagens[$field['name']])) {
@@ -7191,3 +7193,132 @@ function get_perfil_usuario_logado() {
 
 	return 'servidor';
 }
+
+/**
+ * Função auxiliar para forçar ordenação customizada em campos ACF
+ * 
+ * @param array  $args    Argumentos da query
+ * @param array  $field   Configurações do campo ACF
+ * @param int    $post_id ID do post
+ * @return array Argumentos modificados
+ */
+function acf_custom_term_order($args, $field, $post_id) {
+    
+    // Aplica ordenação pela meta term_order
+    $args['meta_key'] = 'term_order';
+    $args['orderby'] = 'meta_value_num';
+    $args['order'] = 'ASC';
+    
+    // Garante que todos os termos apareçam (mesmo os sem meta)
+    $args['meta_query'] = [
+        'relation' => 'OR',
+        [
+            'key' => 'term_order',
+            'compare' => 'EXISTS'
+        ],
+        [
+            'key' => 'term_order',
+            'compare' => 'NOT EXISTS'
+        ]
+    ];
+    
+    return $args;
+}
+
+add_filter('acf/fields/taxonomy/query/name=setor', 'acf_custom_term_order', 10, 3); // Aplica a ordenação para o campo "Setor/Coordenadoria"
+add_filter('acf/fields/taxonomy/query/name=eixo_atuacao', 'acf_custom_term_order', 10, 3); // Aplica a ordenação para o campo "Eixo de atuação"
+
+
+
+// Formata os termos como "Nome - Descrição" com hierarquia
+add_filter('acf/fields/taxonomy/result/name=setor', function ($text, $term, $field, $post_id) {
+    
+    // Se não for um objeto de termo, retorna o texto original
+    if (!is_object($term)) {
+        return $text;
+    }
+    
+    $name = $term->name;
+    $description = $term->description;
+    $taxonomy = $term->taxonomy;
+    
+    // Adiciona descrição se existir
+    if (!empty($description)) {
+        $name .= ' - ' . $description;
+    }
+    
+    // Se o termo tem pai, mostra a hierarquia
+    if ($term->parent > 0) {
+        $parent_term = get_term($term->parent, $taxonomy);
+        
+        if ($parent_term && !is_wp_error($parent_term)) {
+            $parent_name = $parent_term->name;
+
+            $name = $parent_name . ' / ' . $name;
+        }
+    }
+    
+    return $name;
+    
+}, 10, 4);
+
+
+// Atualiza o título do post com base no termo selecionado, mantendo a hierarquia e descrição
+add_action('acf/save_post', function ($post_id) {
+
+    // evita autosave/revisão
+    if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) {
+        return;
+    }
+
+    // só para o CPT correto
+    if (get_post_type($post_id) !== 'oportunidade') {
+        return;
+    }
+
+    $setor = get_field('setor', $post_id);
+    if (!$setor) return;
+
+    $term = is_numeric($setor) ? get_term($setor) : $setor;
+    if (!$term || is_wp_error($term)) return;
+
+    $nome = $term->name;
+    $descricao = $term->description;
+
+    // verifica se tem pai
+    if ($term->parent) {
+
+        $parent = get_term($term->parent);
+
+        if ($parent && !is_wp_error($parent)) {
+            $titulo = $parent->name . ' / ' . $nome;
+        } else {
+            $titulo = $nome;
+        }
+
+    } else {
+        $titulo = $nome;
+    }
+
+    // adiciona descrição (sempre do termo atual)
+    if (!empty($descricao)) {
+        $titulo .= ' - ' . $descricao;
+    }
+
+    wp_update_post([
+        'ID'         => $post_id,
+        'post_title' => $titulo
+    ]);
+
+}, 20);
+
+add_action('admin_head', function () {
+
+    $screen = get_current_screen();
+
+    if ($screen && $screen->post_type === 'oportunidade') {
+        echo '<style>
+            #titlediv { display:none !important; }
+        </style>';
+    }
+});
