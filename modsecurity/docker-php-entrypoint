@@ -19,6 +19,7 @@ ln -s /var/www/html/plugins-privados/email-admin-dre /var/www/html/wp-content/pl
 ln -s /var/www/html/plugins-privados/coressoapi /var/www/html/wp-content/plugins/coressoapi
 ln -s /var/www/html/plugins-privados/grupo-editores /var/www/html/wp-content/plugins/grupo-editores
 ln -s /var/www/html/plugins-privados/envia-email-sme /var/www/html/wp-content/plugins/envia-email-sme
+ln -s /var/www/html/plugins-privados/taxonomy-order /var/www/html/wp-content/plugins/taxonomy-order
 
 addpath () {
   x="$1"

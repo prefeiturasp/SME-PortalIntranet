@@ -481,3 +481,60 @@ table.wp-list-table.media {
 .acf-accordion.-open .acf-accordion-title {
     background: #EEE;
 }
+
+/* Força largura da coluna de ordem */
+table.wp-list-table th.column-tco_order,
+table.wp-list-table td.column-tco_order {
+    width: 60px !important;
+    text-align: center !important;
+    padding: 8px 4px !important;
+}
+
+/* Cabeçalho da coluna */
+table.wp-list-table th.column-tco_order a {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+}
+
+/* Células da coluna */
+table.wp-list-table td.tco_order {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Estilos dos handles de arrasto */
+.tco-handle { 
+    cursor: grab; 
+    margin-right: 6px; 
+    color: #999;
+    font-size: 16px;
+    vertical-align: middle;
+}
+.tco-handle:hover { 
+    color: #2271b1; 
+}
+
+/* Placeholder do drag */
+.tco-placeholder { 
+    background: #e8f0fe !important; 
+    border: 2px dashed #2271b1 !important;
+    height: 40px !important;
+}
+
+/* Mensagem de salvo */
+.tco-saved { 
+    margin-left: 8px; 
+    color: #2e7d32; 
+    font-size: 11px;
+    font-weight: normal;
+}
+
+/* Para telas menores */
+@media screen and (max-width: 782px) {
+    table.wp-list-table th.column-tco_order,
+    table.wp-list-table td.column-tco_order {
+        width: 40px !important;
+        padding: 4px 2px !important;
+    }
+}
