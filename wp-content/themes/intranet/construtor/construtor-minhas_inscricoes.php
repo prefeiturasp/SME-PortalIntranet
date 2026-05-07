@@ -1,7 +1,8 @@
 <?php
 
 wp_localize_script('scripts_js', 'ajax_obj', [
-    'ajax_url' => admin_url('admin-ajax.php')
+    'ajax_url' => admin_url('admin-ajax.php'),
+    'nonce'    => wp_create_nonce('acoes_inscricao')
 ]);
 
 $historico_participante = new Historico_Participacoes();
@@ -23,18 +24,19 @@ if ( $user_cpf ) {
                         <tr>
                             <th>Evento</th>
                             <th>Modalidade</th>
-                            <th>Cancelar inscrição</th>
+                            <th>Ações</th>
                             <th>Situação da inscrição</th>
-                            <th>Resultado da inscrição</th>
-                            <th>Minha participação</th>
-                            <th>Instruções do evento</th>
-                            <th>Participou do evento</th>
+                            <th>Resultado</th>
+                            <th>Confirmação de presença</th>
+                            <th>Instruções</th>
+                            <th>Presença</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php
-                        foreach ( $inscricoes_participante as $inscricao ) : //dd($inscricao);
+                        foreach ( $inscricoes_participante as $inscricao ) :
                             $pode_cancelar = check_inscricoes_encerradas( $inscricao );
+                            $pode_confirmar = check_necessidade_confirmacao( $inscricao );
                             $situacao_inscricao = get_situacao_inscricao( $inscricao );
                             $resultado_inscricao = get_resultado_inscricao( $inscricao );
                             $status_participacao = get_status_participacao( $inscricao );
@@ -54,15 +56,52 @@ if ( $user_cpf ) {
                                         <span class="cortesia"><i class="fa fa-bolt" aria-hidden="true"></i> Ordem de Inscrição</span>
                                     <?php endif; ?>
                                 </td>
-                                <td id="cancelar-inscricao" class="text-center">
-                                    <?php if ( $pode_cancelar ) : ?>
-                                        <button class="btn btn-danger">Cancelar</button>
+                                <td id="acoes" class="text-center">
+                                    <?php if ( !$pode_confirmar && !$pode_cancelar ) : ?>
+                                        <span>-</span>
                                     <?php else : ?>
-                                        <strong class="text-secondary">Cancelar</strong>
+                                        <div class="btn-group btn-acoes" role="group">
+                                            <button type="button" class="btn btn-outline-secondary dropdown-toggle seletor-acoes" data-toggle="dropdown" aria-expanded="false">
+                                                Selecione
+                                            </button>
+                                            <div class="dropdown-menu">
+                                                <?php if ( $pode_cancelar ) : ?>
+                                                    <a
+                                                        class="dropdown-item btn-cancelar-inscricao"
+                                                        data-post="<?php echo esc_html( $inscricao->post_id ); ?>"
+                                                        data-modalidade="<?php echo esc_html( $inscricao->tipo ); ?>"
+                                                        >
+                                                        Cancelar inscrição
+                                                    </a>
+                                                <?php endif; ?>
+
+                                                <?php if ( $pode_confirmar && $pode_cancelar ) : ?>
+                                                    <hr class="m-0">
+                                                <?php endif; ?>
+
+                                                <?php
+                                                if ( $pode_confirmar ) :
+                                                    $prazo_formatado = $dataBrasil = date( 'd/m/Y H:i', strtotime( $inscricao->prazo_confirmacao ) );
+                                                    ?>
+                                                    <a
+                                                        class="dropdown-item btn-confirmar-presenca"
+                                                        data-post="<?php echo esc_html( $inscricao->post_id ); ?>"
+                                                        data-tipo="<?php echo esc_attr(  get_field( 'tipo_evento', $inscricao->post_id ) ); ?>"
+                                                        data-prazo="<?php echo esc_attr( $prazo_formatado ); ?>"
+                                                        data-modalidade="<?php echo esc_html( $inscricao->tipo ); ?>"
+                                                        data-inscricao="<?php echo esc_html( $inscricao->id ); ?>"
+                                                        >
+                                                        Confirmar/Cancelar participação
+                                                    </a>
+                                                    <?php
+                                                endif;
+                                                ?>
+                                            </div> 
+                                        </div>
                                     <?php endif; ?>
                                 </td>
                                 <td id="situacao-inscricao" class="text-center">
-                                    <?php echo esc_html( $situacao_inscricao ); ?>
+                                    <?php echo $situacao_inscricao; ?>
                                 </td>
                                 <td id="resultado-inscricao" class="text-center"><?php echo $resultado_inscricao; ?></td>
                                 <td id="minha-participacao" class="text-center"><?php echo $status_participacao; ?></td>
@@ -155,7 +194,7 @@ if ( $user_cpf ) {
 
 function check_inscricoes_encerradas( object $inscricao ) {
 
-    $hoje = obter_data_com_timezone('Ymd');
+    $hoje = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
     $encerramento_inscricoes = get_field( 'enc_inscri', $inscricao->post_id );
     
     return $encerramento_inscricoes >= $hoje;
@@ -174,17 +213,17 @@ function get_situacao_inscricao( object $inscricao ) {
         $data_formatada = DateTime::createFromFormat( 'Ymd', $encerramento_inscricoes )->format( 'd/m/Y' );
 
         if ( !$inscricoes_abertas ) {
-            return "Inscrições encerradas em: {$data_formatada}";
+            return "Inscrições encerradas em <br> {$data_formatada}";
         }
 
-        return "Inscrições encerram em: {$data_formatada}";
+        return "Inscrições encerram em <br> {$data_formatada}";
     }
 
     if ( !$inscricoes_abertas ) {
-        return "Sorteio realizado " . obter_ultima_data_sorteio( $inscricao->post_id, false );
+        return "Sorteio foi realizado <br>" . obter_ultima_data_sorteio( $inscricao->post_id, false );
     }
 
-    return "Próximo sorteio " . obter_proxima_data_sorteio( $inscricao->post_id, false );
+    return "Próximo sorteio <br>" . obter_proxima_data_sorteio( $inscricao->post_id, false );
 }
 
 function get_resultado_inscricao( object $inscricao ) {
@@ -249,7 +288,7 @@ function get_status_participacao( object $inscricao ) {
         ';
     }
 
-    return '<button class="btn btn-success">Confirmar presença</button>';
+    return '-';
 }
 
 function get_envio_instrucoes_inscricao( object $inscricao ) {
@@ -266,16 +305,8 @@ function get_envio_instrucoes_inscricao( object $inscricao ) {
 }
 
 function check_comparecimento_evento( object $inscricao ) {
-    $historico_participante = new Historico_Participacoes();
 
-    if( is_null( $inscricao->compareceu ) || ( !boolval( $inscricao->sorteado ) && $inscricao->tipo == 'sorteio') ) {
-        return '-';
-    }
-
-    if ( boolval( $inscricao->compareceu ) ) {
-        return '<span>Participou</span>';
-    }
-    
+    $historico_participante = new Historico_Participacoes();    
     $user_cpf = get_user_cpf();
     $sancao_ativa = $historico_participante->check_sancao_ativa_participante( $user_cpf );
 
@@ -287,8 +318,12 @@ function check_comparecimento_evento( object $inscricao ) {
             </span>
         ';
     }
+
+    if ( $inscricao->compareceu == 0 ) {
+        return '<span class="text-danger">&#9888; Faltou</span>';
+    }
     
-    return '<span class="text-danger">&#9888; Não compareceu</span>';
+    return '-';
 }
 
 function get_user_cpf() {
@@ -303,4 +338,30 @@ function get_user_cpf() {
     $cpf = get_field( 'cpf', 'user_' . $user_id );
     
     return preg_replace( '/[^0-9]/', '', $cpf );
+}
+
+function check_necessidade_confirmacao( object $inscricao ) {
+
+    $precisa_confirmar = get_field( 'confirm_presen', $inscricao->post_id );
+
+    if (!$precisa_confirmar) {
+        return false;
+    }
+
+    if ( $inscricao->tipo === 'sorteio' && !boolval( $inscricao->sorteado ) ) {
+        return false;
+    }
+
+    if ( intval( $inscricao->confirmou_presenca ) !== 0 ) {
+        return false;
+    }
+
+    if ( empty( $inscricao->prazo_confirmacao ) ) {
+        return false;
+    }
+
+    $prazo = new DateTime( $inscricao->prazo_confirmacao, new DateTimeZone('America/Sao_Paulo') );
+    $agora = new DateTime( 'now', new DateTimeZone( 'America/Sao_Paulo' ) );
+
+    return $prazo > $agora;
 }
