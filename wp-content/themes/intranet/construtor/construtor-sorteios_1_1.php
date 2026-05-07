@@ -1,6 +1,12 @@
 <?php
 $tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : null;
 if ( $tab === 'minhas-inscricoes' ) {
+    $perfil_usuario = get_perfil_usuario_logado();
+    
+    if ( $perfil_usuario !== 'servidor' ) {
+        wp_safe_redirect( get_field( 'pagina_principal_sorteios_cortesias', 'options' ) );
+    }
+
     return get_template_part( 'construtor/construtor', 'minhas_inscricoes' );
 }
 ?>

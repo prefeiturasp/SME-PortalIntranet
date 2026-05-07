@@ -2566,6 +2566,25 @@ div#minhas-inscricoes #tabela-inscricoes-participante #resultado-inscricao stron
     color: #327D37;
 }
 
+div#minhas-inscricoes #tabela-inscricoes-participante .btn-cancelar-inscricao,
+div#minhas-inscricoes #tabela-inscricoes-participante .btn-confirmar-presenca {
+    font-size: 14px;
+}
+
+div#minhas-inscricoes #tabela-inscricoes-participante .btn-acoes .dropdown-menu {
+    border: 1px solid #313131 !important;
+    margin-top: 30px;
+}
+
+div#minhas-inscricoes #tabela-inscricoes-participante #acoes .btn-acoes .dropdown-menu a {
+    cursor: pointer;
+}
+
+div#minhas-inscricoes #tabela-inscricoes-participante .btn-acoes .seletor-acoes {
+    min-width: 130px;
+    font-size: 14px;
+}
+
 .tabela-scroll {
     width: 100%;
     overflow-x: auto;

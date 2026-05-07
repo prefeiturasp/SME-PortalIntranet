@@ -430,3 +430,156 @@ jQuery(function($){
     });
 
 });
+
+/** Scripts do fluxo de confirmação/cancelamento da participação da listagem de eventos na aba de "Minhas inscrições" */
+
+jQuery(function($){
+
+    let $dropdowns = $(document).find('#tabela-inscricoes-participante .btn-acoes .seletor-acoes');
+
+    if ($dropdowns.length) {
+       $dropdowns.click(); //Inicializa corretamente os dropdowns de ação da tabela 
+    }
+
+    $(document).on('click', '#tabela-inscricoes-participante .btn-confirmar-presenca', function () {
+
+        const postId = $(this).data('post');
+        const tipo = $(this).data('tipo');
+        const prazo = $(this).data('prazo');
+        const inscricaoId = $(this).data('inscricao');
+        const modalidade = $(this).data('modalidade');
+
+        let htmlConteudo = '';
+
+        if (modalidade === 'sorteio') {
+
+            if (tipo === 'premio') {
+                htmlConteudo = `
+                    <p>Ao confirmar sua participação, você receberá um novo e-mail com instruções relacionadas a este sorteio.</p>
+                    <p>Se não puder prosseguir, você pode <strong>cancelar sua participação</strong> e a oportunidade será disponibilizada para outro participante.</p>
+                    <p><strong>Atenção:</strong> caso confirme e não siga as instruções, você poderá ficar impedido de participar de novos sorteios por um período.</p>
+                `;
+            } else {
+                htmlConteudo = `
+                    <p>Ao confirmar sua presença, você receberá um <strong>novo e-mail com instruções para utilização do seu ingresso</strong>.</p>
+                    <p>Se não puder comparecer, recomendamos <strong>cancelar sua participação</strong> para que outra pessoa possa aproveitar o evento.</p>
+                    <p><strong>Atenção:</strong> Se confirmar e não comparecer, poderá ficar impedido de participar de novos sorteios por um período.</p>
+                `;
+            }
+        }
+
+        if (modalidade === 'cortesia') {
+            htmlConteudo = `
+                <p>Caso confirme, você receberá um <strong>novo e-mail com instruções relacionadas a esta participação.</strong></p>
+                <p>Se não puder prosseguir, <strong>pedimos que cancele clicando no botão abaixo</strong>. Dessa forma, a oportunidade poderá ser disponibilizada para outro participante.</p>
+                <p><strong>Atenção:</strong> Caso a participação seja confirmada e as instruções não sejam seguidas conforme orientado, você poderá ficar impedido(a) de participar de novas inscrições por um período determinado.</p>
+            `;  
+        }
+
+        Swal.fire({
+            title: 'Confirme sua participação!',
+            html: `
+                ${htmlConteudo}
+                <p style="margin-top:15px;">
+                    <strong>Prazo para confirmação:</strong><br>${prazo}
+                </p>
+            `,
+            icon: "info",
+
+            showCancelButton: true,
+            showCloseButton: true,
+
+            confirmButtonText: 'Confirmar presença',
+            cancelButtonText: 'Cancelar participação',
+
+            confirmButtonColor: '#268618',
+            cancelButtonColor: '#011257',
+
+            reverseButtons: false,
+            focusConfirm: false,
+            width: 600,
+
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading(),
+
+            //Confirmar presença
+            preConfirm: () => {
+                return $.ajax({
+                    url: ajax_obj.ajax_url,
+                    type: 'POST',
+                    data: {
+                        action: modalidade == 'sorteio' ? 'confirmar_cancelar_presenca_sorteio' : 'confirmar_cancelar_presenca_cortesia',
+                        nonce: ajax_obj.nonce,
+                        post_id: postId,
+                        inscricao_id: inscricaoId,
+                        acao: 1 // 1 => Confirmar presença 2 => Cancelar participação
+                    }
+                }).catch(() => {
+                    Swal.showValidationMessage('Erro ao confirmar presença');
+                });
+            }
+
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                response = result.value;
+
+                Swal.fire({
+                    icon: response.success ? 'success' : 'error',
+                    html: response.data.message,
+                    confirmButtonText: 'Fechar'
+                }).then(() => location.reload());
+            }
+
+            //Cancelar participação
+            if (result.dismiss === Swal.DismissReason.cancel) {
+
+                Swal.fire({
+                    title: 'Cancelar participação?',
+                    text: 'Essa ação não pode ser desfeita.',
+                    icon: 'warning',
+
+                    showCancelButton: true,
+                    confirmButtonText: 'Sim, cancelar',
+                    cancelButtonText: 'Voltar',
+
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#6c757d',
+
+                    showLoaderOnConfirm: true,
+                    allowOutsideClick: () => !Swal.isLoading(),
+
+                    preConfirm: () => {
+                        return $.ajax({
+                            url: ajax_obj.ajax_url,
+                            type: 'POST',
+                            data: {
+                                action: modalidade == 'sorteio' ? 'confirmar_cancelar_presenca_sorteio' : 'confirmar_cancelar_presenca_cortesia',
+                                nonce: ajax_obj.nonce,
+                                post_id: postId,
+                                inscricao_id: inscricaoId,
+                                acao: 2 // 1 => Confirmar presença 2 => Cancelar participação
+                            }
+                        }).catch(() => {
+                            Swal.showValidationMessage('Erro ao cancelar participação');
+                        });
+                    }
+
+                }).then((cancelResult) => {
+                    if (cancelResult.isConfirmed) {
+
+                        response = cancelResult.value;
+
+                        Swal.fire({
+                            icon: response.success ? 'success' : 'error',
+                            html: response.data.message,
+                            confirmButtonText: 'Fechar'
+                        }).then(() => location.reload());
+                    }
+                });
+            }
+
+        });
+
+    });
+});
