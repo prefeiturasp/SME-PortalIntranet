@@ -11,7 +11,7 @@ mkdir -p /run/apache2/modsecurity/data
 mkdir -p /run/apache2/modsecurity/tmp
 envsubst < /etc/modsecurity/modsecurity.template > /etc/modsecurity/modsecurity.conf
 chown -R www-data:www-data /run/apache2/modsecurity
-rm -f /var/www/html/wp-content/plugins/aviso-secretario /var/www/html/wp-content/plugins/email-admin /var/www/html/wp-content/plugins/email-padrao /var/www/html/wp-content/plugins/email-admin-dre /var/www/html/wp-content/plugins/coressoapi /var/www/html/wp-content/plugins/grupo-editores 
+rm -f /var/www/html/wp-content/plugins/aviso-secretario /var/www/html/wp-content/plugins/email-admin /var/www/html/wp-content/plugins/email-padrao /var/www/html/wp-content/plugins/email-admin-dre /var/www/html/wp-content/plugins/coressoapi /var/www/html/wp-content/plugins/grupo-editores /var/www/html/wp-content/plugins/taxonomy-order /var/www/html/wp-content/plugins/email-admin-oportunidades
 ln -s /var/www/html/plugins-privados/aviso-secretario /var/www/html/wp-content/plugins/aviso-secretario
 ln -s /var/www/html/plugins-privados/email-admin /var/www/html/wp-content/plugins/email-admin
 ln -s /var/www/html/plugins-privados/email-padrao /var/www/html/wp-content/plugins/email-padrao
@@ -20,6 +20,7 @@ ln -s /var/www/html/plugins-privados/coressoapi /var/www/html/wp-content/plugins
 ln -s /var/www/html/plugins-privados/grupo-editores /var/www/html/wp-content/plugins/grupo-editores
 ln -s /var/www/html/plugins-privados/envia-email-sme /var/www/html/wp-content/plugins/envia-email-sme
 ln -s /var/www/html/plugins-privados/taxonomy-order /var/www/html/wp-content/plugins/taxonomy-order
+ln -s /var/www/html/plugins-privados/email-admin-oportunidades /var/www/html/wp-content/plugins/email-admin-oportunidades
 
 addpath () {
   x="$1"

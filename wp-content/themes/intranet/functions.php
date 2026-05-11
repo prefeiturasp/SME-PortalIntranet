@@ -7227,6 +7227,7 @@ function acf_custom_term_order($args, $field, $post_id) {
 
 add_filter('acf/fields/taxonomy/query/name=setor', 'acf_custom_term_order', 10, 3); // Aplica a ordenação para o campo "Setor/Coordenadoria"
 add_filter('acf/fields/taxonomy/query/name=eixo_atuacao', 'acf_custom_term_order', 10, 3); // Aplica a ordenação para o campo "Eixo de atuação"
+add_filter('acf/fields/taxonomy/query/name=coordenadoria', 'acf_custom_term_order', 10, 3); // Aplica a ordenação para o campo "Coordenadoria" no editor de perfil
 
 
 
@@ -7321,4 +7322,491 @@ add_action('admin_head', function () {
             #titlediv { display:none !important; }
         </style>';
     }
+});
+
+/**
+ * Coordenadoria obrigatória para role gestor_unidade
+ */
+
+// Admin footer para injetar o javascript necessário para mostrar/ocultar o campo de coordenadoria e validar a seleção, além de ocultar seções do perfil para usuários com a função admin_portal
+add_action('admin_footer', function () {
+
+    $screen = get_current_screen();
+
+    if (
+        !$screen ||
+        !in_array($screen->base, ['user-edit', 'user-new', 'profile'])
+    ) {
+        return;
+    }
+
+    ?>
+
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+
+        
+        // OCULTA SEÇÕES SEM REMOVER DO DOM        
+
+        function removeSection(titleText) {
+
+			$('h2').each(function(){
+
+				var $h2 = $(this);
+
+				if ($h2.text().trim() === titleText) {
+
+					// pega todos os elementos da seção
+					var $section = $h2.nextUntil('h2');
+
+					// oculta completamente sem remover do DOM
+					$section.css({
+						display: 'none'
+					});
+
+					// oculta o título
+					$h2.css({
+						display: 'none'
+					});
+
+				}
+
+			});
+
+		}
+
+
+        
+        // MOSTRA/OCULTA CAMPO COORDENADORIA
+
+        function toggleCampoCoordenadoria() {
+
+			var role = $('#role').val();
+
+			var $campo = $('[data-key="field_69fc896649df7"]');
+
+			if (!$campo.length) {
+				return;
+			}
+
+			// tabela do ACF
+			var $table = $campo.closest('table');
+
+			// h2 imediatamente anterior
+			var $titulo = $table.prev('h2');
+
+			if (role === 'gestor_unidade') {
+
+				$table.show();
+				$campo.show();
+				$titulo.show();
+
+			} else {
+
+				$table.hide();
+				$campo.hide();
+				$titulo.hide();
+
+			}
+
+		}
+
+
+       
+        // LIMPEZA VISUAL PARA admin_portal     
+
+        <?php if (current_user_can('admin_portal')) : ?>
+
+            removeSection('Sobre o usuário');
+            removeSection('Gerenciamento de conta');
+            removeSection('Senhas da aplicação');
+            removeSection('Opções pessoais');
+
+        <?php endif; ?>
+
+        setTimeout(toggleCampoCoordenadoria, 300);
+
+        $('#role').on('change', toggleCampoCoordenadoria);
+        
+        // VALIDAÇÃO 
+        $('#your-profile, #createuser').on('submit', function(e) {
+
+            if ($('#role').val() !== 'gestor_unidade') {
+                return;
+            }
+
+            var $field = $('[data-key="field_69fc896649df7"]');
+
+            var valor = $field.find('select').val();
+
+            if (
+                !valor ||
+                valor === '' ||
+                valor === 'null'
+            ) {
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                Swal.fire({
+                    title: 'Atenção!',
+                    text: 'Para atribuir a função "Gestor da Unidade", é obrigatório selecionar uma Coordenadoria.',
+                    icon: 'warning'
+                });
+
+                $field.show();
+
+                $field
+                    .closest('.postbox, .acf-postbox')
+                    .show();
+
+                $('html, body').animate({
+                    scrollTop: $field.offset().top - 100
+                }, 500);
+
+                return false;
+            }
+
+        });
+
+    });
+    </script>
+
+    <style>
+
+        .acf-field[data-key="field_69fc896649df7"] label::after {
+            content: ' *';
+            color: #dc3232;
+            font-weight: bold;
+        }
+
+    </style>
+
+    <?php
+});
+
+// Validação backend para garantir que a coordenadoria seja selecionada quando a função for gestor_unidade, caso o javascript falhe por algum motivo
+add_action('user_profile_update_errors', function ($errors) {
+
+    $screen = get_current_screen();
+
+    if (
+        !$screen ||
+        !in_array($screen->base, ['user-edit', 'user-new', 'profile'])
+    ) {
+        return;
+    }
+
+    $role = $_POST['role'] ?? '';
+
+    // só valida gestor_unidade
+    if ($role !== 'gestor_unidade') {
+        return;
+    }
+
+    $coordenadoria = $_POST['acf']['field_69fc896649df7'] ?? '';
+
+    if (empty($coordenadoria)) {
+
+        $errors->add(
+            'coordenadoria_obrigatoria',
+            '<strong>ERRO:</strong> Para atribuir a função "Gestor da Unidade", é obrigatório selecionar uma Coordenadoria.'
+        );
+
+    }
+
+}, 10, 1);
+
+// Formatação dos termos da coordenadoria
+add_filter('acf/fields/taxonomy/result/name=coordenadoria', function ($text, $term, $field, $post_id) {
+
+    if (!is_object($term)) {
+        return $text;
+    }
+
+    $name = $term->name;
+
+    if (!empty($term->description)) {
+        $name .= ' - ' . $term->description;
+    }
+
+    return $name;
+
+}, 10, 4);
+
+// Exibe apenas categorias pai no campo coordenadoria do perfil do usuário
+add_filter('acf/fields/taxonomy/query/name=coordenadoria', function ($args, $field, $post_id) {
+
+    // Apenas categorias pai
+    $args['parent'] = 0;
+
+    return $args;
+
+}, 10, 3);
+
+add_action('pre_get_posts', function ($query) {
+
+    // Apenas admin
+    if (!is_admin()) {
+        return;
+    }
+
+    // Apenas query principal
+    if (!$query->is_main_query()) {
+        return;
+    }
+
+    // Apenas listagem do CPT oportunidade
+    global $pagenow;
+
+    if (
+        $pagenow !== 'edit.php' ||
+        $query->get('post_type') !== 'oportunidade'
+    ) {
+        return;
+    }
+
+    // Usuário logado
+    $user = wp_get_current_user();
+
+    // Apenas gestor_unidade
+    if (
+        !in_array('gestor_unidade', (array) $user->roles)
+    ) {
+        return;
+    }
+
+    // Coordenadoria do usuário
+    $coordenadoria_id = get_field(
+        'coordenadoria',
+        'user_' . $user->ID
+    );
+
+    if (empty($coordenadoria_id)) {
+        return;
+    }
+
+    // IDs permitidos
+    $terms_ids = [$coordenadoria_id];
+
+    // Busca subcategorias
+    $children = get_terms([
+        'taxonomy'   => 'coordenadorias',
+        'hide_empty' => false,
+        'parent'     => $coordenadoria_id,
+        'fields'     => 'ids',
+    ]);
+
+    if (!is_wp_error($children) && !empty($children)) {
+        $terms_ids = array_merge($terms_ids, $children);
+    }
+
+    // Filtra oportunidades
+    $query->set('tax_query', [
+        [
+            'taxonomy'         => 'coordenadorias',
+            'field'            => 'term_id',
+            'terms'            => $terms_ids,
+            'include_children' => true,
+        ]
+    ]);
+
+});
+
+// Volta para pendente ao editar o post publicado para gestor da unidade
+add_filter('wp_insert_post_data', function ($data, $postarr) {
+
+    // apenas admin
+    if (!is_admin()) {
+        return $data;
+    }
+
+    // apenas CPT oportunidade
+    if (
+        empty($data['post_type']) ||
+        $data['post_type'] !== 'oportunidade'
+    ) {
+        return $data;
+    }
+
+    // usuário logado
+    $user = wp_get_current_user();
+
+    // apenas gestor_unidade
+    if (
+        !in_array('gestor_unidade', (array) $user->roles)
+    ) {
+        return $data;
+    }
+
+    // apenas edição
+    if (empty($postarr['ID'])) {
+        return $data;
+    }
+
+    // status atual do post
+    $current_status = get_post_status($postarr['ID']);
+
+    // se estava publicado, volta para pendente
+    if ($current_status === 'publish') {
+
+        $data['post_status'] = 'pending';
+
+    }
+
+    return $data;
+
+}, 10, 2);
+
+
+// Altera texto do botão e mensagens para gestor da unidade
+add_action('admin_footer', function () {
+
+    global $post;
+
+    if (!$post) {
+        return;
+    }
+
+    // apenas CPT oportunidade
+    if ($post->post_type !== 'oportunidade') {
+        return;
+    }
+
+    // apenas gestor_unidade
+    $user = wp_get_current_user();
+
+    if (
+        !in_array('gestor_unidade', (array) $user->roles)
+    ) {
+        return;
+    }
+
+    ?>
+
+    <script>
+    jQuery(function($){
+
+        // botão principal
+        $('#publish').val('Enviar para revisão');
+
+        // textos Gutenberg/classic
+        $('#publishing-action .spinner')
+            .after('');
+
+    });
+    </script>
+
+    <?php
+
+});
+
+// Verifica permissão de acesso aos CPT, redirecionando para a listagem caso não tenha acesso
+add_action('admin_init', function () {
+
+    // apenas admin
+    if (!is_admin()) {
+        return;
+    }
+
+    // apenas tela de edição
+    global $pagenow;
+
+    if ($pagenow !== 'post.php') {
+        return;
+    }
+
+    // post id
+    $post_id = isset($_GET['post'])
+        ? intval($_GET['post'])
+        : 0;
+
+    if (!$post_id) {
+        return;
+    }
+
+    // apenas CPT oportunidade
+    if (get_post_type($post_id) !== 'oportunidade') {
+        return;
+    }
+
+    // usuário logado
+    $user = wp_get_current_user();
+
+    // apenas gestor_unidade
+    if (
+        !in_array('gestor_unidade', (array) $user->roles)
+    ) {
+        return;
+    }
+
+    // coordenadoria do usuário
+    $user_coordenadoria = get_field(
+        'coordenadoria',
+        'user_' . $user->ID
+    );
+
+    if (empty($user_coordenadoria)) {
+        return;
+    }
+
+    // coordenadorias do post
+    $post_terms = wp_get_post_terms(
+        $post_id,
+        'coordenadorias',
+        [
+            'fields' => 'ids'
+        ]
+    );
+
+    if (empty($post_terms) || is_wp_error($post_terms)) {
+
+        wp_redirect(
+            admin_url('edit.php?post_type=oportunidade')
+        );
+
+        exit;
+
+    }
+
+    // pega filhos da coordenadoria do usuário
+    $allowed_terms = get_term_children(
+        $user_coordenadoria,
+        'coordenadorias'
+    );
+
+    if (is_wp_error($allowed_terms)) {
+        $allowed_terms = [];
+    }
+
+    // inclui a principal
+    $allowed_terms[] = (int) $user_coordenadoria;
+
+    // verifica acesso
+    $has_access = false;
+
+    foreach ($post_terms as $term_id) {
+
+        if (in_array($term_id, $allowed_terms)) {
+
+            $has_access = true;
+            break;
+
+        }
+
+    }
+
+    // sem acesso
+    if (!$has_access) {
+
+        wp_redirect(
+            admin_url('edit.php?post_type=oportunidade')
+        );
+
+        exit;
+
+    }
+
 });
