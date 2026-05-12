@@ -6862,9 +6862,6 @@ add_filter('acf/load_value/name=sorteios_cortesias_destaques', function($value, 
 */
 function check_usuario_inscrito_evento( int $post_id ) {
 
-	//Função desativada até que seja implementada a página de inscrições
-	return false;
-
 	global $wpdb;
 
 	$user_id = get_current_user_id();
@@ -7810,3 +7807,73 @@ add_action('admin_init', function () {
     }
 
 });
+
+function show_alerta_sancao_ativa() {
+	global $wpdb;
+
+	$user_id = get_current_user_id();
+    $perfil = get_perfil_usuario_logado();
+	$hoje = obter_data_com_timezone( 'Y-m-d', 'America/Sao_Paulo' );
+
+	if( $perfil !== 'servidor' ) {
+		return '';
+	}
+
+	$cpf = get_field( 'cpf', 'user_' . $user_id );
+	$user_cpf = preg_replace( '/[^0-9]/', '', $cpf );
+	$tabela_sancoes = $wpdb->prefix . 'inscricao_sancoes';
+
+	$sancao_ativa = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT id, id_inscricao, data_validade FROM $tabela_sancoes WHERE cpf = %s AND data_validade > %s",
+			$user_cpf,
+			$hoje
+		),
+		ARRAY_A
+	);
+
+	if ( !$sancao_ativa || !isset( $sancao_ativa['data_validade'] ) ) {
+		return '';
+	}
+
+	$data_formatada = date( 'd/m/Y', strtotime( $sancao_ativa['data_validade'] ) );
+
+	return '
+		<div class="alert alert-warning alerta-sancao-ativa my-3" role="alert">
+			<i class="fa fa-lg fa-exclamation-triangle" aria-hidden="true"></i>
+			Você está temporariamente impedido de realizar novas inscrições devido à sua ausência. Você poderá se inscrever novamente a partir de ' . $data_formatada . '
+		</div>';
+}
+
+/** Retorna os valores definidos para cada campo do filtro da aba de "Minhas inscrições" */
+function get_valores_filtro_inscricoes( string $filtro ) : array {
+
+    $filtros = [
+
+        'modalidade' => [
+            'sorteio'  => 'Sorteio',
+            'cortesia' => 'Ordem de Inscrição',
+        ],
+
+        'acoes_pendentes' => [
+			'cancelar_inscricao' => 'Cancelar inscrição',
+            'confirmar_presenca' => 'Confirmar presença',
+        ],
+
+        'minha_participacao' => [
+            'confirmada'      => 'Confirmada',
+            'prazo_expirado'  => 'Prazo expirado',
+            'cancelou'        => 'Cancelou participação',
+            'bloqueado_falta' => 'Bloqueado por falta',
+        ],
+
+        'resultado_inscricao' => [
+			'aguardando_sorteio' => 'Aguardando sorteio',
+            'nao_sorteado'       => 'Não sorteado',
+            'contemplado'        => 'Contemplado',
+        ],
+
+    ];
+
+    return $filtros[$filtro] ?? [];
+}
