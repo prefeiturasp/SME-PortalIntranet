@@ -9,7 +9,8 @@ $historico_participante = new Historico_Participacoes();
 $user_cpf = get_user_cpf();
 
 if ( $user_cpf ) {
-    $inscricoes_participante = $historico_participante->get_eventos_participante( $user_cpf );
+    $filtros = get_filtros_minhas_inscricoes();
+    $inscricoes_participante = $historico_participante->get_eventos_participante_com_filtros( $user_cpf, $filtros );
 } else {
     $inscricoes_participante = [];
 }
@@ -17,7 +18,7 @@ if ( $user_cpf ) {
 ?>
 <div class="container">
     <div class="row">
-        <?php if ( $inscricoes_participante ) : ?>
+        <?php if ( $inscricoes_participante || isset( $filtros ) ) : ?>
             <div class="col-sm-12 mb-4 tabela-scroll" id="minhas-inscricoes">
                 <table id="tabela-inscricoes-participante" class="table table-striped">
                     <thead>
@@ -35,7 +36,7 @@ if ( $user_cpf ) {
                     <tbody>
                         <?php
                         foreach ( $inscricoes_participante as $inscricao ) :
-                            $pode_cancelar = check_inscricoes_encerradas( $inscricao );
+                            $pode_cancelar = check_inscricoes_abertas( $inscricao );
                             $pode_confirmar = check_necessidade_confirmacao( $inscricao );
                             $situacao_inscricao = get_situacao_inscricao( $inscricao );
                             $resultado_inscricao = get_resultado_inscricao( $inscricao );
@@ -45,6 +46,7 @@ if ( $user_cpf ) {
                             ?>
                             <tr>
                                 <td id="nome-evento">
+                                    <?php echo esc_html( $inscricao->id ); ?>
                                     <a href="<?php echo esc_url( get_the_permalink( $inscricao->post_id ) ); ?>" target="_blank">
                                         <?php echo esc_html( $inscricao->nome_evento ); ?> <i class="fa fa-external-link" aria-hidden="true"></i>
                                     </a>
@@ -192,7 +194,7 @@ if ( $user_cpf ) {
 
 <?php
 
-function check_inscricoes_encerradas( object $inscricao ) {
+function check_inscricoes_abertas( object $inscricao ) {
 
     $hoje = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
     $encerramento_inscricoes = get_field( 'enc_inscri', $inscricao->post_id );
@@ -201,7 +203,7 @@ function check_inscricoes_encerradas( object $inscricao ) {
 }
 
 function get_situacao_inscricao( object $inscricao ) {
-    $inscricoes_abertas = check_inscricoes_encerradas( $inscricao );
+    $inscricoes_abertas = check_inscricoes_abertas( $inscricao );
 
     if ( $inscricao->tipo === 'cortesia' ) {
         $encerramento_inscricoes = get_field( 'enc_inscri', $inscricao->post_id );
@@ -211,39 +213,67 @@ function get_situacao_inscricao( object $inscricao ) {
         }
 
         $data_formatada = DateTime::createFromFormat( 'Ymd', $encerramento_inscricoes )->format( 'd/m/Y' );
+        $data_formatada = formatar_data_por_extenso( $data_formatada, false, false );
 
         if ( !$inscricoes_abertas ) {
-            return "Inscrições encerradas em <br> {$data_formatada}";
+            return "Encerrada <br> {$data_formatada}";
         }
 
-        return "Inscrições encerram em <br> {$data_formatada}";
+        return "Aberta até <br> {$data_formatada}";
     }
 
     if ( !$inscricoes_abertas ) {
-        return "Sorteio foi realizado <br>" . obter_ultima_data_sorteio( $inscricao->post_id, false );
+        return "Sorteio realizado <br>" . obter_ultima_data_sorteio( $inscricao->post_id, false );
     }
 
     return "Próximo sorteio <br>" . obter_proxima_data_sorteio( $inscricao->post_id, false );
 }
 
 function get_resultado_inscricao( object $inscricao ) {
-    $inscricoes_abertas = check_inscricoes_encerradas( $inscricao );
-    $exibe_resultado_pagina = boolval( get_post_meta( $inscricao->post_id, 'exibe_resultado_pagina', true ) );
 
-    if ( $inscricao->tipo === 'cortesia' ) {
+    if ( $inscricao->resultado_inscricao === 'contemplado' ) {
         return '<strong>Contemplado</strong>';
     }
 
-    if ( $inscricoes_abertas && $inscricao->sorteado == '0' ) {
-        return '-';
+    if ( $inscricao->resultado_inscricao === 'nao_sorteado' ) {
+        return 'Não foi dessa vez &#128546;';
     }
 
-    if ( $inscricao->sorteado == '1' ) {
-        return $exibe_resultado_pagina ? '<strong>Contemplado</strong>' : '-';
-    }
-
-    return 'Não foi dessa vez &#128546;';
+    return '-';
 }
+
+function get_status_resultado_inscricao( object $inscricao ) {
+
+        /* Cortesia */
+        if ( $inscricao->tipo === 'cortesia' ) {
+            return 'contemplado';
+        }
+
+        if ( $inscricao->sorteado == '1' ) {
+            return 'contemplado';
+        }
+
+        $divulgar_resultado = boolval(
+            get_post_meta(
+                $inscricao->post_id,
+                'exibe_resultado_pagina',
+                true
+            )
+        );
+
+        $inscricoes_abertas = check_inscricoes_abertas( $inscricao );
+
+        if ( $inscricoes_abertas && $inscricao->sorteado == '0' && !$divulgar_resultado ) {
+            return 'aguardando_sorteio';
+        }
+        
+        /* Não foi sorteado */
+        if ( !$inscricoes_abertas && $inscricao->sorteado == '0' && $divulgar_resultado ) {
+            return 'nao_sorteado';
+        }
+
+        return 'aguardando_sorteio';
+    }
 
 function get_status_participacao( object $inscricao ) {
 
@@ -364,4 +394,87 @@ function check_necessidade_confirmacao( object $inscricao ) {
     $agora = new DateTime( 'now', new DateTimeZone( 'America/Sao_Paulo' ) );
 
     return $prazo > $agora;
+}
+
+function get_filtros_minhas_inscricoes(): array {
+
+    $filtros = [];
+
+    $modalidades_validas = get_valores_filtro_inscricoes('modalidade');
+
+    $modalidade = isset($_GET['modalidade'])
+        ? sanitize_text_field($_GET['modalidade'])
+        : '';
+
+    if (
+        !empty($modalidade)
+        && array_key_exists($modalidade, $modalidades_validas)
+    ) {
+
+        $filtros['modalidade'] = $modalidade;
+
+    }
+
+    $evento = isset($_GET['evento'])
+        ? sanitize_text_field($_GET['evento'])
+        : '';
+
+    if (!empty($evento)) {
+
+        $filtros['evento'] = $evento;
+
+    }
+
+    $acoes_validas = get_valores_filtro_inscricoes('acoes_pendentes');
+
+    $acao = isset($_GET['acoes'])
+        ? sanitize_text_field($_GET['acoes'])
+        : '';
+
+    if (
+        !empty($acao)
+        && array_key_exists($acao, $acoes_validas)
+    ) {
+
+        $filtros['acoes'] = $acao;
+
+    }
+
+    $participacoes_validas = get_valores_filtro_inscricoes('minha_participacao');
+
+    $participacao = isset($_GET['participacao'])
+        ? sanitize_text_field($_GET['participacao'])
+        : '';
+
+    if (
+        !empty($participacao)
+        && array_key_exists($participacao, $participacoes_validas)
+    ) {
+
+        $filtros['participacao'] = $participacao;
+
+    }
+
+    $resultados_validos = get_valores_filtro_inscricoes('resultado_inscricao');
+
+    $resultado = isset($_GET['resultado'])
+        ? sanitize_text_field($_GET['resultado'])
+        : '';
+
+    if (
+        !empty($resultado)
+        && array_key_exists($resultado, $resultados_validos)
+    ) {
+
+        $filtros['resultado'] = $resultado;
+
+    }
+
+    $local = isset( $_GET['local-evento'] ) ? absint( $_GET['local-evento'] ) : 0;
+
+    if ( !empty( $local ) ) {
+        $filtros['local'] = $local;
+    }
+
+    return $filtros;
 }

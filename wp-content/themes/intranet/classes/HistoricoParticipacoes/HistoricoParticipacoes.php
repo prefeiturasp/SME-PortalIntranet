@@ -340,6 +340,270 @@ class Historico_Participacoes {
         return $wpdb->get_results($query);
     }
 
+    public function get_eventos_participante_com_filtros(string $cpf, array $filtros = []) {
+
+        global $wpdb;
+
+        $tabela_destinatarios = $wpdb->prefix . 'historico_envios_destinatarios';
+
+        $where = [];
+        $params = [$cpf, $cpf];
+
+        /*
+        | Filtro: Buscar evento
+        */
+
+        if ( !empty( $filtros['evento'] ) ) {
+
+            $where[] = 'e.nome_evento LIKE %s';
+            $params[] = '%' . $wpdb->esc_like( $filtros['evento'] ) . '%';
+        }
+
+        /*
+        | Filtro: Modalidade
+        | sorteio
+        | cortesia
+        */
+
+        if ( !empty( $filtros['modalidade'] ) ) {
+
+            $where[] = 'e.tipo = %s';
+            $params[] = sanitize_text_field( $filtros['modalidade'] );
+        }
+
+        /*
+        | Filtro: Minha participação
+        | confirmada
+        | prazo_expirado
+        | cancelou
+        | bloqueado_falta
+        */
+
+        if ( !empty( $filtros['participacao'] ) ) {
+
+            $where[] = 'e.status_participacao = %s';
+            $params[] = sanitize_text_field( $filtros['participacao'] );
+        }
+
+        /*
+        | Filtro: Ações pendentes
+        | cancelar_inscricao
+        | confirmar_presença
+        */
+
+        if ( !empty( $filtros['acoes'] ) && $filtros['acoes'] === 'confirmar_presenca' ) {
+
+            $where[] = 'e.acao_pendente = %s';
+            $params[] = sanitize_text_field( $filtros['acoes'] );
+        }
+
+        $where_sql = '';
+
+        if ( !empty( $where ) ) {
+            $where_sql = 'WHERE ' . implode( ' AND ', $where );
+        }
+
+        $sql = "
+            SELECT 
+                e.*,
+
+                CASE 
+                    WHEN h.inscricao_id IS NULL THEN 0
+                    ELSE 1
+                END AS tem_historico
+
+            FROM (
+
+                SELECT 
+                    i.id,
+                    i.post_id,
+                    i.sorteado,
+                    i.confirmou_presenca,
+                    i.prazo_confirmacao,
+                    i.enviou_email_instrucoes,
+                    i.compareceu,
+                    i.tipo_contato,
+                    i.data_inscricao,
+                    p.post_title AS nome_evento,
+
+                    'sorteio' AS tipo,
+
+                    /* Status participação */
+
+                    CASE
+
+                        WHEN i.compareceu = 0
+                        THEN 'bloqueado_falta'
+
+                        WHEN i.confirmou_presenca = 1
+                        THEN 'confirmada'
+
+                        WHEN i.confirmou_presenca = 2
+                        THEN 'cancelou'
+
+                        WHEN i.confirmou_presenca = 0
+                            AND i.prazo_confirmacao IS NOT NULL
+                            AND i.prazo_confirmacao < NOW()
+                        THEN 'prazo_expirado'
+
+                        ELSE NULL
+
+                    END AS status_participacao,
+                
+                    /* Ação pendente */
+
+                    CASE
+
+                        WHEN i.confirmou_presenca = 0
+                            AND i.prazo_confirmacao IS NOT NULL
+                            AND i.prazo_confirmacao > NOW()
+
+                        THEN 'confirmar_presenca'
+
+                        ELSE NULL
+
+                    END AS acao_pendente
+
+                FROM {$wpdb->prefix}inscricoes i
+
+                INNER JOIN {$wpdb->posts} p
+                    ON p.ID = i.post_id
+
+                WHERE i.cpf = %s
+
+
+                UNION ALL
+
+
+                SELECT 
+                    i.id,
+                    i.post_id,
+
+                    NULL AS sorteado,
+
+                    i.confirmou_presenca,
+                    i.prazo_confirmacao,
+                    i.enviou_email_instrucoes,
+                    i.compareceu,
+                    i.tipo_contato,
+                    i.data_inscricao,
+
+                    p.post_title AS nome_evento,
+
+                    'cortesia' AS tipo,
+
+                    /* Status participação */
+
+                    CASE
+
+                        WHEN i.compareceu = 0
+                        THEN 'bloqueado_falta'
+
+                        WHEN i.confirmou_presenca = 1
+                        THEN 'confirmada'
+
+                        WHEN i.confirmou_presenca = 2
+                        THEN 'cancelou'
+
+                        WHEN i.confirmou_presenca = 0
+                            AND i.prazo_confirmacao IS NOT NULL
+                            AND i.prazo_confirmacao < NOW()
+                        THEN 'prazo_expirado'
+
+                        ELSE NULL
+
+                    END AS status_participacao,
+
+                    /* Ação pendente */
+
+                    CASE
+
+                        WHEN i.confirmou_presenca = 0
+                            AND i.prazo_confirmacao IS NOT NULL
+                            AND i.prazo_confirmacao > NOW()
+
+                        THEN 'confirmar_presenca'
+
+                        ELSE NULL
+
+                    END AS acao_pendente
+
+                FROM {$wpdb->prefix}cortesias_inscricoes i
+
+                INNER JOIN {$wpdb->posts} p
+                    ON p.ID = i.post_id
+
+                WHERE i.cpf = %s
+
+            ) e
+
+            LEFT JOIN (
+                SELECT DISTINCT inscricao_id
+                FROM {$tabela_destinatarios}
+            ) h
+
+            ON h.inscricao_id = e.id
+
+            {$where_sql}
+
+            ORDER BY e.data_inscricao DESC
+        ";
+
+        $query = $wpdb->prepare( $sql, ...$params );
+        $inscricoes = $wpdb->get_results( $query );
+
+        if ( !empty( $filtros['local'] ) ) {
+
+            $local = intval( $filtros['local'] );
+
+            $inscricoes = array_filter( $inscricoes, function( $inscricao ) use ( $local ) {
+
+                $tags = get_the_terms(
+                    $inscricao->post_id,
+                    'post_tag'
+                );
+
+                if ( empty( $tags ) || is_wp_error( $tags ) ) {
+                    return false;
+                }
+
+                $tag = reset( $tags );
+
+                return intval( $tag->term_id ) === $local;
+
+            });
+        }
+
+        if ( !empty( $filtros['acoes'] ) && $filtros['acoes'] === 'cancelar_inscricao' ) {
+
+            $hoje = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+            $inscricoes = array_filter( $inscricoes, function( $inscricao ) use ( $hoje ) {
+
+                $encerramento_inscricoes = get_field( 'enc_inscri', $inscricao->post_id );
+
+                return $encerramento_inscricoes >= $hoje;
+
+            });
+
+        }
+
+        // Adiciona o status da inscrição (Resultado) no resultado do filtro
+        foreach ( $inscricoes as $inscricao ) {
+            $inscricao->resultado_inscricao = get_status_resultado_inscricao( $inscricao );
+        }
+
+        if ( !empty( $filtros['resultado'] ) ) {
+
+            $inscricoes = array_filter( $inscricoes, function( $inscricao ) use ( $filtros ) {
+
+                return $inscricao->resultado_inscricao === $filtros['resultado'];
+
+            });
+        }
+        
+        return $inscricoes;
+    }
+
     public function check_sancao_ativa_participante( string $cpf ) {
         global $wpdb;
 

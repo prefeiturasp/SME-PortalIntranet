@@ -32,6 +32,8 @@
     $acao = $_GET['acao'] ? sanitize_text_field( $_GET['acao'] ) : null;
     $active_tab = isset( $_GET['tab'] ) ? sanitize_text_field( $_GET['tab'] ) : null;
 
+    $historico_participante = new Historico_Participacoes();
+    
 ?>
 
 <div class="container">
@@ -44,6 +46,9 @@
                         <h2><?php echo esc_html( $titulo ); ?></h2>
                     </div>
                 <?php endif; ?>
+                
+                <?php echo show_alerta_sancao_ativa(); ?>
+
                 <div class="nav nav-tabs d-flex" id="nav-tab" role="tablist">
                     <button 
                         class="nav-link flex-fill <?= $filtro === 'aberto' ? 'active' : '' ?>" 
@@ -81,7 +86,7 @@
                         if ( $perfil_permitido === 'todos' || $perfil_permitido === $perfil_usuario ) :
                             ?>
                             <button 
-                                class="nav-link flex-fill <?= $active_tab == 'minhas-inscricoes' ? 'active' : ''; ?>" 
+                                class="nav-link flex-fill mr-md-0 <?= $active_tab == 'minhas-inscricoes' ? 'active' : ''; ?>" 
                                 id="minhas-inscricoes-tab" 
                                 data-toggle="tab"  
                                 type="button" 
@@ -136,7 +141,7 @@
 
                         <div class="form-row"> 
                             <div class="col-12 col-md-9 mt-3">
-                                <div class="form-row mais-filtros" style="display: none;"> 
+                                <div class="form-row mais-filtros-eventos" style="display: none;"> 
                                     <div class="col-md-8 date-group mb-2">
                                         <label class="form-label" for="dataInicio">Busque por intervalo de datas</label>
                                         <div class="form-row align-items-center">                            
@@ -198,7 +203,9 @@
                             </div>
                         </div>
 
-                        <span class="expandir-filtros py-2 px-3"><i class="fa fa-angle-down fa-lg" aria-hidden="true"></i></span>
+                        <span class="expandir-filtros py-2 px-3" data-target="eventos">
+                            <i class="fa fa-angle-down fa-lg" aria-hidden="true"></i>
+                        </span>
                     </form>
                 </div>
                 
@@ -236,7 +243,7 @@
 
                         <div class="form-row"> 
                             <div class="col-12 col-md-9 mt-3">
-                                <div class="form-row mais-filtros" style="display: none;">
+                                <div class="form-row mais-filtros-eventos" style="display: none;">
 
                                     <div class="col-md-8 date-group mb-2">
                                         <label class="form-label" for="dataInicio">Busque por intervalo de datas</label>
@@ -299,108 +306,161 @@
                             </div>
                         </div>
                         
-                        <span class="expandir-filtros py-2 px-3"><i class="fa fa-angle-down fa-lg" aria-hidden="true"></i></span>
+                        <span class="expandir-filtros py-2 px-3" data-target="eventos">
+                            <i class="fa fa-angle-down fa-lg" aria-hidden="true"></i>
+                        </span>
                     </form>
                 </div>
 
                 <!-- Tab minhas inscrições -->
-                <div class="tab-pane fade <?= $active_tab === 'minhas-inscricoes' ? 'show active' : '' ?>" id="minhas-inscricoes" role="tabpanel" aria-labelledby="minhas-incricoes-tab">
-                    <form action="<?= $pagSorteio; ?>" method="get" class="filtro-sorteios">
-                        <div class="form-row mb-2">
-                            <div class="col-md-6">
-                                <label for="nome-evento-ativo" class="form-label">Filtro minhas inscrições</label>
-                                <input type="text" class="form-control" name="nome-evento" id="nome-evento-ativo" placeholder="Digite o nome ou parte do nome do evento" value="<?php echo isset($_GET['nome-evento']) ? esc_attr($_GET['nome-evento']) : ''; ?>">
+                <?php
+                if ( get_sub_field( 'exibir_tab_inscricoes' ) ) :
+                    $perfil_usuario = get_perfil_usuario_logado();
+                    $perfil_permitido = get_sub_field( 'visibilidade_aba_inscricoes' );
 
-                                <div class="invalid-feedback fieldError" style="display: none;">
-                                    Preencha ao menos um dos campos do formulário.
-                                </div>
-                            </div>
-                            
-                            <div class="col-md-6">
-                                <label for="tipo-evento-ativo" class="form-label">Tipo de Evento</label>
-                                <select class="form-control select-tipo-evento" id="tipo-evento-ativo" name="tipo-evento">
-                                    <option value="">Tipo de Evento</option>
-                                    <?php if ( $tax_tipo_eventos ) : ?>
-                                        <?php foreach ( $tax_tipo_eventos as $tax_tipo ) : ?>
-                                            <option 
-                                                value="<?php echo esc_attr($tax_tipo->term_id); ?>" 
-                                                <?php echo (isset($_GET['tipo-evento']) && $_GET['tipo-evento'] == $tax_tipo->term_id) ? 'selected' : ''; ?>
-                                                >
-                                                <?php echo esc_html( $tax_tipo->name ); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
-                            </div>
-                        </div>
+                    if ( $perfil_permitido === 'todos' || $perfil_permitido === $perfil_usuario ) :
 
-                        <div class="form-row"> 
-                            <div class="col-12 col-md-9 mt-3">
-                                <div class="form-row mais-filtros" style="display: none;"> 
-                                    <div class="col-md-8 date-group mb-2">
-                                        <label class="form-label" for="dataInicio">Busque por intervalo de datas</label>
-                                        <div class="form-row align-items-center">                            
-                                            <div class="col-12 col-sm">                                
-                                                <input 
-                                                    type="date" 
-                                                    class="form-control" 
-                                                    name="dataInicio" 
-                                                    id="dataInicio"
-                                                    value="<?php echo isset($_GET['dataInicio']) ? esc_attr($_GET['dataInicio']) : ''; ?>"
-                                                >
-                                            </div>
-                                            <div class="col-12 col-sm-auto align-self-end text-center">
-                                                <span class="text-muted">até</span>
-                                            </div>
-                                            <div class="col-12 col-sm">                                
-                                                <input 
-                                                    type="date" 
-                                                    class="form-control" 
-                                                    name="dataFim" 
-                                                    id="dataFim"
-                                                    value="<?php echo isset($_GET['dataFim']) ? esc_attr($_GET['dataFim']) : ''; ?>"
-                                                >
-                                            </div>
-                                        </div>
+                        $modalidades = get_valores_filtro_inscricoes( 'modalidade' );
+                        $acoes_pendentes = get_valores_filtro_inscricoes( 'acoes_pendentes' );
+                        $minha_participacao = get_valores_filtro_inscricoes( 'minha_participacao' );
+                        $resultado_inscricao = get_valores_filtro_inscricoes( 'resultado_inscricao' );
+                        ?>
+                        <div class="tab-pane fade <?php echo $active_tab === 'minhas-inscricoes' ? 'show active' : ''; ?>" id="minhas-inscricoes" role="tabpanel" aria-labelledby="minhas-incricoes-tab">
+                            <form action="<?php echo $pagSorteio; ?>" method="get" class="filtro-sorteios">
+                                <h3 class="mb-3" style="color: #14457C;">Filtrar minhas inscrições</h3>
+                                <div class="form-row mb-2">
+                                    <div class="col-md-6">
+                                        <label for="modalidade" class="form-label">Modalidade</label>
+                                        <select
+                                            class="form-control select-tipo-evento"
+                                            id="modalidade"
+                                            name="modalidade"
+                                            >
+                                            <option value="">Selecione...</option>
 
-                                        <div class="invalid-feedback dataError" style="display: none;">
-                                            A data de início não pode ser maior que a data final!
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-4 mb-2">
-                                        <label for="local-ativo" class="form-label">Busque pelo Local do Evento</label>
-
-                                        <select class="form-control select-local" id="local-ativo" name="local">
-                                            <option value=''>Digite ou selecione um local</option>
-                                            <?php if ($tags) : ?>
-                                                <?php foreach ($tags as $tag) : ?>
-                                                    <option 
-                                                        value="<?php echo esc_attr($tag->term_id); ?>" 
-                                                        <?php echo (isset($_GET['local']) && $_GET['local'] == $tag->term_id) ? 'selected' : ''; ?>
+                                            <?php foreach ( $modalidades as $value => $label ) : ?>
+                                                <option
+                                                    value="<?php echo esc_attr( $value ); ?>"
+                                                    <?php echo selected( $_GET['modalidade'] ?? '', $value, false ); ?>
                                                     >
-                                                        <?php echo esc_html($tag->name); ?>
-                                                    </option>
-                                                <?php endforeach; ?>
-                                            <?php endif; ?>
+                                                    <?php echo esc_html( $label ); ?>
+                                                </option>
+                                            <?php endforeach; ?>
                                         </select>
                                     </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Botão de submit (opcional) -->
-                            <div class="col-12 col-md-3 d-flex align-items-end justify-content-end my-2 form-buttons">
-                                <input type="hidden" name="filtro" value="aberto">
-                                <a href="<?= $pagSorteio; ?>" class="btn mr-2">Limpar filtros</a>
-                                <button type="submit" class="btn btn-primary" name="acao" value="buscar">
-                                    <i class="fa fa-search" aria-hidden="true"></i> Buscar
-                                </button>
-                            </div>
-                        </div>
 
-                        <span class="expandir-filtros py-2 px-3"><i class="fa fa-angle-down fa-lg" aria-hidden="true"></i></span>
-                    </form>
-                </div>
+                                    <div class="col-md-6">
+                                        <label for="evento" class="form-label">Buscar evento</label>
+                                        <input
+                                            type="text"
+                                            class="form-control"
+                                            name="evento"
+                                            id="evento"
+                                            placeholder="Digite o nome do evento"
+                                            value="<?php echo esc_attr($_GET['evento'] ?? ''); ?>"
+                                        >
+                                    </div>
+                                </div>
+
+                                <div class="form-row">
+                                    <div class="col-12 col-md-9 mt-3">
+                                        <div class="form-row mais-filtros-inscricoes" style="display: none;">
+
+                                            <div class="col-md-3">
+
+                                                <label for="acoes" class="form-label">Ações</label>
+                                                <select class="form-control select-tipo-evento" id="acoes" name="acoes">
+                                                    <option value="">Selecione...</option>
+
+                                                    <?php foreach ( $acoes_pendentes as $value => $label ) : ?>
+                                                        <option
+                                                            value="<?php echo esc_attr( $value ); ?>"
+                                                            <?php echo selected( $_GET['acoes'] ?? '', $value, false ); ?>
+                                                            >
+                                                            <?php echo esc_html( $label ); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-3">
+                                                <label for="participacao" class="form-label">Minha participação</label>
+
+                                                <select class="form-control select-tipo-evento" id="participacao" name="participacao">
+                                                    <option value="">Selecione...</option>
+
+                                                    <?php foreach ( $minha_participacao as $value => $label ) : ?>
+                                                        <option
+                                                            value="<?php echo esc_attr( $value ); ?>"
+                                                            <?php echo selected( $_GET['participacao'] ?? '', $value, false ); ?>
+                                                            >
+                                                            <?php echo esc_html( $label ); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-3">
+
+                                                <label for="resultado" class="form-label">Resultado</label>
+
+                                                <select class="form-control select-tipo-evento" id="resultado" name="resultado">
+                                                    <option value="">Selecione...</option>
+
+                                                    <?php foreach ( $resultado_inscricao as $value => $label ) : ?>
+                                                        <option
+                                                            value="<?php echo esc_attr( $value ); ?>"
+                                                            <?php echo selected( $_GET['resultado'] ?? '', $value, false ); ?>
+                                                            >
+                                                            <?php echo esc_html( $label ); ?>
+                                                        </option>
+                                                    <?php endforeach; ?>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-3 mb-2">
+                                                <label for="local-filtro-inscricoes" class="form-label">Busque pelo Local do Evento</label>
+
+                                                <select class="form-control select-local" id="local-filtro-inscricoes" name="local-evento">
+
+                                                    <option value="">Digite ou selecione um local</option>
+
+                                                    <?php if ( $tags ) : ?>
+
+                                                        <?php foreach ( $tags as $tag ) : ?>
+                                                            <option
+                                                                value="<?php echo esc_attr( $tag->term_id ); ?>"
+                                                                <?php echo selected( $_GET['local-evento'] ?? '', $tag->term_id, false ); ?>
+                                                                >
+                                                                <?php echo esc_html( $tag->name ); ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    <?php endif; ?>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 col-md-3 d-flex align-items-end justify-content-end my-2 form-buttons">
+                                        <input type="hidden" name="tab" value="minhas-inscricoes">
+
+                                        <a href="<?php echo $pagSorteio . '?tab=minhas-inscricoes'; ?>" class="btn mr-2">Limpar filtros</a>
+
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fa fa-search" aria-hidden="true"></i> Buscar
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <span class="expandir-filtros py-2 px-3" data-target="inscricoes">
+                                    <i class="fa fa-angle-down fa-lg" aria-hidden="true"></i>
+                                </span>
+                            </form>
+                        </div>
+                        <?php
+                    endif;
+                endif;
+                ?>
             </div>  
         </div>  
     </div>
@@ -877,8 +937,9 @@
 
     jQuery(document).ready(function() {
         
-        const expandirFiltros = sessionStorage.getItem('expandir-filtro-eventos');
         const params = new URLSearchParams(window.location.search);
+        let target = params.get('tab') ? 'inscricoes' : 'eventos';
+        const expandirFiltros = sessionStorage.getItem(`expandir-filtro-${target}`);
 
             if (params.toString().length > 0) {
                 jQuery('html, body').animate({
@@ -887,27 +948,29 @@
             }
 
         if ( expandirFiltros ) {
-            toggleFiltrosEventos();
+            toggleFiltrosEventos(target);
         }
 
         jQuery('.expandir-filtros').on('click', function () {
-            toggleFiltrosEventos()
+            let target = jQuery(this).data('target');
+            console.log(target)
+            toggleFiltrosEventos(target)
         })
 
         // Função para ocultar e exibir os campos adicionais no filtro de eventos
-        function toggleFiltrosEventos() {
+        function toggleFiltrosEventos(target) {
 
-            let $filtrosContainer =  jQuery('.mais-filtros');
+            let $filtrosContainer =  jQuery(`.mais-filtros-${target}`);
             let $btnExpandirFiltros = jQuery('.expandir-filtros i');
             
             if ($filtrosContainer.hasClass('filtros-ativos')) {
                 $filtrosContainer.slideUp(300).removeClass('filtros-ativos')
                 $btnExpandirFiltros.removeClass('fa-angle-up').addClass('fa-angle-down');
-                sessionStorage.removeItem('expandir-filtro-eventos')
+                sessionStorage.removeItem(`expandir-filtro-${target}`)
             } else {
                 $filtrosContainer.slideDown(300).addClass('filtros-ativos');
                 $btnExpandirFiltros.removeClass('fa-angle-down').addClass('fa-angle-up');
-                sessionStorage.setItem('expandir-filtro-eventos', true);
+                sessionStorage.setItem(`expandir-filtro-${target}`, true);
             }
         }
 
