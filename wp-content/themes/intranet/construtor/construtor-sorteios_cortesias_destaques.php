@@ -103,7 +103,7 @@ $eventos = new WP_Query( $eventos_args );
                                             <div class="evento-info border-left pl-md-2">
                                                 <h5 class="fw-bold mb-4 data">
                                                     <?php if ( $tipo_post === 'cortesias' ) : ?>
-                                                        Ingressos gratuitos por ordem de inscrição, enquanto houver disponibilidade
+                                                        Resgate por ordem de inscrição, conforme disponibilidade
                                                     <?php endif; ?>
 
                                                     <?php
