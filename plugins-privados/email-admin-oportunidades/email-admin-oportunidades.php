@@ -24,19 +24,17 @@ function oportunidade_pending_email($new_status, $old_status, $post) {
     }
 
     // Apenas:
+    // auto-draft -> pending
     // new -> pending
     // publish -> pending
-    if (
-        $old_status !== 'new' &&
-        $old_status !== 'publish'
-    ) {
+    if ( !in_array( $old_status, ['new', 'auto-draft', 'publish'], true ) ) {
         return;
     }
 
     // Busca usuários admin_portal
     $usuarios = get_users([
         'role'   => 'admin_portal',
-        'fields' => ['user_email']
+        'fields' => ['id', 'user_email']
     ]);
 
     if (empty($usuarios)) {
@@ -47,7 +45,9 @@ function oportunidade_pending_email($new_status, $old_status, $post) {
 
     foreach ($usuarios as $user) {
 
-        if (!empty($user->user_email)) {
+        $receber_notificacoes = get_user_meta( $user->ID, 'receber_emails_oportunidades_pendentes', true );
+
+        if ( !empty( $user->user_email ) && $receber_notificacoes != '0' ) {
             $emails[] = $user->user_email;
         }
     }
@@ -62,31 +62,41 @@ function oportunidade_pending_email($new_status, $old_status, $post) {
 
     // Dados do post
     $titulo = get_the_title($post->ID);
-
     $edit_link = get_edit_post_link($post->ID);
-    $edit_link = str_replace('&amp;', '&', $edit_link);
-
-    $view_link = get_permalink($post->ID);
 
     // Assunto
-    $subject = 'Uma oportunidade aguarda aprovação';
+    $assunto = ( $old_status === 'publish' )
+        ? "OPORTUNIDADE EDITADA PENDENTE DE APROVAÇÃO - {$titulo}"
+        : "NOVA OPORTUNIDADE PENDENTE DE APROVAÇÃO";
 
     // Mensagem
-    $message  = "A oportunidade \"{$titulo}\" foi enviada para revisão.\n\n";
+    $mensagem  = ( $old_status === 'publish' )
+        ? 'A oportunidade abaixo foi editada pelo Gestor da Unidade e precisa de nova análise antes da publicação. Acesse o link da oportunidade para revisar as alterações realizadas e, caso estejam corretas, realizar a publicação.'
+        : 'A oportunidade abaixo foi criada no sistema e precisa de análise para publicação. Acesse o WP-Admin para revisar as informações cadastradas e, caso estejam corretas, realizar a publicação.';
 
-    $message .= "Visualizar publicação:\n";
-    $message .= $view_link . "\n\n";
+    $tipo_oportunidade = '';
+    if ( $array_tipos = get_field( 'tipo_oportunidade', $post->ID ) ) {
+        $tipo_oportunidade = wp_list_pluck( $array_tipos, 'label' ) ?? [];
+        $tipo_oportunidade = implode(' | ', $tipo_oportunidade );
+    }
 
-    $message .= "Revisar publicação:\n";
-    $message .= $edit_link;
+    // Dados do autor do post
+    $nome_gestor = get_the_author_meta( 'display_name', $post->post_author );
+    $email_gestor = get_the_author_meta( 'email', $post->post_author );
+
+    $conteudo_email = get_email_oportunidade_template('aprovacao-oportunidade', [
+        'mensagem' => $mensagem,
+        'link' => $edit_link,
+        'tipo_oportunidade' => $tipo_oportunidade,
+        'nome_gestor' => $nome_gestor,
+        'email_gestor' => $email_gestor
+    ]);
 
     // Headers
-    $headers = [
-        'Content-Type: text/plain; charset=UTF-8'
-    ];
+    $headers = ['Content-Type: text/html; charset=UTF-8'];
 
     // Envia email
-    wp_mail($emails, $subject, $message, $headers);
+    wp_mail( $emails, $assunto, $conteudo_email, $headers );
 }
 
 add_action(
@@ -95,3 +105,20 @@ add_action(
     20,
     3
 );
+
+function get_email_oportunidade_template( string $template, $data = [] )
+{
+    $template_path = plugin_dir_path( __FILE__ ) . "templates/{$template}.php";
+
+    if ( !file_exists( $template_path ) ) {
+        return '';
+    }
+
+    ob_start();
+
+    extract( $data );
+
+    include $template_path;
+
+    return ob_get_clean();
+}
