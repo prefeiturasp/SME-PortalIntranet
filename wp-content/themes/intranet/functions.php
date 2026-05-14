@@ -6342,7 +6342,7 @@ function custom_single_cortesia_endpoint( $post, $selected_fields = []) {
 		$post_data['title_prefix'] = $status_prefix;
 		$texto_subtitulo = ($enc_inscri < $current_date)
 			? 'Evento encerrado. Consulte mais detalhes na notícia'
-			: 'Ingressos gratuitos por ordem de inscrição, enquanto houver disponibilidade';
+			: 'Resgate por ordem de inscrição, conforme disponibilidade';
 		$post_data['subtitulo'] = $texto_subtitulo;
 		$publicado = get_the_date('d/m/Y G\hi', $post_id);
 
