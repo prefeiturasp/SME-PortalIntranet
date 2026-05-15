@@ -8335,13 +8335,13 @@ function salvar_banco_talentos() {
         'identidade_genero' => $identidade_genero,
 
         // deficiência
-        'possui_deficiencia' => intval($_POST['possuiDeficiencia'] ?? ''),
-        'necessita_adaptacao' => intval($_POST['necessitaAdaptacao'] ?? ''),
+        'possui_deficiencia' => $_POST['possuiDeficiencia'] ?? null,
+        'necessita_adaptacao' => $_POST['necessitaAdaptacao'] ?? null,
         'descreva_adaptacao' => sanitize_textarea_field($_POST['descrevaAdapta'] ?? ''),
 
         // readaptado
-        'servidor_readaptado' => intval($_POST['servidorReadaptado'] ?? ''),
-        'readaptado_necessita' => intval($_POST['readaptadoNecessita'] ?? ''),
+        'servidor_readaptado' => $_POST['servidorReadaptado'] ?? null,
+        'readaptado_necessita' => $_POST['readaptadoNecessita'] ?? null,
         'readaptado_descricao' => sanitize_textarea_field($_POST['readaptadoDescreva'] ?? ''),
 
         // contato
@@ -8352,7 +8352,7 @@ function salvar_banco_talentos() {
         'email_secundario' => sanitize_email($_POST['emailSec'] ?? ''),
 
         // funcional
-        'concluiu_estagio' => intval($_POST['estagio'] ?? ''),
+        'concluiu_estagio' => $_POST['estagio'] ?? null,
 
         // checkbox
         'cargo_efetivo' => !empty($cargo_efetivo)
@@ -8369,7 +8369,7 @@ function salvar_banco_talentos() {
         'unidade_exercicio' => sanitize_text_field($_POST['unidadeExercicio'] ?? ''),
 
         // acúmulo
-        'acumula_cargo' => intval($_POST['acumulaCargo'] ?? 0),
+        'acumula_cargo' => $_POST['acumulaCargo'] ?? null,
         'acumula_descricao' => sanitize_text_field($_POST['informaCargo'] ?? ''),
 
         // status
