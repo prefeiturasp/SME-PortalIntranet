@@ -8335,13 +8335,13 @@ function salvar_banco_talentos() {
         'identidade_genero' => $identidade_genero,
 
         // deficiência
-        'possui_deficiencia' => intval($_POST['possuiDeficiencia'] ?? 0),
-        'necessita_adaptacao' => intval($_POST['necessitaAdaptacao'] ?? 0),
+        'possui_deficiencia' => intval($_POST['possuiDeficiencia'] ?? ''),
+        'necessita_adaptacao' => intval($_POST['necessitaAdaptacao'] ?? ''),
         'descreva_adaptacao' => sanitize_textarea_field($_POST['descrevaAdapta'] ?? ''),
 
         // readaptado
-        'servidor_readaptado' => intval($_POST['servidorReadaptado'] ?? 0),
-        'readaptado_necessita' => intval($_POST['readaptadoNecessita'] ?? 0),
+        'servidor_readaptado' => intval($_POST['servidorReadaptado'] ?? ''),
+        'readaptado_necessita' => intval($_POST['readaptadoNecessita'] ?? ''),
         'readaptado_descricao' => sanitize_textarea_field($_POST['readaptadoDescreva'] ?? ''),
 
         // contato
@@ -8352,7 +8352,7 @@ function salvar_banco_talentos() {
         'email_secundario' => sanitize_email($_POST['emailSec'] ?? ''),
 
         // funcional
-        'concluiu_estagio' => intval($_POST['estagio'] ?? 0),
+        'concluiu_estagio' => intval($_POST['estagio'] ?? ''),
 
         // checkbox
         'cargo_efetivo' => !empty($cargo_efetivo)

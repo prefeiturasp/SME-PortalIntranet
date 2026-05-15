@@ -126,7 +126,7 @@
 									</div>
 								<?php endif; ?>
 
-								<h3>DADOS PESSOAIS</h3>
+								<h3>DADOS PESSOAIS E FUNCIONAIS</h3>
 
 								<div class="form-group">
 									<label for="nomeCompleto">Nome Completo</label>
