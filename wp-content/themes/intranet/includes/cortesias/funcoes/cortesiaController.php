@@ -1196,7 +1196,7 @@ function definir_prazo_selecionados_cortesia_callback() {
     $placeholders = implode( ',', array_fill( 0, count( $participantesSelecionados ), '%d' ) );
 
     $sql = $wpdb->prepare("
-        SELECT id, post_id
+        SELECT id, post_id, prazo_confirmacao
         FROM $tabela
         WHERE id IN ($placeholders)
     ", $participantesSelecionados);
@@ -1209,6 +1209,21 @@ function definir_prazo_selecionados_cortesia_callback() {
         foreach($arrDados as $item){
             $item['tipoEmail'] = 'confirmar_presenca_cortesia';
             array_push($arrEmails, $item);
+        }
+
+        // Timezone São Paulo
+        $timezone = new DateTimeZone('America/Sao_Paulo');
+
+        // Data/hora atual
+        $dataAtual = new DateTime('now', $timezone);
+
+        $dataPrazo = $item['prazo_confirmacao'] ?? null;
+        if ($dataPrazo) {
+            $dataPrazo = DateTime::createFromFormat('Y-m-d H:i:s', $dataPrazo, $timezone);
+        }
+
+        if($dataPrazo && $dataPrazo < $dataAtual){
+            $reenvio = true;
         }
 
         if(is_plugin_active('envia-email-sme/envia-email-sme.php')){
