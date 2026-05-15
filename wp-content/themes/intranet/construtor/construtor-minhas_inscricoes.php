@@ -7,18 +7,36 @@ wp_localize_script('scripts_js', 'ajax_obj', [
 
 $historico_participante = new Historico_Participacoes();
 $user_cpf = get_user_cpf();
+$inscricoes_participante = [];
+$filtros = [];
 
 if ( $user_cpf ) {
     $filtros = get_filtros_minhas_inscricoes();
     $inscricoes_participante = $historico_participante->get_eventos_participante_com_filtros( $user_cpf, $filtros );
-} else {
-    $inscricoes_participante = [];
 }
 
 ?>
 <div class="container">
     <div class="row">
-        <?php if ( $inscricoes_participante || isset( $filtros ) ) : ?>
+        <?php if ( !$user_cpf || ( !$inscricoes_participante && !$filtros ) ) : ?>
+            <div class="alert alert-primary text-center w-100 mb-5" role="alert">
+                Você ainda não tem inscrições realizadas.
+            </div>
+        <?php endif; ?>
+        
+        <?php if ( !$inscricoes_participante && $filtros ) : ?>
+            <div class="no-results-inscricoes w-100 mb-5">
+                <h2 class="search-title ml-3">
+                    <span class="azul-claro-acervo"><strong class="text-primary">0</strong></span> <strong>resultados</strong>
+                </h2>
+                <div class="search-image d-flex flex-column justify-content-center align-items-center">
+                    <img src="https://educacao.sme.prefeitura.sp.gov.br/wp-content/themes/sme-portal-institucional/img/search-empty.png" alt="Imagem ilustrativa para nenhum resultado de busca encontrado">
+                    <h2 class="text-primary mt-4">Nenhuma inscrição encontrada para os filtros selecionados.</h2>
+                </div>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ( $inscricoes_participante ) : ?>
             <div class="col-sm-12 mb-4 tabela-scroll" id="minhas-inscricoes">
                 <table id="tabela-inscricoes-participante" class="table table-striped">
                     <thead>
@@ -46,7 +64,6 @@ if ( $user_cpf ) {
                             ?>
                             <tr>
                                 <td id="nome-evento">
-                                    <?php echo esc_html( $inscricao->id ); ?>
                                     <a href="<?php echo esc_url( get_the_permalink( $inscricao->post_id ) ); ?>" target="_blank">
                                         <?php echo esc_html( $inscricao->nome_evento ); ?> <i class="fa fa-external-link" aria-hidden="true"></i>
                                     </a>
@@ -183,10 +200,6 @@ if ( $user_cpf ) {
                     </div>
                 </div>
                 <!-- FIM DO MODAL DE INSTRUÇÕES -->
-            </div>
-        <?php else : ?>
-            <div class="alert alert-primary text-center w-100 mb-5" role="alert">
-                Você ainda não tem inscrições realizadas.
             </div>
         <?php endif; ?>
     </div>
