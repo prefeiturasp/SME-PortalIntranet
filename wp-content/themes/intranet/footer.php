@@ -1394,6 +1394,89 @@
 		});
 	</script>		
 <?php endif; ?>
+
+<?php if ( is_single() && current_user_can( 'edit_others_posts' ) ) : ?>
+	<script>
+		jQuery('button#copiar-info-evento').on('click', async function () {
+
+			let htmlFinal = '';
+
+			const iconMap = {
+				'fa-question': '❓',
+				'fa-ticket': '🎭',
+				'fa-calendar-o': '📅',
+				'fa-clock-o': '⏰',
+				'fa-users': '👥',
+				'fa-building-o': '🏢',
+				'fa-map-marker': '📍',
+				'fa-link': '🔗',
+				'fa-calendar-check-o': '✅',
+				'fa-gift': '🎁'
+			};
+
+			const defaultIcon = '•';
+
+			jQuery('.informacoes-evento table tr').each(function () {
+
+				const $tds = jQuery(this).find('td');
+
+				// Ignora divisor
+				if ($tds.length === 1 && $tds.attr('colspan')) {
+					return;
+				}
+
+				const $icon = $tds.eq(0).find('i');
+				const texto = $tds.eq(1).html();
+
+				let icon = defaultIcon;
+
+				Object.keys(iconMap).forEach(function(className) {
+
+					if ($icon.hasClass(className)) {
+						icon = iconMap[className];
+					}
+
+				});
+
+				if (texto) {
+					htmlFinal += `<p>${icon} ${texto}</p>`;
+				}
+			});
+
+			try {
+
+				await navigator.clipboard.write([
+					new ClipboardItem({
+						'text/html': new Blob([htmlFinal], {
+							type: 'text/html'
+						}),
+						'text/plain': new Blob(
+							[jQuery('<div>').html(htmlFinal).text()],
+							{
+								type: 'text/plain'
+							}
+						)
+					})
+				]);
+
+				const $button = jQuery('button#copiar-info-evento');
+				const $icon = $button.find('i');
+
+				$button.removeClass('btn-secondary').addClass('btn-success');
+				$icon.removeClass('fa-clipboard').addClass('fa-check');
+
+				setTimeout(function () {
+					$button.removeClass('btn-success').addClass('btn-secondary');
+					$icon.removeClass('fa-check').addClass('fa-clipboard');
+
+				}, 2000);
+
+			} catch (err) {
+				console.error(err);
+			}
+		});
+	</script>
+<?php endif; ?>
 </body>
 </html>
 <?php // @codeCoverageIgnoreEnd
