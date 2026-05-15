@@ -7877,3 +7877,658 @@ function get_valores_filtro_inscricoes( string $filtro ) : array {
 
     return $filtros[$filtro] ?? [];
 }
+
+function obter_dados_candidato($user_id) {
+
+    global $wpdb;
+
+    $table = $wpdb->prefix . 'banco_talentos';
+
+    /*
+    |--------------------------------------------------------------------------
+    | 1. Currículo já salvo
+    |--------------------------------------------------------------------------
+    */
+
+    $curriculo = $wpdb->get_row($wpdb->prepare(
+        "SELECT * FROM {$table} WHERE user_id = %d LIMIT 1",
+        $user_id
+    ));
+
+    if ($curriculo) {
+
+        return array(
+            'origem' => 'banco',
+            'dados'  => $curriculo
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 2. API
+    |--------------------------------------------------------------------------
+    */
+
+    $dados_api = buscar_dados_api($user_id);
+
+    if ($dados_api) {
+
+        return array(
+            'origem' => 'api',
+            'dados'  => (object) $dados_api
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 3. Fallback WordPress
+    |--------------------------------------------------------------------------
+    */
+
+    $usuario = get_userdata($user_id);
+
+    $first_name = get_user_meta($user_id, 'first_name', true);
+    $last_name  = get_user_meta($user_id, 'last_name', true);
+
+    $nome_completo = trim($first_name . ' ' . $last_name);
+
+    $dados_meta = array(
+
+        'nome_completo'   => $nome_completo,
+        'email_principal' => $usuario->user_email,
+        'rf'              => get_user_meta($user_id, 'rf', true),
+
+    );
+
+    return array(
+        'origem' => 'meta',
+        'dados'  => (object) $dados_meta
+    );
+}
+
+function get_dres_mapeadas() {
+
+    return array(
+
+        '108100' => 'dre-butanta',
+        '108200' => 'dre-campo-limpo',
+        '108300' => 'dre-capela-socorro',
+        '108400' => 'dre-freguesia-brasilandia',
+        '108500' => 'dre-guaianases',
+        '108600' => 'dre-ipiranga',
+        '108700' => 'dre-itaquera',
+        '108800' => 'dre-jacana-tremembe',
+        '108900' => 'dre-penha',
+        '109000' => 'dre-pirituba-jaragua',
+        '109100' => 'dre-santo-amaro',
+        '109200' => 'dre-sao-mateus',
+        '109300' => 'dre-sao-miguel',
+
+    );
+
+}
+
+function buscar_dados_api($user_id) {
+
+    $rf = get_user_meta($user_id, 'rf', true);
+
+    if (empty($rf)) {
+        return false;
+    }
+
+    $api_url   = getenv('SMEINTEGRACAO_API_URL');
+    $api_token = getenv('SMEINTEGRACAO_API_TOKEN');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Endpoint 1 - Dados pessoais
+    |--------------------------------------------------------------------------
+    */
+
+    $response_dados = wp_remote_get(
+        $api_url . '/api/AutenticacaoSgp/' . $rf . '/dados',
+        array(
+            'headers' => array(
+                'x-api-eol-key' => $api_token,
+            ),
+            'timeout' => 30,
+        )
+    );
+
+    if (is_wp_error($response_dados)) {
+
+        error_log(
+            '[BANCO TALENTOS] Erro endpoint dados: ' .
+            $response_dados->get_error_message()
+        );
+
+        return false;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Endpoint 2 - Dados funcionais
+    |--------------------------------------------------------------------------
+    */
+
+    $response_funcional = wp_remote_get(
+        $api_url . '/api/funcionarios/cargo/' . $rf,
+        array(
+            'headers' => array(
+                'x-api-eol-key' => $api_token,
+            ),
+            'timeout' => 30,
+        )
+    );
+
+    if (is_wp_error($response_funcional)) {
+
+        error_log(
+            '[BANCO TALENTOS] Erro endpoint funcional: ' .
+            $response_funcional->get_error_message()
+        );
+
+        return false;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Decodifica respostas
+    |--------------------------------------------------------------------------
+    */
+
+    $dados_api = json_decode(
+        wp_remote_retrieve_body($response_dados),
+        true
+    );
+
+    $funcional_api = json_decode(
+        wp_remote_retrieve_body($response_funcional),
+        true
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dados funcionais
+    |--------------------------------------------------------------------------
+    */
+
+    $funcional = $funcional_api[0] ?? array();    
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mapeamento DRE
+    |--------------------------------------------------------------------------
+    */
+
+    $dres = get_dres_mapeadas();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Lotação
+    |--------------------------------------------------------------------------
+    */
+
+    $codigo_dre_lotacao = $funcional['cdDreCargoBase'] ?? '';
+
+    $dre_lotacao = $dres[$codigo_dre_lotacao] ?? '';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Exercício
+    |--------------------------------------------------------------------------
+    */
+
+    $codigo_dre_exercicio =
+        $funcional['cdDreFuncaoAtividade']
+        ?? $funcional['cdDreCargoSobreposto']
+        ?? $funcional['cdDreCargoBase']
+        ?? '';
+
+    if (empty($codigo_dre_exercicio)) {
+
+        $dre_exercicio = '';
+
+    } elseif (isset($dres[$codigo_dre_exercicio])) {
+
+        // É uma DRE válida
+        $dre_exercicio = $dres[$codigo_dre_exercicio];
+
+    } else {
+
+        // Possui código mas não é DRE
+        $dre_exercicio = 'coordenadoria-sme';
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Unidade exercício
+    |--------------------------------------------------------------------------
+    */
+
+    $unidade_exercicio =
+        $funcional['ueFuncaoAtividade']
+        ?? $funcional['ueCargoSobreposto']
+        ?? $funcional['ueCargoBase']
+        ?? '';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dados normalizados
+    |--------------------------------------------------------------------------
+    */
+
+    $dados_normalizados = array(
+
+        'origem' => 'api',
+
+        'rf' => $dados_api['codigoRf']
+            ?? $funcional['rf']
+            ?? '',
+
+        'nome_completo' => $dados_api['nome'] ?? '',
+        'email_principal' => $dados_api['email'] ?? '',
+        'dre_lotacao' => $dre_lotacao,
+        'unidade_lotacao' => $funcional['ueCargoBase'] ?? '',
+        'dre_exercicio' => $dre_exercicio,
+        'unidade_exercicio' => $unidade_exercicio,
+
+    );
+
+    return $dados_normalizados;
+}
+
+add_action('template_redirect', 'salvar_banco_talentos');
+
+function salvar_banco_talentos() {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Método POST
+    |--------------------------------------------------------------------------
+    */
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        return;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Usuário logado
+    |--------------------------------------------------------------------------
+    */
+
+    if (!is_user_logged_in()) {
+        return;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Nonce
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        !isset($_POST['curriculo_nonce']) ||
+        !wp_verify_nonce($_POST['curriculo_nonce'], 'salvar_curriculo')
+    ) {
+        wp_die('Falha de segurança.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verifica origem do formulário
+    |--------------------------------------------------------------------------
+    */
+
+    if (!isset($_POST['nomeCompleto'])) {
+        return;
+    }
+
+    global $wpdb;
+
+    $table = $wpdb->prefix . 'banco_talentos';
+
+    $user_id = get_current_user_id();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status
+    |--------------------------------------------------------------------------
+    */
+
+    $acao_curriculo = sanitize_text_field(
+        $_POST['acao_curriculo'] ?? 'rascunho'
+    );
+
+    $status_curriculo = (
+        $acao_curriculo === 'finalizar'
+    )
+        ? 'finalizado'
+        : 'rascunho';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Valores permitidos
+    |--------------------------------------------------------------------------
+    */
+
+    $identificacao_racial_permitida = array(
+        'preto',
+        'pardo',
+        'amarelo',
+        'indigena',
+        'branco'
+    );
+
+    $identidade_genero_permitida = array(
+        'homem_cis',
+        'homem_trans',
+        'mulher_cis',
+        'mulher_trans',
+        'nao_binario'
+    );
+
+    $cargos_validos = array(
+        'Auxiliar Técnico de Educação (ATE)',
+        'Agente Escolar',
+        'Coordenador(a) Pedagógico',
+        'Diretor(a) de Escola',
+        'Professor(a) de Educação Infantil (PEI)',
+        'Professor(a) de Educação Infantil e Ensino Fundamental I (PEIF)',
+        'Professor(a) de Ensino Fundamental II e Médio',
+        'Supervisor(a) Escolar',
+        'Outro'
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Função auxiliar telefone
+    |--------------------------------------------------------------------------
+    */
+
+    function limpar_telefone($telefone) {
+        $telefone_limpo = preg_replace('/[^0-9]/', '', $telefone);
+        
+        // Retorna string vazia se o telefone estiver vazio ou for apenas zeros
+        if (empty($telefone_limpo) || intval($telefone_limpo) === 0) {
+            return '';
+        }
+        
+        return $telefone_limpo;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sanitização
+    |--------------------------------------------------------------------------
+    */
+
+    $identificacao_racial = sanitize_text_field(
+        $_POST['seIdentifica'] ?? ''
+    );
+
+    if (
+        !in_array(
+            $identificacao_racial,
+            $identificacao_racial_permitida,
+            true
+        )
+    ) {
+        $identificacao_racial = '';
+    }
+
+    $identidade_genero = sanitize_text_field(
+        $_POST['idGenero'] ?? ''
+    );
+
+    if (
+        !in_array(
+            $identidade_genero,
+            $identidade_genero_permitida,
+            true
+        )
+    ) {
+        $identidade_genero = '';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Checkbox cargos
+    |--------------------------------------------------------------------------
+    */
+
+    $cargo_efetivo = array();
+
+    if (!empty($_POST['cargoEfetivo'])) {
+
+        foreach ($_POST['cargoEfetivo'] as $cargo) {
+
+            $cargo = sanitize_text_field($cargo);
+
+            if (in_array($cargo, $cargos_validos, true)) {
+                $cargo_efetivo[] = $cargo;
+            }
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dados
+    |--------------------------------------------------------------------------
+    */
+
+    $dados = array(
+
+        // usuário
+        'user_id' => $user_id,
+
+        // pessoais
+        'rf' => sanitize_text_field($_POST['rf'] ?? ''),
+        'nome_completo' => sanitize_text_field($_POST['nomeCompleto'] ?? ''),
+        'nome_social' => sanitize_text_field($_POST['nomeSocial'] ?? ''),
+        'data_nascimento' => sanitize_text_field($_POST['dataNascimento'] ?? ''),
+
+        // identificação
+        'identificacao_racial' => $identificacao_racial,
+        'identidade_genero' => $identidade_genero,
+
+        // deficiência
+        'possui_deficiencia' => intval($_POST['possuiDeficiencia'] ?? 0),
+        'necessita_adaptacao' => intval($_POST['necessitaAdaptacao'] ?? 0),
+        'descreva_adaptacao' => sanitize_textarea_field($_POST['descrevaAdapta'] ?? ''),
+
+        // readaptado
+        'servidor_readaptado' => intval($_POST['servidorReadaptado'] ?? 0),
+        'readaptado_necessita' => intval($_POST['readaptadoNecessita'] ?? 0),
+        'readaptado_descricao' => sanitize_textarea_field($_POST['readaptadoDescreva'] ?? ''),
+
+        // contato
+        'telefone_whatsapp' => limpar_telefone($_POST['telWhatsapp'] ?? ''),
+        'telefone_opcional' => limpar_telefone($_POST['telOpcional'] ?? ''),
+
+        'email_principal' => sanitize_email($_POST['email'] ?? ''),
+        'email_secundario' => sanitize_email($_POST['emailSec'] ?? ''),
+
+        // funcional
+        'concluiu_estagio' => intval($_POST['estagio'] ?? 0),
+
+        // checkbox
+        'cargo_efetivo' => !empty($cargo_efetivo)
+            ? wp_json_encode($cargo_efetivo)
+            : null,
+
+        'cargo_outro' => sanitize_text_field($_POST['cargoOutro'] ?? ''),
+
+        // lotação
+        'dre_lotacao' => sanitize_text_field($_POST['dreLotacao'] ?? ''),
+        'unidade_lotacao' => sanitize_text_field($_POST['unidadeLotacao'] ?? ''),
+
+        'dre_exercicio' => sanitize_text_field($_POST['dreExercicio'] ?? ''),
+        'unidade_exercicio' => sanitize_text_field($_POST['unidadeExercicio'] ?? ''),
+
+        // acúmulo
+        'acumula_cargo' => intval($_POST['acumulaCargo'] ?? 0),
+        'acumula_descricao' => sanitize_text_field($_POST['informaCargo'] ?? ''),
+
+        // status
+        'status_curriculo' => $status_curriculo,
+
+        // datas
+        'atualizado_em' => current_time('mysql')
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validação backend
+    |--------------------------------------------------------------------------
+    */
+
+    if ($status_curriculo === 'finalizado') {
+
+        $erros = array();
+
+        if (empty($dados['nome_completo'])) {
+            $erros[] = 'Nome completo é obrigatório.';
+        }
+
+        if (empty($dados['rf'])) {
+            $erros[] = 'RF é obrigatório.';
+        }
+
+        if (empty($dados['email_principal'])) {
+            $erros[] = 'E-mail principal é obrigatório.';
+        }
+
+        if (
+            !empty($dados['email_principal']) &&
+            !is_email($dados['email_principal'])
+        ) {
+            $erros[] = 'E-mail principal inválido.';
+        }
+
+        if (!empty($erros)) {
+
+            wp_die(
+                implode('<br>', $erros),
+                'Erro de validação'
+            );
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verifica currículo existente
+    |--------------------------------------------------------------------------
+    */
+
+    $curriculo_existente = $wpdb->get_var(
+        $wpdb->prepare(
+            "SELECT id
+            FROM {$table}
+            WHERE user_id = %d",
+            $user_id
+        )
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Formatos
+    |--------------------------------------------------------------------------
+    */
+
+    $formatos = array(
+        '%d',  // user_id
+        '%s',  // rf
+        '%s',  // nome_completo
+        '%s',  // nome_social
+        '%s',  // data_nascimento
+        '%s',  // identificacao_racial
+        '%s',  // identidade_genero
+        '%d',  // possui_deficiencia
+        '%d',  // necessita_adaptacao
+        '%s',  // descreva_adaptacao
+        '%d',  // servidor_readaptado
+        '%d',  // readaptado_necessita
+        '%s',  // readaptado_descricao
+        '%s',  // telefone_whatsapp
+        '%s',  // telefone_opcional
+        '%s',  // email_principal
+        '%s',  // email_secundario
+        '%d',  // concluiu_estagio
+        '%s',  // cargo_efetivo (JSON)
+        '%s',  // cargo_outro
+        '%s',  // dre_lotacao
+        '%s',  // unidade_lotacao
+        '%s',  // dre_exercicio
+        '%s',  // unidade_exercicio
+        '%d',  // acumula_cargo
+        '%s',  // acumula_descricao
+        '%s',  // status_curriculo
+        '%s'   // atualizado_em
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
+
+    if ($curriculo_existente) {
+
+        $wpdb->update(
+            $table,
+            $dados,
+            array('user_id' => $user_id),
+            $formatos,
+            array('%d')
+        );
+
+    } else {
+
+        $dados['atualizado_em'] = current_time('mysql');
+        
+        // Adiciona o formato para atualizado_em
+        $formatos_insert = array_merge($formatos, array('%s'));
+        
+        $wpdb->insert(
+            $table,
+            $dados,
+            $formatos_insert
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Log erro SQL
+    |--------------------------------------------------------------------------
+    */
+
+    if ($wpdb->last_error) {
+
+        error_log($wpdb->last_error);
+
+        echo "<pre>";
+        print_r($wpdb->last_error);
+        echo "</pre>";
+
+        wp_die('Erro ao salvar currículo.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redirect seguro
+    |--------------------------------------------------------------------------
+    */
+
+    wp_safe_redirect(
+        add_query_arg(
+            'sucesso',
+            '1',
+            get_permalink()
+        )
+    );
+
+    exit;
+}
