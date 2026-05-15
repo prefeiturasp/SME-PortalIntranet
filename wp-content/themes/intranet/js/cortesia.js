@@ -1043,7 +1043,7 @@ function adicionarContagemInscritos() {
 function renderHtmlFormPrazoConfirmacao(sorteado = null) {
     const mensagem = sorteado
         ? `Defina o prazo para que o(a) inscrito(a) <strong>${sorteado}</strong> confirme a presença pelo link enviado no e-mail.`
-        : 'Defina o prazo para que os inscritos confirmem a presença pelo link enviado no e-mail.';
+        : 'Defina o prazo para que os inscritos confirmem a presença pelo link enviado no e-mail. <div class="alert alert-warning mt-3">O novo prazo será enviado apenas aos participantes selecionados que ainda não receberam o e-mail de confirmação ou estiverem com a situação de prazo expirado</div>';
     
     return`
     <h4>Prazo para confirmação de presença</h4>

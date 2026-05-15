@@ -958,7 +958,7 @@ function retornaListaSorteados(){//** OK */
 		$placeholders = implode( ',', array_fill( 0, count( $participantesSelecionados ), '%d' ) );
 
 		$sql = $wpdb->prepare("
-			SELECT id, post_id
+			SELECT id, post_id, prazo_confirmacao
 			FROM $tabela
 			WHERE id IN ($placeholders)
 		", $participantesSelecionados);
@@ -973,12 +973,30 @@ function retornaListaSorteados(){//** OK */
 				array_push($arrEmails, $item);
 			}
 
+			// Timezone São Paulo
+			$timezone = new DateTimeZone('America/Sao_Paulo');
+
+			// Data/hora atual
+			$dataAtual = new DateTime('now', $timezone);
+
+			// Verifica se algum prazo já expirou
+			$prazoExpirado = false;
+
+			$dataPrazo = $item['prazo_confirmacao'] ?? null;
+			if ($dataPrazo) {
+				$dataPrazo = DateTime::createFromFormat('Y-m-d H:i:s', $dataPrazo, $timezone);
+			}
+
+			if($dataPrazo && $dataPrazo < $dataAtual){
+				$prazoExpirado = true;
+			}
+
 			if(is_plugin_active('envia-email-sme/envia-email-sme.php')){
 
-				definir_prazo_expiracao_email_confirmacao( $participantesSelecionados, $tipo_prazo_confirmacao, $prazo_confirmacao );
+				definir_prazo_expiracao_email_confirmacao( $participantesSelecionados, $tipo_prazo_confirmacao, $prazo_confirmacao, $prazoExpirado );
 
 				foreach($arrEmails as $item){
-					new Envia_Emails_Sorteio_SME($item['id'], null, $item['post_id'], $item['tipoEmail']);
+					new Envia_Emails_Sorteio_SME($item['id'], null, $item['post_id'], $item['tipoEmail'], null, null, ['prazo_expirado' => $prazoExpirado]);
 				}
 			}
 		}
