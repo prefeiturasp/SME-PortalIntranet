@@ -61,7 +61,7 @@ function oportunidade_pending_email($new_status, $old_status, $post) {
     }
 
     // Dados do post
-    $titulo = get_the_title($post->ID);
+    $titulo = $post->post_title ?? '';
     $edit_link = get_edit_post_link($post->ID);
 
     // Assunto

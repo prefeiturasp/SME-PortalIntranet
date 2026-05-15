@@ -5781,13 +5781,22 @@ function buscar_datas_inscricao() {
     $datas = [];
 
 	// 1. Tenta buscar inscrição com datas (modelo novo)
-    $resultado = $wpdb->get_results($wpdb->prepare("
-        SELECT i.*, d.data_evento
-        FROM {$tabela_inscricoes} i
-        INNER JOIN {$tabela_datas} d ON d.inscricao_id = i.id
-        WHERE i.post_id = %d AND i.user_id = %d
-    ", $post_id, $user_id));
+    if ( $tipo_evento === 'periodo' ) {
+        $resultado = $wpdb->get_results($wpdb->prepare("
+            SELECT i.*
+            FROM {$tabela_inscricoes} i
+            WHERE i.post_id = %d AND i.user_id = %d
+        ", $post_id, $user_id));
 
+    } else {
+        $resultado = $wpdb->get_results($wpdb->prepare("
+            SELECT i.*, d.data_evento
+            FROM {$tabela_inscricoes} i
+            INNER JOIN {$tabela_datas} d ON d.inscricao_id = i.id
+            WHERE i.post_id = %d AND i.user_id = %d
+        ", $post_id, $user_id));
+    }
+    
 	//Participante já foi sorteado e não pode mais cancelar a inscrição
 	if ( isset( $resultado[0]->sorteado ) && $resultado[0]->sorteado == 1 ) {
 		wp_send_json_success([
