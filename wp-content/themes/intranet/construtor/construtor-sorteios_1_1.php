@@ -390,7 +390,7 @@ if ( $tab === 'minhas-inscricoes' ) {
                                                                 </p>
                                                             <?php else : ?>
                                                                 <p class="data">
-                                                                    Ingressos gratuitos por ordem de inscrição, enquanto houver disponibilidade
+                                                                    Resgate por ordem de inscrição, conforme disponibilidade
                                                                 </p>
                                                             <?php endif; ?>
                                                         <?php endif; ?>
