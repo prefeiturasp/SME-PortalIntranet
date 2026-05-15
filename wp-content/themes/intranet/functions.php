@@ -8541,3 +8541,46 @@ function salvar_banco_talentos() {
 
     exit;
 }
+
+add_filter('acf/fields/taxonomy/query/name=setor', function ($args, $field, $post_id) {
+ 
+    // usuário logado
+    $user = wp_get_current_user();
+ 
+    // apenas gestor_unidade
+    if (!in_array('gestor_unidade', (array) $user->roles)) {
+        return $args;
+    }
+ 
+    // coordenadoria do usuário
+    $coordenadoria_id = get_field(
+        'coordenadoria',
+        'user_' . $user->ID,
+        false
+    );
+ 
+    if (empty($coordenadoria_id)) {
+        $args['include'] = [0];
+        return $args;
+    }
+ 
+    // filhos da coordenadoria
+    $children = get_terms([
+        'taxonomy'   => 'coordenadorias',
+        'hide_empty' => false,
+        'parent'     => $coordenadoria_id,
+        'fields'     => 'ids'
+    ]);
+ 
+    // inclui pai + filhos
+    $permitidos = array_merge(
+        [$coordenadoria_id],
+        $children
+    );
+ 
+    // limita opções
+    $args['include'] = $permitidos;
+ 
+    return $args;
+ 
+}, 10, 3);
