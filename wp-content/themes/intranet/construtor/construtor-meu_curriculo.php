@@ -588,6 +588,7 @@
 					</div>
 
 				</div>
+				<input type="hidden" name="acao_formulario" value="salvar_banco_talentos">
 				<?php wp_nonce_field('salvar_curriculo', 'curriculo_nonce'); ?>
 			</form>
 
