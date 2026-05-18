@@ -5926,12 +5926,21 @@ function buscar_datas_inscricao() {
     $datas = [];
 
 	// 1. Tenta buscar inscrição com datas (modelo novo)
-    $resultado = $wpdb->get_results($wpdb->prepare("
-        SELECT i.*, d.data_evento
-        FROM {$tabela_inscricoes} i
-        INNER JOIN {$tabela_datas} d ON d.inscricao_id = i.id
-        WHERE i.post_id = %d AND i.user_id = %d
-    ", $post_id, $user_id));
+    if ( $tipo_evento === 'periodo' ) {
+        $resultado = $wpdb->get_results($wpdb->prepare("
+            SELECT i.*
+            FROM {$tabela_inscricoes} i
+            WHERE i.post_id = %d AND i.user_id = %d
+        ", $post_id, $user_id));
+
+    } else {
+        $resultado = $wpdb->get_results($wpdb->prepare("
+            SELECT i.*, d.data_evento
+            FROM {$tabela_inscricoes} i
+            INNER JOIN {$tabela_datas} d ON d.inscricao_id = i.id
+            WHERE i.post_id = %d AND i.user_id = %d
+        ", $post_id, $user_id));
+    }
 
 	//Participante já foi sorteado e não pode mais cancelar a inscrição
 	if ( isset( $resultado[0]->sorteado ) && $resultado[0]->sorteado == 1 ) {
@@ -6837,6 +6846,7 @@ function buscar_email_instrucao(){
             dest.email_secundario,
             env.data_envio,
             env.mensagem,
+			env.anexo,
             p.post_title,
 			u.display_name
 
@@ -6861,6 +6871,7 @@ function buscar_email_instrucao(){
     );
 
     $result = $wpdb->get_row($query);
+	$upload_dir = wp_upload_dir();
 
     if(!$result){
 
@@ -6876,8 +6887,9 @@ function buscar_email_instrucao(){
         'evento'        => $result->post_title,
         'admin'         => $result->display_name,
         'data_envio'    => date('d/m/Y H:i', strtotime($result->data_envio)),
-        'mensagem'      => $result->mensagem
-
+        'mensagem'      => $result->mensagem,
+		'anexo'			=> $result->anexo ? str_replace( $upload_dir['basedir'], $upload_dir['baseurl'], $result->anexo ) : null,
+		
     ]);
 
 }
@@ -7193,8 +7205,6 @@ add_filter('acf/load_value/name=sorteios_cortesias_destaques', function($value, 
 */
 function check_usuario_inscrito_evento( int $post_id ) {
 
-	//Função desativada até que seja implementada a página de inscrições
-	return false;
 
 	global $wpdb;
 
@@ -7219,6 +7229,76 @@ function check_usuario_inscrito_evento( int $post_id ) {
 	);
 
 	return boolval( $tem_inscricao );
+}
+
+function show_alerta_sancao_ativa() {
+	global $wpdb;
+
+	$user_id = get_current_user_id();
+    $perfil = get_perfil_usuario_logado();
+	$hoje = obter_data_com_timezone( 'Y-m-d', 'America/Sao_Paulo' );
+
+	if( $perfil !== 'servidor' ) {
+		return '';
+	}
+
+	$cpf = get_field( 'cpf', 'user_' . $user_id );
+	$user_cpf = preg_replace( '/[^0-9]/', '', $cpf );
+	$tabela_sancoes = $wpdb->prefix . 'inscricao_sancoes';
+
+	$sancao_ativa = $wpdb->get_row(
+		$wpdb->prepare(
+			"SELECT id, id_inscricao, data_validade FROM $tabela_sancoes WHERE cpf = %s AND data_validade > %s",
+			$user_cpf,
+			$hoje
+		),
+		ARRAY_A
+	);
+
+	if ( !$sancao_ativa || !isset( $sancao_ativa['data_validade'] ) ) {
+		return '';
+	}
+
+	$data_formatada = date( 'd/m/Y', strtotime( $sancao_ativa['data_validade'] ) );
+
+	return '
+		<div class="alert alert-warning alerta-sancao-ativa my-3" role="alert">
+			<i class="fa fa-lg fa-exclamation-triangle" aria-hidden="true"></i>
+			Você está temporariamente impedido de realizar novas inscrições devido à sua ausência. Você poderá se inscrever novamente a partir de ' . $data_formatada . '
+		</div>';
+}
+
+/** Retorna os valores definidos para cada campo do filtro da aba de "Minhas inscrições" */
+function get_valores_filtro_inscricoes( string $filtro ) : array {
+
+    $filtros = [
+
+        'modalidade' => [
+            'sorteio'  => 'Sorteio',
+            'cortesia' => 'Ordem de Inscrição',
+        ],
+
+        'acoes_pendentes' => [
+			'cancelar_inscricao' => 'Cancelar inscrição',
+            'confirmar_presenca' => 'Confirmar presença',
+        ],
+
+        'minha_participacao' => [
+            'confirmada'      => 'Confirmada',
+            'prazo_expirado'  => 'Prazo expirado',
+            'cancelou'        => 'Cancelou participação',
+            'bloqueado_falta' => 'Bloqueado por falta',
+        ],
+
+        'resultado_inscricao' => [
+			'aguardando_sorteio' => 'Aguardando sorteio',
+            'nao_sorteado'       => 'Não sorteado',
+            'contemplado'        => 'Contemplado',
+        ],
+
+    ];
+
+    return $filtros[$filtro] ?? [];
 }
 
 /***
@@ -7246,4 +7326,19 @@ function filtrar_ordenar_datas_futuras(array $datas, $timezone = 'America/Sao_Pa
     });
 
     return array_values($datas_futuras);
+}
+
+/**
+ * Função para retornar o perfil do usuário logado servidor/parceiro
+*/
+function get_perfil_usuario_logado() {
+
+	$user_id = get_current_user_id();
+	$perfil_parceiro = get_user_meta( $user_id, 'parceira', true );
+
+	if ( $perfil_parceiro ) {
+		return 'parceiro';
+	}
+
+	return 'servidor';
 }

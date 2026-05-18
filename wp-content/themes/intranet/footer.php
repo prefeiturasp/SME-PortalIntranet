@@ -781,6 +781,7 @@
 		// Ativa a aba conforme GET
 		const params = new URLSearchParams(window.location.search);
 		const filtro = params.get('filtro');
+		const tab = params.get('tab');
 
 		if(filtro === 'encerrado'){
 			$('#sort-encerrados-tab').addClass('active');
@@ -788,6 +789,14 @@
 		} else {
 			$('#sort-ativos-tab').addClass('active');
 			$('#sort-ativos').addClass('show active');
+		}
+
+		if (tab === 'minhas-inscricoes') {
+			$('#nav-tab .nav-link').removeClass('active');
+			$('#nav-tabContent .tab-pane').removeClass('show active');
+
+			$('#nav-tab .nav-link#minhas-inscricoes-tab').addClass('active');
+			$('#nav-tabContent .tab-pane#minhas-inscricoes').addClass('show active');
 		}
 		
 		$('.recent-posts-slider').slick({
@@ -971,9 +980,29 @@
     });	
 </script>
 
-<?php if(is_single()): ?>
+<?php if( is_single() || ( isset( $_GET['tab'] ) && $_GET['tab'] == 'minhas-inscricoes' ) ): ?>
 	<script>
 		jQuery(document).ready(function ($) {
+
+			// Botão "Cancelar Inscrição" da página de detalhamento
+			$('#cancelarInscricao').on('click', function () {
+				const postId = $('#comment_post_ID').val();
+				handleCancelarInscricao(postId);
+			});
+
+			// Botão "Cancelar Inscrição" da listagem na aba de "Minhas inscrições"
+			$('#tabela-inscricoes-participante .btn-cancelar-inscricao').on('click', function (e) {
+
+				e.preventDefault();
+				const postId = $(this).data('post');
+				const modalidade = $(this).data('modalidade');
+
+				if ( modalidade === 'cortesia' ) {
+					handleCancelarInscricaoCortesia(postId);
+				} else {
+					handleCancelarInscricao(postId);
+				}
+			});
 
 			function formatarDataBrasileira(dataISO) {
 				// Separa data e hora
@@ -994,9 +1023,7 @@
 				return `${dia}/${mes}/${ano} ${horaFormatada}`;
 			}
 
-			// Botão "Cancelar Inscrição"
-			$('#cancelarInscricao').on('click', function () {
-				const postId = $('#comment_post_ID').val();
+			function handleCancelarInscricao(postId) {
 
 				$.post('/wp-admin/admin-ajax.php', {
 					action: 'buscar_datas_inscricao',
@@ -1022,8 +1049,6 @@
 						const modelo = response.data.modelo;
 						const premios = response.data.premios; // Objeto com datas e prêmios correspondentes
 
-						console.log(response.data);
-
 						if (modelo === 'unico') {
 							const dataFormatada = datas[0]; // única data retornada
 							const dataFormatadaBr = formatarDataBrasileira(dataFormatada);
@@ -1038,7 +1063,7 @@
 								reverseButtons: true
 							}).then((result) => {
 								if (result.isConfirmed) {
-									cancelarInscricao([dataFormatada], modelo); // envia array com a data única
+									cancelarInscricao([dataFormatada], modelo, null, postId); // envia array com a data única
 								}
 							});
 						} else if ( modelo === 'periodo' ) {
@@ -1053,7 +1078,7 @@
 								reverseButtons: true
 							}).then((result) => {
 								if (result.isConfirmed) {
-									cancelarInscricao(null, modelo); // envia array com a data única
+									cancelarInscricao(null, modelo, null, postId); // envia array com a data única
 								}
 							});
 						} else if (modelo === 'multi') {
@@ -1072,7 +1097,7 @@
 									reverseButtons: true
 								}).then((result) => {
 									if (result.isConfirmed) {
-										cancelarInscricao([dataFormatada], modelo); // ainda envia como array
+										cancelarInscricao([dataFormatada], modelo, null, postId); // ainda envia como array
 									}
 								});
 							} else {
@@ -1111,7 +1136,7 @@
 									}
 								}).then((result) => {
 									if (result.isConfirmed) {
-										cancelarInscricao(result.value, modelo); // envia as datas selecionadas
+										cancelarInscricao(result.value, modelo, null, postId); // envia as datas selecionadas
 									}
 								});
 							}
@@ -1132,7 +1157,7 @@
 									reverseButtons: true
 								}).then((result) => {
 									if (result.isConfirmed) {
-										cancelarInscricao([dataFormatada], modelo, premios); // ainda envia como array
+										cancelarInscricao([dataFormatada], modelo, premios, postId); // ainda envia como array
 									}
 								});
 							} else {
@@ -1171,7 +1196,7 @@
 									}
 								}).then((result) => {
 									if (result.isConfirmed) {
-										cancelarInscricao(result.value, modelo, premios); // envia as datas selecionadas
+										cancelarInscricao(result.value, modelo, premios, postId); // envia as datas selecionadas
 									}
 								});
 							}
@@ -1180,12 +1205,12 @@
 						Swal.fire('Erro', 'Não foi possível buscar suas datas de inscrição.', 'error');
 					}
 				});
-			});
+
+			}
 
 			// Função para cancelar a inscrição
-			function cancelarInscricao(datas, modelo, premios = null) {
+			function cancelarInscricao(datas, modelo, premios = null, postId) {
 				const userId = <?php echo get_current_user_id(); ?>;
-				const postId = $('#comment_post_ID').val();
 
 				if (userId && postId) {
 					$.ajax({
@@ -1207,7 +1232,17 @@
 									html: response.data.mensagem, // permite <br> funcionar
 									confirmButtonText: 'Fechar',
 								}).then(() => {
-									window.location.href = window.location.href.split('?')[0] + '?inscricao_cancelada=true';
+									const params = new URLSearchParams(window.location.search);
+
+									/**
+									 * Se o cancelamento estiver sendo feito a partir da aba de 
+									 * "Minhas inscrições", apenas dá reload na página senão, segue o fluxo normal.
+									*/
+									if (params.get('tab') === 'minhas-inscricoes') {
+										window.location.reload();
+									} else {
+										window.location.href = window.location.href.split('?')[0] + '?inscricao_cancelada=true';
+									}
 								});
 							} else {
 								Swal.fire({
@@ -1227,6 +1262,17 @@
 								confirmButtonText: 'Fechar',
 							});
 						},
+						complete: function () {
+							const params = new URLSearchParams(window.location.search);
+
+							/**
+							 * Se o cancelamento estiver sendo feito a partir da aba de 
+							 * "Minhas inscrições", habilita novamente os botões de cancelamento da inscrição.
+							*/
+							if (params.get('tab') === 'minhas-inscricoes') {
+								$('#tabela-inscricoes-participante .btn-cancelar-inscricao').prop('disabled', false);
+							}
+						}
 					});
 				} else {
 					Swal.fire({
@@ -1238,10 +1284,16 @@
 				}
 			}
 
+			//Gratuidade e cortesias -------------------------------------------------------------------
+
 			// Botão "Cancelar Inscrição"
 			$('#cancelarInscricaoCortesia').on('click', function () {
 				const postId = $('#comment_post_ID').val();
-				const btnCancelar = $(this);
+
+				handleCancelarInscricaoCortesia(postId);
+			});
+
+			function handleCancelarInscricaoCortesia(postId) {
 
 				$.post('/wp-admin/admin-ajax.php', {
 					action: 'buscar_dados_inscricao',
@@ -1286,7 +1338,7 @@
 						Swal.fire('Erro', 'Não foi possível buscar os dados da inscrição.', 'error');
 					}
 				});
-			});
+			}
 
 			// Função para cancelar a inscrição
 			function devolverCortesia(inscricaoId) {
@@ -1308,7 +1360,17 @@
 									html: '<p>A solicitação de cancelamento foi processada com sucesso.</p>',
 									confirmButtonText: 'Fechar',
 								}).then(() => {
-									window.location.href = window.location.href.split('?')[0] + '?inscricao_cancelada=true';
+									const params = new URLSearchParams(window.location.search);
+
+									/**
+									 * Se o cancelamento estiver sendo feito a partir da aba de 
+									 * "Minhas inscrições", apenas dá reload na página senão, segue o fluxo normal.
+									*/
+									if (params.get('tab') === 'minhas-inscricoes') {
+										window.location.reload();
+									} else {
+										window.location.href = window.location.href.split('?')[0] + '?inscricao_cancelada=true';
+									}
 								});
 							} else {
 								Swal.fire({
@@ -1341,6 +1403,89 @@
 
 		});
 	</script>		
+<?php endif; ?>
+
+<?php if ( is_single() && current_user_can( 'edit_others_posts' ) ) : ?>
+	<script>
+		jQuery('button#copiar-info-evento').on('click', async function () {
+
+			let htmlFinal = '';
+
+			const iconMap = {
+				'fa-question': '❓',
+				'fa-ticket': '🎭',
+				'fa-calendar-o': '📅',
+				'fa-clock-o': '⏰',
+				'fa-users': '👥',
+				'fa-building-o': '🏢',
+				'fa-map-marker': '📍',
+				'fa-link': '🔗',
+				'fa-calendar-check-o': '✅',
+				'fa-gift': '🎁'
+			};
+
+			const defaultIcon = '•';
+
+			jQuery('.informacoes-evento table tr').each(function () {
+
+				const $tds = jQuery(this).find('td');
+
+				// Ignora divisor
+				if ($tds.length === 1 && $tds.attr('colspan')) {
+					return;
+				}
+
+				const $icon = $tds.eq(0).find('i');
+				const texto = $tds.eq(1).html();
+
+				let icon = defaultIcon;
+
+				Object.keys(iconMap).forEach(function(className) {
+
+					if ($icon.hasClass(className)) {
+						icon = iconMap[className];
+					}
+
+				});
+
+				if (texto) {
+					htmlFinal += `<p>${icon} ${texto}</p>`;
+				}
+			});
+
+			try {
+
+				await navigator.clipboard.write([
+					new ClipboardItem({
+						'text/html': new Blob([htmlFinal], {
+							type: 'text/html'
+						}),
+						'text/plain': new Blob(
+							[jQuery('<div>').html(htmlFinal).text()],
+							{
+								type: 'text/plain'
+							}
+						)
+					})
+				]);
+
+				const $button = jQuery('button#copiar-info-evento');
+				const $icon = $button.find('i');
+
+				$button.removeClass('btn-secondary').addClass('btn-success');
+				$icon.removeClass('fa-clipboard').addClass('fa-check');
+
+				setTimeout(function () {
+					$button.removeClass('btn-success').addClass('btn-secondary');
+					$icon.removeClass('fa-check').addClass('fa-clipboard');
+
+				}, 2000);
+
+			} catch (err) {
+				console.error(err);
+			}
+		});
+	</script>
 <?php endif; ?>
 </body>
 </html>

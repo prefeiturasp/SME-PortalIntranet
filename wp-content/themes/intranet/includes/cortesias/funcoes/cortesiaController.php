@@ -1618,3 +1618,84 @@ function check_envio_email_instrucoes_cortesia( int $post_id, $acf_data_id ) {
 
     return boolval( $instrucoes );
 }
+
+add_action('wp_ajax_confirmar_cancelar_presenca_cortesia', 'ajax_confirmar_cancelar_presenca_cortesia');
+add_action('wp_ajax_nopriv_confirmar_cancelar_presenca_cortesia', 'ajax_confirmar_cancelar_presenca_cortesia');
+function ajax_confirmar_cancelar_presenca_cortesia() {
+
+    check_ajax_referer( 'acoes_inscricao', 'nonce' );
+
+    $inscricao_id = isset( $_POST['inscricao_id'] ) ? intval( $_POST['inscricao_id'] ) : null;
+    $post_id = isset( $_POST['post_id'] ) ? intval( $_POST['post_id'] ) : null;
+	$acao = isset( $_POST['acao'] ) ? intval( $_POST['acao'] ) : null; // 1 => Confirmar presença 2 => Cancelar participação
+
+    if ( !$inscricao_id ) {
+        wp_send_json_error(['message' => 'É necessário enviar o ID da inscrição']);
+    }
+
+	if ( !$post_id ) {
+        wp_send_json_error(['message' => 'É necessário enviar o ID do evento.']);
+    }
+
+	if ( !$acao ) {
+        wp_send_json_error(['message' => 'Houve um erro durante sua solicitação.']);
+    }
+
+    $tipo_evento = get_post_type_label( $post_id );
+    $inscricao = Envia_Emails_Sorteio_SME::get_inscrito_by_id( $inscricao_id, $tipo_evento );
+
+    if ( !isset( $inscricao[0] ) || empty( $inscricao[0] ) ) {
+		wp_send_json_error(['message' => 'Não foi possível localizar a inscrição.']);
+	}
+
+    $data_selecionada = get_acf_info_by_id( $inscricao[0]->acf_id );
+    $tipo_sorteio = $data_selecionada['tipo'];
+    $confirmacao = $inscricao[0]->confirmou_presenca;
+
+    if( $tipo_sorteio === 'periodo' ) {
+        $data_selecionada['info'] = get_field( 'enc_inscri', $data_selecionada['post_id'] );
+    }
+
+    $wp_timezone = wp_timezone();
+    $agora = new DateTime( 'now', $wp_timezone );
+    $data = ( $tipo_sorteio !== 'premio' ) ? new DateTime( $data_selecionada['info'] ) : null;
+
+    $prazo = $inscricao[0]->prazo_confirmacao;
+    $prazo_confirmacao = new DateTime( $prazo, $wp_timezone );
+
+    if ( $data && $agora > $data ) { // Data de evento já passou
+
+        wp_send_json_error([
+            'message' => 'O evento já foi realizado. O período para confirmar ou cancelar sua presença encerrou junto com a data do evento.'
+        ]);
+
+    } elseif( $confirmacao != '0' ) { // Inscrição já confirmada ou cancelada
+        
+        wp_send_json_error([
+            'message' => 'Você já confirmou ou cancelou sua participação. Se já confirmou, fique tranquilo(a): em breve você receberá um novo e-mail com as instruções.'
+        ]);
+
+    }  elseif ( $agora > $prazo_confirmacao ) { // Prazo para confirmação expirou
+        
+        wp_send_json_error([
+            'message' => 'O prazo para confirmação ou cancelamento da presença expirou. A participação não foi confirmada dentro do prazo estabelecido e, por isso, a oportunidade foi disponibilizada novamente para inscrição, podendo ser ocupada por qualquer interessado.'
+        ]);
+    }
+
+    $resultado = Envia_Emails_Sorteio_SME::confirma_presenca_inscrito( $inscricao_id, $acao, $tipo_evento );
+
+    if ( isset( $resultado['res'] ) && $resultado['res'] == 1 ) {
+
+		$mensagem_sucesso = $acao == 2 
+			? 'A oportunidade será disponibilizada para outro participante. Obrigado pela participação!' 
+			: 'Sua presença foi confirmada!'; 
+
+        wp_send_json_success( ['message' => $mensagem_sucesso] );
+    }
+	
+	$mensagem_erro = $acao == 2 
+		? 'Houve um erro ao cancelar sua participação.' 
+		: 'Houve um erro ao confirmar sua participação.';
+
+    wp_send_json_error( ['message' => $mensagem_erro] );
+}
