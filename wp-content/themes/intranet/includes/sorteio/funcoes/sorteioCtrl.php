@@ -968,10 +968,6 @@ function retornaListaSorteados(){//** OK */
 		if(count($arrDados) < 1){
 			wp_send_json(array("res" => false));
 		} else {
-			foreach($arrDados as $item){
-				$item['tipoEmail'] = 'vencedor';
-				array_push($arrEmails, $item);
-			}
 
 			// Timezone São Paulo
 			$timezone = new DateTimeZone('America/Sao_Paulo');
@@ -979,27 +975,35 @@ function retornaListaSorteados(){//** OK */
 			// Data/hora atual
 			$dataAtual = new DateTime('now', $timezone);
 
-			// Verifica se algum prazo já expirou
-			$prazoExpirado = false;
+			foreach($arrDados as $item){
+				$item['tipoEmail'] = 'vencedor';
 
-			$dataPrazo = $item['prazo_confirmacao'] ?? null;
-			if ($dataPrazo) {
-				$dataPrazo = DateTime::createFromFormat('Y-m-d H:i:s', $dataPrazo, $timezone);
-			}
+				// Verifica se algum prazo já expirou
+				$prazoExpirado = false;
 
-			if($dataPrazo && $dataPrazo < $dataAtual){
-				$prazoExpirado = true;
+				$dataPrazo = $item['prazo_confirmacao'] ?? null;
+				if ($dataPrazo) {
+					$dataPrazo = DateTime::createFromFormat('Y-m-d H:i:s', $dataPrazo, $timezone);
+				}
+
+				if($dataPrazo && $dataPrazo < $dataAtual){
+					$prazoExpirado = true;
+				}
+
+				$item['prazoExpirado'] = $prazoExpirado;
+				
+				array_push($arrEmails, $item);
+
+				definir_prazo_expiracao_email_confirmacao( [$item['id']], $tipo_prazo_confirmacao, $prazo_confirmacao, $prazoExpirado );
 			}
 
 			if(is_plugin_active('envia-email-sme/envia-email-sme.php')){
 
-				definir_prazo_expiracao_email_confirmacao( $participantesSelecionados, $tipo_prazo_confirmacao, $prazo_confirmacao, $prazoExpirado );
-
 				foreach($arrEmails as $item){
-					new Envia_Emails_Sorteio_SME($item['id'], null, $item['post_id'], $item['tipoEmail'], null, null, ['prazo_expirado' => $prazoExpirado]);
+					new Envia_Emails_Sorteio_SME($item['id'], null, $item['post_id'], $item['tipoEmail'], null, null, ['prazo_expirado' => $item['prazoExpirado']]);
 				}
 			}
-		}
+		}		
 
 		die();
 	}
