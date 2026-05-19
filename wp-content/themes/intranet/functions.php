@@ -574,7 +574,7 @@ if( function_exists('acf_add_options_page') ) {
         'page_title' 	=> 'Comentários',
         'menu_title'	=> 'Comentários',
         'parent_slug'	=> 'conf-geral',
-        'capability'	=> 'create_users',
+        'capability'	=> 'delete_users',
 		'update_button' => __('Atualizar', 'acf'),
 		'updated_message' => __("Configurações atualizadas com sucesso", 'acf'),
     ));
@@ -5599,7 +5599,8 @@ include_once get_template_directory() . '/includes/cortesias/funcoes/cortesiaCon
 function alterar_rotulo_descricao_para_endereco() {
     $screen = get_current_screen();
 
-    if ( $screen && $screen->taxonomy === 'post_tag' ) {
+    if ( $screen && ( $screen->taxonomy === 'post_tag' || $screen->taxonomy === 'locais' ) ) {
+		$text_helper = ($screen->taxonomy === 'locais') ? 'Insira o endereço do local cadastrado para mostrar na publicação da oportunidade.' : 'Insira o endereço do local cadastrado para mostrar na publicação do sorteio.';
         ?>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
@@ -5610,8 +5611,8 @@ function alterar_rotulo_descricao_para_endereco() {
                 }
 
                 const addHelp = document.querySelector('#description-description');
-                if (addHelp) {
-                    addHelp.textContent = 'Insira o endereço do local cadastrado para mostrar na publicação do sorteio.';
+                if (addHelp) {					
+					addHelp.textContent = '<?= $text_helper; ?>';						
                 }
 
                 // Edição de Local existente (formulário com <tr>)
@@ -5621,8 +5622,8 @@ function alterar_rotulo_descricao_para_endereco() {
                 }
 
                 const editHelp = document.querySelector('#description-description');
-                if (editHelp) {
-                    editHelp.textContent = 'Insira o endereço do local cadastrado para mostrar na publicação do sorteio.';
+                if (editHelp) {					
+					editHelp.textContent = '<?= $text_helper; ?>';					
                 }
             });
         </script>
@@ -5641,48 +5642,76 @@ function alterar_coluna_descricao_para_endereco($columns) {
     return $columns;
 }
 add_filter('manage_edit-post_tag_columns', 'alterar_coluna_descricao_para_endereco');
+add_filter('manage_edit-locais_columns', 'alterar_coluna_descricao_para_endereco');
 
 
 // Preencher o campo de endereço com a descrição do local selecionado
-add_action('acf/input/admin_footer', 'acf_local_atualiza_endereco_com_observer');
-function acf_local_atualiza_endereco_com_observer() {
-    $screen = get_current_screen();
-    if ($screen->post_type !== 'post') return;
+add_action('acf/input/admin_footer', 'acf_auto_preencher_taxonomia');
+function acf_auto_preencher_taxonomia() {
 
-    $tags = get_terms([
-        'taxonomy' => 'post_tag',
+    $screen = get_current_screen();
+
+    $config = [
+        'post' => [
+            'taxonomy' => 'post_tag',
+            'select'   => "'" . getenv('ACF_KEY_S_LOCAL') . "'",
+            'input'    => "'" . getenv('ACF_KEY_S_ENDE') . "'",
+        ],
+        'oportunidade' => [
+            'taxonomy' => 'locais',
+            'select'   => "'" . getenv('ACF_KEY_O_LOCAL') . "'",
+            'input'    => "'" . getenv('ACF_KEY_O_ENDE') . "'",
+        ],
+    ];
+
+    $current = $config[$screen->post_type] ?? null;
+    if (!$current) return;
+
+    // Busca termos
+    $terms = get_terms([
+        'taxonomy' => $current['taxonomy'],
         'hide_empty' => false,
     ]);
 
     $dados = [];
-    foreach ($tags as $tag) {
-        $dados[$tag->term_id] = esc_js($tag->description);
+    foreach ($terms as $term) {
+        $dados[$term->term_id] = $term->description;
     }
 
     ?>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
+
         const descricoes = <?php echo json_encode($dados); ?>;
-        const select = document.querySelector('#acf-field_67eec90fad2a6');
-        const inputEndereco = document.querySelector('#acf-field_67eec95fcdafc');
+
+        const select = document.querySelector('#acf-<?= str_replace("'", "", $current['select']); ?>');
+        const inputEndereco = document.querySelector('#acf-<?= str_replace("'", "", $current['input']); ?>');
 
         function atualizarEndereco(termId) {
             const descricao = descricoes[termId];
-            if (descricao) {
-                inputEndereco.value = descricao;
+            const hasDescricao = typeof descricao === 'string' && descricao.trim() !== '';
+            const hasValorAtual = inputEndereco.value.trim() !== '';
+
+            if (hasDescricao) {
+                if (inputEndereco.value !== descricao) {
+                    inputEndereco.value = descricao;
+                }
                 inputEndereco.setAttribute('readonly', 'readonly');
             } else {
-                inputEndereco.value = '';
                 inputEndereco.removeAttribute('readonly');
+
+                if (!hasValorAtual) {
+                    inputEndereco.value = '';
+                }
             }
         }
 
         function processarSelecao() {
             const termId = parseInt(select.value);
+
             if (!termId) return;
 
             if (!(termId in descricoes)) {
-                // novo termo
                 inputEndereco.value = '';
                 inputEndereco.removeAttribute('readonly');
             } else {
@@ -5691,14 +5720,13 @@ function acf_local_atualiza_endereco_com_observer() {
         }
 
         if (select && inputEndereco) {
+
             jQuery(select).on('select2:select', function () {
                 processarSelecao();
             });
 
-            // Executa a primeira vez
             processarSelecao();
 
-            // Observa mudanças no select (ex: novo termo adicionado via botão "+")
             const observer = new MutationObserver(() => {
                 processarSelecao();
             });
@@ -5708,10 +5736,34 @@ function acf_local_atualiza_endereco_com_observer() {
                 subtree: true,
             });
         }
+
     });
     </script>
     <?php
 }
+
+add_filter('acf/validate_value', function($valid, $value, $field){
+
+    // Só entra se já houver erro (ex: required do ACF)
+    if ($valid === true) {
+        return $valid;
+    }
+
+    // Mapeamento de mensagens por campo
+    $mensagens = [
+        'tipo_oportunidade' => 'Selecione ao menos uma opção para o tipo da oportunidade.',
+        'descricao'       => 'Preencha a descrição da oportunidade para continuar.',
+		'eixo_atuacao' => 'Selecione um eixo de atuação',
+		'setor' => 'Selecione um setor',
+    ];
+
+    if (isset($mensagens[$field['name']])) {
+        return $mensagens[$field['name']];
+    }
+
+    return $valid;
+
+}, 10, 3);
 
 // Registrar taxonomia "Gênero / Tipo de evento" para posts
 add_action('init', 'registrar_taxonomia_genero');
@@ -7342,3 +7394,1358 @@ function get_perfil_usuario_logado() {
 
 	return 'servidor';
 }
+
+add_filter('editable_roles', function($roles) {
+
+    if (current_user_can('admin_portal')) {
+        return array_intersect_key($roles, array_flip([
+            'gestor_unidade',
+            'admin_portal'
+        ]));
+    }
+
+    return $roles;
+});
+
+function ocultar_menus_admin_portal() {
+
+    if (current_user_can('admin_portal') || current_user_can('gestor_unidade')) {
+
+        remove_menu_page('edit.php'); // Posts
+        remove_menu_page('upload.php'); // Mídia 
+        remove_menu_page('edit-comments.php'); // Comentários
+        remove_menu_page('tools.php'); // Ferramentas
+		remove_menu_page('tutorial_slug'); // Tutoriais
+
+    }
+
+}
+add_action('admin_menu', 'ocultar_menus_admin_portal', 999);
+
+function obter_dados_candidato($user_id) {
+
+    global $wpdb;
+
+    $table = $wpdb->prefix . 'banco_talentos';
+
+    /*
+    |--------------------------------------------------------------------------
+    | 1. Currículo já salvo
+    |--------------------------------------------------------------------------
+    */
+
+    $curriculo = $wpdb->get_row($wpdb->prepare(
+        "SELECT * FROM {$table} WHERE user_id = %d LIMIT 1",
+        $user_id
+    ));
+
+    if ($curriculo) {
+
+        return array(
+            'origem' => 'banco',
+            'dados'  => $curriculo
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 2. API
+    |--------------------------------------------------------------------------
+    */
+
+    $dados_api = buscar_dados_api($user_id);
+
+    if ($dados_api) {
+
+        return array(
+            'origem' => 'api',
+            'dados'  => (object) $dados_api
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | 3. Fallback WordPress
+    |--------------------------------------------------------------------------
+    */
+
+    $usuario = get_userdata($user_id);
+
+    $first_name = get_user_meta($user_id, 'first_name', true);
+    $last_name  = get_user_meta($user_id, 'last_name', true);
+
+    $nome_completo = trim($first_name . ' ' . $last_name);
+
+    $dados_meta = array(
+
+        'nome_completo'   => $nome_completo,
+        'email_principal' => $usuario->user_email,
+        'rf'              => get_user_meta($user_id, 'rf', true),
+
+    );
+
+    return array(
+        'origem' => 'meta',
+        'dados'  => (object) $dados_meta
+    );
+}
+
+function get_dres_mapeadas() {
+
+    return array(
+
+        '108100' => 'dre-butanta',
+        '108200' => 'dre-campo-limpo',
+        '108300' => 'dre-capela-socorro',
+        '108400' => 'dre-freguesia-brasilandia',
+        '108500' => 'dre-guaianases',
+        '108600' => 'dre-ipiranga',
+        '108700' => 'dre-itaquera',
+        '108800' => 'dre-jacana-tremembe',
+        '108900' => 'dre-penha',
+        '109000' => 'dre-pirituba-jaragua',
+        '109100' => 'dre-santo-amaro',
+        '109200' => 'dre-sao-mateus',
+        '109300' => 'dre-sao-miguel',
+
+    );
+
+}
+
+function buscar_dados_api($user_id) {
+
+    $rf = get_user_meta($user_id, 'rf', true);
+
+    if (empty($rf)) {
+        return false;
+    }
+
+    $api_url   = getenv('SMEINTEGRACAO_API_URL');
+    $api_token = getenv('SMEINTEGRACAO_API_TOKEN');
+
+    /*
+    |--------------------------------------------------------------------------
+    | Endpoint 1 - Dados pessoais
+    |--------------------------------------------------------------------------
+    */
+
+    $response_dados = wp_remote_get(
+        $api_url . '/api/AutenticacaoSgp/' . $rf . '/dados',
+        array(
+            'headers' => array(
+                'x-api-eol-key' => $api_token,
+            ),
+            'timeout' => 30,
+        )
+    );
+
+    if (is_wp_error($response_dados)) {
+
+        error_log(
+            '[BANCO TALENTOS] Erro endpoint dados: ' .
+            $response_dados->get_error_message()
+        );
+
+        return false;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Endpoint 2 - Dados funcionais
+    |--------------------------------------------------------------------------
+    */
+
+    $response_funcional = wp_remote_get(
+        $api_url . '/api/funcionarios/cargo/' . $rf,
+        array(
+            'headers' => array(
+                'x-api-eol-key' => $api_token,
+            ),
+            'timeout' => 30,
+        )
+    );
+
+    if (is_wp_error($response_funcional)) {
+
+        error_log(
+            '[BANCO TALENTOS] Erro endpoint funcional: ' .
+            $response_funcional->get_error_message()
+        );
+
+        return false;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Decodifica respostas
+    |--------------------------------------------------------------------------
+    */
+
+    $dados_api = json_decode(
+        wp_remote_retrieve_body($response_dados),
+        true
+    );
+
+    $funcional_api = json_decode(
+        wp_remote_retrieve_body($response_funcional),
+        true
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dados funcionais
+    |--------------------------------------------------------------------------
+    */
+
+    $funcional = $funcional_api[0] ?? array();    
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mapeamento DRE
+    |--------------------------------------------------------------------------
+    */
+
+    $dres = get_dres_mapeadas();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Lotação
+    |--------------------------------------------------------------------------
+    */
+
+    $codigo_dre_lotacao = $funcional['cdDreCargoBase'] ?? '';
+
+    $dre_lotacao = $dres[$codigo_dre_lotacao] ?? '';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Exercício
+    |--------------------------------------------------------------------------
+    */
+
+    $codigo_dre_exercicio =
+        $funcional['cdDreFuncaoAtividade']
+        ?? $funcional['cdDreCargoSobreposto']
+        ?? $funcional['cdDreCargoBase']
+        ?? '';
+
+    if (empty($codigo_dre_exercicio)) {
+
+        $dre_exercicio = '';
+
+    } elseif (isset($dres[$codigo_dre_exercicio])) {
+
+        // É uma DRE válida
+        $dre_exercicio = $dres[$codigo_dre_exercicio];
+
+    } else {
+
+        // Possui código mas não é DRE
+        $dre_exercicio = 'coordenadoria-sme';
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Unidade exercício
+    |--------------------------------------------------------------------------
+    */
+
+    $unidade_exercicio =
+        $funcional['ueFuncaoAtividade']
+        ?? $funcional['ueCargoSobreposto']
+        ?? $funcional['ueCargoBase']
+        ?? '';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dados normalizados
+    |--------------------------------------------------------------------------
+    */
+
+    $dados_normalizados = array(
+
+        'origem' => 'api',
+
+        'rf' => $dados_api['codigoRf']
+            ?? $funcional['rf']
+            ?? '',
+
+        'nome_completo' => $dados_api['nome'] ?? '',
+        'email_principal' => $dados_api['email'] ?? '',
+        'dre_lotacao' => $dre_lotacao,
+        'unidade_lotacao' => $funcional['ueCargoBase'] ?? '',
+        'dre_exercicio' => $dre_exercicio,
+        'unidade_exercicio' => $unidade_exercicio,
+
+    );
+
+    return $dados_normalizados;
+}
+
+add_action('template_redirect', 'salvar_banco_talentos');
+
+function salvar_banco_talentos() {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Método POST
+    |--------------------------------------------------------------------------
+    */
+
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        return;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Usuário logado
+    |--------------------------------------------------------------------------
+    */
+
+    if (!is_user_logged_in()) {
+        return;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verifica origem do formulário
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        !isset($_POST['acao_formulario']) ||
+        $_POST['acao_formulario'] !== 'salvar_banco_talentos'
+    ) {
+        return;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Nonce
+    |--------------------------------------------------------------------------
+    */
+
+    if (
+        !isset($_POST['curriculo_nonce']) ||
+        !wp_verify_nonce($_POST['curriculo_nonce'], 'salvar_curriculo')
+    ) {
+        wp_die('Falha de segurança.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verifica origem do formulário
+    |--------------------------------------------------------------------------
+    */
+
+    if (!isset($_POST['nomeCompleto'])) {
+        return;
+    }
+
+    global $wpdb;
+
+    $table = $wpdb->prefix . 'banco_talentos';
+
+    $user_id = get_current_user_id();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Status
+    |--------------------------------------------------------------------------
+    */
+
+    $acao_curriculo = sanitize_text_field(
+        $_POST['acao_curriculo'] ?? 'rascunho'
+    );
+
+    $status_curriculo = (
+        $acao_curriculo === 'finalizar'
+    )
+        ? 'finalizado'
+        : 'rascunho';
+
+    /*
+    |--------------------------------------------------------------------------
+    | Valores permitidos
+    |--------------------------------------------------------------------------
+    */
+
+    $identificacao_racial_permitida = array(
+        'preto',
+        'pardo',
+        'amarelo',
+        'indigena',
+        'branco'
+    );
+
+    $identidade_genero_permitida = array(
+        'homem_cis',
+        'homem_trans',
+        'mulher_cis',
+        'mulher_trans',
+        'nao_binario'
+    );
+
+    $cargos_validos = array(
+        'Auxiliar Técnico de Educação (ATE)',
+        'Agente Escolar',
+        'Coordenador(a) Pedagógico',
+        'Diretor(a) de Escola',
+        'Professor(a) de Educação Infantil (PEI)',
+        'Professor(a) de Educação Infantil e Ensino Fundamental I (PEIF)',
+        'Professor(a) de Ensino Fundamental II e Médio',
+        'Supervisor(a) Escolar',
+        'Outro'
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Função auxiliar telefone
+    |--------------------------------------------------------------------------
+    */
+
+    function limpar_telefone($telefone) {
+        $telefone_limpo = preg_replace('/[^0-9]/', '', $telefone);
+        
+        // Retorna string vazia se o telefone estiver vazio ou for apenas zeros
+        if (empty($telefone_limpo) || intval($telefone_limpo) === 0) {
+            return '';
+        }
+        
+        return $telefone_limpo;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Sanitização
+    |--------------------------------------------------------------------------
+    */
+
+    $identificacao_racial = sanitize_text_field(
+        $_POST['seIdentifica'] ?? ''
+    );
+
+    if (
+        !in_array(
+            $identificacao_racial,
+            $identificacao_racial_permitida,
+            true
+        )
+    ) {
+        $identificacao_racial = '';
+    }
+
+    $identidade_genero = sanitize_text_field(
+        $_POST['idGenero'] ?? ''
+    );
+
+    if (
+        !in_array(
+            $identidade_genero,
+            $identidade_genero_permitida,
+            true
+        )
+    ) {
+        $identidade_genero = '';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Checkbox cargos
+    |--------------------------------------------------------------------------
+    */
+
+    $cargo_efetivo = array();
+
+    if (!empty($_POST['cargoEfetivo'])) {
+
+        foreach ($_POST['cargoEfetivo'] as $cargo) {
+
+            $cargo = sanitize_text_field($cargo);
+
+            if (in_array($cargo, $cargos_validos, true)) {
+                $cargo_efetivo[] = $cargo;
+            }
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Dados
+    |--------------------------------------------------------------------------
+    */
+
+    $dados = array(
+
+        // usuário
+        'user_id' => $user_id,
+
+        // pessoais
+        'rf' => sanitize_text_field($_POST['rf'] ?? ''),
+        'nome_completo' => sanitize_text_field($_POST['nomeCompleto'] ?? ''),
+        'nome_social' => sanitize_text_field($_POST['nomeSocial'] ?? ''),
+        'data_nascimento' => sanitize_text_field($_POST['dataNascimento'] ?? ''),
+
+        // identificação
+        'identificacao_racial' => $identificacao_racial,
+        'identidade_genero' => $identidade_genero,
+
+        // deficiência
+        'possui_deficiencia' => intval($_POST['possuiDeficiencia'] ?? 0),
+        'necessita_adaptacao' => intval($_POST['necessitaAdaptacao'] ?? 0),
+        'descreva_adaptacao' => sanitize_textarea_field($_POST['descrevaAdapta'] ?? ''),
+
+        // readaptado
+        'servidor_readaptado' => intval($_POST['servidorReadaptado'] ?? 0),
+        'readaptado_necessita' => intval($_POST['readaptadoNecessita'] ?? 0),
+        'readaptado_descricao' => sanitize_textarea_field($_POST['readaptadoDescreva'] ?? ''),
+
+        // contato
+        'telefone_whatsapp' => limpar_telefone($_POST['telWhatsapp'] ?? ''),
+        'telefone_opcional' => limpar_telefone($_POST['telOpcional'] ?? ''),
+
+        'email_principal' => sanitize_email($_POST['email'] ?? ''),
+        'email_secundario' => sanitize_email($_POST['emailSec'] ?? ''),
+
+        // funcional
+        'concluiu_estagio' => intval($_POST['estagio'] ?? 0),
+
+        // checkbox
+        'cargo_efetivo' => !empty($cargo_efetivo)
+            ? wp_json_encode($cargo_efetivo)
+            : null,
+
+        'cargo_outro' => sanitize_text_field($_POST['cargoOutro'] ?? ''),
+
+        // lotação
+        'dre_lotacao' => sanitize_text_field($_POST['dreLotacao'] ?? ''),
+        'unidade_lotacao' => sanitize_text_field($_POST['unidadeLotacao'] ?? ''),
+
+        'dre_exercicio' => sanitize_text_field($_POST['dreExercicio'] ?? ''),
+        'unidade_exercicio' => sanitize_text_field($_POST['unidadeExercicio'] ?? ''),
+
+        // acúmulo
+        'acumula_cargo' => intval($_POST['acumulaCargo'] ?? 0),
+        'acumula_descricao' => sanitize_text_field($_POST['informaCargo'] ?? ''),
+
+        // status
+        'status_curriculo' => $status_curriculo,
+
+        // datas
+        'atualizado_em' => current_time('mysql')
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validação backend
+    |--------------------------------------------------------------------------
+    */
+
+    if ($status_curriculo === 'finalizado') {
+
+        $erros = array();
+
+        if (empty($dados['nome_completo'])) {
+            $erros[] = 'Nome completo é obrigatório.';
+        }
+
+        if (empty($dados['rf'])) {
+            $erros[] = 'RF é obrigatório.';
+        }
+
+        if (empty($dados['email_principal'])) {
+            $erros[] = 'E-mail principal é obrigatório.';
+        }
+
+        if (
+            !empty($dados['email_principal']) &&
+            !is_email($dados['email_principal'])
+        ) {
+            $erros[] = 'E-mail principal inválido.';
+        }
+
+        if (!empty($erros)) {
+
+            wp_die(
+                implode('<br>', $erros),
+                'Erro de validação'
+            );
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verifica currículo existente
+    |--------------------------------------------------------------------------
+    */
+
+    $curriculo_existente = $wpdb->get_var(
+        $wpdb->prepare(
+            "SELECT id
+            FROM {$table}
+            WHERE user_id = %d",
+            $user_id
+        )
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Formatos
+    |--------------------------------------------------------------------------
+    */
+
+    $formatos = array(
+        '%d',  // user_id
+        '%s',  // rf
+        '%s',  // nome_completo
+        '%s',  // nome_social
+        '%s',  // data_nascimento
+        '%s',  // identificacao_racial
+        '%s',  // identidade_genero
+        '%d',  // possui_deficiencia
+        '%d',  // necessita_adaptacao
+        '%s',  // descreva_adaptacao
+        '%d',  // servidor_readaptado
+        '%d',  // readaptado_necessita
+        '%s',  // readaptado_descricao
+        '%s',  // telefone_whatsapp
+        '%s',  // telefone_opcional
+        '%s',  // email_principal
+        '%s',  // email_secundario
+        '%d',  // concluiu_estagio
+        '%s',  // cargo_efetivo (JSON)
+        '%s',  // cargo_outro
+        '%s',  // dre_lotacao
+        '%s',  // unidade_lotacao
+        '%s',  // dre_exercicio
+        '%s',  // unidade_exercicio
+        '%d',  // acumula_cargo
+        '%s',  // acumula_descricao
+        '%s',  // status_curriculo
+        '%s'   // atualizado_em
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | UPDATE
+    |--------------------------------------------------------------------------
+    */
+
+    if ($curriculo_existente) {
+
+        $wpdb->update(
+            $table,
+            $dados,
+            array('user_id' => $user_id),
+            $formatos,
+            array('%d')
+        );
+
+    } else {
+
+        $dados['atualizado_em'] = current_time('mysql');
+        
+        // Adiciona o formato para atualizado_em
+        $formatos_insert = array_merge($formatos, array('%s'));
+        
+        $wpdb->insert(
+            $table,
+            $dados,
+            $formatos_insert
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Log erro SQL
+    |--------------------------------------------------------------------------
+    */
+
+    if ($wpdb->last_error) {
+
+        error_log($wpdb->last_error);
+
+        echo "<pre>";
+        print_r($wpdb->last_error);
+        echo "</pre>";
+
+        wp_die('Erro ao salvar currículo.');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Redirect seguro
+    |--------------------------------------------------------------------------
+    */
+
+    wp_safe_redirect(
+        add_query_arg(
+            'sucesso',
+            '1',
+            get_permalink()
+        )
+    );
+
+    exit;
+}
+
+/**
+ * Função auxiliar para forçar ordenação customizada em campos ACF
+ * 
+ * @param array  $args    Argumentos da query
+ * @param array  $field   Configurações do campo ACF
+ * @param int    $post_id ID do post
+ * @return array Argumentos modificados
+ */
+function acf_custom_term_order($args, $field, $post_id) {
+    
+    // Aplica ordenação pela meta term_order
+    $args['meta_key'] = 'term_order';
+    $args['orderby'] = 'meta_value_num';
+    $args['order'] = 'ASC';
+    
+    // Garante que todos os termos apareçam (mesmo os sem meta)
+    $args['meta_query'] = [
+        'relation' => 'OR',
+        [
+            'key' => 'term_order',
+            'compare' => 'EXISTS'
+        ],
+        [
+            'key' => 'term_order',
+            'compare' => 'NOT EXISTS'
+        ]
+    ];
+    
+    return $args;
+}
+
+add_filter('acf/fields/taxonomy/query/name=setor', 'acf_custom_term_order', 10, 3); // Aplica a ordenação para o campo "Setor/Coordenadoria"
+add_filter('acf/fields/taxonomy/query/name=eixo_atuacao', 'acf_custom_term_order', 10, 3); // Aplica a ordenação para o campo "Eixo de atuação"
+add_filter('acf/fields/taxonomy/query/name=coordenadoria', 'acf_custom_term_order', 10, 3); // Aplica a ordenação para o campo "Coordenadoria" no editor de perfil
+
+
+
+// Formata os termos como "Nome - Descrição" com hierarquia
+add_filter('acf/fields/taxonomy/result/name=setor', function ($text, $term, $field, $post_id) {
+    
+    // Se não for um objeto de termo, retorna o texto original
+    if (!is_object($term)) {
+        return $text;
+    }
+    
+    $name = $term->name;
+    $description = $term->description;
+    $taxonomy = $term->taxonomy;
+    
+    // Adiciona descrição se existir
+    if (!empty($description)) {
+        $name .= ' - ' . $description;
+    }
+    
+    // Se o termo tem pai, mostra a hierarquia
+    if ($term->parent > 0) {
+        $parent_term = get_term($term->parent, $taxonomy);
+        
+        if ($parent_term && !is_wp_error($parent_term)) {
+            $parent_name = $parent_term->name;
+
+            $name = $parent_name . ' / ' . $name;
+        }
+    }
+    
+    return $name;
+    
+}, 10, 4);
+
+
+// Atualiza o título do post com base no termo selecionado, mantendo a hierarquia e descrição
+add_action('acf/save_post', function ($post_id) {
+
+    // evita autosave/revisão
+    if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) {
+        return;
+    }
+
+    // só para o CPT correto
+    if (get_post_type($post_id) !== 'oportunidade') {
+        return;
+    }
+
+    $setor = get_field('setor', $post_id);
+    if (!$setor) return;
+
+    $term = is_numeric($setor) ? get_term($setor) : $setor;
+    if (!$term || is_wp_error($term)) return;
+
+    $nome = $term->name;
+    $descricao = $term->description;
+
+    // verifica se tem pai
+    if ($term->parent) {
+
+        $parent = get_term($term->parent);
+
+        if ($parent && !is_wp_error($parent)) {
+            $titulo = $parent->name . ' / ' . $nome;
+        } else {
+            $titulo = $nome;
+        }
+
+    } else {
+        $titulo = $nome;
+    }
+
+    // adiciona descrição (sempre do termo atual)
+    if (!empty($descricao)) {
+        $titulo .= ' - ' . $descricao;
+    }
+
+    wp_update_post([
+        'ID'         => $post_id,
+        'post_title' => $titulo
+    ]);
+
+}, 20);
+
+add_action('admin_head', function () {
+
+    $screen = get_current_screen();
+
+    if ($screen && $screen->post_type === 'oportunidade') {
+        echo '<style>
+            #titlediv { display:none !important; }
+        </style>';
+    }
+});
+
+/**
+ * Coordenadoria obrigatória para role gestor_unidade
+ */
+
+// Admin footer para injetar o javascript necessário para mostrar/ocultar o campo de coordenadoria e validar a seleção, além de ocultar seções do perfil para usuários com a função admin_portal
+add_action('admin_footer', function () {
+
+    $screen = get_current_screen();
+
+    if (
+        !$screen ||
+        !in_array($screen->base, ['user-edit', 'user-new', 'profile'])
+    ) {
+        return;
+    }
+
+    ?>
+
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script type="text/javascript">
+    jQuery(document).ready(function($) {
+
+        
+        // OCULTA SEÇÕES SEM REMOVER DO DOM        
+
+        function removeSection(titleText) {
+
+			$('h2').each(function(){
+
+				var $h2 = $(this);
+
+				if ($h2.text().trim() === titleText) {
+
+					// pega todos os elementos da seção
+					var $section = $h2.nextUntil('h2');
+
+					// oculta completamente sem remover do DOM
+					$section.css({
+						display: 'none'
+					});
+
+					// oculta o título
+					$h2.css({
+						display: 'none'
+					});
+
+				}
+
+			});
+
+		}
+
+
+        
+        // MOSTRA/OCULTA CAMPO COORDENADORIA
+
+        function toggleCampoCoordenadoria() {
+
+			var role = $('#role').val();
+
+			var $campo = $('[data-key="field_69fc896649df7"]');
+
+			if (!$campo.length) {
+				return;
+			}
+
+			// tabela do ACF
+			var $table = $campo.closest('table');
+
+			// h2 imediatamente anterior
+			var $titulo = $table.prev('h2');
+
+			if (role === 'gestor_unidade') {
+
+				$table.show();
+				$campo.show();
+				$titulo.show();
+
+			} else {
+
+				$table.hide();
+				$campo.hide();
+				$titulo.hide();
+
+			}
+
+		}
+
+
+       
+        // LIMPEZA VISUAL PARA admin_portal     
+
+        <?php if (current_user_can('admin_portal')) : ?>
+
+            removeSection('Sobre o usuário');
+            removeSection('Gerenciamento de conta');
+            removeSection('Senhas da aplicação');
+            removeSection('Opções pessoais');
+
+        <?php endif; ?>
+
+        setTimeout(toggleCampoCoordenadoria, 300);
+
+        $('#role').on('change', toggleCampoCoordenadoria);
+        
+        // VALIDAÇÃO 
+        $('#your-profile, #createuser').on('submit', function(e) {
+
+            if ($('#role').val() !== 'gestor_unidade') {
+                return;
+            }
+
+            var $field = $('[data-key="field_69fc896649df7"]');
+
+            var valor = $field.find('select').val();
+
+            if (
+                !valor ||
+                valor === '' ||
+                valor === 'null'
+            ) {
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                Swal.fire({
+                    title: 'Atenção!',
+                    text: 'Para atribuir a função "Gestor da Unidade", é obrigatório selecionar uma Coordenadoria.',
+                    icon: 'warning'
+                });
+
+                $field.show();
+
+                $field
+                    .closest('.postbox, .acf-postbox')
+                    .show();
+
+                $('html, body').animate({
+                    scrollTop: $field.offset().top - 100
+                }, 500);
+
+                return false;
+            }
+
+        });
+
+    });
+    </script>
+
+    <style>
+
+        .acf-field[data-key="field_69fc896649df7"] label::after {
+            content: ' *';
+            color: #dc3232;
+            font-weight: bold;
+        }
+
+    </style>
+
+    <?php
+});
+
+// Validação backend para garantir que a coordenadoria seja selecionada quando a função for gestor_unidade, caso o javascript falhe por algum motivo
+add_action('user_profile_update_errors', function ($errors) {
+
+    $screen = get_current_screen();
+
+    if (
+        !$screen ||
+        !in_array($screen->base, ['user-edit', 'user-new', 'profile'])
+    ) {
+        return;
+    }
+
+    $role = $_POST['role'] ?? '';
+
+    // só valida gestor_unidade
+    if ($role !== 'gestor_unidade') {
+        return;
+    }
+
+    $coordenadoria = $_POST['acf']['field_69fc896649df7'] ?? '';
+
+    if (empty($coordenadoria)) {
+
+        $errors->add(
+            'coordenadoria_obrigatoria',
+            '<strong>ERRO:</strong> Para atribuir a função "Gestor da Unidade", é obrigatório selecionar uma Coordenadoria.'
+        );
+
+    }
+
+}, 10, 1);
+
+// Formatação dos termos da coordenadoria
+add_filter('acf/fields/taxonomy/result/name=coordenadoria', function ($text, $term, $field, $post_id) {
+
+    if (!is_object($term)) {
+        return $text;
+    }
+
+    $name = $term->name;
+
+    if (!empty($term->description)) {
+        $name .= ' - ' . $term->description;
+    }
+
+    return $name;
+
+}, 10, 4);
+
+// Exibe apenas categorias pai no campo coordenadoria do perfil do usuário
+add_filter('acf/fields/taxonomy/query/name=coordenadoria', function ($args, $field, $post_id) {
+
+    // Apenas categorias pai
+    $args['parent'] = 0;
+
+    return $args;
+
+}, 10, 3);
+
+add_action('pre_get_posts', function ($query) {
+
+    // Apenas admin
+    if (!is_admin()) {
+        return;
+    }
+
+    // Apenas query principal
+    if (!$query->is_main_query()) {
+        return;
+    }
+
+    // Apenas listagem do CPT oportunidade
+    global $pagenow;
+
+    if (
+        $pagenow !== 'edit.php' ||
+        $query->get('post_type') !== 'oportunidade'
+    ) {
+        return;
+    }
+
+    // Usuário logado
+    $user = wp_get_current_user();
+
+    // Apenas gestor_unidade
+    if (
+        !in_array('gestor_unidade', (array) $user->roles)
+    ) {
+        return;
+    }
+
+    // Coordenadoria do usuário
+    $coordenadoria_id = get_field(
+        'coordenadoria',
+        'user_' . $user->ID
+    );
+
+    if (empty($coordenadoria_id)) {
+        return;
+    }
+
+    // IDs permitidos
+    $terms_ids = [$coordenadoria_id];
+
+    // Busca subcategorias
+    $children = get_terms([
+        'taxonomy'   => 'coordenadorias',
+        'hide_empty' => false,
+        'parent'     => $coordenadoria_id,
+        'fields'     => 'ids',
+    ]);
+
+    if (!is_wp_error($children) && !empty($children)) {
+        $terms_ids = array_merge($terms_ids, $children);
+    }
+
+    // Filtra oportunidades
+    $query->set('tax_query', [
+        [
+            'taxonomy'         => 'coordenadorias',
+            'field'            => 'term_id',
+            'terms'            => $terms_ids,
+            'include_children' => true,
+        ]
+    ]);
+
+});
+
+// Volta para pendente ao editar o post publicado para gestor da unidade
+add_filter('wp_insert_post_data', function ($data, $postarr) {
+
+    // apenas admin
+    if (!is_admin()) {
+        return $data;
+    }
+
+    // apenas CPT oportunidade
+    if (
+        empty($data['post_type']) ||
+        $data['post_type'] !== 'oportunidade'
+    ) {
+        return $data;
+    }
+
+    // usuário logado
+    $user = wp_get_current_user();
+
+    // apenas gestor_unidade
+    if (
+        !in_array('gestor_unidade', (array) $user->roles)
+    ) {
+        return $data;
+    }
+
+    // apenas edição
+    if (empty($postarr['ID'])) {
+        return $data;
+    }
+
+    // status atual do post
+    $current_status = get_post_status($postarr['ID']);
+
+    // se estava publicado, volta para pendente
+    if ($current_status === 'publish') {
+
+        $data['post_status'] = 'pending';
+
+    }
+
+    return $data;
+
+}, 10, 2);
+
+
+// Altera texto do botão e mensagens para gestor da unidade
+add_action('admin_footer', function () {
+
+    global $post;
+
+    if (!$post) {
+        return;
+    }
+
+    // apenas CPT oportunidade
+    if ($post->post_type !== 'oportunidade') {
+        return;
+    }
+
+    // apenas gestor_unidade
+    $user = wp_get_current_user();
+
+    if (
+        !in_array('gestor_unidade', (array) $user->roles)
+    ) {
+        return;
+    }
+
+    ?>
+
+    <script>
+    jQuery(function($){
+
+        // botão principal
+        $('#publish').val('Enviar para revisão');
+
+        // textos Gutenberg/classic
+        $('#publishing-action .spinner')
+            .after('');
+
+    });
+    </script>
+
+    <?php
+
+});
+
+// Verifica permissão de acesso aos CPT, redirecionando para a listagem caso não tenha acesso
+add_action('admin_init', function () {
+
+    // apenas admin
+    if (!is_admin()) {
+        return;
+    }
+
+    // apenas tela de edição
+    global $pagenow;
+
+    if ($pagenow !== 'post.php') {
+        return;
+    }
+
+    // post id
+    $post_id = isset($_GET['post'])
+        ? intval($_GET['post'])
+        : 0;
+
+    if (!$post_id) {
+        return;
+    }
+
+    // apenas CPT oportunidade
+    if (get_post_type($post_id) !== 'oportunidade') {
+        return;
+    }
+
+    // usuário logado
+    $user = wp_get_current_user();
+
+    // apenas gestor_unidade
+    if (
+        !in_array('gestor_unidade', (array) $user->roles)
+    ) {
+        return;
+    }
+
+    // coordenadoria do usuário
+    $user_coordenadoria = get_field(
+        'coordenadoria',
+        'user_' . $user->ID
+    );
+
+    if (empty($user_coordenadoria)) {
+        return;
+    }
+
+    // coordenadorias do post
+    $post_terms = wp_get_post_terms(
+        $post_id,
+        'coordenadorias',
+        [
+            'fields' => 'ids'
+        ]
+    );
+
+    if (empty($post_terms) || is_wp_error($post_terms)) {
+
+        wp_redirect(
+            admin_url('edit.php?post_type=oportunidade')
+        );
+
+        exit;
+
+    }
+
+    // pega filhos da coordenadoria do usuário
+    $allowed_terms = get_term_children(
+        $user_coordenadoria,
+        'coordenadorias'
+    );
+
+    if (is_wp_error($allowed_terms)) {
+        $allowed_terms = [];
+    }
+
+    // inclui a principal
+    $allowed_terms[] = (int) $user_coordenadoria;
+
+    // verifica acesso
+    $has_access = false;
+
+    foreach ($post_terms as $term_id) {
+
+        if (in_array($term_id, $allowed_terms)) {
+
+            $has_access = true;
+            break;
+
+        }
+
+    }
+
+    // sem acesso
+    if (!$has_access) {
+
+        wp_redirect(
+            admin_url('edit.php?post_type=oportunidade')
+        );
+
+        exit;
+
+    }
+
+});
+
+add_filter('acf/fields/taxonomy/query/name=setor', function ($args, $field, $post_id) {
+ 
+    // usuário logado
+    $user = wp_get_current_user();
+ 
+    // apenas gestor_unidade
+    if (!in_array('gestor_unidade', (array) $user->roles)) {
+        return $args;
+    }
+ 
+    // coordenadoria do usuário
+    $coordenadoria_id = get_field(
+        'coordenadoria',
+        'user_' . $user->ID,
+        false
+    );
+ 
+    if (empty($coordenadoria_id)) {
+        $args['include'] = [0];
+        return $args;
+    }
+ 
+    // filhos da coordenadoria
+    $children = get_terms([
+        'taxonomy'   => 'coordenadorias',
+        'hide_empty' => false,
+        'parent'     => $coordenadoria_id,
+        'fields'     => 'ids'
+    ]);
+ 
+    // inclui pai + filhos
+    $permitidos = array_merge(
+        [$coordenadoria_id],
+        $children
+    );
+ 
+    // limita opções
+    $args['include'] = $permitidos;
+ 
+    return $args;
+ 
+}, 10, 3);
