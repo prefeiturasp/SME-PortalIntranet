@@ -3498,3 +3498,40 @@ table.datatables td{
         display: none;
     }
 }
+
+/* Alerta de sançao ativa */
+
+.alerta-sancao-ativa {
+    border-left: 5px solid #F0B849;
+    background-color: #FEF8EE;
+    color: #000000;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.alerta-sancao-ativa i {
+    color:#f1b02c;
+}
+
+#minhas-inscricoes form select {
+    font-size: 14px;
+} 
+
+.informacoes-evento {
+    position: relative;
+}
+
+/* Botão de copiar os dados na interna dos eventos */
+#copiar-info-evento {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, visibility .2s ease;
+    position: absolute;
+    bottom:-6px;
+    right:-6px;
+}
+
+.informacoes-evento:hover #copiar-info-evento {
+    opacity: 1;
+    visibility: visible;
+}

@@ -44,7 +44,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                 }
 
                 if( isset( $info_periodo_evento['descricao'] ) && !empty( $info_periodo_evento['descricao'] ) ){
-                    $info_datas = '<strong>Período: ' . esc_html( $info_periodo_evento['descricao'] ) . '</strong>';
+                    $info_datas = '<strong>Período: </strong>' . esc_html( $info_periodo_evento['descricao'] );
                 }
 
                 if( $this->tipo_evento === 'data' ){
@@ -90,7 +90,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
 
                     $label = (count($datas_disponiveis) === 1) ? 'Data' : 'Datas';
 
-                    $info_datas = '<strong>' . $label . ':<br>' . implode('<br>', $datas_disponiveis) . '</strong>';
+                    $info_datas = '<strong>' . $label . ':</strong><br>' . implode('<br>', $datas_disponiveis);
                 }
 
                 if( $this->tipo_evento === 'premio' ){
@@ -99,7 +99,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                         $info_datas = '<strong>Premiação:</strong>';
                         $info_datas .= '<ul>';
                             foreach ($datas_disponivies as $data) {
-                                $info_datas .= '<li><strong>' . $data['premio'] . '</strong></li>';
+                                $info_datas .= '<li>' . $data['premio'] . '</li>';
                             }
                         $info_datas .= '</ul>';
                     }
@@ -122,7 +122,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                     if($genero){
                         echo '<tr>';
                             echo '<td class="align-top"><i class="fa fa-ticket" aria-hidden="true"></i></td>';
-                            echo '<td><strong>Tipo de Evento: ' . $genero->name . '</strong></td>';
+                            echo '<td><strong>Tipo de Evento: </strong>' . $genero->name . '</td>';
                         echo '</tr>';
                         echo '<tr><td colspan="2"><span class="divisor"></span></td></tr>';
                     }
@@ -142,7 +142,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                     if($duracao){
                         echo '<tr>';
                             echo '<td class="align-top"><i class="fa fa-clock-o" aria-hidden="true"></i></td>';
-                            echo '<td><strong>Duração: ' . $duracao . '</strong></td>';
+                            echo '<td><strong>Duração: </strong>' . $duracao . '</td>';
                         echo '</tr>';
                         echo '<tr><td colspan="2"><span class="divisor"></span></td></tr>';
                     }
@@ -150,7 +150,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                     if($class_indicativa){
                         echo '<tr>';
                             echo '<td class="align-top"><i class="fa fa-users" aria-hidden="true"></i></td>';
-                            echo '<td><strong>Classificação Indicativa: ' . $class_indicativa . '</strong></td>';
+                            echo '<td><strong>Classificação Indicativa: </strong>' . $class_indicativa . '</td>';
                         echo '</tr>';
                         echo '<tr><td colspan="2"><span class="divisor"></span></td></tr>';
                     }
@@ -161,7 +161,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                         if ($term && !is_wp_error($term)) {
                             echo '<tr>';
                                 echo '<td class="align-top"><i class="fa fa-building-o" aria-hidden="true"></i></td>';
-                                echo '<td><strong>Local: ' . $term->name . '</strong></td>';
+                                echo '<td><strong>Local: </strong>' . $term->name . '</td>';
                             echo '</tr>';
                             echo '<tr><td colspan="2"><span class="divisor"></span></td></tr>';
                         }
@@ -171,7 +171,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                     if($local && $local == 'outros'){
                         echo '<tr>';
                             echo '<td class="align-top"><i class="fa fa-building-o" aria-hidden="true"></i></td>';
-                            echo '<td><strong>Local: ' . $local_outros . '</strong></td>';
+                            echo '<td><strong>Local: </strong>' . $local_outros . '</td>';
                         echo '</tr>';
                         echo '<tr><td colspan="2"><span class="divisor"></span></td></tr>';
                     }
@@ -179,7 +179,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                     if($endereco){
                         echo '<tr>';
                             echo '<td class="align-top"><i class="fa fa-map-marker" aria-hidden="true"></i></td>';
-                            echo '<td><strong>Endereço: ' . $endereco . '</strong></td>';
+                            echo '<td><strong>Endereço: </strong>' . $endereco . '</td>';
                         echo '</tr>';
                         echo '<tr><td colspan="2"><span class="divisor"></span></td></tr>';
                     }
@@ -188,7 +188,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                         echo '<tr>';
                             echo '<td class="align-top"><i class="fa fa-link" aria-hidden="true"></i></td>';
                             echo '<td><strong>Link para mais informações:</strong>';
-                                echo '<ul><strong>';
+                                echo '<ul>';
                                     echo '<li><a href="' . $link . '" target="_blank">' . ($tituloLink ? $tituloLink : 'Saiba Mais') . '</a></li>';
                                     foreach ($links as $link) {
                                         if (empty($link['link_infos']) && empty($link['texto_do_link'])) {
@@ -198,7 +198,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                                         }
                                         echo '<li><a href="' . $link['link_infos'] . '" target="_blank">' . $link['texto_do_link'] . '</a></li>';
                                     }
-                                echo '</strong></ul>';
+                                echo '</ul>';
                             echo '</td>';
                         echo '</tr>';
                        
@@ -208,7 +208,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                         if($link){
                             echo '<tr>';
                                 echo '<td class="align-top"><i class="fa fa-link" aria-hidden="true"></i></td>';
-                                echo '<td><strong>Link para mais informações: <a href="' . $link . '" target="_blank">' . ($tituloLink ? $tituloLink : 'Saiba Mais') . '</a></strong></td>';
+                                echo '<td><strong>Link para mais informações: </strong><a href="' . $link . '" target="_blank">' . ($tituloLink ? $tituloLink : 'Saiba Mais') . '</a></td>';
                             echo '</tr>';
                             echo '<tr><td colspan="2"><span class="divisor"></span></td></tr>';
                         }
@@ -217,7 +217,7 @@ class LoopSingleInformacoesEvento extends LoopSingle
                     if($dataLimite){
                         echo '<tr>';
                             echo '<td class="align-top"><i class="fa fa-calendar-check-o" aria-hidden="true"></i></td>';
-                            echo '<td><strong>Inscrições até: ' . $dateLimiteShow . '</strong></td>';
+                            echo '<td><strong>Inscrições até: </strong>' . $dateLimiteShow . '</td>';
                         echo '</tr>';
                         echo '<tr><td colspan="2"><span class="divisor"></span></td></tr>';
                     }
@@ -238,6 +238,12 @@ class LoopSingleInformacoesEvento extends LoopSingle
                         echo '<i class="fa fa-check-circle" aria-hidden="true"></i> Inscrito';
                     echo '</span>';
                 endif;
+
+                if ( current_user_can( 'edit_others_posts' ) ) {
+                    echo '<button class="btn btn-secondary" id="copiar-info-evento">
+                        <i class="fa fa-clipboard" aria-hidden="true"></i>
+                    </button>';
+                }
                 
             echo '</div>';  
 		echo '</div>';
