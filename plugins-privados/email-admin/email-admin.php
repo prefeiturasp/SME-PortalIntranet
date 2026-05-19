@@ -10,7 +10,7 @@ Author URI: https://www.amcom.com.br
 */
 
 function post_unpublished( $new_status, $old_status, $post ) {
-    if (  $old_status == 'publish' && $new_status == 'pending' ) {
+    if (  $old_status == 'publish' && $new_status == 'pending' && $post->post_type != 'oportunidade' ) {
         
         if ( ! $post_type = get_post_type_object( $post->post_type ) )
         return;

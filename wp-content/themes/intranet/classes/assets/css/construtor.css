@@ -2439,6 +2439,10 @@ form#commentform {
     box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.07);
 }
 
+#filtro-eventos #nav-tab .nav-link:last-child{
+    margin-right: 0;
+}
+
 #filtro-eventos #nav-tab .nav-link.active {
     color: #14447C;
     border: 1.5px solid #14447C;
@@ -2639,4 +2643,102 @@ div#minhas-inscricoes .dataTables_paginate .paginate_button:hover {
 div#minhas-inscricoes .dataTables_paginate .paginate_button.current {
     background: #14447C !important;
     color: #FFFFFF !important;
+}
+
+#meuCurriculoAccordion .card-header {
+    background: #14457c !important;
+    color: #FFFFFF;
+    border-radius: 5px;
+    border: 0;
+    font-family: 'Raleway', sans-serif;
+}
+
+#meuCurriculoAccordion .card-header .btn{
+    color: #FFFFFF;
+    font-weight: bold;
+}
+
+#meuCurriculoAccordion .card {
+    margin-bottom: 15px;
+    border: 0;
+}
+
+#meuCurriculoAccordion .card-header .numeral {
+    background: rgba(255, 255, 255, 0.25);
+    border-radius: 50%;
+    width: 30px;
+    display: inline-block;
+    text-align: center;
+    height: 30px;
+    line-height: 30px;
+    margin-right: 10px;
+}
+
+#meuCurriculoAccordion blockquote {
+    border-left: 3px solid #14457c;
+    padding: 3px 15px;
+    font-size: 14px;
+    font-style: italic;
+}
+
+#meuCurriculoAccordion .card-body{
+    font-family: 'Open Sans', sans-serif;
+}
+
+#meuCurriculoAccordion .aviso {
+    background: #F8FAFC;
+    padding: 10px 15px;
+    border-radius: 7px;
+    border: 1px solid #E5E7EB;
+}
+
+#meuCurriculoAccordion .aviso .aviso-title {
+    font-weight: bold;
+    color: #1E1E1E;
+}
+
+#meuCurriculoAccordion .aviso .label-text {
+    font-weight: 600;
+}
+
+#meuCurriculoAccordion .required-icon {
+    color: #e62020;
+}
+
+.etapa-formulario h3 {
+    color: #14457c;
+    border-left: 5px solid;
+    padding-left: 15px;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.etapa-formulario label{
+    font-weight: 600;
+}
+
+.form-group-cargo-outro {
+    display: none;
+}
+
+.etapa-formulario .save-btn{
+    padding: 7px 30px;
+}
+
+.btn.btn-rascunho {
+    background: #FFFFFF;
+    border: 2px solid;
+    color: #14457c;
+}
+
+#meuCurriculoAccordion {
+    min-height: 600px;
+}
+
+@media only screen and (max-width: 768px) {
+    #meuCurriculoAccordion {
+        min-height: auto;
+    }
 }
