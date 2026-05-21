@@ -8394,12 +8394,43 @@ function salvar_banco_talentos() {
         'acumula_cargo' => $_POST['acumulaCargo'] ?? null,
         'acumula_descricao' => sanitize_text_field($_POST['informaCargo'] ?? ''),
 
+        // escolaridade
+        'escolaridade' => sanitize_text_field($_POST['escolaridade'] ?? ''),
+        'curso_graduacao' => sanitize_text_field($_POST['cursoGraduacao'] ?? ''),
+        'ano_conclusao' => sanitize_text_field($_POST['anoConclusao'] ?? ''),
+
+        // segunda graduacao
+        'outra_graduacao' => sanitize_text_field($_POST['outraGraduacao'] ?? ''),
+        'segunda_graduacao' => $_POST['segundaGraduacao'] ?? '',
+        'ano_conclusao_seg' => sanitize_text_field($_POST['anoConclusaoSeg'] ?? ''),
+
+        // outros cursos
+        'outros_cursos' => sanitize_textarea_field($_POST['outrosCursos'] ?? ''),
+
         // status
         'status_curriculo' => $status_curriculo,
 
         // datas
         'atualizado_em' => current_time('mysql')
     );
+
+    $escolaridade = sanitize_text_field($_POST['escolaridade'] ?? '');
+    $outra_graduacao = $_POST['outraGraduacao'] ?? null;
+
+    if ( empty($escolaridade) || $escolaridade === 'medio'  ) {
+
+        $dados['curso_graduacao'] = '';
+        $dados['ano_conclusao'] = '';
+        $dados['outra_graduacao'] = null;
+        $dados['segunda_graduacao'] = '';
+        $dados['ano_conclusao_seg'] = '';
+
+    } elseif ($outra_graduacao === '0') {
+
+        $dados['segunda_graduacao'] = '';
+        $dados['ano_conclusao_seg'] = '';
+        
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -8487,6 +8518,13 @@ function salvar_banco_talentos() {
         '%s',  // unidade_exercicio
         '%d',  // acumula_cargo
         '%s',  // acumula_descricao
+        '%s',  // escolaridade
+        '%s',  // curso_graduacao
+        '%s',  // ano_conclusao
+        '%d',  // outra_graduacao
+        '%s',  // segunda_graduacao
+        '%s',  // ano_conclusao_seg
+        '%s',  // outros_cursos
         '%s',  // status_curriculo
         '%s'   // atualizado_em
     );

@@ -12,6 +12,12 @@
 	}
 
 	$dados = obter_dados_candidato($user_id);
+
+    if(isset($POST)){
+        echo "<pre>";
+        print_r($POST);
+        echo "</pre>";
+    }
 ?>
 
 <div class="container">
@@ -539,7 +545,90 @@
 
 						<div id="collapseThree" class="collapse">
 							<div class="card-body">
-								Conteúdo etapa 3
+								<h3>Escolaridade</h3>							
+
+								<div class="form-group">
+									<label for="escolaridade">Qual seu nível de escolaridade? <span class="required-icon">*</span></label>
+									<select class="form-control campo-obrigatorio" id="escolaridade" name="escolaridade">
+										<option value="">-- Selecione --</option>
+										<option value="medio" <?= selected($curriculo->escolaridade ?? '', 'medio', false) ?>>Ensino Médio</option>
+										<option value="superior" <?= selected($curriculo->escolaridade ?? '', 'superior', false) ?>>Ensino superior: Licenciatura, Bacharelado, Tecnólogo</option>
+										<option value="especializacao" <?= selected($curriculo->escolaridade ?? '', 'especializacao', false) ?>>Pós-graduação: Especialização/MBA (lato sensu)</option>
+										<option value="mestrado" <?= selected($curriculo->escolaridade ?? '', 'mestrado', false) ?>>Pós-graduação: Mestrado (stricto sensu)</option>
+										<option value="doutorado" <?= selected($curriculo->escolaridade ?? '', 'doutorado', false) ?>>Pós-graduação: Doutorado (stricto sensu)</option>
+									</select>
+								</div>
+
+                                <h3 class="escolaridade-hide">Bacharelado, Tecnólogo, Licenciatura</h3>
+                                <small class="escolaridade-hide">Por favor, nos dê mais detalhes do(s) curso(s) que você cursa/cursou.</small>
+
+                                <div class="form-group">
+									<label for="cursoGraduacao">Curso de graduação (nome do curso e da instituição de ensino) <span class="required-icon">*</span></label>
+									<input type="text" class="form-control campo-obrigatorio" id="cursoGraduacao" name="cursoGraduacao" placeholder="Ex.: Administração - Universidade de São Paulo (USP)" value="<?= esc_attr($curriculo->curso_graduacao ?? '') ?>">
+								</div>
+
+                                <div class="form-group">
+									<label for="anoConclusao">Ano de conclusão ou previsão de concluir <span class="required-icon">*</span></label>
+									<input type="text" class="form-control campo-obrigatorio" id="anoConclusao" name="anoConclusao" placeholder="Ex.: 2022" value="<?= esc_attr($curriculo->ano_conclusao ?? '') ?>">
+								</div>
+
+                                <div class="form-group campo-obrigatorio-radio">
+									<label>Possui outra graduação e gostaria de informar? <span class="required-icon">*</span></label>
+
+									<div class="form-check">
+										<input class="form-check-input" type="radio" name="outraGraduacao" id="outraGraduacaoSim" value="1" <?= checked($curriculo->outra_graduacao ?? '', '1', false) ?>>
+										<label class="form-check-label" for="outraGraduacaoSim">Sim</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input" type="radio" name="outraGraduacao" id="outraGraduacaoNao" value="0" <?= checked($curriculo->outra_graduacao ?? '', '0', false) ?>>
+										<label class="form-check-label" for="outraGraduacaoNao">Não</label>
+									</div>
+								</div>
+
+                                <div class="form-group">
+									<label for="segundaGraduacao">Segunda graduação (nome do curso e da instituição de ensino) <span class="required-icon">*</span></label>
+									<input type="text" class="form-control campo-obrigatorio" id="segundaGraduacao" name="segundaGraduacao" placeholder="Ex.: Administração - Universidade de São Paulo (USP)" value="<?= esc_attr($curriculo->segunda_graduacao ?? '') ?>">
+								</div>
+
+                                <div class="form-group">
+									<label for="anoConclusaoSeg">Ano de conclusão ou previsão de concluir <span class="required-icon">*</span></label>
+									<input type="text" class="form-control campo-obrigatorio" id="anoConclusaoSeg" name="anoConclusaoSeg" placeholder="Ex.: 2022" value="<?= esc_attr($curriculo->ano_conclusao_seg ?? '') ?>">
+								</div>
+
+
+                                <h3>Outros Cursos e/ou Projetos Relevantes</h3>
+
+                                <div class="form-group">
+									<label for="outrosCursos">
+										Por favor, descreva outros cursos e/ou projetos relevantes. Edite o modelo abaixo para cada item:
+									</label>
+
+                                    <?php
+
+                                        $outros_cursos = '';
+
+                                        if (
+                                            !empty($curriculo->outros_cursos) &&
+                                            is_string($curriculo->outros_cursos)
+                                        ) {
+
+                                            $outros_cursos = $curriculo->outros_cursos;
+
+                                        } else {
+
+                                            $outros_cursos = "Instituição: \nNome do curso/formação: \nFoco principal / principais competências desenvolvidas: \nCarga horária total: \nAno de conclusão: ";
+
+                                        }
+
+                                    ?>
+
+                                    <textarea
+                                        class="form-control"
+                                        id="outrosCursos"
+                                        name="outrosCursos"
+                                        rows="6"><?= esc_textarea($outros_cursos); ?></textarea>
+								</div>
 							</div>
 						</div>
 
@@ -954,6 +1043,129 @@
 		$('#cargoOutroCheck').on('change', controlarCargoOutro);
 
 		controlarCargoOutro();
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONTROLE ESCOLARIDADE
+        |--------------------------------------------------------------------------
+        */
+
+        function controlarEscolaridade() {
+
+            const escolaridade = $('#escolaridade').val();
+
+            console.log('Escolaridade selecionada:', escolaridade);
+
+            const blocoGraduacao = [
+                $('#cursoGraduacao').closest('.form-group'),
+                $('#anoConclusao').closest('.form-group'),
+                $('input[name="outraGraduacao"]').closest('.form-group'),
+                $('#segundaGraduacao').closest('.form-group'),
+                $('#anoConclusaoSeg').closest('.form-group'),
+                $('.escolaridade-hide')
+            ];
+
+            /*
+            |--------------------------------------------------------------------------
+            | ESCONDE TUDO INICIALMENTE
+            |--------------------------------------------------------------------------
+            */
+
+            $(blocoGraduacao).each(function(){
+                $(this).hide();
+            });
+
+            /*
+            |--------------------------------------------------------------------------
+            | SEM ESCOLARIDADE / ENSINO MÉDIO
+            |--------------------------------------------------------------------------
+            */
+
+            if(
+                escolaridade === '' ||
+                escolaridade === 'medio'
+            ) {
+                return;
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | MOSTRA PRIMEIRA GRADUAÇÃO
+            |--------------------------------------------------------------------------
+            */
+
+            $('#cursoGraduacao')
+                .closest('.form-group')
+                .show();
+
+            $('#anoConclusao')
+                .closest('.form-group')
+                .show();
+
+            $('input[name="outraGraduacao"]')
+                .closest('.form-group')
+                .show();
+
+            $('.escolaridade-hide').show();
+
+            /*
+            |--------------------------------------------------------------------------
+            | CONTROLA SEGUNDA GRADUAÇÃO
+            |--------------------------------------------------------------------------
+            */
+
+            controlarSegundaGraduacao();
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | CONTROLE SEGUNDA GRADUAÇÃO
+        |--------------------------------------------------------------------------
+        */
+
+        function controlarSegundaGraduacao() {
+
+            const valor = $('input[name="outraGraduacao"]:checked').val();
+
+            const segundaGraduacao = $('#segundaGraduacao')
+                .closest('.form-group');
+
+            const anoConclusaoSeg = $('#anoConclusaoSeg')
+                .closest('.form-group');
+
+            segundaGraduacao.hide();
+            anoConclusaoSeg.hide();
+
+            if(valor === '1') {
+
+                segundaGraduacao.show();
+                anoConclusaoSeg.show();
+
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | EVENTOS
+        |--------------------------------------------------------------------------
+        */
+
+        $('#escolaridade').on('change', function(){
+            console.log('escolaridade');
+            controlarEscolaridade();
+        });
+
+        $('input[name="outraGraduacao"]').on('change', function(){
+            controlarSegundaGraduacao();
+        });
+
+        /*
+        |--------------------------------------------------------------------------
+        | EXECUÇÃO INICIAL
+        |--------------------------------------------------------------------------
+        */
+
+        controlarEscolaridade();
 
 	});
 	
