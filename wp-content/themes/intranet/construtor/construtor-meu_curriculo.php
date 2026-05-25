@@ -1,23 +1,16 @@
 <?php
 
 	$user_id = get_current_user_id();
-	$retorno_candidato = obter_dados_candidato($user_id);
-	$origem_dados = $retorno_candidato['origem'];
-	$curriculo = $retorno_candidato['dados'];
+	$dados = obter_dados_candidato($user_id);
+	$origem_dados = $dados['origem'];
+	$curriculo = $dados['dados'];
+    $vivencias = $dados['vivencias'];
 
 	$cargos = [];
 
 	if (!empty($curriculo->cargo_efetivo)) {
 		$cargos = json_decode($curriculo->cargo_efetivo, true);
-	}
-
-	$dados = obter_dados_candidato($user_id);
-
-    if(isset($POST)){
-        echo "<pre>";
-        print_r($POST);
-        echo "</pre>";
-    }
+	}    
 ?>
 
 <div class="container">
@@ -649,7 +642,204 @@
 						</div>
 						<div id="collapseFour" class="collapse">
 							<div class="card-body">
-								Conteúdo etapa 4
+								<small>Por favor nos dê mais detalhes da(s) sua(s) vivência(s) profissional(is) relevantes nos últimos anos, iniciando pela mais recente.</small>
+
+								<div class="bloco-vivencia" data-vivencia="1">
+									<h3 class="mt-3">Vivência Principal</h3>
+
+									<div class="form-group">
+										<label for="organizacaoEmp1">Organização/Empresa <span class="required-icon">*</span></label>
+										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp1" name="organizacaoEmp1" value="<?= esc_attr($vivencias[0]['organizacao_empresa'] ?? '') ?>">
+									</div>
+
+									<div class="form-group">
+										<label for="cargoFuncao1">Cargo/Função: <span class="required-icon">*</span></label>
+										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao1" name="cargoFuncao1" value="<?= esc_attr($vivencias[0]['cargo_funcao'] ?? '') ?>">
+									</div>
+
+									<div class="form-group">
+										<label for="duracao1">Duração: <span class="required-icon">*</span></label>
+										<select class="form-control campo-obrigatorio" id="duracao1" name="duracao1">
+											<option value="">-- Selecione --</option>
+											<option value="ate-1-ano" <?= selected($vivencias[0]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
+											<option value="entre-1-3" <?= selected($vivencias[0]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
+											<option value="de-3-5" <?= selected($vivencias[0]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
+											<option value="acima-5" <?= selected($vivencias[0]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label for="atividadesComp1">
+											Atividades e Competências Desenvolvidas: <span class="required-icon">*</span><br><small>Por favor, descreva de forma breve, com o uso de palavras-chave, as atividades e competências adquiridas</small>
+										</label>
+
+										<textarea
+											class="form-control"
+											id="atividadesComp1"
+											name="atividadesComp1"
+											rows="6"><?= esc_textarea($vivencias[0]['atividades_competencias'] ?? ''); ?></textarea>
+									</div>
+
+									<div class="form-group campo-obrigatorio-radio">
+										<label>Gostaria de compartilhar outra vivência profissional? <span class="required-icon">*</span></label>
+
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="outraVivencia1" id="outraVivencia1Sim" value="1" <?= (($vivencias[0]['outra_vivencia'] ?? '') === '1') ? 'checked' : '' ?>>
+											<label class="form-check-label" for="outraVivencia1Sim">Sim</label>
+										</div>
+
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="outraVivencia1" id="outraVivencia1Nao" value="0" <?= (($vivencias[0]['outra_vivencia'] ?? '') === '0') ? 'checked' : '' ?>>
+											<label class="form-check-label" for="outraVivencia1Nao">Não</label>
+										</div>
+									</div>
+								</div>
+
+								<div class="bloco-vivencia" data-vivencia="2">
+
+									<h3 class="mt-3 titulo-vivencia">Vivência 2</h3>
+
+									<div class="form-group">
+										<label for="organizacaoEmp2">Organização/Empresa <span class="required-icon">*</span></label>
+										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp2" name="organizacaoEmp2" value="<?= esc_attr($vivencias[1]['organizacao_empresa'] ?? '') ?>">
+									</div>
+
+									<div class="form-group">
+										<label for="cargoFuncao2">Cargo/Função: <span class="required-icon">*</span></label>
+										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao2" name="cargoFuncao2" value="<?= esc_attr($vivencias[1]['cargo_funcao'] ?? '') ?>">
+									</div>
+
+									<div class="form-group">
+										<label for="duracao2">Duração: <span class="required-icon">*</span></label>
+										<select class="form-control campo-obrigatorio" id="duracao2" name="duracao2">
+											<option value="">-- Selecione --</option>
+											<option value="ate-1-ano" <?= selected($vivencias[1]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
+											<option value="entre-1-3" <?= selected($vivencias[1]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
+											<option value="de-3-5" <?= selected($vivencias[1]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
+											<option value="acima-5" <?= selected($vivencias[1]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label for="atividadesComp2">
+											Atividades e Competências Desenvolvidas: <span class="required-icon">*</span><br><small>Por favor, descreva de forma breve, com o uso de palavras-chave, as atividades e competências adquiridas</small>
+										</label>
+
+										<textarea
+											class="form-control"
+											id="atividadesComp2"
+											name="atividadesComp2"
+											rows="6"><?= esc_textarea($vivencias[1]['atividades_competencias'] ?? ''); ?></textarea>
+									</div>
+
+									<div class="form-group campo-obrigatorio-radio">
+										<label>Gostaria de compartilhar outra vivência profissional? <span class="required-icon">*</span></label>
+
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="outraVivencia2" id="outraVivencia2Sim" value="1" <?= (($vivencias[1]['outra_vivencia'] ?? '') === '1') ? 'checked' : '' ?>>
+											<label class="form-check-label" for="outraVivencia2Sim">Sim</label>
+										</div>
+
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="outraVivencia2" id="outraVivencia2Nao" value="0" <?= (($vivencias[1]['outra_vivencia'] ?? '') === '0') ? 'checked' : '' ?>>
+											<label class="form-check-label" for="outraVivencia2Nao">Não</label>
+										</div>
+									</div>
+								</div>
+
+								<div class="bloco-vivencia" data-vivencia="3">
+
+									<h3 class="mt-3 titulo-vivencia">Vivência 3</h3>
+
+									<div class="form-group">
+										<label for="organizacaoEmp3">Organização/Empresa <span class="required-icon">*</span></label>
+										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp3" name="organizacaoEmp3" value="<?= esc_attr($vivencias[2]['organizacao_empresa'] ?? '') ?>">
+									</div>
+
+									<div class="form-group">
+										<label for="cargoFuncao3">Cargo/Função: <span class="required-icon">*</span></label>
+										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao3" name="cargoFuncao3" value="<?= esc_attr($vivencias[2]['cargo_funcao'] ?? '') ?>">
+									</div>
+
+									<div class="form-group">
+										<label for="duracao3">Duração: <span class="required-icon">*</span></label>
+										<select class="form-control campo-obrigatorio" id="duracao3" name="duracao3">
+											<option value="">-- Selecione --</option>
+											<option value="ate-1-ano" <?= selected($vivencias[2]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
+											<option value="entre-1-3" <?= selected($vivencias[2]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
+											<option value="de-3-5" <?= selected($vivencias[2]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
+											<option value="acima-5" <?= selected($vivencias[2]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label for="atividadesComp3">
+											Atividades e Competências Desenvolvidas: <span class="required-icon">*</span><br><small>Por favor, descreva de forma breve, com o uso de palavras-chave, as atividades e competências adquiridas</small>
+										</label>
+
+										<textarea
+											class="form-control"
+											id="atividadesComp3"
+											name="atividadesComp3"
+											rows="6"><?= esc_textarea($vivencias[2]['atividades_competencias'] ?? ''); ?></textarea>
+									</div>
+
+									<div class="form-group campo-obrigatorio-radio">
+										<label>Gostaria de compartilhar outra vivência profissional? <span class="required-icon">*</span></label>
+
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="outraVivencia3" id="outraVivencia3Sim" value="1" <?= (($vivencias[2]['outra_vivencia'] ?? '') === '1') ? 'checked' : '' ?>>
+											<label class="form-check-label" for="outraVivencia3Sim">Sim</label>
+										</div>
+
+										<div class="form-check">
+											<input class="form-check-input" type="radio" name="outraVivencia3" id="outraVivencia3Nao" value="0" <?= (($vivencias[2]['outra_vivencia'] ?? '') === '0') ? 'checked' : '' ?>>
+											<label class="form-check-label" for="outraVivencia3Nao">Não</label>
+										</div>
+									</div>
+								
+								</div>
+
+								<div class="bloco-vivencia" data-vivencia="4">
+
+									<h3 class="mt-3 titulo-vivencia">Vivência 4</h3>
+
+									<div class="form-group">
+										<label for="organizacaoEmp4">Organização/Empresa <span class="required-icon">*</span></label>
+										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp4" name="organizacaoEmp4" value="<?= esc_attr($vivencias[3]['organizacao_empresa'] ?? '') ?>">
+									</div>
+
+									<div class="form-group">
+										<label for="cargoFuncao4">Cargo/Função: <span class="required-icon">*</span></label>
+										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao4" name="cargoFuncao4" value="<?= esc_attr($vivencias[3]['cargo_funcao'] ?? '') ?>">
+									</div>
+
+									<div class="form-group">
+										<label for="duracao4">Duração: <span class="required-icon">*</span></label>
+										<select class="form-control campo-obrigatorio" id="duracao4" name="duracao4">
+											<option value="">-- Selecione --</option>
+											<option value="ate-1-ano" <?= selected($vivencias[3]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
+											<option value="entre-1-3" <?= selected($vivencias[3]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
+											<option value="de-3-5" <?= selected($vivencias[3]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
+											<option value="acima-5" <?= selected($vivencias[3]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
+										</select>
+									</div>
+
+									<div class="form-group">
+										<label for="atividadesComp4">
+											Atividades e Competências Desenvolvidas: <span class="required-icon">*</span><br><small>Por favor, descreva de forma breve, com o uso de palavras-chave, as atividades e competências adquiridas</small>
+										</label>
+
+										<textarea
+											class="form-control"
+											id="atividadesComp4"
+											name="atividadesComp4"
+											rows="6"><?= esc_textarea($vivencias[3]['atividades_competencias'] ?? ''); ?></textarea>
+									</div>
+
+								</div>
+
+
 							</div>
 						</div>
 					</div>
@@ -1166,6 +1356,49 @@
         */
 
         controlarEscolaridade();
+
+		function controlarVivencias() {
+
+			// Vivência 2
+			const vivencia1 = $('input[name="outraVivencia1"]:checked').val();
+
+			if (vivencia1 === '1') {
+				$('.bloco-vivencia[data-vivencia="2"]').show();
+			} else {
+				$('.bloco-vivencia[data-vivencia="2"]').hide();
+			}
+
+			// Vivência 3
+			const vivencia2 = $('input[name="outraVivencia2"]:checked').val();
+
+			if (vivencia2 === '1') {
+				$('.bloco-vivencia[data-vivencia="3"]').show();
+			} else {
+				$('.bloco-vivencia[data-vivencia="3"]').hide();
+			}
+
+			// Vivência 4
+			const vivencia3 = $('input[name="outraVivencia3"]:checked').val();
+
+			if (vivencia3 === '1') {
+				$('.bloco-vivencia[data-vivencia="4"]').show();
+			} else {
+				$('.bloco-vivencia[data-vivencia="4"]').hide();
+			}
+		}
+
+		// inicia ocultando tudo
+		$('.bloco-vivencia[data-vivencia="2"]').hide();
+		$('.bloco-vivencia[data-vivencia="3"]').hide();
+		$('.bloco-vivencia[data-vivencia="4"]').hide();
+
+		// executa no carregamento
+		controlarVivencias();
+
+		// executa ao alterar radios
+		$(document).on('change', 'input[name^="outraVivencia"]', function(){
+			controlarVivencias();
+		});
 
 	});
 	
