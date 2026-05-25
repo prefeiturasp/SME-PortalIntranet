@@ -674,7 +674,7 @@
 										</label>
 
 										<textarea
-											class="form-control"
+											class="form-control campo-obrigatorio"
 											id="atividadesComp1"
 											name="atividadesComp1"
 											rows="6"><?= esc_textarea($vivencias[0]['atividades_competencias'] ?? ''); ?></textarea>
@@ -726,7 +726,7 @@
 										</label>
 
 										<textarea
-											class="form-control"
+											class="form-control campo-obrigatorio"
 											id="atividadesComp2"
 											name="atividadesComp2"
 											rows="6"><?= esc_textarea($vivencias[1]['atividades_competencias'] ?? ''); ?></textarea>
@@ -778,7 +778,7 @@
 										</label>
 
 										<textarea
-											class="form-control"
+											class="form-control campo-obrigatorio"
 											id="atividadesComp3"
 											name="atividadesComp3"
 											rows="6"><?= esc_textarea($vivencias[2]['atividades_competencias'] ?? ''); ?></textarea>
@@ -831,7 +831,7 @@
 										</label>
 
 										<textarea
-											class="form-control"
+											class="form-control campo-obrigatorio"
 											id="atividadesComp4"
 											name="atividadesComp4"
 											rows="6"><?= esc_textarea($vivencias[3]['atividades_competencias'] ?? ''); ?></textarea>
