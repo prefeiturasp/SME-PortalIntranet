@@ -7892,6 +7892,7 @@ function obter_dados_candidato($user_id) {
     global $wpdb;
 
     $table = $wpdb->prefix . 'banco_talentos';
+    $table_vivencias = $wpdb->prefix . 'banco_talentos_vivencias';
 
     /*
     |--------------------------------------------------------------------------
@@ -7906,9 +7907,35 @@ function obter_dados_candidato($user_id) {
 
     if ($curriculo) {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Vivências profissionais
+        |--------------------------------------------------------------------------
+        */
+
+        $curriculo_id = $curriculo->id;
+
+        $vivencias = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT
+                    organizacao_empresa,
+                    cargo_funcao,
+                    duracao,
+                    atividades_competencias,
+                    outra_vivencia,
+                    ordem
+                FROM {$table_vivencias}
+                WHERE curriculo_id = %d
+                ORDER BY ordem ASC",
+                $curriculo_id
+            ),
+            ARRAY_A
+        );
+
         return array(
             'origem' => 'banco',
-            'dados'  => $curriculo
+            'dados'  => $curriculo,
+            'vivencias' => $vivencias
         );
     }
 
@@ -8211,6 +8238,7 @@ function salvar_banco_talentos() {
     global $wpdb;
 
     $table = $wpdb->prefix . 'banco_talentos';
+    $table_vivencias = $wpdb->prefix . 'banco_talentos_vivencias';
 
     $user_id = get_current_user_id();
 
@@ -8561,6 +8589,147 @@ function salvar_banco_talentos() {
 
     /*
     |--------------------------------------------------------------------------
+    | Recupera ID do currículo
+    |--------------------------------------------------------------------------
+    */
+
+    if ($curriculo_existente) {
+
+        $curriculo_id = $curriculo_existente;
+
+    } else {
+
+        $curriculo_id = $wpdb->insert_id;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove vivências antigas
+    |--------------------------------------------------------------------------
+    */
+
+    $wpdb->delete(
+        $table_vivencias,
+        array(
+            'curriculo_id' => $curriculo_id
+        ),
+        array('%d')
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Salva vivências
+    |--------------------------------------------------------------------------
+    */
+
+    for ($i = 1; $i <= 4; $i++) {
+
+        $organizacao = sanitize_text_field(
+            $_POST["organizacaoEmp{$i}"] ?? ''
+        );
+
+        $cargo_funcao = sanitize_text_field(
+            $_POST["cargoFuncao{$i}"] ?? ''
+        );
+
+        $duracao = sanitize_text_field(
+            $_POST["duracao{$i}"] ?? ''
+        );
+
+        $atividades = sanitize_textarea_field(
+            $_POST["atividadesComp{$i}"] ?? ''
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Outra vivência
+        |--------------------------------------------------------------------------
+        */
+
+        $outra_vivencia = null;
+
+        // Apenas até a vivência 3 possui rádio
+        if ($i < 4) {
+
+            $outra_vivencia = $_POST["outraVivencia{$i}"] ?? null;
+
+            if (
+                $outra_vivencia !== null &&
+                $outra_vivencia !== ''
+            ) {
+                $outra_vivencia = sanitize_text_field(
+                    $outra_vivencia
+                );
+            }
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Ignora vivência vazia
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            empty($organizacao) &&
+            empty($cargo_funcao) &&
+            empty($duracao) &&
+            empty($atividades)
+        ) {
+            continue;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Salva vivência
+        |--------------------------------------------------------------------------
+        */
+
+        $wpdb->insert(
+            $table_vivencias,
+            array(
+
+                'curriculo_id' => $curriculo_id,
+                'ordem' => $i,
+                'organizacao_empresa' => $organizacao,
+                'cargo_funcao' => $cargo_funcao,
+                'duracao' => $duracao,
+                'outra_vivencia' => $outra_vivencia,
+                'atividades_competencias' => $atividades,
+                'created_at' => current_time('mysql'),
+                'updated_at' => current_time('mysql'),
+            ),
+            array(
+                '%d',
+                '%d',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+            )
+        );
+
+        /*
+        |--------------------------------------------------------------------------
+        | Para processamento
+        |--------------------------------------------------------------------------
+        */
+
+        if (
+            $i < 4 &&
+            (
+                $outra_vivencia === '0' ||
+                $outra_vivencia === null ||
+                $outra_vivencia === ''
+            )
+        ) {
+            break;
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Log erro SQL
     |--------------------------------------------------------------------------
     */
@@ -8635,3 +8804,16 @@ add_filter('acf/fields/taxonomy/query/name=setor', function ($args, $field, $pos
     return $args;
  
 }, 10, 3);
+
+// adiciona a barra de admin para gestores da unidade e admin do portal
+add_filter('show_admin_bar', function($show) {
+
+    if (
+        current_user_can('gestor_unidade') ||
+        current_user_can('admin_portal')
+    ) {
+        return true;
+    }
+
+    return $show;
+});
