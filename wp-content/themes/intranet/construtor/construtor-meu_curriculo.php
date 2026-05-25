@@ -1410,6 +1410,35 @@
 
 		/*
 		|--------------------------------------------------------------------------
+		| FUNÇÃO VALIDAÇÃO
+		|--------------------------------------------------------------------------
+		*/
+
+		function deveValidarCampo(campo) {
+			
+
+			if(campo.css('display') === 'none') {
+				return false;
+			}			
+
+			if(
+				campo.parents().filter(function(){
+
+					return $(this).css('display') === 'none' &&
+						!$(this).hasClass('collapse') &&
+						!$(this).hasClass('accordion-collapse');
+
+				}).length
+			) {
+				return false;
+			}
+
+			return true;
+
+		}
+
+		/*
+		|--------------------------------------------------------------------------
 		| BOTÃO FINALIZAR
 		|--------------------------------------------------------------------------
 		*/
@@ -1417,6 +1446,14 @@
 		$('button[value="finalizar"]').on('click', function(e){
 
 			let formularioValido = true;
+
+			/*
+			|--------------------------------------------------------------------------
+			| PRIMEIRO CAMPO COM ERRO
+			|--------------------------------------------------------------------------
+			*/
+
+			let primeiroCampoComErro = null;
 
 			/*
 			|--------------------------------------------------------------------------
@@ -1433,13 +1470,27 @@
 			|--------------------------------------------------------------------------
 			*/
 
-			$('.campo-obrigatorio:visible').each(function(){
+			$('.campo-obrigatorio').each(function(){
 
 				const campo = $(this);
+
+				if(!deveValidarCampo(campo)) {
+					return;
+				}
 
 				if($.trim(campo.val()) === '') {
 
 					formularioValido = false;
+
+					/*
+					|--------------------------------------------------------------------------
+					| PRIMEIRO ERRO
+					|--------------------------------------------------------------------------
+					*/
+
+					if(!primeiroCampoComErro) {
+						primeiroCampoComErro = campo;
+					}
 
 					campo.addClass('is-invalid');
 
@@ -1478,6 +1529,10 @@
 
 					formularioValido = false;
 
+					if(!primeiroCampoComErro) {
+						primeiroCampoComErro = emailPrincipal;
+					}
+
 					emailPrincipal.addClass('is-invalid');
 
 					emailPrincipal.after(
@@ -1496,6 +1551,10 @@
 					if(!dominioValido) {
 
 						formularioValido = false;
+
+						if(!primeiroCampoComErro) {
+							primeiroCampoComErro = emailPrincipal;
+						}
 
 						emailPrincipal.addClass('is-invalid');
 
@@ -1526,6 +1585,10 @@
 
 					formularioValido = false;
 
+					if(!primeiroCampoComErro) {
+						primeiroCampoComErro = emailSecundario;
+					}
+
 					emailSecundario.addClass('is-invalid');
 
 					emailSecundario.after(
@@ -1544,14 +1607,23 @@
 			|--------------------------------------------------------------------------
 			*/
 
-			$('.campo-obrigatorio-radio:visible').each(function(){
+			$('.campo-obrigatorio-radio').each(function(){
 
 				const grupo = $(this);
+
+				if(!deveValidarCampo(grupo)) {
+					return;
+				}
+
 				const radios = grupo.find('input[type="radio"]');
 
 				if(!radios.is(':checked')) {
 
 					formularioValido = false;
+
+					if(!primeiroCampoComErro) {
+						primeiroCampoComErro = grupo;
+					}
 
 					grupo.append(
 						'<small class="erro-validacao text-danger d-block mt-1">' +
@@ -1569,14 +1641,23 @@
 			|--------------------------------------------------------------------------
 			*/
 
-			$('.campo-obrigatorio-checkbox:visible').each(function(){
+			$('.campo-obrigatorio-checkbox').each(function(){
 
 				const grupo = $(this);
+
+				if(!deveValidarCampo(grupo)) {
+					return;
+				}
+
 				const checkboxes = grupo.find('input[type="checkbox"]');
 
 				if(!checkboxes.is(':checked')) {
 
 					formularioValido = false;
+
+					if(!primeiroCampoComErro) {
+						primeiroCampoComErro = grupo;
+					}
 
 					grupo.append(
 						'<small class="erro-validacao text-danger d-block mt-1">' +
@@ -1598,11 +1679,35 @@
 
 				e.preventDefault();
 
-				$('html, body').animate({
+				/*
+				|--------------------------------------------------------------------------
+				| Abre accordion automaticamente
+				|--------------------------------------------------------------------------
+				*/
 
-					scrollTop: $('.erro-validacao:first').offset().top - 120
+				const collapse = primeiroCampoComErro.closest('.collapse');
 
-				}, 500);
+				if(collapse.length && !collapse.hasClass('show')) {
+
+					collapse.collapse('show');
+
+				}
+
+				/*
+				|--------------------------------------------------------------------------
+				| Scroll após abrir accordion
+				|--------------------------------------------------------------------------
+				*/
+
+				setTimeout(function(){
+
+					$('html, body').animate({
+
+						scrollTop: primeiroCampoComErro.offset().top - 120
+
+					}, 500);
+
+				}, 300);
 
 			}
 
