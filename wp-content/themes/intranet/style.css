@@ -3558,3 +3558,39 @@ table.datatables td{
     opacity: 1;
     visibility: visible;
 }
+
+/* Flag de destaque em itens do menu */
+.navbar-nav .menu-item.novidade {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.navbar-nav .menu-item.novidade .nav-link::after {
+    content: "NOVO";
+    font-family: 'Open Sans', sans-serif;
+    font-size: 8px;
+    letter-spacing: 1px;
+    font-weight: 600;
+    background-color: #00b600;
+    color: #FFFFFF;
+    padding: 2px 4px;
+    border-radius: 5px;
+    margin-left: 4px;
+}
+
+.navbar-nav .menu-item.novidade:not(.active) .nav-link::after {
+    animation: blink_smooth 1.5s infinite;
+}
+
+@keyframes blink_smooth {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.2;
+    }
+    100% {
+        opacity: 1;
+    }
+}
