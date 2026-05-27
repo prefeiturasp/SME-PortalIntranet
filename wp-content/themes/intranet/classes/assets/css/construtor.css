@@ -2461,11 +2461,13 @@ form#commentform {
 }
 
 #filtro-eventos #nav-tabContent .tab-pane form input,
+#filtro-eventos #nav-tabContent .tab-pane form select,
 #filtro-eventos #nav-tabContent .select2-container--default .select2-selection--single {
     border-radius: 6px;
 }
 
 #filtro-eventos #nav-tabContent .tab-pane form input,
+#filtro-eventos #nav-tabContent .tab-pane form select,
 #filtro-eventos #nav-tabContent .select2-container--default .select2-selection--single .select2-selection__rendered,
 #filtro-eventos #nav-tabContent .select2-container--default .select2-selection--single .select2-selection__placeholder {
     font-size: 14px;
@@ -2865,4 +2867,32 @@ div#minhas-inscricoes .dataTables_paginate .paginate_button.current {
 .card-oportunidade .btn-detalhes:hover {
     background-color: #0b2958;
     color: #FFFFFF;
+}
+
+/* Construtor filtro de oportunidades (filtro_oportunidades_1_1) */
+.select2-container {
+    width: 100% !important;
+}
+
+form.form-filtro-oportunidades .select2-container .select2-selection--single {
+    height: calc(2.25rem + 2px) !important;
+    border: 1px solid #ced4da !important;
+    display: flex !important;
+    align-items: center !important;
+    padding: 0 .75rem;
+}
+
+form.form-filtro-oportunidades .select2-container .select2-selection--single .select2-selection__placeholder {
+    color: #495057 !important;
+}
+
+form.form-filtro-oportunidades .select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: #495057;
+    line-height: normal !important;
+    padding-left: 0 !important;
+}
+
+form.form-filtro-oportunidades .select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 100% !important;
+    right: 10px !important;
 }
