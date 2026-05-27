@@ -5,10 +5,12 @@ $oportunidade_args = [
     'post_status' => 'publish',
     'posts_per_page' => get_sub_field( 'oportunidades_por_pagina' ) ? get_sub_field( 'oportunidades_por_pagina' ) : 12,
     'paged' => max( 1, get_query_var( 'paged' ) ),
+    'tax_query' => get_filtros_tax_query(),
+    'meta_query' => get_filtros_meta_query(),
     'ordenar_por_status' => true
 ];
 
-$filtros_aplicados = false;
+$filtros_aplicados = $_GET['acao'] === 'filtrar' ?? false;
 $oportunidades = new WP_Query( $oportunidade_args );
 
 ?>
@@ -30,6 +32,17 @@ $oportunidades = new WP_Query( $oportunidade_args );
                     <div class="alerta-info">
                         <i class="fa fa-briefcase fa-3x mb-3" aria-hidden="true"></i>
                         <p>No momento, não há Oportunidades disponíveis. Continue acompanhando as publicações deste Portal e não deixe de manter seu currículo sempre atualizado.</p>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <?php if ( !$oportunidades->have_posts() && $filtros_aplicados ) : ?>
+            <div class="container">
+                <div class="alerta-sem-oportunidades">
+                    <div class="alerta-info">
+                        <i class="fa fa-search fa-3x mb-3" aria-hidden="true"></i>
+                        <p>Nenhuma Oportunidade encontrada para os filtros selecionados.</p>
                     </div>
                 </div>
             </div>
@@ -135,3 +148,97 @@ $oportunidades = new WP_Query( $oportunidade_args );
         </div>
     </div>
 </div>
+
+<?php
+function get_filtros_meta_query() {
+    $args = [];
+
+    if ( isset( $_GET['tipo-oportunidade'] ) && !empty( $_GET['tipo-oportunidade'] ) ) {
+        $args[] = [
+            'key'     => 'tipo_oportunidade',
+            'value'   =>  '"' . sanitize_text_field( $_GET['tipo-oportunidade'] ) . '"',
+            'compare' => 'LIKE'
+        ];
+    }
+
+    if ( isset( $_GET['situacao'] ) && !empty( $_GET['situacao'] ) ) {
+
+        $hoje = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+        $situacao = sanitize_text_field( $_GET['situacao'] );
+
+        switch ( $situacao ) {
+
+            case 'abertas':
+
+                $args[] = [
+                    'key'     => 'inicio_inscricoes',
+                    'value'   => $hoje,
+                    'compare' => '<=',
+                    'type'    => 'NUMERIC'
+                ];
+
+                $args[] = [
+                    'key'     => 'ence_inscricoes',
+                    'value'   => $hoje,
+                    'compare' => '>=',
+                    'type'    => 'NUMERIC'
+                ];
+
+                break;
+
+            case 'em-breve':
+
+                $args[] = [
+                    'key'     => 'inicio_inscricoes',
+                    'value'   => $hoje,
+                    'compare' => '>',
+                    'type'    => 'NUMERIC'
+                ];
+
+                break;
+
+            case 'encerradas':
+
+                $args[] = [
+                    'key'     => 'ence_inscricoes',
+                    'value'   => $hoje,
+                    'compare' => '<',
+                    'type'    => 'NUMERIC'
+                ];
+
+                break;
+        }
+    }
+    
+    return $args;
+}
+
+function get_filtros_tax_query() {
+    $args = [];
+
+    if ( isset( $_GET['setor'] ) && !empty( $_GET['setor'] ) ) {
+        $args[] = [
+            'taxonomy' => 'coordenadorias',
+            'field'    => 'term_id',
+            'terms'    => [intval( $_GET['setor'] )],
+        ];
+    }
+
+    if ( isset( $_GET['local'] ) && !empty( $_GET['local'] ) ) {
+        $args[] = [
+            'taxonomy' => 'locais',
+            'field'    => 'term_id',
+            'terms'    => [intval( $_GET['local'] )],
+        ];
+    }
+
+    if ( isset( $_GET['eixo'] ) && !empty( $_GET['eixo'] ) ) {
+        $args[] = [
+            'taxonomy' => 'eixos_atuacao',
+            'field'    => 'term_id',
+            'terms'    => [intval( $_GET['eixo'] )],
+        ];
+    }
+
+    return $args;
+}

@@ -8823,3 +8823,24 @@ add_filter('show_admin_bar', function($show) {
 
     return $show;
 });
+
+// Modifica o padrão das URLs dos posts de oportunidade, utilizando o ID. Ex.: /oportunidades/1234
+add_filter('post_type_link', function($post_link, $post) {
+ 
+    if ($post->post_type !== 'oportunidade') {
+        return $post_link;
+    }
+ 
+    return home_url('/oportunidade/' . $post->ID . '/');
+ 
+}, 10, 2);
+ 
+add_action('init', function() {
+ 
+    add_rewrite_rule(
+        '^oportunidade/([0-9]+)/?$',
+        'index.php?post_type=oportunidade&p=$matches[1]',
+        'top'
+    );
+ 
+});
