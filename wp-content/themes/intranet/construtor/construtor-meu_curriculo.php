@@ -5,6 +5,7 @@
 	$origem_dados = $dados['origem'];
 	$curriculo = $dados['dados'];
     $vivencias = $dados['vivencias'];
+	$informatica = $dados['informatica'];	
 
 	$cargos = [];
 
@@ -649,22 +650,22 @@
 
 									<div class="form-group">
 										<label for="organizacaoEmp1">Organização/Empresa <span class="required-icon">*</span></label>
-										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp1" name="organizacaoEmp1" value="<?= esc_attr($vivencias[0]['organizacao_empresa'] ?? '') ?>">
+										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp1" name="organizacaoEmp1" value="<?= esc_attr($vivencias[1]['organizacao_empresa'] ?? '') ?>">
 									</div>
 
 									<div class="form-group">
 										<label for="cargoFuncao1">Cargo/Função: <span class="required-icon">*</span></label>
-										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao1" name="cargoFuncao1" value="<?= esc_attr($vivencias[0]['cargo_funcao'] ?? '') ?>">
+										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao1" name="cargoFuncao1" value="<?= esc_attr($vivencias[1]['cargo_funcao'] ?? '') ?>">
 									</div>
 
 									<div class="form-group">
 										<label for="duracao1">Duração: <span class="required-icon">*</span></label>
 										<select class="form-control campo-obrigatorio" id="duracao1" name="duracao1">
 											<option value="">-- Selecione --</option>
-											<option value="ate-1-ano" <?= selected($vivencias[0]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
-											<option value="entre-1-3" <?= selected($vivencias[0]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
-											<option value="de-3-5" <?= selected($vivencias[0]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
-											<option value="acima-5" <?= selected($vivencias[0]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
+											<option value="ate-1-ano" <?= selected($vivencias[1]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
+											<option value="entre-1-3" <?= selected($vivencias[1]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
+											<option value="de-3-5" <?= selected($vivencias[1]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
+											<option value="acima-5" <?= selected($vivencias[1]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
 										</select>
 									</div>
 
@@ -677,19 +678,19 @@
 											class="form-control campo-obrigatorio"
 											id="atividadesComp1"
 											name="atividadesComp1"
-											rows="6"><?= esc_textarea($vivencias[0]['atividades_competencias'] ?? ''); ?></textarea>
+											rows="6"><?= esc_textarea($vivencias[1]['atividades_competencias'] ?? ''); ?></textarea>
 									</div>
 
 									<div class="form-group campo-obrigatorio-radio">
 										<label>Gostaria de compartilhar outra vivência profissional? <span class="required-icon">*</span></label>
 
 										<div class="form-check">
-											<input class="form-check-input" type="radio" name="outraVivencia1" id="outraVivencia1Sim" value="1" <?= (($vivencias[0]['outra_vivencia'] ?? '') === '1') ? 'checked' : '' ?>>
+											<input class="form-check-input" type="radio" name="outraVivencia1" id="outraVivencia1Sim" value="1" <?= (($vivencias[1]['outra_vivencia'] ?? '') === '1') ? 'checked' : '' ?>>
 											<label class="form-check-label" for="outraVivencia1Sim">Sim</label>
 										</div>
 
 										<div class="form-check">
-											<input class="form-check-input" type="radio" name="outraVivencia1" id="outraVivencia1Nao" value="0" <?= (($vivencias[0]['outra_vivencia'] ?? '') === '0') ? 'checked' : '' ?>>
+											<input class="form-check-input" type="radio" name="outraVivencia1" id="outraVivencia1Nao" value="0" <?= (($vivencias[1]['outra_vivencia'] ?? '') === '0') ? 'checked' : '' ?>>
 											<label class="form-check-label" for="outraVivencia1Nao">Não</label>
 										</div>
 									</div>
@@ -701,22 +702,22 @@
 
 									<div class="form-group">
 										<label for="organizacaoEmp2">Organização/Empresa <span class="required-icon">*</span></label>
-										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp2" name="organizacaoEmp2" value="<?= esc_attr($vivencias[1]['organizacao_empresa'] ?? '') ?>">
+										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp2" name="organizacaoEmp2" value="<?= esc_attr($vivencias[2]['organizacao_empresa'] ?? '') ?>">
 									</div>
 
 									<div class="form-group">
 										<label for="cargoFuncao2">Cargo/Função: <span class="required-icon">*</span></label>
-										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao2" name="cargoFuncao2" value="<?= esc_attr($vivencias[1]['cargo_funcao'] ?? '') ?>">
+										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao2" name="cargoFuncao2" value="<?= esc_attr($vivencias[2]['cargo_funcao'] ?? '') ?>">
 									</div>
 
 									<div class="form-group">
 										<label for="duracao2">Duração: <span class="required-icon">*</span></label>
 										<select class="form-control campo-obrigatorio" id="duracao2" name="duracao2">
 											<option value="">-- Selecione --</option>
-											<option value="ate-1-ano" <?= selected($vivencias[1]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
-											<option value="entre-1-3" <?= selected($vivencias[1]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
-											<option value="de-3-5" <?= selected($vivencias[1]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
-											<option value="acima-5" <?= selected($vivencias[1]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
+											<option value="ate-1-ano" <?= selected($vivencias[2]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
+											<option value="entre-1-3" <?= selected($vivencias[2]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
+											<option value="de-3-5" <?= selected($vivencias[2]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
+											<option value="acima-5" <?= selected($vivencias[2]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
 										</select>
 									</div>
 
@@ -729,19 +730,19 @@
 											class="form-control campo-obrigatorio"
 											id="atividadesComp2"
 											name="atividadesComp2"
-											rows="6"><?= esc_textarea($vivencias[1]['atividades_competencias'] ?? ''); ?></textarea>
+											rows="6"><?= esc_textarea($vivencias[2]['atividades_competencias'] ?? ''); ?></textarea>
 									</div>
 
 									<div class="form-group campo-obrigatorio-radio">
 										<label>Gostaria de compartilhar outra vivência profissional? <span class="required-icon">*</span></label>
 
 										<div class="form-check">
-											<input class="form-check-input" type="radio" name="outraVivencia2" id="outraVivencia2Sim" value="1" <?= (($vivencias[1]['outra_vivencia'] ?? '') === '1') ? 'checked' : '' ?>>
+											<input class="form-check-input" type="radio" name="outraVivencia2" id="outraVivencia2Sim" value="1" <?= (($vivencias[2]['outra_vivencia'] ?? '') === '1') ? 'checked' : '' ?>>
 											<label class="form-check-label" for="outraVivencia2Sim">Sim</label>
 										</div>
 
 										<div class="form-check">
-											<input class="form-check-input" type="radio" name="outraVivencia2" id="outraVivencia2Nao" value="0" <?= (($vivencias[1]['outra_vivencia'] ?? '') === '0') ? 'checked' : '' ?>>
+											<input class="form-check-input" type="radio" name="outraVivencia2" id="outraVivencia2Nao" value="0" <?= (($vivencias[2]['outra_vivencia'] ?? '') === '0') ? 'checked' : '' ?>>
 											<label class="form-check-label" for="outraVivencia2Nao">Não</label>
 										</div>
 									</div>
@@ -753,22 +754,22 @@
 
 									<div class="form-group">
 										<label for="organizacaoEmp3">Organização/Empresa <span class="required-icon">*</span></label>
-										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp3" name="organizacaoEmp3" value="<?= esc_attr($vivencias[2]['organizacao_empresa'] ?? '') ?>">
+										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp3" name="organizacaoEmp3" value="<?= esc_attr($vivencias[3]['organizacao_empresa'] ?? '') ?>">
 									</div>
 
 									<div class="form-group">
 										<label for="cargoFuncao3">Cargo/Função: <span class="required-icon">*</span></label>
-										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao3" name="cargoFuncao3" value="<?= esc_attr($vivencias[2]['cargo_funcao'] ?? '') ?>">
+										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao3" name="cargoFuncao3" value="<?= esc_attr($vivencias[3]['cargo_funcao'] ?? '') ?>">
 									</div>
 
 									<div class="form-group">
 										<label for="duracao3">Duração: <span class="required-icon">*</span></label>
 										<select class="form-control campo-obrigatorio" id="duracao3" name="duracao3">
 											<option value="">-- Selecione --</option>
-											<option value="ate-1-ano" <?= selected($vivencias[2]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
-											<option value="entre-1-3" <?= selected($vivencias[2]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
-											<option value="de-3-5" <?= selected($vivencias[2]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
-											<option value="acima-5" <?= selected($vivencias[2]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
+											<option value="ate-1-ano" <?= selected($vivencias[3]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
+											<option value="entre-1-3" <?= selected($vivencias[3]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
+											<option value="de-3-5" <?= selected($vivencias[3]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
+											<option value="acima-5" <?= selected($vivencias[3]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
 										</select>
 									</div>
 
@@ -781,19 +782,19 @@
 											class="form-control campo-obrigatorio"
 											id="atividadesComp3"
 											name="atividadesComp3"
-											rows="6"><?= esc_textarea($vivencias[2]['atividades_competencias'] ?? ''); ?></textarea>
+											rows="6"><?= esc_textarea($vivencias[3]['atividades_competencias'] ?? ''); ?></textarea>
 									</div>
 
 									<div class="form-group campo-obrigatorio-radio">
 										<label>Gostaria de compartilhar outra vivência profissional? <span class="required-icon">*</span></label>
 
 										<div class="form-check">
-											<input class="form-check-input" type="radio" name="outraVivencia3" id="outraVivencia3Sim" value="1" <?= (($vivencias[2]['outra_vivencia'] ?? '') === '1') ? 'checked' : '' ?>>
+											<input class="form-check-input" type="radio" name="outraVivencia3" id="outraVivencia3Sim" value="1" <?= (($vivencias[3]['outra_vivencia'] ?? '') === '1') ? 'checked' : '' ?>>
 											<label class="form-check-label" for="outraVivencia3Sim">Sim</label>
 										</div>
 
 										<div class="form-check">
-											<input class="form-check-input" type="radio" name="outraVivencia3" id="outraVivencia3Nao" value="0" <?= (($vivencias[2]['outra_vivencia'] ?? '') === '0') ? 'checked' : '' ?>>
+											<input class="form-check-input" type="radio" name="outraVivencia3" id="outraVivencia3Nao" value="0" <?= (($vivencias[3]['outra_vivencia'] ?? '') === '0') ? 'checked' : '' ?>>
 											<label class="form-check-label" for="outraVivencia3Nao">Não</label>
 										</div>
 									</div>
@@ -806,22 +807,22 @@
 
 									<div class="form-group">
 										<label for="organizacaoEmp4">Organização/Empresa <span class="required-icon">*</span></label>
-										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp4" name="organizacaoEmp4" value="<?= esc_attr($vivencias[3]['organizacao_empresa'] ?? '') ?>">
+										<input type="text" class="form-control campo-obrigatorio" id="organizacaoEmp4" name="organizacaoEmp4" value="<?= esc_attr($vivencias[4]['organizacao_empresa'] ?? '') ?>">
 									</div>
 
 									<div class="form-group">
 										<label for="cargoFuncao4">Cargo/Função: <span class="required-icon">*</span></label>
-										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao4" name="cargoFuncao4" value="<?= esc_attr($vivencias[3]['cargo_funcao'] ?? '') ?>">
+										<input type="text" class="form-control campo-obrigatorio" id="cargoFuncao4" name="cargoFuncao4" value="<?= esc_attr($vivencias[4]['cargo_funcao'] ?? '') ?>">
 									</div>
 
 									<div class="form-group">
 										<label for="duracao4">Duração: <span class="required-icon">*</span></label>
 										<select class="form-control campo-obrigatorio" id="duracao4" name="duracao4">
 											<option value="">-- Selecione --</option>
-											<option value="ate-1-ano" <?= selected($vivencias[3]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
-											<option value="entre-1-3" <?= selected($vivencias[3]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
-											<option value="de-3-5" <?= selected($vivencias[3]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
-											<option value="acima-5" <?= selected($vivencias[3]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
+											<option value="ate-1-ano" <?= selected($vivencias[4]['duracao'] ?? '', 'ate-1-ano', false) ?>>Até 1 ano</option>
+											<option value="entre-1-3" <?= selected($vivencias[4]['duracao'] ?? '', 'entre-1-3', false) ?>>Entre 1 e 3 anos</option>
+											<option value="de-3-5" <?= selected($vivencias[4]['duracao'] ?? '', 'de-3-5', false) ?>>De 3 a 5 anos</option>
+											<option value="acima-5" <?= selected($vivencias[4]['duracao'] ?? '', 'acima-5', false) ?>>Acima de 5 anos</option>										
 										</select>
 									</div>
 
@@ -834,12 +835,234 @@
 											class="form-control campo-obrigatorio"
 											id="atividadesComp4"
 											name="atividadesComp4"
-											rows="6"><?= esc_textarea($vivencias[3]['atividades_competencias'] ?? ''); ?></textarea>
+											rows="6"><?= esc_textarea($vivencias[4]['atividades_competencias'] ?? ''); ?></textarea>
 									</div>
 
 								</div>
 
 
+							</div>
+						</div>
+					</div>
+
+					<!-- ETAPA 5 -->
+					 <div class="card etapa-formulario">
+					 	<div class="card-header" id="headingFive">
+							<h2 class="mb-0">
+								<button class="btn btn-block text-left collapsed"
+									type="button"
+									data-toggle="collapse"
+									data-target="#collapseFive">
+
+									<span class="numeral">5</span> Conhecimentos em Informática e Tecnologia
+								</button>
+							</h2>
+						</div>
+
+						<div id="collapseFive" class="collapse">
+							<div class="card-body">
+
+								<p>
+									Quais dos sistemas a seguir você já trabalhou e/ou tem facilidade de navegação? <span class="required-icon">*</span><br>
+									<small class="font-italic">(Eventualmente, poderá haver teste de conhecimento, a critério do gestor da vaga)</small>
+								</p>
+
+								<table class="table table-striped">									
+									<tbody>
+										<tr class="align-middle">
+											<th width="40%" class="align-middle">Sistema</th>
+											<td width="15%" class="text-center align-middle fw-600">Nenhum<br><small>Nunca acessei</small></td>
+											<td width="15%" class="text-center align-middle fw-600">Básico<br><small>Conheço e acessei algumas vezes</small></td>
+											<td width="15%" class="text-center align-middle fw-600">Intermediário<br><small>Acesso com frequência, porém sem funcionalidades avançadas de gestão</small></td>
+											<td width="15%" class="text-center align-middle fw-600">Avançado<br><small>Emissão e análise de relatórios, produção de estatística e painéis, mudanças e criação de telas</small></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>EOL - Escola On Line</th>
+											<td class="text-center"><input type="radio" name="informatica[eol]" value="0" <?= checked($informatica['eol'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[eol]" value="1" <?= checked($informatica['eol'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[eol]" value="2" <?= checked($informatica['eol'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[eol]" value="3" <?= checked($informatica['eol'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>SEI - Sistema Eletrônico de Informações</th>
+											<td class="text-center"><input type="radio" name="informatica[sei]" value="0" <?= checked($informatica['sei'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sei]" value="1" <?= checked($informatica['sei'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sei]" value="2" <?= checked($informatica['sei'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sei]" value="3" <?= checked($informatica['sei'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>SOF - Sistema de Orçamento e Finanças</th>
+											<td class="text-center"><input type="radio" name="informatica[sof]" value="0" <?= checked($informatica['sof'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sof]" value="1" <?= checked($informatica['sof'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sof]" value="2" <?= checked($informatica['sof'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sof]" value="3" <?= checked($informatica['sof'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>SIGPEC - Sistema Integrado de Gestão de Pessoas e Competências</th>
+											<td class="text-center"><input type="radio" name="informatica[sigpec]" value="0" <?= checked($informatica['sigpec'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sigpec]" value="1" <?= checked($informatica['sigpec'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sigpec]" value="2" <?= checked($informatica['sigpec'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sigpec]" value="3" <?= checked($informatica['sigpec'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>SIG - Escola - Sistema Integrado de Gestão da Escola</th>
+											<td class="text-center"><input type="radio" name="informatica[sig-escola]" value="0" <?= checked($informatica['sig-escola'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sig-escola]" value="1" <?= checked($informatica['sig-escola'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sig-escola]" value="2" <?= checked($informatica['sig-escola'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sig-escola]" value="3" <?= checked($informatica['sig-escola'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>SIGEP - Sistema Integrado de Gestão de Parcerias</th>
+											<td class="text-center"><input type="radio" name="informatica[sigep]" value="0" <?= checked($informatica['sigep'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sigep]" value="1" <?= checked($informatica['sigep'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sigep]" value="2" <?= checked($informatica['sigep'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sigep]" value="3" <?= checked($informatica['sigep'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>SGP - Sistema de Gestão Pedagógica</th>
+											<td class="text-center"><input type="radio" name="informatica[sgp]" value="0" <?= checked($informatica['sgp'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sgp]" value="1" <?= checked($informatica['sgp'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sgp]" value="2" <?= checked($informatica['sgp'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sgp]" value="3" <?= checked($informatica['sgp'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>DOC - Diário Oficial da Cidade de São Paulo</th>
+											<td class="text-center"><input type="radio" name="informatica[doc]" value="0" <?= checked($informatica['doc'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[doc]" value="1" <?= checked($informatica['doc'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[doc]" value="2" <?= checked($informatica['doc'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[doc]" value="3" <?= checked($informatica['doc'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>TID - Trâmite Interno Digital</th>
+											<td class="text-center"><input type="radio" name="informatica[tid]" value="0" <?= checked($informatica['tid'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[tid]" value="1" <?= checked($informatica['tid'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[tid]" value="2" <?= checked($informatica['tid'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[tid]" value="3" <?= checked($informatica['tid'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>SIMPROC - Sistema Municipal de Processos</th>
+											<td class="text-center"><input type="radio" name="informatica[simproc]" value="0" <?= checked($informatica['simproc'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[simproc]" value="1" <?= checked($informatica['simproc'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[simproc]" value="2" <?= checked($informatica['simproc'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[simproc]" value="3" <?= checked($informatica['simproc'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>SIGPAE - Sistema de Gestão do Programa de Alimentação Escolar</th>
+											<td class="text-center"><input type="radio" name="informatica[sigpae]" value="0" <?= checked($informatica['sigpae'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sigpae]" value="1" <?= checked($informatica['sigpae'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sigpae]" value="2" <?= checked($informatica['sigpae'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sigpae]" value="3" <?= checked($informatica['sigpae'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>CDEP - Centro de Documentação da Educação Paulistana</th>
+											<td class="text-center"><input type="radio" name="informatica[cdep]" value="0" <?= checked($informatica['cdep'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[cdep]" value="1" <?= checked($informatica['cdep'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[cdep]" value="2" <?= checked($informatica['cdep'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[cdep]" value="3" <?= checked($informatica['cdep'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>CLIC - Central de Informações e Apoio da COGEP</th>
+											<td class="text-center"><input type="radio" name="informatica[clic]" value="0" <?= checked($informatica['clic'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[clic]" value="1" <?= checked($informatica['clic'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[clic]" value="2" <?= checked($informatica['clic'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[clic]" value="3" <?= checked($informatica['clic'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>Apps Microsoft 365</th>
+											<td class="text-center"><input type="radio" name="informatica[apps-365]" value="0" <?= checked($informatica['apps-365'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[apps-365]" value="1" <?= checked($informatica['apps-365'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[apps-365]" value="2" <?= checked($informatica['apps-365'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[apps-365]" value="3" <?= checked($informatica['apps-365'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>Office Word</th>
+											<td class="text-center"><input type="radio" name="informatica[office-word]" value="0" <?= checked($informatica['office-word'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[office-word]" value="1" <?= checked($informatica['office-word'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[office-word]" value="2" <?= checked($informatica['office-word'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[office-word]" value="3" <?= checked($informatica['office-word'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>Office Excel</th>
+											<td class="text-center"><input type="radio" name="informatica[office-excel]" value="0" <?= checked($informatica['office-excel'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[office-excel]" value="1" <?= checked($informatica['office-excel'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[office-excel]" value="2" <?= checked($informatica['office-excel'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[office-excel]" value="3" <?= checked($informatica['office-excel'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>Office PowerPoint </th>
+											<td class="text-center"><input type="radio" name="informatica[office-ppt]" value="0" <?= checked($informatica['office-ppt'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[office-ppt]" value="1" <?= checked($informatica['office-ppt'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[office-ppt]" value="2" <?= checked($informatica['office-ppt'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[office-ppt]" value="3" <?= checked($informatica['office-ppt'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>Canva</th>
+											<td class="text-center"><input type="radio" name="informatica[canva]" value="0" <?= checked($informatica['canva'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[canva]" value="1" <?= checked($informatica['canva'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[canva]" value="2" <?= checked($informatica['canva'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[canva]" value="3" <?= checked($informatica['canva'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>Power BI</th>
+											<td class="text-center"><input type="radio" name="informatica[power-bi]" value="0" <?= checked($informatica['power-bi'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[power-bi]" value="1" <?= checked($informatica['power-bi'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[power-bi]" value="2" <?= checked($informatica['power-bi'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[power-bi]" value="3" <?= checked($informatica['power-bi'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>Teams/Meet/Zoom/Workplace</th>
+											<td class="text-center"><input type="radio" name="informatica[teams]" value="0" <?= checked($informatica['teams'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[teams]" value="1" <?= checked($informatica['teams'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[teams]" value="2" <?= checked($informatica['teams'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[teams]" value="3" <?= checked($informatica['teams'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>Sharepoint/Workspace/Confluence</th>
+											<td class="text-center"><input type="radio" name="informatica[sharepoint]" value="0" <?= checked($informatica['sharepoint'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sharepoint]" value="1" <?= checked($informatica['sharepoint'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sharepoint]" value="2" <?= checked($informatica['sharepoint'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[sharepoint]" value="3" <?= checked($informatica['sharepoint'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>Forms/Google Forms/SuveyMars</th>
+											<td class="text-center"><input type="radio" name="informatica[forms]" value="0" <?= checked($informatica['forms'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[forms]" value="1" <?= checked($informatica['forms'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[forms]" value="2" <?= checked($informatica['forms'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[forms]" value="3" <?= checked($informatica['forms'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-informatica-obrigatoria">
+											<th>Planner/Monday/ClickUp</th>
+											<td class="text-center"><input type="radio" name="informatica[planner]" value="0" <?= checked($informatica['planner'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[planner]" value="1" <?= checked($informatica['planner'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[planner]" value="2" <?= checked($informatica['planner'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="informatica[planner]" value="3" <?= checked($informatica['planner'] ?? '', '3', false) ?>></td>
+										</tr>
+
+									</tbody>
+								</table>
 							</div>
 						</div>
 					</div>
@@ -1359,46 +1582,50 @@
 
 		function controlarVivencias() {
 
-			// Vivência 2
+			// Valores selecionados
 			const vivencia1 = $('input[name="outraVivencia1"]:checked').val();
-
-			if (vivencia1 === '1') {
-				$('.bloco-vivencia[data-vivencia="2"]').show();
-			} else {
-				$('.bloco-vivencia[data-vivencia="2"]').hide();
-			}
-
-			// Vivência 3
 			const vivencia2 = $('input[name="outraVivencia2"]:checked').val();
-
-			if (vivencia2 === '1') {
-				$('.bloco-vivencia[data-vivencia="3"]').show();
-			} else {
-				$('.bloco-vivencia[data-vivencia="3"]').hide();
-			}
-
-			// Vivência 4
 			const vivencia3 = $('input[name="outraVivencia3"]:checked').val();
 
-			if (vivencia3 === '1') {
-				$('.bloco-vivencia[data-vivencia="4"]').show();
-			} else {
-				$('.bloco-vivencia[data-vivencia="4"]').hide();
+			// Estado inicial
+			$('.bloco-vivencia[data-vivencia="2"]').hide();
+			$('.bloco-vivencia[data-vivencia="3"]').hide();
+			$('.bloco-vivencia[data-vivencia="4"]').hide();
+
+			// Vivência 2
+			if (vivencia1 === '1') {
+
+				$('.bloco-vivencia[data-vivencia="2"]').show();
+
+				// Vivência 3
+				if (vivencia2 === '1') {
+
+					$('.bloco-vivencia[data-vivencia="3"]').show();
+
+					// Vivência 4
+					if (vivencia3 === '1') {
+
+						$('.bloco-vivencia[data-vivencia="4"]').show();
+
+					}
+
+				}
+
 			}
+
 		}
 
-		// inicia ocultando tudo
-		$('.bloco-vivencia[data-vivencia="2"]').hide();
-		$('.bloco-vivencia[data-vivencia="3"]').hide();
-		$('.bloco-vivencia[data-vivencia="4"]').hide();
-
-		// executa no carregamento
+		// Executa no carregamento
 		controlarVivencias();
 
-		// executa ao alterar radios
-		$(document).on('change', 'input[name^="outraVivencia"]', function(){
-			controlarVivencias();
-		});
+		// Executa ao alterar radios
+		$(document).on(
+			'change',
+			'input[name^="outraVivencia"]',
+			function () {
+				controlarVivencias();
+			}
+		);
 
 	});
 	
@@ -1462,6 +1689,7 @@
 			*/
 
 			$('.erro-validacao').remove();
+			$('.linha-erro').removeClass('linha-erro');
 			$('.is-invalid').removeClass('is-invalid');
 
 			/*
@@ -1662,6 +1890,52 @@
 					grupo.append(
 						'<small class="erro-validacao text-danger d-block mt-1">' +
 						'Selecione ao menos uma opção.' +
+						'</small>'
+					);
+
+				}
+
+			});
+
+			/*
+			|--------------------------------------------------------------------------
+			| INFORMÁTICA
+			|--------------------------------------------------------------------------
+			*/
+
+			$('.linha-informatica-obrigatoria').each(function(){
+
+				const linha = $(this);
+
+				const radios = linha.find('input[type="radio"]');
+
+				if(!radios.is(':checked')) {
+
+					formularioValido = false;
+
+					if(!primeiroCampoComErro) {
+						primeiroCampoComErro = linha;
+					}
+
+					/*
+					|--------------------------------------------------------------------------
+					| Destaca linha
+					|--------------------------------------------------------------------------
+					*/
+
+					linha.addClass('linha-erro');
+
+					/*
+					|--------------------------------------------------------------------------
+					| Mensagem no TH
+					|--------------------------------------------------------------------------
+					*/
+
+					const th = linha.find('th');
+
+					th.append(
+						'<small class="erro-validacao text-danger d-block mt-1">' +
+							'Selecione ao menos um nível de conhecimento para continuar.' +
 						'</small>'
 					);
 

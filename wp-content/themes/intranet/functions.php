@@ -7899,6 +7899,7 @@ function obter_dados_candidato($user_id) {
 
     $table = $wpdb->prefix . 'banco_talentos';
     $table_vivencias = $wpdb->prefix . 'banco_talentos_vivencias';
+    $table_informatica = $wpdb->prefix . 'banco_talentos_informatica';
 
     /*
     |--------------------------------------------------------------------------
@@ -7938,10 +7939,43 @@ function obter_dados_candidato($user_id) {
             ARRAY_A
         );
 
+        $vivencias_formatadas = array();
+
+        foreach ($vivencias as $vivencia) {
+            $ordem = intval($vivencia['ordem']);
+            $vivencias_formatadas[$ordem] = $vivencia;
+        }
+
+        $informatica = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT competencia, nivel
+                FROM {$table_informatica} 
+                WHERE curriculo_id = %d",
+                $curriculo_id
+            ),
+            ARRAY_A
+        );
+
+        $informatica_formatada = array();
+
+        foreach ($informatica as $item) {
+            $informatica_formatada[$item['competencia']] = $item['nivel'];
+        }
+
+        for ($i = 1; $i <= 3; $i++) {
+            if (
+                empty($vivencias_formatadas[$i]['outra_vivencia']) &&
+                !empty($vivencias_formatadas[$i + 1])
+            ) {
+                $vivencias_formatadas[$i]['outra_vivencia'] = '1';
+            }
+        }
+
         return array(
             'origem' => 'banco',
             'dados'  => $curriculo,
-            'vivencias' => $vivencias
+            'vivencias' => $vivencias_formatadas,
+            'informatica' => $informatica_formatada
         );
     }
 
@@ -8245,6 +8279,7 @@ function salvar_banco_talentos() {
 
     $table = $wpdb->prefix . 'banco_talentos';
     $table_vivencias = $wpdb->prefix . 'banco_talentos_vivencias';
+    $table_informatica = $wpdb->prefix . 'banco_talentos_informatica';
 
     $user_id = get_current_user_id();
 
@@ -8628,7 +8663,14 @@ function salvar_banco_talentos() {
     |--------------------------------------------------------------------------
     */
 
+    $permitir_proxima = true;
+
     for ($i = 1; $i <= 4; $i++) {
+
+        // Interrompe processamento
+        if (!$permitir_proxima) {
+            break;
+        }
 
         $organizacao = sanitize_text_field(
             $_POST["organizacaoEmp{$i}"] ?? ''
@@ -8646,15 +8688,9 @@ function salvar_banco_talentos() {
             $_POST["atividadesComp{$i}"] ?? ''
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Outra vivência
-        |--------------------------------------------------------------------------
-        */
-
+        // Outra vivência
         $outra_vivencia = null;
 
-        // Apenas até a vivência 3 possui rádio
         if ($i < 4) {
 
             $outra_vivencia = $_POST["outraVivencia{$i}"] ?? null;
@@ -8663,37 +8699,41 @@ function salvar_banco_talentos() {
                 $outra_vivencia !== null &&
                 $outra_vivencia !== ''
             ) {
+
                 $outra_vivencia = sanitize_text_field(
                     $outra_vivencia
                 );
+
             }
+
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Ignora vivência vazia
-        |--------------------------------------------------------------------------
-        */
-
+        // Ignora vivência vazia
         if (
             empty($organizacao) &&
             empty($cargo_funcao) &&
             empty($duracao) &&
             empty($atividades)
         ) {
+
+            // Mesmo vazia precisa respeitar o rádio
+            if (
+                $i < 4 &&
+                $outra_vivencia !== '1'
+            ) {
+
+                $permitir_proxima = false;
+
+            }
+
             continue;
+
         }
 
-        /*
-        |--------------------------------------------------------------------------
-        | Salva vivência
-        |--------------------------------------------------------------------------
-        */
-
+        // Salvar vivência
         $wpdb->insert(
             $table_vivencias,
             array(
-
                 'curriculo_id' => $curriculo_id,
                 'ordem' => $i,
                 'organizacao_empresa' => $organizacao,
@@ -8716,22 +8756,71 @@ function salvar_banco_talentos() {
             )
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | Para processamento
-        |--------------------------------------------------------------------------
-        */
-
+        // Define se continuar
         if (
             $i < 4 &&
-            (
-                $outra_vivencia === '0' ||
-                $outra_vivencia === null ||
-                $outra_vivencia === ''
-            )
+            $outra_vivencia !== '1'
         ) {
-            break;
+
+            $permitir_proxima = false;
+
         }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove competências em informática antigas
+    |--------------------------------------------------------------------------
+    */
+
+    $wpdb->delete(
+        $table_informatica,
+        array(
+            'curriculo_id' => $curriculo_id
+        ),
+        array('%d')
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Salva competência em informática
+    |--------------------------------------------------------------------------
+    */
+
+    $competencias = $_POST['informatica'] ?? array();
+
+    
+    // Valores permitidos
+    $niveis_validos = array('0', '1', '2', '3');
+
+    foreach ($competencias as $competencia => $nivel) {
+
+        // Sanitizacao
+        $competencia = sanitize_text_field($competencia);
+        $nivel = (string) $nivel;
+
+        // Ignora níveis inválidos
+        if (!in_array($nivel, $niveis_validos, true)) {
+            continue;
+        }
+
+        // Salva competência
+        $wpdb->insert(
+            $table_informatica,
+            array(
+                'curriculo_id' => $curriculo_id,
+                'competencia' => $competencia,
+                'nivel' => intval($nivel),
+            ),
+            array(
+                '%d',
+                '%s',
+                '%d',
+            )
+        );
+
     }
 
     /*

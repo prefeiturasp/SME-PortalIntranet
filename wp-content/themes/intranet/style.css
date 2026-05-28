@@ -3594,3 +3594,12 @@ table.datatables td{
         opacity: 1;
     }
 }
+
+.linha-erro {
+	outline: 2px solid rgba(220,53,69,.25);
+	outline-offset: -2px;
+}
+
+.fw-600 {
+    font-weight: 600;
+}
