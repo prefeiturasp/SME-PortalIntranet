@@ -3603,3 +3603,170 @@ table.datatables td{
 .fw-600 {
     font-weight: 600;
 }
+
+/* Página de detalhamento da oportunidade */
+
+#single-oportunidade .card-oportunidade,
+#single-oportunidade .sidebar-card {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+#single-oportunidade .titulo-oportunidade {
+    font-size: 30px !important;
+    line-height: 1.2;
+    font-weight: 700;
+    color: #14447C;
+    margin-bottom: 12px;
+}
+
+#single-oportunidade .subtitulo-oportunidade {
+    color: #50565e;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+#single-oportunidade .info-bloco {
+    padding: 28px 0;
+    border-bottom: 1px solid #d9dee5;
+}
+
+#single-oportunidade .info-bloco h3 {
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #14447C;
+}
+
+#single-oportunidade .info-bloco p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #212529;
+}
+
+#single-oportunidade .btn-inscricao {
+    background-color: #14447C;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 700;
+    padding: 16px;
+    border-radius: 6px;
+}
+
+#single-oportunidade .btn-inscricao:hover {
+    background: #08284d;
+    color: #fff;
+}
+
+#single-oportunidade .card-informacoes {
+    background-color: #F4F6F7;
+    border: 1px solid #e9f4fc;
+    border-radius: 12px;   
+}
+
+#single-oportunidade .card-informacoes .titulo-secao {
+    font-size: 1.1rem !important;
+    font-weight: 700;
+    color: #14447C;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+#single-oportunidade .card-informacoes .conteudo-informacoes {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #212529;
+}
+
+#single-oportunidade .card-informacoes .conteudo-informacoes p {
+    margin: 0;
+}
+
+#single-oportunidade .conteudo-informacoes ul {
+    padding-left: 20px;
+}
+
+#single-oportunidade .link-voltar {
+    color: #14447C;
+    font-size: 1.1rem;
+    font-weight: 500;
+}
+
+#single-oportunidade .link-voltar:hover {
+    text-decoration: none;
+}
+
+/* Outras oportunidades (Sidebar) */
+
+#single-oportunidade .sidebar-header {
+    background: #e9edf2;
+    padding: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+#single-oportunidade .sidebar-header h3 {
+    font-size: 20px;
+    line-height: 1.4;
+    font-weight: 700;
+    margin: 0;
+    color: #14447C;
+}
+
+#single-oportunidade .sidebar-header a {
+    color: #14447C;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+#single-oportunidade .sidebar-item {
+    padding: 24px;
+    border-bottom: 1px solid #d9dee5;
+}
+
+#single-oportunidade .sidebar-item h4 {
+    font-size: 1.1rem;
+    line-height: 1.5;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #14447C;
+}
+
+#single-oportunidade .sidebar-item span {
+    display: block;
+    color: #617085;
+    margin-bottom: 10px;
+}
+
+#single-oportunidade .sidebar-item p {
+    margin: 0;
+    color: #617085;
+    line-height: 1.5;
+}
+
+@media (max-width: 991px) {
+
+    #single-oportunidade .titulo-oportunidade {
+        font-size: 1.5rem !important;
+    }
+
+    #single-oportunidade .subtitulo-oportunidade {
+        font-size: 1rem;
+    }
+
+    #single-oportunidade .info-bloco p {
+        font-size: 1.1rem;
+    }
+
+    #single-oportunidade .btn-inscricao {
+        font-size: 1rem ;
+    }
+
+    #single-oportunidade .conteudo-informacoes,
+    #single-oportunidade .status-box p {
+        font-size: 1rem;
+    }
+}

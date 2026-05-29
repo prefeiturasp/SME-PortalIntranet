@@ -596,6 +596,15 @@ if( function_exists('acf_add_options_page') ) {
 		'updated_message' => __("Configurações atualizadas com sucesso", 'acf'),
     ));
 
+    // Configurações do portal de oportunidades
+    acf_add_options_sub_page([
+        'page_title'  => 'Configurações - Portal de Oportunidades',
+        'menu_title'  => 'Configurações',
+        'menu_slug'   => 'configuracoes-oportunidades',
+        'parent_slug' => 'edit.php?post_type=oportunidade',
+        'capability'  => 'publish_oportunidades',
+    ]);
+
 }
 ///////////////////////////////////////////////////////////////////
 
@@ -7338,7 +7347,8 @@ add_action('admin_head', function () {
 
     if ($screen && $screen->post_type === 'oportunidade') {
         echo '<style>
-            #titlediv { display:none !important; }
+            #titlediv #titlewrap { display:none !important; }
+            #edit-slug-box { padding: 0; }
         </style>';
     }
 });
