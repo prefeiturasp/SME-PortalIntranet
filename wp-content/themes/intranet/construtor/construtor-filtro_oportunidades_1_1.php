@@ -21,7 +21,7 @@ $titulo = get_sub_field( 'titulo' );
 
 ?>
 <div class="container">
-    <div class="row">
+    <div class="row" id="lista-oportunidades">
         <div class="col-sm-12 my-3" id="filtro-eventos">
             <?php if( $titulo ) : ?>
                 <div class="title-form mb-3">
@@ -32,7 +32,7 @@ $titulo = get_sub_field( 'titulo' );
             <div class="tab-content" id="nav-tabContent">
 
                 <div class="tab-pane" id="sort-ativos" role="tabpanel">
-                    <form action="<?php echo esc_url( get_the_permalink() ); ?>" method="get" class="bg-white form-filtro-oportunidades">
+                    <form action="<?php echo esc_url( get_the_permalink() . '#lista-oportunidades' ); ?>" method="get" class="bg-white form-filtro-oportunidades">
                 
                         <div class="form-row mb-2">
                             <div class="col-md-2 mb-2">
@@ -41,10 +41,10 @@ $titulo = get_sub_field( 'titulo' );
                                 <select class="form-control select-local" id="tipo-oportunidade" name="tipo-oportunidade">
                                     <option value="">Todos</option>
                                     <option value="ste" <?php selected( $_GET['tipo-oportunidade'], 'ste' ); ?>>
-                                        STE - Serviços Técnicos Educacionais
+                                        STE - Serviços Técnico Educacionais
                                     </option>
                                     <option value="sta" <?php selected( $_GET['tipo-oportunidade'], 'sta' ); ?>>
-                                        STA - Serviços Técnicos Administrativos
+                                        STA - Serviços Técnico Administrativos
                                     </option>
                                 </select>
                             </div>
