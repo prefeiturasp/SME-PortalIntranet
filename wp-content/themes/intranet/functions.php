@@ -5589,6 +5589,13 @@ function registrar_taxonomia_genero() {
         'show_admin_column' => false,
         'meta_box_cb' => false, // remove do editor de post
         'show_in_rest' => true, // importante para Gutenberg e ACF
+
+        'capabilities' => [
+            'manage_terms' => 'manage_options',
+            'edit_terms'   => 'manage_options',
+            'delete_terms' => 'manage_options',
+            'assign_terms' => 'edit_posts',
+        ],
     ]);
 }
 
