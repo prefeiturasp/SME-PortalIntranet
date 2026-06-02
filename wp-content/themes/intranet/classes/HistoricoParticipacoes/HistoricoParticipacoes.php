@@ -2,7 +2,6 @@
 class Historico_Participacoes {
 
     private $alert = null;
-    private $cpf = null;
     private $dados_participante = null;
     private $eventos = null;
     private $validation_errors = [];
@@ -60,34 +59,118 @@ class Historico_Participacoes {
     }
 
     function box_form() {
+        $campo_selecionado = $_GET['campo'] ?? 'cpf';
+        $valor = sanitize_text_field( $_GET['valor'] ) ?? '';
         ?>
         <form class="form-group mt-3">
             <input type="hidden" name="page" value="historico-participantes">
-            <input type="hidden" name="action" value="busca-por-cpf">
+            <input type="hidden" name="action" value="busca-historico">
 
             <div class="row justify-content-between align-items-center">
                 <div class="col-10">
-                    <label for="cpf">CPF do Participante</label>
-                    <input
-                        type="text"
-                        name="cpf"
-                        id="cpf"
-                        placeholder="000.000.000-00"
-                        class="cpf form-control"
-                        value="<?php echo esc_html( $_GET['cpf'] ?? "" ); ?>"
-                        required
-                    >
+
+                    <div class="form-group">
+                        <strong>Buscar por:</strong><br>
+
+                        <div class="form-check form-check-inline">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="campo"
+                                id="campo-cpf"
+                                value="cpf"
+                                checked
+                                >
+                            <label class="form-check-label" for="campo-cpf">CPF</label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="campo"
+                                id="campo-email"
+                                value="email"
+                                <?php checked( $_GET['campo'], 'email' ) ?>
+                                >
+                            <label class="form-check-label" for="campo-email">
+                                E-mail (Institucional/Secundário)
+                            </label>
+                        </div>
+
+                        <div class="form-check form-check-inline">
+                            <input
+                                class="form-check-input"
+                                type="radio"
+                                name="campo"
+                                id="campo-celular"
+                                value="celular"
+                                <?php checked( $_GET['campo'], 'celular' ) ?>
+                                >
+                            <label class="form-check-label" for="campo-celular">
+                                Telefone celular
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group campo-busca m-0 <?php echo esc_html( $campo_selecionado !== 'cpf' ? 'd-none' : '' ); ?>" data-campo="cpf">
+                        <strong>CPF do Participante</strong>
+
+                        <input
+                            type="text"
+                            name="valor"
+                            id="input-cpf"
+                            placeholder="000.000.000-00"
+                            class="cpf form-control"
+                            value="<?php echo $campo_selecionado === 'cpf' ? $valor : ';' ?>"
+                            <?php disabled( $campo_selecionado != 'cpf' ); ?>
+                        >
+                    </div>
+
+                    <div class="form-group campo-busca m-0 <?php echo esc_html( $campo_selecionado !== 'email' ? 'd-none' : '' ); ?>" data-campo="email">
+                        <strong>E-mail (Institucional/Secundário)</strong>
+
+                        <input
+                            type="email"
+                            name="valor"
+                            id="input-email"
+                            placeholder="Digite o e-mail"
+                            class="form-control"
+                            value="<?php echo $campo_selecionado === 'email' ? $valor : ''; ?>"
+                            <?php disabled( $campo_selecionado != 'email' ); ?>
+                        >
+                    </div>
+
+                    <div class="form-group campo-busca m-0 <?php echo esc_html( $campo_selecionado !== 'celular' ? 'd-none' : '' ); ?>" data-campo="celular">
+                        <strong>Telefone celular</strong>
+
+                        <input
+                            type="text"
+                            name="valor"
+                            id="input-celular"
+                            placeholder="(11) 9XXXX-XXXX"
+                            class="form-control"
+                            value="<?php echo $campo_selecionado === 'celular' ? $valor : ''; ?>"
+                            <?php disabled( $campo_selecionado != 'celular' ); ?>
+                        >
+                    </div>
                 </div>
 
                 <div class="col-2 align-self-end">
-                    <button id="buscar-participante" class="btn btn-laranja btn-block">Buscar</button>
+                    <button id="buscar-participante" class="btn btn-laranja mr-2">Buscar</button>
+                    <a
+                        href="<?php echo esc_url( admin_url( 'edit.php?page=historico-participantes' ) ); ?>"
+                        class="btn btn-outline-secondary"
+                        >
+                        Limpar
+                    </a>
                 </div>
             </div>
         </form>
         <?php
 
         //Exibe o erro de validação
-        $this->show_validation_error( 'cpf' );
+        $this->show_validation_error( $campo_selecionado );
     }
 
     function box_dados_participante( $dados_participante ) {
@@ -147,6 +230,28 @@ class Historico_Participacoes {
             jQuery(document).ready(function($){
                 postboxes.add_postbox_toggles('historico-participantes'); // mesmo slug do submenu
                 $('.cpf').mask('000.000.000-00'); // Máscara para o CPF 
+                $('#input-celular').mask('(00) 00000-0000'); // Máscara para o telefone
+
+                $('input[name="campo"]').on('change', function () {
+
+                    const campoSelecionado = $(this).val();
+
+                    $('.campo-busca').each(function () {
+
+                        const bloco = $(this);
+                        const campo = bloco.data('campo');
+                        const input = bloco.find('input');
+
+                        if (campo === campoSelecionado) {
+                            bloco.removeClass('d-none');
+                            input.prop('disabled', false);
+
+                        } else {
+                            bloco.addClass('d-none');
+                            input.prop('disabled', true);
+                        }
+                    });
+                });
             });
         </script>
 
@@ -171,106 +276,157 @@ class Historico_Participacoes {
 
     private function handle_request() {
 
-        if ( isset( $_GET['action'] ) && $_GET['action'] === 'busca-por-cpf' ) {
+        if ( isset( $_GET['action'] ) && $_GET['action'] === 'busca-historico' ) {
 
-            if ( empty( $_GET['cpf'] ) ) {
-                $this->add_validation_error( 'cpf', 'O campo CPF é obrigatório.' );
+            $campo = $_GET['campo'] ?? 'cpf';
+
+            if ( empty( $_GET['valor'] ) ) {
+                $this->add_validation_error( $campo, 'Informe o CPF, e-mail ou telefone celular do participante para realizar a busca.' );
                 return;
             }
 
-            $cpf = preg_replace( '/\D/', '', $_GET['cpf'] );
+            $valor = sanitize_text_field(  $_GET['valor'] );
 
-            if ( strlen( $cpf ) !== 11 ) {
+            if ( $campo === 'cpf' &&  strlen( preg_replace( '/\D/', '', $_GET['valor'] ) ) !== 11 ) {
                 $this->add_validation_error( 'cpf', 'CPF inválido. O CPF deve ter 11 dígitos.' );
                 return;
             }
 
-            $this->cpf = $cpf;
-            $dados = $this->get_dados_participante( $cpf );
+            if ( $campo === 'celular' &&  strlen( preg_replace( '/\D/', '', $_GET['valor'] ) ) !== 11 ) {
+                $this->add_validation_error( 'celular', 'Celular inválido. O número de celular deve ter 11 dígitos.' );
+                return;
+            }
+
+            $dados = $this->get_dados_participante( $campo, $valor );
 
             if ( !$dados ) {
-                $this->show_alert( 'Aviso', 'Não foram encontradas inscrições para o CPF informado.', 'info' );
+                $this->show_alert( 'Aviso', 'Nenhum participante foi localizado com os dados informados.', 'info' );
                 return;
             }
 
             $this->dados_participante = $dados;
-            $this->eventos = $this->get_eventos_participante( $cpf );
+            $this->eventos = $this->get_eventos_participante( $campo, $valor );
         }
     }
 
-    private function get_dados_participante( string $cpf ) {
+    private function get_dados_participante( string $campo, string $valor )
+    {
         global $wpdb;
-        
-        $dados_mais_recentes = null;
 
-        $sorteio = $wpdb->get_row(
-            $wpdb->prepare(
-                "SELECT
-                    user_id,
-                    cpf,
-                    nome_completo,
-                    email_institucional,
-                    email_secundario,
-                    celular,
-                    telefone_comercial,
-                    dre,
-                    cargo_principal,
-                    unidade_setor
-                FROM {$wpdb->prefix}inscricoes
-                WHERE cpf = %s
-                ORDER BY data_inscricao DESC
-                LIMIT 1",
-                $cpf
-            )
-        );
+        $campos_validos = ['cpf', 'email', 'celular'];
 
-        $cortesia = $wpdb->get_row(
-            $wpdb->prepare(
-                "SELECT
-                    user_id,
-                    cpf,
-                    nome_completo,
-                    email_institucional,
-                    email_secundario,
-                    celular,
-                    telefone_comercial,
-                    dre,
-                    cargo_principal,
-                    unidade_setor
-                FROM {$wpdb->prefix}cortesias_inscricoes
-                WHERE cpf = %s
-                ORDER BY data_inscricao DESC
-                LIMIT 1",
-                $cpf
-            )
-        );
+        if ( !in_array( $campo, $campos_validos, true ) ) {
+            return null;
+        }
+
+        switch ( $campo ) {
+
+            case 'cpf':
+                $where = 'cpf = %s';
+                $valor = preg_replace( '/\D/', '', $valor );
+                $prepare = [$valor];
+                break;
+
+            case 'email':
+                $where = '(email_institucional = %s OR email_secundario = %s)';
+                $valor = sanitize_email( $valor );
+                $prepare = [$valor, $valor];
+                break;
+
+            case 'celular':
+                $valor = preg_replace ('/\D/', '', $valor );
+                $where = "REGEXP_REPLACE(celular, '[^0-9]', '') = %s";
+                $prepare = [$valor];
+                break;
+        }
+
+        $sql_sorteio = "
+            SELECT
+                user_id,
+                cpf,
+                nome_completo,
+                email_institucional,
+                email_secundario,
+                celular,
+                telefone_comercial,
+                dre,
+                cargo_principal,
+                unidade_setor,
+                data_inscricao
+            FROM {$wpdb->prefix}inscricoes
+            WHERE {$where}
+            ORDER BY data_inscricao DESC
+            LIMIT 1
+        ";
+
+        $sql_cortesia = "
+            SELECT
+                user_id,
+                cpf,
+                nome_completo,
+                email_institucional,
+                email_secundario,
+                celular,
+                telefone_comercial,
+                dre,
+                cargo_principal,
+                unidade_setor,
+                data_inscricao
+            FROM {$wpdb->prefix}cortesias_inscricoes
+            WHERE {$where}
+            ORDER BY data_inscricao DESC
+            LIMIT 1
+        ";
+
+        $sorteio = $wpdb->get_row( $wpdb->prepare( $sql_sorteio, ...$prepare ) );
+        $cortesia = $wpdb->get_row( $wpdb->prepare( $sql_cortesia, ...$prepare ) );
 
         if ( $sorteio && $cortesia ) {
 
-            $dados_mais_recentes = strtotime($sorteio->data_inscricao) > strtotime($cortesia->data_concessao)
+            return strtotime( $sorteio->data_inscricao ) > strtotime( $cortesia->data_inscricao )
                 ? $sorteio
                 : $cortesia;
-
-        } elseif ( $sorteio ) {
-            $dados_mais_recentes = $sorteio;
-
-        } elseif ( $cortesia ) {
-            $dados_mais_recentes = $cortesia;
         }
 
-        return $dados_mais_recentes;
+        return $sorteio ?: $cortesia;
     }
 
-    public function get_eventos_participante(string $cpf) {
-
+    public function get_eventos_participante( string $campo, string $valor ) {
         global $wpdb;
+
+        $campos_validos = ['cpf', 'email', 'celular'];
+
+        if ( !in_array( $campo, $campos_validos, true ) ) {
+            return [];
+        }
+
+        switch ( $campo ) {
+
+            case 'cpf':
+                $where = 'cpf = %s';
+                $valor = preg_replace( '/\D/', '', $valor );
+                $prepare = [$valor];
+                break;
+
+            case 'email':
+                $where = '(email_institucional = %s OR email_secundario = %s)';
+                $valor = sanitize_email( $valor );
+                $prepare = [$valor, $valor];
+                break;
+
+            case 'celular':
+                $valor = preg_replace ('/\D/', '', $valor );
+                $where = "REGEXP_REPLACE(celular, '[^0-9]', '') = %s";
+                $prepare = [$valor];
+                break;
+        }
 
         $tabela_destinatarios = $wpdb->prefix . 'historico_envios_destinatarios';
 
-        $query = $wpdb->prepare(
-            "
+        $sql = "
             SELECT 
                 e.*,
+
                 CASE 
                     WHEN h.inscricao_id IS NULL THEN 0
                     ELSE 1
@@ -296,7 +452,7 @@ class Historico_Participacoes {
                 INNER JOIN {$wpdb->posts} p
                     ON p.ID = i.post_id
 
-                WHERE i.cpf = %s
+                WHERE {$where}
 
 
                 UNION ALL
@@ -320,7 +476,7 @@ class Historico_Participacoes {
                 INNER JOIN {$wpdb->posts} p
                     ON p.ID = i.post_id
 
-                WHERE i.cpf = %s
+                WHERE {$where}
 
             ) e
 
@@ -332,10 +488,11 @@ class Historico_Participacoes {
             ON h.inscricao_id = e.id
 
             ORDER BY e.data_inscricao DESC
-            ",
-            $cpf,
-            $cpf
-        );
+        ";
+
+        $params = array_merge($prepare, $prepare);
+
+        $query = $wpdb->prepare($sql, ...$params);
 
         return $wpdb->get_results($query);
     }

@@ -579,6 +579,15 @@ if( function_exists('acf_add_options_page') ) {
 		'updated_message' => __("Configurações atualizadas com sucesso", 'acf'),
     ));
 
+    // Configurações do portal de oportunidades
+    acf_add_options_sub_page([
+        'page_title'  => 'Configurações - Portal de Oportunidades',
+        'menu_title'  => 'Configurações',
+        'menu_slug'   => 'configuracoes-oportunidades',
+        'parent_slug' => 'edit.php?post_type=oportunidade',
+        'capability'  => 'publish_oportunidades',
+    ]);
+
 }
 ///////////////////////////////////////////////////////////////////
 
@@ -5590,9 +5599,15 @@ function salvar_sticky_manualmente($post_id) {
 }
 
 //#################################################################################//
-//############################### FUNÇÕES DE GRATUIDADE E CORTESIAS ##############################//
+//############################### FUNÇÕES DE GRATUIDADE E CORTESIAS ################//
 //#################################################################################//
 include_once get_template_directory() . '/includes/cortesias/funcoes/cortesiaController.php';
+//#################################################################################//
+
+//#################################################################################//
+//############################### FUNÇÕES DO PORTAL DE OPORTUNIDADES ###############//
+//#################################################################################//
+include_once get_template_directory() . '/includes/oportunidades/funcoes/oportunidadeController.php';
 //#################################################################################//
 
 // Alterar rotulo descrição para endereço
@@ -5788,6 +5803,13 @@ function registrar_taxonomia_genero() {
         'show_admin_column' => false,
         'meta_box_cb' => false, // remove do editor de post
         'show_in_rest' => true, // importante para Gutenberg e ACF
+
+        'capabilities' => [
+            'manage_terms' => 'manage_options',
+            'edit_terms'   => 'manage_options',
+            'delete_terms' => 'manage_options',
+            'assign_terms' => 'edit_posts',
+        ],
     ]);
 }
 
@@ -7746,6 +7768,8 @@ function salvar_banco_talentos() {
     global $wpdb;
 
     $table = $wpdb->prefix . 'banco_talentos';
+    $table_vivencias = $wpdb->prefix . 'banco_talentos_vivencias';
+    $table_informatica = $wpdb->prefix . 'banco_talentos_informatica';
 
     $user_id = get_current_user_id();
 
@@ -7892,13 +7916,13 @@ function salvar_banco_talentos() {
         'identidade_genero' => $identidade_genero,
 
         // deficiência
-        'possui_deficiencia' => intval($_POST['possuiDeficiencia'] ?? 0),
-        'necessita_adaptacao' => intval($_POST['necessitaAdaptacao'] ?? 0),
+        'possui_deficiencia' => $_POST['possuiDeficiencia'] ?? null,
+        'necessita_adaptacao' => $_POST['necessitaAdaptacao'] ?? null,
         'descreva_adaptacao' => sanitize_textarea_field($_POST['descrevaAdapta'] ?? ''),
 
         // readaptado
-        'servidor_readaptado' => intval($_POST['servidorReadaptado'] ?? 0),
-        'readaptado_necessita' => intval($_POST['readaptadoNecessita'] ?? 0),
+        'servidor_readaptado' => $_POST['servidorReadaptado'] ?? null,
+        'readaptado_necessita' => $_POST['readaptadoNecessita'] ?? null,
         'readaptado_descricao' => sanitize_textarea_field($_POST['readaptadoDescreva'] ?? ''),
 
         // contato
@@ -7909,7 +7933,7 @@ function salvar_banco_talentos() {
         'email_secundario' => sanitize_email($_POST['emailSec'] ?? ''),
 
         // funcional
-        'concluiu_estagio' => intval($_POST['estagio'] ?? 0),
+        'concluiu_estagio' => $_POST['estagio'] ?? null,
 
         // checkbox
         'cargo_efetivo' => !empty($cargo_efetivo)
@@ -7926,8 +7950,21 @@ function salvar_banco_talentos() {
         'unidade_exercicio' => sanitize_text_field($_POST['unidadeExercicio'] ?? ''),
 
         // acúmulo
-        'acumula_cargo' => intval($_POST['acumulaCargo'] ?? 0),
+        'acumula_cargo' => $_POST['acumulaCargo'] ?? null,
         'acumula_descricao' => sanitize_text_field($_POST['informaCargo'] ?? ''),
+
+        // escolaridade
+        'escolaridade' => sanitize_text_field($_POST['escolaridade'] ?? ''),
+        'curso_graduacao' => sanitize_text_field($_POST['cursoGraduacao'] ?? ''),
+        'ano_conclusao' => sanitize_text_field($_POST['anoConclusao'] ?? ''),
+
+        // segunda graduacao
+        'outra_graduacao' => sanitize_text_field($_POST['outraGraduacao'] ?? ''),
+        'segunda_graduacao' => $_POST['segundaGraduacao'] ?? '',
+        'ano_conclusao_seg' => sanitize_text_field($_POST['anoConclusaoSeg'] ?? ''),
+
+        // outros cursos
+        'outros_cursos' => sanitize_textarea_field($_POST['outrosCursos'] ?? ''),
 
         // status
         'status_curriculo' => $status_curriculo,
@@ -7935,6 +7972,24 @@ function salvar_banco_talentos() {
         // datas
         'atualizado_em' => current_time('mysql')
     );
+
+    $escolaridade = sanitize_text_field($_POST['escolaridade'] ?? '');
+    $outra_graduacao = $_POST['outraGraduacao'] ?? null;
+
+    if ( empty($escolaridade) || $escolaridade === 'medio'  ) {
+
+        $dados['curso_graduacao'] = '';
+        $dados['ano_conclusao'] = '';
+        $dados['outra_graduacao'] = null;
+        $dados['segunda_graduacao'] = '';
+        $dados['ano_conclusao_seg'] = '';
+
+    } elseif ($outra_graduacao === '0') {
+
+        $dados['segunda_graduacao'] = '';
+        $dados['ano_conclusao_seg'] = '';
+        
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -8022,6 +8077,13 @@ function salvar_banco_talentos() {
         '%s',  // unidade_exercicio
         '%d',  // acumula_cargo
         '%s',  // acumula_descricao
+        '%s',  // escolaridade
+        '%s',  // curso_graduacao
+        '%s',  // ano_conclusao
+        '%d',  // outra_graduacao
+        '%s',  // segunda_graduacao
+        '%s',  // ano_conclusao_seg
+        '%s',  // outros_cursos
         '%s',  // status_curriculo
         '%s'   // atualizado_em
     );
@@ -8054,6 +8116,201 @@ function salvar_banco_talentos() {
             $dados,
             $formatos_insert
         );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Recupera ID do currículo
+    |--------------------------------------------------------------------------
+    */
+
+    if ($curriculo_existente) {
+
+        $curriculo_id = $curriculo_existente;
+
+    } else {
+
+        $curriculo_id = $wpdb->insert_id;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove vivências antigas
+    |--------------------------------------------------------------------------
+    */
+
+    $wpdb->delete(
+        $table_vivencias,
+        array(
+            'curriculo_id' => $curriculo_id
+        ),
+        array('%d')
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Salva vivências
+    |--------------------------------------------------------------------------
+    */
+
+    $permitir_proxima = true;
+
+    for ($i = 1; $i <= 4; $i++) {
+
+        // Interrompe processamento
+        if (!$permitir_proxima) {
+            break;
+        }
+
+        $organizacao = sanitize_text_field(
+            $_POST["organizacaoEmp{$i}"] ?? ''
+        );
+
+        $cargo_funcao = sanitize_text_field(
+            $_POST["cargoFuncao{$i}"] ?? ''
+        );
+
+        $duracao = sanitize_text_field(
+            $_POST["duracao{$i}"] ?? ''
+        );
+
+        $atividades = sanitize_textarea_field(
+            $_POST["atividadesComp{$i}"] ?? ''
+        );
+
+        // Outra vivência
+        $outra_vivencia = null;
+
+        if ($i < 4) {
+
+            $outra_vivencia = $_POST["outraVivencia{$i}"] ?? null;
+
+            if (
+                $outra_vivencia !== null &&
+                $outra_vivencia !== ''
+            ) {
+
+                $outra_vivencia = sanitize_text_field(
+                    $outra_vivencia
+                );
+
+            }
+
+        }
+
+        // Ignora vivência vazia
+        if (
+            empty($organizacao) &&
+            empty($cargo_funcao) &&
+            empty($duracao) &&
+            empty($atividades)
+        ) {
+
+            // Mesmo vazia precisa respeitar o rádio
+            if (
+                $i < 4 &&
+                $outra_vivencia !== '1'
+            ) {
+
+                $permitir_proxima = false;
+
+            }
+
+            continue;
+
+        }
+
+        // Salvar vivência
+        $wpdb->insert(
+            $table_vivencias,
+            array(
+                'curriculo_id' => $curriculo_id,
+                'ordem' => $i,
+                'organizacao_empresa' => $organizacao,
+                'cargo_funcao' => $cargo_funcao,
+                'duracao' => $duracao,
+                'outra_vivencia' => $outra_vivencia,
+                'atividades_competencias' => $atividades,
+                'created_at' => current_time('mysql'),
+                'updated_at' => current_time('mysql'),
+            ),
+            array(
+                '%d',
+                '%d',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+                '%s',
+            )
+        );
+
+        // Define se continuar
+        if (
+            $i < 4 &&
+            $outra_vivencia !== '1'
+        ) {
+
+            $permitir_proxima = false;
+
+        }
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove competências em informática antigas
+    |--------------------------------------------------------------------------
+    */
+
+    $wpdb->delete(
+        $table_informatica,
+        array(
+            'curriculo_id' => $curriculo_id
+        ),
+        array('%d')
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Salva competência em informática
+    |--------------------------------------------------------------------------
+    */
+
+    $competencias = $_POST['informatica'] ?? array();
+
+    
+    // Valores permitidos
+    $niveis_validos = array('0', '1', '2', '3');
+
+    foreach ($competencias as $competencia => $nivel) {
+
+        // Sanitizacao
+        $competencia = sanitize_text_field($competencia);
+        $nivel = (string) $nivel;
+
+        // Ignora níveis inválidos
+        if (!in_array($nivel, $niveis_validos, true)) {
+            continue;
+        }
+
+        // Salva competência
+        $wpdb->insert(
+            $table_informatica,
+            array(
+                'curriculo_id' => $curriculo_id,
+                'competencia' => $competencia,
+                'nivel' => intval($nivel),
+            ),
+            array(
+                '%d',
+                '%s',
+                '%d',
+            )
+        );
+
     }
 
     /*
@@ -8215,7 +8472,8 @@ add_action('admin_head', function () {
 
     if ($screen && $screen->post_type === 'oportunidade') {
         echo '<style>
-            #titlediv { display:none !important; }
+            #titlediv #titlewrap { display:none !important; }
+            #edit-slug-box { padding: 0; }
         </style>';
     }
 });
@@ -8749,3 +9007,24 @@ add_filter('acf/fields/taxonomy/query/name=setor', function ($args, $field, $pos
     return $args;
  
 }, 10, 3);
+
+// Modifica o padrão das URLs dos posts de oportunidade, utilizando o ID. Ex.: /oportunidades/1234
+add_filter('post_type_link', function($post_link, $post) {
+ 
+    if ($post->post_type !== 'oportunidade') {
+        return $post_link;
+    }
+ 
+    return home_url('/oportunidade/' . $post->ID . '/');
+ 
+}, 10, 2);
+ 
+add_action('init', function() {
+ 
+    add_rewrite_rule(
+        '^oportunidade/([0-9]+)/?$',
+        'index.php?post_type=oportunidade&p=$matches[1]',
+        'top'
+    );
+ 
+});
