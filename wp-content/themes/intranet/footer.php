@@ -969,6 +969,15 @@
 		});
 	</script>
 <?php endif; ?>
+<?php if($_GET['sucesso'] == '1'): ?>
+	<script>
+		Swal.fire({
+			icon: 'success',
+			title: 'Sucesso!',
+			text: 'As informações do currículo foram salvas com sucesso!',
+		});
+	</script>
+<?php endif; ?>
 <script>
     tinymce.init({
       selector: '.mural-textarea',

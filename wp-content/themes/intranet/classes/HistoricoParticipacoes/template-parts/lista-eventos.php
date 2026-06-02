@@ -5,15 +5,9 @@
 
 <?php if ( !$eventos ) : ?>
     <div id='lista-envios'>
-        <h6 class='p-5 text-center'>Para visualizar o histórico dos participantes, informe o CPF.</h6>
+        <h6 class='p-5 text-center'>Para visualizar o histórico dos participantes, informe o CPF, e-mail ou telefone celular.</h6>
     </div>
 <?php endif; ?>
-
-<?php
-    //echo "<pre>";
-    //print_r($eventos);
-    //echo "</pre>";
-?>
 
 <?php if ( $eventos ) : ?>
     <div class="form-group mt-3 filtro-eventos-participante">
@@ -55,7 +49,10 @@
                 <tr data-inscricao="<?php echo esc_html( $evento->id ); ?>" data-tipo="<?php echo esc_html( $evento->tipo ); ?>">
                     <td><?php echo esc_html( $evento->post_id ); ?></td>
                     <td class="nome-evento">
-                        <?php echo esc_html( $evento->nome_evento ); ?><br>
+                        <a class="text-dark" href="<?php echo esc_url( get_edit_post_link( $evento->post_id ) ); ?>" target="_blank">
+                            <?php echo esc_html( $evento->nome_evento ); ?><br>
+                        </a>
+                        
                         <?php if ( $evento->tipo == 'cortesia' ) : ?>
                             <span class="badge badge-warning px-2">ORDEM DE INSCRIÇÃO</span>
                         <?php else: ?>

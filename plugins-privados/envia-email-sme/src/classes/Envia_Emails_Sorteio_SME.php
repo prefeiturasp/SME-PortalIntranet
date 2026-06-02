@@ -241,7 +241,7 @@ class Envia_Emails_Sorteio_SME {
                 $temaEmail = str_replace('{LINK-CONFIRMACAO}', get_site_url()."/index.php/beneficios/sorteios-e-descontos/confirma-inscricao-sorteio/?ni=".base64_encode($incrito[0]["id"])."&ne=".base64_encode($incrito[0]["post_title"]), $temaEmail);
                 $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/logo.png', $temaEmail);
                 
-                $this->registra_historico_e_envia_email($incrito[0]["id"], $incrito[0]["post_id"], $tipoEnvio, $emailInstitucional, $emailSecundario, $assunto, $temaEmail);
+                $this->registra_historico_e_envia_email($incrito[0]["id"], $incrito[0]["post_id"], $tipoEnvio, $emailInstitucional, $emailSecundario, $assunto, $temaEmail, $this->extra_args['prazo_expirado'] ?? false);
                 
             break;
             case 'instrucoes':

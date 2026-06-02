@@ -1196,7 +1196,7 @@ function definir_prazo_selecionados_cortesia_callback() {
     $placeholders = implode( ',', array_fill( 0, count( $participantesSelecionados ), '%d' ) );
 
     $sql = $wpdb->prepare("
-        SELECT id, post_id
+        SELECT id, post_id, prazo_confirmacao
         FROM $tabela
         WHERE id IN ($placeholders)
     ", $participantesSelecionados);
@@ -1206,14 +1206,32 @@ function definir_prazo_selecionados_cortesia_callback() {
     if(count($arrDados) < 1){
         wp_send_json(array("res" => false));
     } else {
+
+        // Timezone São Paulo
+        $timezone = new DateTimeZone('America/Sao_Paulo');
+
+        // Data/hora atual
+        $dataAtual = new DateTime('now', $timezone);
+
         foreach($arrDados as $item){
             $item['tipoEmail'] = 'confirmar_presenca_cortesia';
             array_push($arrEmails, $item);
+
+            $reenvio = false;
+
+            $dataPrazo = $item['prazo_confirmacao'] ?? null;
+            if ($dataPrazo) {
+                $dataPrazo = DateTime::createFromFormat('Y-m-d H:i:s', $dataPrazo, $timezone);
+            }
+
+            if($dataPrazo && $dataPrazo < $dataAtual){
+                $reenvio = true;
+            }
+
+            definir_prazo_expiracao_email_confirmacao_cortesia( [$item['id']], $tipo_prazo_confirmacao, $prazo_confirmacao, $reenvio );
         }
 
-        if(is_plugin_active('envia-email-sme/envia-email-sme.php')){
-
-            definir_prazo_expiracao_email_confirmacao_cortesia( $participantesSelecionados, $tipo_prazo_confirmacao, $prazo_confirmacao, $reenvio );
+        if(is_plugin_active('envia-email-sme/envia-email-sme.php')){            
 
             foreach($arrEmails as $item){
                 new Envia_Emails_Sorteio_SME($item['id'], null, $item['post_id'], $item['tipoEmail'], null, null, ['reenvio' => $reenvio]);

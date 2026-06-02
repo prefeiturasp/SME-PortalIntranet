@@ -422,15 +422,7 @@ class Construtor extends Util
 
 											//Filtro de sorteios
 											elseif( get_row_layout() == 'filtro_sorteios' ):
-												get_template_part( 'construtor/construtor', 'filtro_sorteios' );
-
-											// Menu de abas
-											elseif( get_row_layout() == 'menu_de_abas' ):
-												get_template_part( 'construtor/construtor', 'menu_de_abas' );
-
-											// Meu curriculo
-											elseif( get_row_layout() == 'meu_curriculo' ):												
-												get_template_part( 'construtor/construtor', 'meu_curriculo' );
+												get_template_part( 'construtor/construtor', 'filtro_sorteios' );											
 
 											// Carrossel de sorteios e cortesias em destaque
 											elseif( get_row_layout() == 'fx_cl1_destaques_sorteios_cortesias_1_1' ):
@@ -439,6 +431,26 @@ class Construtor extends Util
 											// Links de acesso rápido
 											elseif( get_row_layout() == 'fx_cl1_links_acesso_rapido_1_1' ):
 												get_template_part( 'construtor/construtor', 'links_acesso_rapido_1_1' );
+
+											/** ------------------ Portal de oportunidades ---------------- **/
+
+											// Menu de abas
+											elseif( get_row_layout() == 'menu_de_abas' ):
+												get_template_part( 'construtor/construtor', 'menu_de_abas' );
+
+											// Meu curriculo
+											elseif( get_row_layout() == 'meu_curriculo' ):
+												get_template_part( 'construtor/construtor', 'meu_curriculo' );
+
+											// Loop de Oportunidades
+											elseif( get_row_layout() == 'fx_cl1_oportunidades_1_1' ):
+												get_template_part( 'construtor/construtor', 'oportunidades_1_1' );
+
+											// Formulário do filtro de oportunidades
+											elseif( get_row_layout() == 'fx_cl1_filtro_oportunidades_1_1' ):
+												get_template_part( 'construtor/construtor', 'filtro_oportunidades_1_1' );
+
+											/** --------------- Portal de oportunidades (Final) ------------- **/
 
 											// Integracao Pagina
 											elseif( get_row_layout() == 'integrar_pagina' ):
