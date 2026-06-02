@@ -22,7 +22,7 @@ $status_oportunidade = Oportunidade::get_status( get_the_ID() );
 <div class="container mt-5" id="single-oportunidade">
 
     <div class="row">
-        <div class="col-lg-9 mb-4">
+        <div class="col mb-4">
             <div class="card card-oportunidade border-0 shadow-sm">
                 <div class="card-body p-4">
 
@@ -73,11 +73,14 @@ $status_oportunidade = Oportunidade::get_status( get_the_ID() );
                     <?php
                     if ( $local_id = get_field( 'local_trabalho' ) ) :
                         $local_trabalho = get_term_by( 'term_id', $local_id, 'locais' );
+                        $endereco_trabalho = !empty( $local_trabalho->description ) 
+                            ? $local_trabalho->description
+                            : get_field( 'endereco_trabalho' );
                         ?>
                         <div class="info-bloco">
                             <h3><i class="fa fa-map-marker" aria-hidden="true"></i> Local de Trabalho</h3>
                             <p><?php echo esc_html( $local_trabalho->name ); ?></p>
-                            <?php if ( $endereco_trabalho = get_field( 'endereco_trabalho' ) ) : ?>
+                            <?php if ( $endereco_trabalho ) : ?>
                                 <em class="text-secondary"><?php echo esc_html( $endereco_trabalho ); ?></em>
                             <?php endif; ?>
                         </div>
@@ -198,70 +201,14 @@ $status_oportunidade = Oportunidade::get_status( get_the_ID() );
                 </div>
             </div>
         </div>
+        
+        <!-- Outras oportunidades -->
+        <?php get_template_part( 'includes/oportunidades/template-parts/outras-oportunidades', null, [
+            'titulo' => 'Outras Oportunidades Abertas',
+            'url_pagina_principal' => get_the_permalink( $pagina_principal->ID ),
+            'status' => 'abertas' // abertas | encerradas | em-breve
+        ] ); ?>
 
-        <div class="col-lg-3">
-            <div class="card sidebar-card border-0 shadow-sm">
-                <div class="sidebar-header">
-
-                    <div>
-                        <h3>Outras Oportunidades Abertas</h3>
-                    </div>
-
-                    <a href="<?php the_permalink( $pagina_principal->ID ); ?>">
-                        Ver todas
-                    </a>
-
-                </div>
-
-                <div class="sidebar-item">
-
-                    <h4>
-                        COGEP / DIDES - Divisão de Desenvolvimento Profissional
-                    </h4>
-
-                    <span>
-                        STA – Serviços Técnicos Administrativos
-                    </span>
-
-                    <p>
-                        COGEP - Coordenadoria de Gestão de Pessoas
-                    </p>
-
-                </div>
-
-                <div class="sidebar-item">
-
-                    <h4>
-                        COPLAN / DIACON - Divisão de Acompanhamento
-                    </h4>
-
-                    <span>
-                        STA – Serviços Técnicos Administrativos
-                    </span>
-
-                    <p>
-                        COPLAN - Coordenadoria de Planejamento
-                    </p>
-
-                </div>
-
-                <div class="sidebar-item border-0">
-
-                    <h4>
-                        COTIC / DISIS - Divisão de Desenvolvimento de Sistemas
-                    </h4>
-
-                    <span>
-                        STE – Serviços Técnicos Educacionais
-                    </span>
-
-                    <p>
-                        COTIC - Coordenadoria de Tecnologia
-                    </p>
-
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 
