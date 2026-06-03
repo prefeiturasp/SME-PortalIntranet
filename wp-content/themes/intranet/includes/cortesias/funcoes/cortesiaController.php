@@ -1228,7 +1228,7 @@ function definir_prazo_selecionados_cortesia_callback() {
                 $reenvio = true;
             }
 
-            definir_prazo_expiracao_email_confirmacao_cortesia( $item['id'], $tipo_prazo_confirmacao, $prazo_confirmacao, $reenvio );
+            definir_prazo_expiracao_email_confirmacao_cortesia( [$item['id']], $tipo_prazo_confirmacao, $prazo_confirmacao, $reenvio );
         }
 
         if(is_plugin_active('envia-email-sme/envia-email-sme.php')){            
@@ -1703,6 +1703,10 @@ function ajax_confirmar_cancelar_presenca_cortesia() {
     $resultado = Envia_Emails_Sorteio_SME::confirma_presenca_inscrito( $inscricao_id, $acao, $tipo_evento );
 
     if ( isset( $resultado['res'] ) && $resultado['res'] == 1 ) {
+
+        if ( $acao == 2 ) {
+            Envia_Emails_Sorteio_SME::notifica_acao_inscrito( $inscricao_id, 'notificar_cancelamento_participacao', 'cortesias' );
+        }
 
 		$mensagem_sucesso = $acao == 2 
 			? 'A oportunidade será disponibilizada para outro participante. Obrigado pela participação!' 
