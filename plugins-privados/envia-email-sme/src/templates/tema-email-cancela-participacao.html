@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <style>
+            body { font-family: Arial, sans-serif; color: #333; }
+            .container { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+            .dado { margin: 10px 0 20px 0; }
+            .espaco { padding-top: 25px; }
+            a:active {color: blue;font-weight: 500;}
+        </style>
+    </head>
+    <body>
+        <div class='container'>
+            <div class='dado'>Olá,</div>
+            <div class='dado'>{MENSAGEM}</div>
+            <p class='espaco'>
+                <strong>ID do Post: </strong>{POST-ID}<br>
+                <strong>Link do post no WP Admin: </strong><a href="{LINK-ADMIN}">{LINK-ADMIN}</a>
+            </p>
+            <p class='espaco'>
+                <strong>Nome: </strong>{NOME}<br>
+                <strong>CPF: </strong>{CPF}<br>
+                <strong>E-mail(s): </strong>{EMAIL}
+            </p>
+            <p class='espaco'><strong>Data/Hora do cancelamento: </strong>{DATA-HORA-CANCELAMENTO}</p>
+            <br>
+            <p class="dado">Mensagem enviada automaticamente pela Intranet.</p>
+            <br>
+            <img src="{LINK-LOGO}" alt="Logo SME">
+            <br>
+        </br>
+    </body>
+</html>
