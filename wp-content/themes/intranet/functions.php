@@ -7917,6 +7917,7 @@ function obter_dados_candidato($user_id) {
     $table = $wpdb->prefix . 'banco_talentos';
     $table_vivencias = $wpdb->prefix . 'banco_talentos_vivencias';
     $table_informatica = $wpdb->prefix . 'banco_talentos_informatica';
+    $table_comportamental = $wpdb->prefix . 'banco_talentos_comportamental';
 
     /*
     |--------------------------------------------------------------------------
@@ -7939,6 +7940,7 @@ function obter_dados_candidato($user_id) {
 
         $curriculo_id = $curriculo->id;
 
+        // Vivencias
         $vivencias = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT
@@ -7963,6 +7965,16 @@ function obter_dados_candidato($user_id) {
             $vivencias_formatadas[$ordem] = $vivencia;
         }
 
+        for ($i = 1; $i <= 3; $i++) {
+            if (
+                empty($vivencias_formatadas[$i]['outra_vivencia']) &&
+                !empty($vivencias_formatadas[$i + 1])
+            ) {
+                $vivencias_formatadas[$i]['outra_vivencia'] = '1';
+            }
+        }
+
+        // Informática
         $informatica = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT competencia, nivel
@@ -7979,20 +7991,28 @@ function obter_dados_candidato($user_id) {
             $informatica_formatada[$item['competencia']] = $item['nivel'];
         }
 
-        for ($i = 1; $i <= 3; $i++) {
-            if (
-                empty($vivencias_formatadas[$i]['outra_vivencia']) &&
-                !empty($vivencias_formatadas[$i + 1])
-            ) {
-                $vivencias_formatadas[$i]['outra_vivencia'] = '1';
-            }
+        // Comportamental
+        $comportamental = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT pergunta, nivel
+                FROM {$table_comportamental} 
+                WHERE curriculo_id = %d",
+                $curriculo_id
+            ),
+            ARRAY_A
+        );
+
+        $comportamental_formatado = array();
+        foreach ($comportamental as $item) {
+            $comportamental_formatado[$item['pergunta']] = $item['nivel'];
         }
 
         return array(
             'origem' => 'banco',
             'dados'  => $curriculo,
             'vivencias' => $vivencias_formatadas,
-            'informatica' => $informatica_formatada
+            'informatica' => $informatica_formatada,
+            'comportamental' => $comportamental_formatado
         );
     }
 
@@ -8297,6 +8317,7 @@ function salvar_banco_talentos() {
     $table = $wpdb->prefix . 'banco_talentos';
     $table_vivencias = $wpdb->prefix . 'banco_talentos_vivencias';
     $table_informatica = $wpdb->prefix . 'banco_talentos_informatica';
+    $table_comportamental = $wpdb->prefix . 'banco_talentos_comportamental';
 
     $user_id = get_current_user_id();
 
@@ -8839,6 +8860,98 @@ function salvar_banco_talentos() {
         );
 
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Salva Preferências e Perfil Comportamental
+    |--------------------------------------------------------------------------
+    */
+
+    $comportamental = $_POST['comportamental'] ?? array();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Perguntas válidas
+    |--------------------------------------------------------------------------
+    */
+
+    $perguntas_validas = array(
+        'sociabilidade',
+        'analitico',
+        'inovacao',
+        'tecnico',
+        'rotina',
+        'conservador',
+        'executor',
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Níveis válidos
+    |--------------------------------------------------------------------------
+    */
+
+    $niveis_validos = array(
+        '0',
+        '1',
+        '2',
+        '3',
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove respostas antigas
+    |--------------------------------------------------------------------------
+    */
+
+    $wpdb->delete(
+        $table_comportamental,
+        array(
+            'curriculo_id' => $curriculo_id
+        ),
+        array('%d')
+    );
+
+    foreach ($comportamental as $pergunta => $nivel) {
+
+        $pergunta = sanitize_text_field($pergunta);
+        $nivel = (string) $nivel;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Valida pergunta
+        |--------------------------------------------------------------------------
+        */
+
+        if (!in_array($pergunta, $perguntas_validas, true)) {
+            continue;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Valida nível
+        |--------------------------------------------------------------------------
+        */
+
+        if (!in_array($nivel, $niveis_validos, true)) {
+            continue;
+        }        
+
+        $wpdb->insert(
+            $table_comportamental,
+            array(
+                'curriculo_id' => $curriculo_id,
+                'pergunta'     => $pergunta,
+                'nivel'        => (int) $nivel,
+            ),
+            array(
+                '%d',
+                '%s',
+                '%d',
+            )
+        );
+    }
+
 
     /*
     |--------------------------------------------------------------------------
