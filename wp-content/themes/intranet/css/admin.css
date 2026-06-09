@@ -538,3 +538,7 @@ table.wp-list-table td.tco_order {
         padding: 4px 2px !important;
     }
 }
+
+.responsavel-evento span {
+    font-weight: 600;
+}
