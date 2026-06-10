@@ -8514,6 +8514,10 @@ function salvar_banco_talentos() {
         // outros cursos
         'outros_cursos' => sanitize_textarea_field($_POST['outrosCursos'] ?? ''),
 
+        // finalizacao e visualizacao
+        'visualizar_curriculo' => $_POST['visualizarCurriculo'] ?? null,
+        'sugestoes' => sanitize_textarea_field($_POST['sugestoes'] ?? ''),
+
         // status
         'status_curriculo' => $status_curriculo,
 
@@ -8541,6 +8545,106 @@ function salvar_banco_talentos() {
 
     /*
     |--------------------------------------------------------------------------
+    | Funções auxiliares de validação
+    |--------------------------------------------------------------------------
+    */
+
+    function validar_vivencias(&$erros) {
+        $tem_vivencia_preenchida = false;
+        
+        for ($i = 1; $i <= 4; $i++) {
+            $organizacao = trim($_POST["organizacaoEmp{$i}"] ?? '');
+            $cargo_funcao = trim($_POST["cargoFuncao{$i}"] ?? '');
+            $duracao = trim($_POST["duracao{$i}"] ?? '');
+            $atividades = trim($_POST["atividadesComp{$i}"] ?? '');
+            
+            $vivencia_preenchida = !empty($organizacao) || !empty($cargo_funcao) || 
+                                !empty($duracao) || !empty($atividades);
+            
+            if ($vivencia_preenchida) {
+                $tem_vivencia_preenchida = true;
+                
+                // Valida campos individuais da vivência preenchida
+                if (empty($organizacao)) {
+                    $erros[] = "Vivência {$i}: Organização/Empresa é obrigatória";
+                }
+                if (empty($cargo_funcao)) {
+                    $erros[] = "Vivência {$i}: Cargo/Função é obrigatório";
+                }
+                if (empty($duracao)) {
+                    $erros[] = "Vivência {$i}: Duração é obrigatória";
+                }
+                if (empty($atividades)) {
+                    $erros[] = "Vivência {$i}: Atividades/Competências é obrigatório";
+                }
+            }
+        }
+        
+        // Verifica se pelo menos uma vivência foi preenchida
+        if (!$tem_vivencia_preenchida) {
+            $erros[] = 'É necessário preencher pelo menos uma experiência profissional';
+        }
+    }
+
+    function validar_informatica(&$erros) {
+        $competencias = $_POST['informatica'] ?? array();
+        
+        // Verifica se o array de competências foi enviado
+        if (empty($competencias)) {
+            $erros[] = 'Avaliação de competências de informática é obrigatória';
+            return;
+        }
+        
+        // Valores permitidos (0 = nenhum, 1 = básico, 2 = intermediário, 3 = avançado)
+        $niveis_validos = array('0', '1', '2', '3');
+        
+        foreach ($competencias as $competencia => $nivel) {
+            $competencia = sanitize_text_field($competencia);
+            $nivel = (string) $nivel;
+            
+            if (!in_array($nivel, $niveis_validos, true)) {
+                $erros[] = "Nível inválido para a competência '{$competencia}'";
+            }
+        }
+    }
+
+    function validar_comportamental(&$erros) {
+        $comportamental = $_POST['comportamental'] ?? array();
+        $perguntas_validas = array(
+            'sociabilidade',
+            'analitico',
+            'inovacao',
+            'tecnico',
+            'rotina',
+            'conservador',
+            'executor'
+        );
+        
+        $niveis_validos = array('0', '1', '2', '3');
+        $perguntas_respondidas = 0;
+        
+        foreach ($perguntas_validas as $pergunta) {
+            if (isset($comportamental[$pergunta]) && $comportamental[$pergunta] !== '') {
+                $nivel = (string) $comportamental[$pergunta];
+                
+                if (in_array($nivel, $niveis_validos, true)) {
+                    $perguntas_respondidas++;
+                } else {
+                    $erros[] = "Perfil comportamental - {$pergunta}: nível inválido";
+                }
+            } else {
+                $erros[] = "Perfil comportamental - {$pergunta} é obrigatório";
+            }
+        }
+        
+        // Opcional: verificar se todas as perguntas foram respondidas
+        if ($perguntas_respondidas !== count($perguntas_validas)) {
+            $erros[] = 'Todas as perguntas do perfil comportamental são obrigatórias';
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Validação backend
     |--------------------------------------------------------------------------
     */
@@ -8549,12 +8653,60 @@ function salvar_banco_talentos() {
 
         $erros = array();
 
+        if ( empty($dados['rf']) && count($dados['rf']) != 7 ) {
+            $erros[] = 'RF inválido.';
+        }
+
         if (empty($dados['nome_completo'])) {
             $erros[] = 'Nome completo é obrigatório.';
         }
 
         if (empty($dados['rf'])) {
             $erros[] = 'RF é obrigatório.';
+        }       
+
+        if (empty($dados['data_nascimento'])) {
+            $erros[] = 'Data de nascimento é obrigatório.';
+        }
+
+        if (empty($dados['identificacao_racial'])) {
+            $erros[] = 'Identificação racial é obrigatória.';
+        }
+
+        if (empty($dados['identidade_genero'])) {
+            $erros[] = 'Identidade de gênero é obrigatória.';
+        }
+
+        if ( !isset($dados['possui_deficiencia']) || $dados['possui_deficiencia'] === '' ){
+            $erros[] = 'Possui deficiência é obrigatória.';
+        }
+
+        if($dados['possui_deficiencia'] == 1) {
+             if ( !isset($dados['necessita_adaptacao']) || $dados['necessita_adaptacao'] === '' ) {
+                $erros[] = 'Necessita adaptação é obrigatória.';
+            }
+        }
+
+        if($dados['necessita_adaptacao'] == 1) {
+             if (empty($dados['descreva_adaptacao'])) {
+                $erros[] = 'Descreva adaptação é obrigatória.';
+            }
+        }
+
+         if ( !isset($dados['servidor_readaptado']) || $dados['servidor_readaptado'] === '' ) {
+            $erros[] = 'Servidor readaptado é obrigatório.';
+        }
+
+        if($dados['servidor_readaptado'] == 1) {
+            if ( !isset($dados['readaptado_necessita']) || $dados['readaptado_necessita'] === '' ) {
+                $erros[] = 'Readaptado necessita é obrigatória.';
+            }
+        }
+
+        if($dados['readaptado_necessita'] == 1) {
+            if (empty($dados['readaptado_descricao'])) {
+                $erros[] = 'Readaptado descrição é obrigatória.';
+            }
         }
 
         if (empty($dados['email_principal'])) {
@@ -8567,6 +8719,83 @@ function salvar_banco_talentos() {
         ) {
             $erros[] = 'E-mail principal inválido.';
         }
+
+        if (empty($dados['telefone_whatsapp'])) {
+            $erros[] = 'Telefone WhatsApp é obrigatório.';
+        }
+
+        if ( !isset($dados['concluiu_estagio']) || $dados['concluiu_estagio'] === '' ) {
+            $erros[] = 'Concluiu estágio é obrigatório.';
+        }
+
+        if (empty($dados['cargo_efetivo'])) {
+            $erros[] = 'Cargo efetivo é obrigatório.';
+        }
+
+        if ($dados['cargo_efetivo'] == 'Outro') {
+            if (empty($dados['cargo_outro'])) {
+                $erros[] = 'Cargo outro é obrigatório.';
+            }
+        }
+
+        if (empty($dados['dre_lotacao'])) {
+            $erros[] = 'DRE de lotação é obrigatório.';
+        }
+
+        if (empty($dados['unidade_lotacao'])) {
+            $erros[] = 'Unidade de lotação é obrigatório.';
+        }
+
+        if (empty($dados['dre_exercicio'])) {
+            $erros[] = 'DRE de exercício é obrigatório.';
+        }
+
+        if (empty($dados['unidade_exercicio'])) {
+            $erros[] = 'Unidade de exercício é obrigatório.';
+        }
+
+        if ( !isset($dados['acumula_cargo']) || $dados['acumula_cargo'] === '' ) {
+            $erros[] = 'Acumula cargo é obrigatório.';
+        }
+
+        if ($dados['acumula_cargo'] == 1) {
+            if (empty($dados['acumula_descricao'])) {
+                $erros[] = 'Informar cargo é obrigatório.';
+            }
+        }
+
+        if (empty($dados['escolaridade'])) {
+            $erros[] = 'Escolaridade é obrigatória.';
+        }
+
+        if ($dados['escolaridade'] != 'medio') {
+            if (empty($dados['curso_graduacao'])) {
+                $erros[] = 'Curso de graduação é obrigatório.';
+            }
+
+            if (empty($dados['ano_conclusao'])) {
+                $erros[] = 'Ano de conclusão é obrigatório.';
+            }
+        }        
+        
+        if ($dados['escolaridade'] != 'medio' && $dados['outra_graduacao'] === '') {
+            $erros[] = 'Outra graduação é obrigatória.';
+        }
+
+        if ($dados['outra_graduacao'] == 1 && $dados['escolaridade'] != 'medio') {
+            if (empty($dados['segunda_graduacao'])) {
+                $erros[] = 'Segunda graduação é obrigatória.';
+            }
+
+            if (empty($dados['ano_conclusao_seg'])) {
+                $erros[] = 'Ano de conclusão é obrigatório.';
+            }
+        }       
+
+        // Valida as tabelas relacionadas
+        validar_vivencias($erros);
+        validar_informatica($erros);
+        validar_comportamental($erros);
 
         if (!empty($erros)) {
 
@@ -8632,6 +8861,8 @@ function salvar_banco_talentos() {
         '%s',  // segunda_graduacao
         '%s',  // ano_conclusao_seg
         '%s',  // outros_cursos
+        '%d',  // visualizar_curriculo
+        '%s',  // sugestoes
         '%s',  // status_curriculo
         '%s'   // atualizado_em
     );
@@ -8976,10 +9207,18 @@ function salvar_banco_talentos() {
     |--------------------------------------------------------------------------
     */
 
+    if($acao_curriculo === 'finalizar') {
+        $acao = 'curriculo_enviado';
+    } else {
+        $acao = 'rascunho_salvo';
+    }
+
     wp_safe_redirect(
         add_query_arg(
-            'sucesso',
-            '1',
+            array(
+                'sucesso' => '1',
+                'acao'    => $acao
+            ),
             get_permalink()
         )
     );

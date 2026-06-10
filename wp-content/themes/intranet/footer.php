@@ -959,12 +959,30 @@
 		});
 	</script>
 <?php endif; ?>
-<?php if($_GET['sucesso'] == '1'): ?>
+<?php if( $_GET['sucesso'] == '1' && !isset($_GET['acao']) ): ?>
 	<script>
 		Swal.fire({
 			icon: 'success',
 			title: 'Sucesso!',
 			text: 'As informações do currículo foram salvas com sucesso!',
+		});
+	</script>
+<?php endif; ?>
+<?php if($_GET['sucesso'] == '1' && isset($_GET['acao']) && $_GET['acao'] == 'curriculo_enviado'): ?>
+	<script>
+		Swal.fire({
+			icon: 'success',
+			title: 'Currículo salvo com sucesso!',
+			text: 'Suas informações foram registradas com sucesso e poderão ser utilizadas nos processos seletivos conforme suas configurações de visibilidade.',
+		});
+	</script>
+<?php endif; ?>
+<?php if($_GET['sucesso'] == '1' && isset($_GET['acao']) && $_GET['acao'] == 'rascunho_salvo'): ?>
+	<script>
+		Swal.fire({
+			icon: 'success',
+			title: 'Rascunho salvo com sucesso!',
+			text: 'Suas informações foram salvas e poderão ser editadas posteriormente.',
 		});
 	</script>
 <?php endif; ?>
