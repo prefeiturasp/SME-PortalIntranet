@@ -1158,7 +1158,79 @@
 						</div>
 					</div>
 
+					<!-- ETAPA 7 -->
+					 <div class="card etapa-formulario">
+					 	<div class="card-header" id="headingSeven">
+							<h2 class="mb-0">
+								<button class="btn btn-block text-left collapsed"
+									type="button"
+									data-toggle="collapse"
+									data-target="#collapseSeven">
+
+									<span class="numeral">7</span> Finalização e Visualização
+								</button>
+							</h2>
+						</div>
+
+						<div id="collapseSeven" class="collapse">
+							<div class="card-body">
+								<div class="alert alert-warning mt-3">
+									<strong>Importante:</strong> <br>Independentemente da resposta selecionada abaixo, o(a) candidato(a) deverá realizar a inscrição em todas as vagas de seu interesse.
+								</div>
+
+								<div class="form-group campo-obrigatorio-radio">
+
+									<label for="visualizarCurriculo">Quem poderá visualizar as informações que você preencheu neste cadastro? <span class="required-icon">*</span></label>
+
+									<div class="form-check">
+										<input class="form-check-input"
+											type="radio"
+											name="visualizarCurriculo"
+											id="gestor"
+											value="0"
+											<?= checked($curriculo->visualizar_curriculo ?? '', '0', false) ?>>
+
+										<label class="form-check-label" for="gestor">
+											Apenas os gestores das vagas às quais eu me candidatar
+										</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input"
+											type="radio"
+											name="visualizarCurriculo"
+											id="todos"
+											value="1" <?= checked($curriculo->visualizar_curriculo ?? '', '1', false) ?>>
+
+										<label class="form-check-label" for="todos">
+											Qualquer gestor que esteja consultando currículos
+										</label>
+									</div>
+
+								</div>
+
+								<p><strong>Sugestões</strong><br><small>Você teria alguma sugestão para melhorar este questionário?</small></p>
+								
+								<div class="form-group">
+									<label for="sugestoes">
+										Utilize esse espaço livremente para expressar suas críticas e/ou sugestões.
+									</label>
+
+									<textarea
+										class="form-control"
+										id="sugestoes"
+										name="sugestoes"
+										placeholder="Escreva aqui suas sugestões..."
+										rows="6"><?= esc_textarea($curriculo->sugestoes ?? '') ?></textarea>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
 					<div class="etapa-formulario text-right mb-4">
+						
+					<?php if($curriculo->status_curriculo === 'rascunho'): ?>
 						<button
 							type="submit"
 							name="acao_curriculo"
@@ -1168,6 +1240,7 @@
 							Salvar rascunho
 
 						</button>
+					<?php endif; ?>
 
 						<button
 							type="submit"
@@ -1717,6 +1790,29 @@
 				controlarVivencias();
 			}
 		);
+
+		// Controla se o usuário está alterando o formulário
+		// Se alterar, impede o fechamento da página e mostra um alerta de confirmação
+		let formularioAlterado = false;
+
+		$('form :input').on('change input', function() {
+			formularioAlterado = true;
+		});
+
+		$('form').on('submit', function() {
+			formularioAlterado = false;
+		});
+
+		window.addEventListener('beforeunload', function(e) {
+
+			if (!formularioAlterado) {
+				return;
+			}
+
+			e.preventDefault();
+			e.returnValue = '';
+
+		});
 
 	});
 	
