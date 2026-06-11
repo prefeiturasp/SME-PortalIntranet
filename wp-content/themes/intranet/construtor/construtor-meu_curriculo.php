@@ -1230,7 +1230,7 @@
 
 					<div class="etapa-formulario text-right mb-4">
 						
-					<?php if($curriculo->status_curriculo === 'rascunho'): ?>
+					<?php if($curriculo->status_curriculo === 'rascunho' || !$curriculo->status_curriculo): ?>
 						<button
 							type="submit"
 							name="acao_curriculo"
