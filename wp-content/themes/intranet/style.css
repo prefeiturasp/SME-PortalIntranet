@@ -3684,6 +3684,10 @@ table.datatables td{
     margin: 0;
 }
 
+#single-oportunidade .card-informacoes.inscrito strong {
+    color: #14447C;;   
+}
+
 #single-oportunidade .conteudo-informacoes ul {
     padding-left: 20px;
 }
@@ -3773,4 +3777,8 @@ table.datatables td{
     #single-oportunidade .status-box p {
         font-size: 1rem;
     }
+}
+
+.modal-form-complementar p {
+    font-size: 16px;
 }

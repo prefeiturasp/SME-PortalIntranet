@@ -171,6 +171,9 @@ class LoadDependences
 		// ###### WIDGETS
 		wp_register_script('widgets', STM_THEME_URL . 'js/widgets.js?v=1.0');
 		wp_register_style('widgets-dashboard', STM_THEME_URL . 'css/widgets.css?v=1.0');
+
+		// ###### JS PORTAL DE OPORTUNIDADES
+		wp_register_script( 'oportunidade', STM_THEME_URL . 'js/oportunidade?v=1.0', ['jquery'] );
 	}
 
 	public function custom_formats_admin(){
