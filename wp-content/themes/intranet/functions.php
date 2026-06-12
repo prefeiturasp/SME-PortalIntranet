@@ -5403,6 +5403,7 @@ include_once get_template_directory() . '/includes/cortesias/funcoes/cortesiaCon
 //############################### FUNÇÕES DO PORTAL DE OPORTUNIDADES ###############//
 //#################################################################################//
 include_once get_template_directory() . '/includes/oportunidades/funcoes/oportunidadeController.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/inscricaoController.php';
 //#################################################################################//
 
 // Alterar rotulo descrição para endereço

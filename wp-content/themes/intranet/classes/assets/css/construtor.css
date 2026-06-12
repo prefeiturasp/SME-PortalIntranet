@@ -2853,6 +2853,12 @@ div#minhas-inscricoes .dataTables_paginate .paginate_button.current {
     color: #FFFFFF;
 }
 
+.badge-oportunidade.inscrito {
+    background: #F4F6F7;
+    color: #14457c;
+    border: 1px solid #14457c;
+}
+
 .card-oportunidade .btn-detalhes {
     background-color: #14457c;
     color: #FFFFFF;
