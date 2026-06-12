@@ -9429,3 +9429,41 @@ add_action( 'pre_get_posts', function ( $query ) {
     );
 
 });
+
+/**
+ * Função que adiciona a meta box ao CPT
+ */
+function adicionar_meta_box_cpt() {
+    // Define em quais telas o metabox aparecerá
+    $screens = ['oportunidade']; // Pode adicionar vários CPTs ou 'post', 'page'
+    
+    foreach ($screens as $screen) {
+        add_meta_box(
+            'meu_meta_box_id',           // ID único da meta box
+            'Listagem de Candidatos Inscritos',     // Título exibido
+            'renderizar_meta_box_cpt',   // Função callback que exibe o HTML
+            $screen,                     // Post type onde aparecerá
+            'normal',                    // Contexto: 'normal', 'side', 'advanced'
+            'default'                       // Prioridade: 'high', 'core', 'default', 'low'
+        );
+    }
+}
+add_action('add_meta_boxes', 'adicionar_meta_box_cpt');
+
+/**
+ * Função que renderiza a meta box via arquivo externo
+ */
+function renderizar_meta_box_cpt($post) {
+    // Nonce ainda é importante mesmo sem salvamento
+    wp_nonce_field('meta_box_action', 'meta_box_nonce');
+    
+    // Inclui o arquivo de template
+    $template_path = get_template_directory() . '/includes/oportunidades/template-parts/listar-inscritos.php';
+    // Ou no tema: get_template_directory() . '/admin/meta-box-content.php'
+    
+    if (file_exists($template_path)) {
+        include $template_path;
+    } else {
+        echo '<p>Template não encontrado.</p>';
+    }
+}
