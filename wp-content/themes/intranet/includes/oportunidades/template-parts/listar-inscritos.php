@@ -46,6 +46,10 @@ $status_map = array(
     'nao_selecionado' => array(
         'descricao' => 'Processo Finalizado - Candidato não selecionado',
         'classe' => 'nao-selecionado'
+    ),
+    'inscrito' => array(
+        'descricao' => '-',
+        'classe' => 'inscrito'
     )
 );
 
@@ -61,6 +65,29 @@ $todos_status_select = array(
     'analise_documental' => 'Análise Documental + Publicação DOC',
     'aprovado' => 'Processo Finalizado - Candidato Aprovado',
     'nao_selecionado' => 'Processo Finalizado - Candidato não selecionado'
+);
+
+
+// Array de etapas que permitem comunicação
+$etapas_comunicacao = array(
+    'convocado_teste',
+    'entrevista_agendada',
+    'analise_documental',
+    'entrega_documentos'
+);
+
+// Array de etapas que permitem desbloqueio
+$permite_desbloqueio = array(
+    'nao_avancou_triagem',
+    'nao_avancou_pos_entrevista',
+    'nao_selecionado'
+);
+
+// Array de etapas que usam botão desabilitado
+$etapas_desabilitado = array(
+    'analise_curricular',
+    'fase_anuencia',
+    'aprovado'
 );
 
 $current_post_id = isset($_GET['post']) ? intval($_GET['post']) : 0;
@@ -176,15 +203,15 @@ if ($current_post_id > 0) {
             <div class="table-responsive">
                 <table class="table table-striped tabela-candidatos-inscritos" id="tabela-candidatos">
                     <thead>
-                        <tr>
-                            <th width="40"><input type="checkbox" id="check-all" class="check-all"></th>
-                            <th>Nome completo</th>
-                            <th>Situação da Candidatura</th>
-                            <th>RF</th>
-                            <th>E-mail institucional</th>
-                            <th>WhatsApp</th>
-                            <th>Currículo</th>
-                            <th>Etapa do Processo Seletivo</th>
+                        <tr >
+                            <th width="40" class="align-middle"><input type="checkbox" id="check-all" class="check-all"></th>
+                            <th class="align-middle">Nome completo</th>
+                            <th class="align-middle">Etapa do Processo Seletivo</th>
+                            <th class="align-middle">RF</th>
+                            <th class="align-middle">E-mail institucional</th>
+                            <th class="align-middle">WhatsApp</th>
+                            <th class="align-middle">Currículo</th>
+                            <th class="align-middle">Ações do Processo Seletivo</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -195,9 +222,13 @@ if ($current_post_id > 0) {
                                 $status_info = isset($status_map[$status_codigo]) ? $status_map[$status_codigo] : $status_map['inscrito'];
                                 $status_descricao = $status_info['descricao'];
                                 $status_classe = $status_info['classe'];
+                                // Verifica se o checkbox deve ser desabilitado
+                                $checkbox_disabled = in_array($status_codigo, $permite_desbloqueio) ? 'disabled' : '';
                             ?>
                                 <tr>
-                                    <td><input type="checkbox" class="check-sorteados check-item" name="participantes-sorteados[]" value="<?php echo esc_attr($participante['id']); ?>"></td>
+                                    <td class="text-center">
+                                        <input type="checkbox" class="check-sorteados check-item" name="participantes-sorteados[]" value="<?php echo esc_attr($participante['id']); ?>" <?php echo $checkbox_disabled; ?>>
+                                    </td>
                                     <td>
                                         <?php if ($participante['nome_social']): ?>
                                             <span class="nome-candidato"><?php echo esc_html($participante['nome_social']); ?> <br><small>(<?php echo esc_html($participante['nome_completo']); ?>)</small></span><br>
@@ -212,14 +243,36 @@ if ($current_post_id > 0) {
                                     <td data-situacao="<?php echo esc_attr($status_descricao); ?>">
                                         <span class="card-etapa <?php echo esc_attr($status_classe); ?>">
                                             <?php echo esc_html($status_descricao); ?><br>
-                                            <span class="data-etapa"><?php echo date('d/m/Y \à\s H:i', strtotime($participante['updated_at'])); ?></span>
+                                            <?php if ($status_classe != 'inscrito'): ?>
+                                                <span class="data-etapa"><?php echo date('d/m/Y \à\s H:i', strtotime($participante['updated_at'])); ?></span>
+                                            <?php endif; ?>
                                         </span>
                                     </td>
-                                    <td><?php echo esc_html($participante['rf']); ?></td>
-                                    <td><?php echo esc_html($participante['email_principal']); ?></td>
-                                    <td><?php echo esc_html($participante['telefone_whatsapp']); ?></td>
+                                    <td class="text-nowrap"><span class="copiar-texto" data-texto="<?php echo esc_html($participante['rf']); ?>" data-toggle="tooltip" title="Clique para copiar a informação"><?php echo esc_html($participante['rf']); ?> <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio"></span></td>
+                                    <td class="text-nowrap"><span class="copiar-texto" data-texto="<?php echo esc_html($participante['email_principal']); ?>" data-toggle="tooltip" title="Clique para copiar a informação"><?php echo esc_html($participante['email_principal']); ?> <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio"></span></td>
+                                    <td class="text-nowrap"><span class="copiar-texto" data-texto="<?php echo esc_html($participante['telefone_whatsapp']); ?>" data-toggle="tooltip" title="Clique para copiar a informação"><span class="celular-mask" data-texto="<?php echo esc_html($participante['telefone_whatsapp']); ?>"><?php echo esc_html($participante['telefone_whatsapp']); ?></span> <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio"></span></td>
                                     <td><a href="#"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Ver CV</a></td>
-                                    <td><button type="button" class="btn btn-success btn-comunicar-selecionados"><i class="fa fa-paper-plane" aria-hidden="true"></i></button></td>
+                                    <td class="text-center">
+                                        <?php 
+                                            // Define o status atual do participante
+                                            $status_atual = $participante['status'];                                        
+                                            
+                                            // Verifica qual botão mostrar
+                                            if (in_array($status_atual, $etapas_comunicacao)) {                                               
+                                                echo '<button type="button" class="btn btn-success btn-comunicar-selecionados" data-id="' . esc_attr($participante['id']) . '" data-status="' . esc_attr($status_atual) . '">';
+                                                echo '<i class="fa fa-paper-plane" aria-hidden="true"></i>';
+                                                echo '</button>';
+                                            } elseif (in_array($status_atual, $permite_desbloqueio)) {                                                
+                                                echo '<button type="button" class="btn btn-voltar-status" data-id="' . esc_attr($participante['id']) . '" data-status="' . esc_attr($status_atual) . '">';
+                                                echo '<i class="fa fa-repeat" aria-hidden="true"></i>';
+                                                echo '</button>';
+                                            } else {                                                
+                                                echo '<button type="button" class="btn btn-secondary" disabled>';
+                                                echo '<i class="fa fa-paper-plane" aria-hidden="true"></i>';
+                                                echo '</button>';
+                                            }
+                                        ?>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         <?php else: ?>
@@ -227,6 +280,7 @@ if ($current_post_id > 0) {
                                 <td colspan="8" class="text-center">Nenhum candidato inscrito encontrado.</td>
                             </tr>
                         <?php endif; ?>
+
                         
                     </tbody>
                 </table>
@@ -237,6 +291,28 @@ if ($current_post_id > 0) {
 
 <script>
     jQuery(document).ready(function($) {
+
+        // Máscara para celular
+        $('.celular-mask').mask('(00) 00000-0000');
+
+        // Configurações do toastr
+        toastr.options = {
+            positionClass: 'toast-bottom-right',
+            timeOut: 3000
+        };
+
+        // Evento para copiar texto
+        $('.copiar-texto').on('click', function() {
+
+            let texto = $(this).data('texto');
+            navigator.clipboard.writeText(texto).then(function() {
+                toastr.success('Informação copiada com sucesso!');
+            }).catch(function() {
+                toastr.error('Não foi possível copiar a informação.');
+            });
+
+        });
+
         // Verifica se a tabela existe e tem dados
         if ($('#tabela-candidatos tbody tr').length > 0 && $('#tabela-candidatos tbody td').length > 0) {
             
@@ -351,14 +427,17 @@ if ($current_post_id > 0) {
                 }
             });
             
-            // Selecionar/desmarcar todos os checkboxes
+            // Selecionar/desmarcar todos os checkboxes (apenas os não desabilitados)
             $('#check-all').on('change', function() {
-                $('.check-item').prop('checked', $(this).prop('checked'));
+                $('.check-item:not(:disabled)').prop('checked', $(this).prop('checked'));
             });
-            
+
             // Atualiza o checkbox "selecionar todos" quando um individual muda
             $(document).on('change', '.check-item', function() {
-                if ($('.check-item:checked').length === $('.check-item').length) {
+                var totalCheckboxes = $('.check-item:not(:disabled)').length;
+                var checkedCheckboxes = $('.check-item:not(:disabled):checked').length;
+                
+                if (checkedCheckboxes === totalCheckboxes) {
                     $('#check-all').prop('checked', true);
                 } else {
                     $('#check-all').prop('checked', false);
