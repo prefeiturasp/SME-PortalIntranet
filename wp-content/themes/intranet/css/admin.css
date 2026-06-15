@@ -625,6 +625,16 @@ div#meu_meta_box_id table.dataTable.no-footer{
     margin-left: 15px;
 }
 
+.btn-voltar-status {
+    color: #AF4F0D;
+    background: #FFEED4;
+    border: 2px solid #e9d3c4;
+}
+
+.copiar-texto {    
+    cursor: pointer;
+}
+
 /* Estilização do campo de busca personalizado */
 
 
