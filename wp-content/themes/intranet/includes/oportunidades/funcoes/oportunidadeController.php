@@ -2,6 +2,9 @@
 
 class Oportunidade {
 
+    const TABELA_INSCRICOES = 'int_oportunidade_inscricoes';
+    const TABELA_CURRICULO = 'int_banco_talentos';
+
     public function __construct() {
 
         if ( !is_admin() ) {
@@ -80,6 +83,35 @@ class Oportunidade {
         $clauses['groupby'] = "{$wpdb->posts}.ID";
 
         return $clauses;
+    }
+
+    public static function get_inscricoes( int $oportunidade_id ) {
+        global $wpdb;
+
+        $inscricoes = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT 
+                    oi.id,
+                    oi.curriculo_id,
+                    oi.rf,
+                    oi.status,
+                    oi.created_at,
+                    oi.updated_at,
+                    bt.nome_completo,
+                    bt.nome_social,
+                    bt.email_principal,
+                    bt.telefone_whatsapp
+                FROM " . self::TABELA_INSCRICOES . " AS oi
+                INNER JOIN " . self::TABELA_CURRICULO . " AS bt 
+                    ON oi.curriculo_id = bt.id
+                WHERE oi.oportunidade_id = %d
+                ORDER BY oi.created_at ASC",
+                $oportunidade_id
+            ),
+            ARRAY_A
+        );
+
+        return $inscricoes;
     }
 
 }

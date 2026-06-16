@@ -3,55 +3,7 @@
  * Template para exibição de candidatos inscritos em uma oportunidade
  */
 
-global $wpdb;
-
-// Mapeamento dos status (código => [descrição, classe_css])
-$status_map = array(
-    'analise_curricular' => array(
-        'descricao' => 'Em Análise Curricular',
-        'classe' => 'analise-curricular'
-    ),
-    'nao_avancou_triagem' => array(
-        'descricao' => 'Candidatura não avançou na Triagem',
-        'classe' => 'triagem-curricular'
-    ),
-    'convocado_teste' => array(
-        'descricao' => 'Convocado para Teste/Avaliação',
-        'classe' => 'convocado-teste'
-    ),
-    'entrevista_agendada' => array(
-        'descricao' => 'Entrevista Agendada',
-        'classe' => 'entrevista-agendada'
-    ),
-    'nao_avancou_pos_entrevista' => array(
-        'descricao' => 'Candidatura não avançou pós-entrevista',
-        'classe' => 'candidatura-nao-avancou'
-    ),
-    'fase_anuencia' => array(
-        'descricao' => 'Em Fase de Anuência',
-        'classe' => 'fase-anuencia'
-    ),
-    'entrega_documentos' => array(
-        'descricao' => 'Em Fase de Entrega de Documentos',
-        'classe' => 'entrega-documentos'
-    ),
-    'analise_documental' => array(
-        'descricao' => 'Análise Documental + Publicação DOC',
-        'classe' => 'analise-documental'
-    ),
-    'aprovado' => array(
-        'descricao' => 'Processo Finalizado - Candidato Aprovado',
-        'classe' => 'candidatura-aprovada'
-    ),
-    'nao_selecionado' => array(
-        'descricao' => 'Processo Finalizado - Candidato não selecionado',
-        'classe' => 'nao-selecionado'
-    ),
-    'inscrito' => array(
-        'descricao' => '-',
-        'classe' => 'inscrito'
-    )
-);
+wp_enqueue_script( 'sweetalert-sorteio-js' );
 
 // Lista completa para os selects
 $todos_status_select = array(
@@ -67,59 +19,13 @@ $todos_status_select = array(
     'nao_selecionado' => 'Processo Finalizado - Candidato não selecionado'
 );
 
-
-// Array de etapas que permitem comunicação
-$etapas_comunicacao = array(
-    'convocado_teste',
-    'entrevista_agendada',
-    'analise_documental',
-    'entrega_documentos'
-);
-
-// Array de etapas que permitem desbloqueio
-$permite_desbloqueio = array(
-    'nao_avancou_triagem',
-    'nao_avancou_pos_entrevista',
-    'nao_selecionado'
-);
-
-// Array de etapas que usam botão desabilitado
-$etapas_desabilitado = array(
-    'analise_curricular',
-    'fase_anuencia',
-    'aprovado'
-);
-
 $current_post_id = isset($_GET['post']) ? intval($_GET['post']) : 0;
 
 if ($current_post_id > 0) {
-    $table_inscricoes = $wpdb->prefix . 'oportunidade_inscricoes';
-    $table_banco_talentos = $wpdb->prefix . 'banco_talentos';
-    
-    $participantes = $wpdb->get_results(
-        $wpdb->prepare(
-            "SELECT 
-                oi.id,
-                oi.curriculo_id,
-                oi.rf,
-                oi.status,
-                oi.created_at,
-                oi.updated_at,
-                bt.nome_completo,
-                bt.nome_social,
-                bt.email_principal,
-                bt.telefone_whatsapp
-            FROM {$table_inscricoes} AS oi
-            INNER JOIN {$table_banco_talentos} AS bt 
-                ON oi.curriculo_id = bt.id
-            WHERE oi.oportunidade_id = %d
-            ORDER BY oi.created_at ASC",
-            $current_post_id
-        ),
-        ARRAY_A
-    );
-    
-    $total_participantes = count($participantes);
+
+    $participantes = Oportunidade::get_inscricoes( $current_post_id );
+    $total_participantes = count( $participantes );
+
 } else {
     $participantes = array();
     $total_participantes = 0;
@@ -182,15 +88,18 @@ if ($current_post_id > 0) {
                     <i class="fa fa-paper-plane" aria-hidden="true"></i> Comunicar Selecionados
                 </button>
 
-                <label for="etapa-massa">Alterar etapa do processo seletivo em massa</label>
+                <label for="etapa-massa">
+                    Alterar etapa do processo seletivo individual ou em massa
+                    <i class="fa fa-info-circle text-info" aria-hidden="true" data-toggle="tooltip" data-placement="right" title="Selecione pelo menos um candidato para habilitar esta opção."></i>
+                </label>
                 <div class="d-flex gap-2">
-                    <select id="etapa-massa" class="filtro-select form-control">
+                    <select id="etapa-massa" class="filtro-select form-control" disabled>
                         <option value="">Selecione uma opção</option>
                         <?php foreach ($todos_status_select as $codigo => $descricao): ?>
                             <option value="<?php echo esc_attr($codigo); ?>"><?php echo esc_html($descricao); ?></option>
                         <?php endforeach; ?>
                     </select>
-                    <button class="btn btn-primary btn-aplicar-etapa" onclick="aplicarEtapa()" type="button">Aplicar</button>
+                    <button class="btn btn-primary btn-aplicar-etapa" onclick="aplicarEtapa()" type="button" disabled>Aplicar</button>
                 </div>
             </div>
 
@@ -216,72 +125,12 @@ if ($current_post_id > 0) {
                     </thead>
                     <tbody>
                         <?php if (!empty($participantes)): ?>
-                            <?php foreach ($participantes as $participante): 
-                                // Pega os dados do status com base no código armazenado no banco
-                                $status_codigo = $participante['status']; // Ex: 'analise_curricular'
-                                $status_info = isset($status_map[$status_codigo]) ? $status_map[$status_codigo] : $status_map['inscrito'];
-                                $status_descricao = $status_info['descricao'];
-                                $status_classe = $status_info['classe'];
-                                // Verifica se o checkbox deve ser desabilitado
-                                $checkbox_disabled = in_array($status_codigo, $permite_desbloqueio) ? 'disabled' : '';
-                            ?>
-                                <tr>
-                                    <td class="text-center">
-                                        <input type="checkbox" class="check-sorteados check-item" name="participantes-sorteados[]" value="<?php echo esc_attr($participante['id']); ?>" <?php echo $checkbox_disabled; ?>>
-                                    </td>
-                                    <td>
-                                        <?php if ($participante['nome_social']): ?>
-                                            <span class="nome-candidato"><?php echo esc_html($participante['nome_social']); ?> <br><small>(<?php echo esc_html($participante['nome_completo']); ?>)</small></span><br>
-                                        <?php else: ?>
-                                            <span class="nome-candidato"><?php echo esc_html($participante['nome_completo']); ?></span><br>
-                                        <?php endif; ?>
-                                        <span class="card-etapa data-inscricao">
-                                            Inscrição Recebida<br>
-                                            <span class="data-etapa"><?php echo date('d/m/Y \à\s H:i', strtotime($participante['created_at'])); ?></span>
-                                        </span>
-                                    </td>
-                                    <td data-situacao="<?php echo esc_attr($status_descricao); ?>">
-                                        <span class="card-etapa <?php echo esc_attr($status_classe); ?>">
-                                            <?php echo esc_html($status_descricao); ?><br>
-                                            <?php if ($status_classe != 'inscrito'): ?>
-                                                <span class="data-etapa"><?php echo date('d/m/Y \à\s H:i', strtotime($participante['updated_at'])); ?></span>
-                                            <?php endif; ?>
-                                        </span>
-                                    </td>
-                                    <td class="text-nowrap"><span class="copiar-texto" data-texto="<?php echo esc_html($participante['rf']); ?>" data-toggle="tooltip" title="Clique para copiar a informação"><?php echo esc_html($participante['rf']); ?> <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio"></span></td>
-                                    <td class="text-nowrap"><span class="copiar-texto" data-texto="<?php echo esc_html($participante['email_principal']); ?>" data-toggle="tooltip" title="Clique para copiar a informação"><?php echo esc_html($participante['email_principal']); ?> <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio"></span></td>
-                                    <td class="text-nowrap"><span class="copiar-texto" data-texto="<?php echo esc_html($participante['telefone_whatsapp']); ?>" data-toggle="tooltip" title="Clique para copiar a informação"><span class="celular-mask" data-texto="<?php echo esc_html($participante['telefone_whatsapp']); ?>"><?php echo esc_html($participante['telefone_whatsapp']); ?></span> <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio"></span></td>
-                                    <td><a href="#"><i class="fa fa-file-pdf-o" aria-hidden="true"></i> Ver CV</a></td>
-                                    <td class="text-center">
-                                        <?php 
-                                            // Define o status atual do participante
-                                            $status_atual = $participante['status'];                                        
-                                            
-                                            // Verifica qual botão mostrar
-                                            if (in_array($status_atual, $etapas_comunicacao)) {                                               
-                                                echo '<button type="button" class="btn btn-success btn-comunicar-selecionados" data-id="' . esc_attr($participante['id']) . '" data-status="' . esc_attr($status_atual) . '">';
-                                                echo '<i class="fa fa-paper-plane" aria-hidden="true"></i>';
-                                                echo '</button>';
-                                            } elseif (in_array($status_atual, $permite_desbloqueio)) {                                                
-                                                echo '<button type="button" class="btn btn-voltar-status" data-id="' . esc_attr($participante['id']) . '" data-status="' . esc_attr($status_atual) . '">';
-                                                echo '<i class="fa fa-repeat" aria-hidden="true"></i>';
-                                                echo '</button>';
-                                            } else {                                                
-                                                echo '<button type="button" class="btn btn-secondary" disabled>';
-                                                echo '<i class="fa fa-paper-plane" aria-hidden="true"></i>';
-                                                echo '</button>';
-                                            }
-                                        ?>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
+                            <?php get_template_part( 'includes/oportunidades/template-parts/linhas-tabela-inscritos', null, ['participantes' => $participantes] ); ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="8" class="text-center">Nenhum candidato inscrito encontrado.</td>
+                                <td colspan="8" class="text-center">Nenhuma inscrição encontrada.</td>
                             </tr>
-                        <?php endif; ?>
-
-                        
+                        <?php endif; ?>             
                     </tbody>
                 </table>
             </div>
@@ -290,10 +139,15 @@ if ($current_post_id > 0) {
 </div>
 
 <script>
+
+    function inicializarComponentesTabelaInscritos() {
+        // Máscara para celular
+        jQuery('.celular-mask').mask('(00) 00000-0000');
+    }
+
     jQuery(document).ready(function($) {
 
-        // Máscara para celular
-        $('.celular-mask').mask('(00) 00000-0000');
+        inicializarComponentesTabelaInscritos();
 
         // Configurações do toastr
         toastr.options = {
@@ -302,7 +156,7 @@ if ($current_post_id > 0) {
         };
 
         // Evento para copiar texto
-        $('.copiar-texto').on('click', function() {
+        $(document).on('click', '.copiar-texto', function() {
 
             let texto = $(this).data('texto');
             navigator.clipboard.writeText(texto).then(function() {
@@ -336,8 +190,7 @@ if ($current_post_id > 0) {
                 return texto;
             }
             
-            // Inicializa o DataTable
-            var table = $('#tabela-candidatos').DataTable({
+            var tableConfig = {
                 "language": {
                     "search": "",
                     "searchPlaceholder": "Pesquisar...",
@@ -378,7 +231,21 @@ if ($current_post_id > 0) {
                         }
                     }
                 ]
-            });
+            };
+
+            // Verifica se a tabela existe e tem dados REAIS (não a mensagem de "nenhum candidato")
+            var $table = $('#tabela-candidatos');
+            var $tbody = $table.find('tbody');
+            var hasRealData = $tbody.find('tr').length > 0 &&
+                $tbody.find('tr:first td').length > 1 &&
+                $tbody.find('tr:first td').text().indexOf('Nenhum candidato') === -1;
+
+            if (hasRealData) {
+
+                // Inicializa o DataTable
+                var table = $(document).find('#tabela-candidatos').DataTable(tableConfig);
+            }
+
             
             // Mapeamento de códigos para descrições
             var statusDescricaoMap = {
@@ -429,7 +296,7 @@ if ($current_post_id > 0) {
             
             // Selecionar/desmarcar todos os checkboxes (apenas os não desabilitados)
             $('#check-all').on('change', function() {
-                $('.check-item:not(:disabled)').prop('checked', $(this).prop('checked'));
+                $('.check-item:not(:disabled)').prop('checked', $(this).prop('checked')).trigger('change');
             });
 
             // Atualiza o checkbox "selecionar todos" quando um individual muda
@@ -441,6 +308,22 @@ if ($current_post_id > 0) {
                     $('#check-all').prop('checked', true);
                 } else {
                     $('#check-all').prop('checked', false);
+                }
+
+                if ($('.check-item:checked').length) {
+                    $('#etapa-massa').prop('disabled', false);
+                } else {
+                    $('#etapa-massa').val('');
+                    $('#etapa-massa').prop('disabled', true);
+                }
+            });
+
+            $('#etapa-massa').on('change', function() {
+
+                if ($(this).val() == "") {
+                    $('.btn-aplicar-etapa').prop('disabled', true);
+                } else {
+                    $('.btn-aplicar-etapa').prop('disabled', false);
                 }
             });
             
@@ -457,30 +340,39 @@ if ($current_post_id > 0) {
             window.aplicarEtapa = function() {
                 var novaEtapaCodigo = $('#etapa-massa').val();
                 if (!novaEtapaCodigo) {
-                    alert('Selecione uma etapa para aplicar');
+                    toastr.error('Selecione uma etapa para aplicar.');
                     return;
                 }
                 
                 var checkboxes = $('.check-item:checked');
                 if (checkboxes.length === 0) {
-                    alert('Selecione pelo menos um candidato');
+                    toastr.error('Selecione pelo menos um candidato');
                     return;
                 }
                 
                 var statusDescricao = $('#etapa-massa option:selected').text();
-                
-                if (confirm('Deseja alterar a etapa de ' + checkboxes.length + ' candidato(s) para "' + statusDescricao + '"?')) {
+
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Atualização de etapa da inscrição',
+                    html: `
+                        <h6 class=" text-left mt-4 mb-0">Deseja alterar a etapa de <b>${checkboxes.length}</b> candidato(s) para <b>${statusDescricao}</b>?</h6>
+                    `,
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: 'Confirmar',
+                    confirmButtonColor: '#14447C',
+                    reverseButtons: true
+                }).then((result) => {
+
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
                     var ids = [];
                     checkboxes.each(function() {
                         ids.push($(this).val());
                     });
-
-                    console.log('Alterar etapa para', ids, novaEtapaCodigo);
-                    
-                    // Mostra loading
-                    var btn = $(this);
-                    var originalText = btn.text();
-                    btn.text('Aplicando...').prop('disabled', true);
                     
                     // Requisição AJAX
                     $.ajax({
@@ -491,22 +383,58 @@ if ($current_post_id > 0) {
                             ids: ids,
                             etapa_codigo: novaEtapaCodigo,
                             post_id: <?php echo $current_post_id; ?>,
-                            nonce: $('#_wpnonce').val() || ''
+                            nonce: '<?php echo wp_create_nonce( 'atualizar_etapa_candidatos' ); ?>'
+                        },
+                        beforeSend: function () {
+                            Swal.fire({
+                                text: 'Aplicando as alterações. Aguarde alguns instantes...',
+                                allowOutsideClick: false,
+                                allowEscapeKey: false,
+                                didOpen: () => {
+                                    Swal.showLoading();
+                                }
+                            });
                         },
                         success: function(response) {
                             if (response.success) {
-                                location.reload();
+
+                                Swal.fire({
+                                    icon: 'success',
+                                    text: 'Etapa do processo atualizada com sucesso para os candidatos selecionados.',
+                                    confirmButtonText: 'Fechar',
+                                    confirmButtonColor: '#14447C',
+                                });
+
+                                table.destroy();
+                                $(document).find('#tabela-candidatos tbody').html(response.data.html);
+                                $('#check-all').prop('checked', false).trigger('change');
+                                $('.btn-aplicar-etapa').prop('disabled', true);
+
+                                table = $(document).find('#tabela-candidatos').DataTable(tableConfig);
+                                inicializarComponentesTabelaInscritos();
+                                
                             } else {
-                                alert('Erro ao atualizar: ' + (response.data || 'Erro desconhecido'));
-                                btn.text(originalText).prop('disabled', false);
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Não foi possível completar a ação',
+                                    text: response.data.message,
+                                    confirmButtonText: 'Fechar',
+                                    confirmButtonColor: '#14447C',
+                                });
                             }
                         },
                         error: function() {
-                            alert('Erro na requisição. Por favor, tente novamente.');
-                            btn.text(originalText).prop('disabled', false);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Erro inesperado',
+                                text: 'Ocorreu um erro ao realizar a ação.',
+                                confirmButtonText: 'Fechar',
+                                confirmButtonColor: '#14447C',
+                            });
                         }
                     });
-                }
+
+                });
             };
                        
             // Exportar Excel

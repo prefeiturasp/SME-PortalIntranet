@@ -9467,3 +9467,45 @@ function renderizar_meta_box_cpt($post) {
         echo '<p>Template não encontrado.</p>';
     }
 }
+
+// remover ordenação dos postsbox em oportunidades para evitar que o usuário mova as caixas e perca o acesso a campos importantes
+function travar_post_boxes_oportunidade() {
+    global $post;
+ 
+    $tipo_post_alvo = 'oportunidade';
+ 
+    if ( isset( $post->post_type ) && $post->post_type === $tipo_post_alvo ) {
+        ?>
+        <style type="text/css">
+            /* Editor Clássico: Trava o cabeçalho e desativa os eventos de arrastar */
+            .meta-box-sortables {
+                pointer-events: none !important;
+            }
+            /* Restaura cliques nos inputs, botões e links dentro das caixas */
+            .postbox .inside,
+            .postbox .handlediv,
+            .postbox .toggle-indicator {
+                pointer-events: auto !important;
+            }
+            /* Remove o cursor de movimento e define padrão */
+            .postbox .hndle,
+            .postbox .hndle * {
+                cursor: default !important;
+            }
+ 
+            /* Esconde as alças de arrastar das caixas inferiores */
+            .postbox .hndle {
+                pointer-events: none !important;
+                cursor: default !important;
+            }
+            .postbox .handle-order-higher,
+            .postbox .handle-order-lower {
+                display: none !important;
+            }
+        </style>
+        <?php
+    }
+}
+// Vincula o estilo ao cabeçalho da página de edição
+add_action( 'admin_head-post-new.php', 'travar_post_boxes_oportunidade' );
+add_action( 'admin_head-post.php', 'travar_post_boxes_oportunidade' );
