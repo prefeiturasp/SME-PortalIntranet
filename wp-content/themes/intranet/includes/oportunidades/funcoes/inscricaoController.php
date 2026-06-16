@@ -9,6 +9,10 @@ class Inscricao {
     public function __construct() {
 
         add_action( 'wp_ajax_realizar_inscricao', [$this, 'handle_realizar_inscricao'] );
+
+        if ( is_admin() ) {
+            add_action( 'wp_ajax_atualizar_etapa_candidatos', [$this, 'handle_atualizar_etapa_candidatos'] );
+        }
     }
 
     /**
@@ -164,6 +168,145 @@ class Inscricao {
         );
 
         return !empty( $inscricao );
+    }
+
+    /**
+     * AJAX - Atualizar etapa inscritos
+    */
+    public function handle_atualizar_etapa_candidatos() {
+
+        check_ajax_referer( 'atualizar_etapa_candidatos', 'nonce' );
+
+        $id_inscricoes = $_POST['ids'];
+        $etapa = $_POST['etapa_codigo'];
+        $post_id = absint( $_POST['post_id'] );
+
+        $resultado = self::atualizar_etapa_candidatos( $id_inscricoes, $etapa, $post_id );
+
+        if ( !$resultado['success'] ) {
+            wp_send_json_error( $resultado );
+        }
+
+        wp_send_json_success( $resultado );
+    }
+
+    /**
+     * Realiza inscrição
+    */
+    public static function atualizar_etapa_candidatos( array $id_inscricoes, string $etapa, string $post_id ) {
+
+        global $wpdb;
+
+        $etapas_processo = self::get_etapas_processo();
+
+        if ( empty( $id_inscricoes ) ) {
+
+            return [
+                'success' => false,
+                'message' => 'É necessário selecionar pelo menos um inscrito.'
+            ];
+        }
+
+        if ( !isset( $etapas_processo[$etapa] ) || empty( $etapas_processo[$etapa] ) ) {
+
+            return [
+                'success' => false,
+                'message' => 'Etapa inválida.'
+            ];
+        }
+
+        $ids = array_map( 'absint', $id_inscricoes );
+        $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
+
+        $query = $wpdb->prepare(
+            "
+            UPDATE " . self::TABELA_INSCRICOES . "
+
+            SET
+                status = %s,
+                updated_at = %s
+
+            WHERE id IN ($placeholders)
+            ",
+            array_merge( [$etapa, current_time( 'mysql' )], $ids )
+        );
+
+
+        $resultado = $wpdb->query( $query );
+
+        if ( $resultado === false ) {
+
+            return [
+                'success' => false,
+                'message' => 'Não foi possível completar ação.'
+            ];
+        }
+
+        ob_start();
+
+        $inscricoes = Oportunidade::get_inscricoes( $post_id );
+
+        get_template_part( 'includes/oportunidades/template-parts/linhas-tabela-inscritos', null, [
+            'participantes' => $inscricoes
+        ]); 
+
+        $html = ob_get_clean();
+
+        return [
+            'success' => true,
+            'message' => 'Etapa atualizada com sucesso.',
+            'html' => $html
+        ];
+    }
+
+    public static function get_etapas_processo() {
+        
+        return array(
+            'analise_curricular' => array(
+                'descricao' => 'Em Análise Curricular',
+                'classe' => 'analise-curricular'
+            ),
+            'nao_avancou_triagem' => array(
+                'descricao' => 'Candidatura não avançou na Triagem',
+                'classe' => 'triagem-curricular'
+            ),
+            'convocado_teste' => array(
+                'descricao' => 'Convocado para Teste/Avaliação',
+                'classe' => 'convocado-teste'
+            ),
+            'entrevista_agendada' => array(
+                'descricao' => 'Entrevista Agendada',
+                'classe' => 'entrevista-agendada'
+            ),
+            'nao_avancou_pos_entrevista' => array(
+                'descricao' => 'Candidatura não avançou pós-entrevista',
+                'classe' => 'candidatura-nao-avancou'
+            ),
+            'fase_anuencia' => array(
+                'descricao' => 'Em Fase de Anuência',
+                'classe' => 'fase-anuencia'
+            ),
+            'entrega_documentos' => array(
+                'descricao' => 'Em Fase de Entrega de Documentos',
+                'classe' => 'entrega-documentos'
+            ),
+            'analise_documental' => array(
+                'descricao' => 'Análise Documental + Publicação DOC',
+                'classe' => 'analise-documental'
+            ),
+            'aprovado' => array(
+                'descricao' => 'Processo Finalizado - Candidato Aprovado',
+                'classe' => 'candidatura-aprovada'
+            ),
+            'nao_selecionado' => array(
+                'descricao' => 'Processo Finalizado - Candidato não selecionado',
+                'classe' => 'nao-selecionado'
+            ),
+            'inscrito' => array(
+                'descricao' => '-',
+                'classe' => 'inscrito'
+            )
+        );
     }
 
 }
