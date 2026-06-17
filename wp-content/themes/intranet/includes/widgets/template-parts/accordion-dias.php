@@ -89,6 +89,25 @@ extract( $args );
 																</ul>
 															<?php endif; ?>
 
+															<ul class="responsavel-evento">
+																<li>
+																	<?php $responsavel = get_field( 'responsavel_noticia', $evento['post_id'] ); ?>
+																	<?php if ( $responsavel ) : ?>
+																		Responsável:
+																		<?php $user_class = get_current_user_id() == $responsavel->ID ? 'text-success' : 'text-primary'; ?>
+																		<span class="<?php echo esc_html( $user_class ); ?>">
+																			<i class="fa fa-user" aria-hidden="true"></i> 
+																			<?php echo esc_html( $responsavel->display_name ); ?>
+																		</span>
+																	<?php else : ?>
+																		Responsável: 
+																		<span class="text-secondary">
+																			<i class="fa fa-user" aria-hidden="true"></i> Sem responsável
+																		</span>
+																	<?php endif; ?>
+																</li>
+															</ul>
+
 														</div>
 													</div>
 													<div class="event-date-time">
@@ -151,6 +170,25 @@ extract( $args );
 																<?php endforeach ?>
 																</ul>
 															<?php endif; ?>
+															
+															<ul class="responsavel-evento">
+																<li>
+																	<?php $responsavel = get_field( 'responsavel_noticia', $cortesia['post_id'] ); ?>
+																	<?php if ( $responsavel ) : ?>
+																		Responsável:
+																		<?php $user_class = get_current_user_id() == $responsavel->ID ? 'text-success' : 'text-primary'; ?>
+																		<span class="<?php echo esc_html( $user_class ); ?>">
+																			<i class="fa fa-user" aria-hidden="true"></i> 
+																			<?php echo esc_html( $responsavel->display_name ); ?>
+																		</span>
+																	<?php else : ?>
+																		Responsável: 
+																		<span class="text-secondary fw-medium">
+																			<i class="fa fa-user" aria-hidden="true"></i> Sem responsável
+																		</span>
+																	<?php endif; ?>
+																</li>
+															</ul>
 
 														</div>
 													</div>

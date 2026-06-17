@@ -539,6 +539,10 @@ table.wp-list-table td.tco_order {
     }
 }
 
-#menu-posts-oportunidade{
+#menu-posts-oportunidade {
     display: none;
+}
+
+.responsavel-evento span {
+    font-weight: 600;
 }
