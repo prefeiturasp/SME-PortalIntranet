@@ -44,6 +44,10 @@ if($_POST){
     } else if ($acao == 'cancelar'){
         $confirmacao = '2';
         $atualizacao = Envia_Emails_Sorteio_SME::confirma_presenca_inscrito($idInscrito, $confirmacao);
+
+        if( $atualizacao['res'] == 1 ) {
+            Envia_Emails_Sorteio_SME::notifica_acao_inscrito( $idInscrito, 'notificar_cancelamento_participacao' );
+        }
     }
 
     if($atualizacao['res'] == 1){

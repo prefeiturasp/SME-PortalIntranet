@@ -9028,3 +9028,129 @@ add_action('init', function() {
     );
  
 });
+
+
+// Adiciona a coluna "Responsável" nas listagens de sorteios e ordens de inscrição
+add_filter( 'manage_post_posts_columns', 'adicionar_coluna_nome_responsavel' );
+add_filter( 'manage_cortesias_posts_columns', 'adicionar_coluna_nome_responsavel' );
+
+function adicionar_coluna_nome_responsavel( $colunas_tabela ) {
+
+    $novas_colunas = [];
+
+    foreach ( $colunas_tabela as $key => $label ) {
+
+        $novas_colunas[ $key ] = $label;
+
+        if ( 'title' === $key ) {
+            $novas_colunas['responsavel_noticia'] = 'Responsável';
+        }
+    }
+
+    return $novas_colunas;
+}
+
+// Exibe o valor selecionado na coluna "Responsável" nas listagens de sorteios e ordens de inscrição
+add_action( 'manage_post_posts_custom_column', 'renderizar_coluna_nome_responsavel', 10, 2 );
+add_action( 'manage_cortesias_posts_custom_column', 'renderizar_coluna_nome_responsavel', 10, 2 );
+
+function renderizar_coluna_nome_responsavel( $coluna, $post_id ) {
+
+    if ( 'responsavel_noticia' !== $coluna ) {
+        return;
+    }
+
+    
+    $responsavel = get_field( 'responsavel_noticia', $post_id );
+    echo $responsavel ? $responsavel->display_name : 'Sem responsável';
+
+}
+
+// Adiciona uma mensagem de aviso sempre que o campo "Responsável" não estiver preenchido (Sorteios e Ordem de inscrição)
+add_filter( 'acf/prepare_field/name=responsavel_noticia', function( $field ) {
+
+        if ( empty( $field['value'] ) ) {
+            $field['instructions'] .= '
+                <div class="alert alert-info mt-2">
+                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i> Sem responsável atribuído
+                </div>
+            ';
+        }
+
+        return $field;
+    }
+);
+
+// Adiciona um filtro de notícias em que o usuário logado esteja definido como responsável
+add_filter( 'views_edit-post', 'filtrar_posts_responsabilidade_usuario' );
+add_filter( 'views_edit-cortesias', 'filtrar_posts_responsabilidade_usuario' );
+
+function filtrar_posts_responsabilidade_usuario ( $views ) {
+
+    $post_type = get_current_screen()->post_type;
+    $user_id = get_current_user_id();
+    $count = count_posts_responsavel( $post_type, $user_id );
+
+    $url = add_query_arg(
+        [
+            'responsavel' => get_current_user_id(),
+            'post_type' => $post_type
+        ],
+        admin_url( 'edit.php' )
+    );
+
+    $views['sem_responsavel'] = sprintf(
+        '<a href="%s">Sob Minha Responsabilidade <span class="count">(%d)</span></a>',
+        esc_url( $url ),
+        $count
+    );
+
+    return $views;
+}
+
+// Função para contar a quantidade de posts atribuidos ao usuários
+function count_posts_responsavel( string $post_type, int $user_id ) {
+
+    $query = new WP_Query([
+        'post_type'      => $post_type,
+        'post_status'    => 'any',
+        'posts_per_page' => 1,
+        'fields'         => 'ids',
+
+        'meta_query' => [
+            [
+                'key' => 'responsavel_noticia',
+                'value' => $user_id,
+            ],
+        ],
+    ]);
+
+    return $query->found_posts;
+}
+
+// Adiciona o parametro do campo de Responsabilidade (responsavel_noticia) na query
+add_action( 'pre_get_posts', function ( $query ) {
+
+    if ( !is_admin() || !$query->is_main_query() ) {
+        return;
+    }
+
+    if ( !isset( $_GET['responsavel'] ) || empty( $_GET['responsavel'] ) ) {
+        return;
+    }
+
+    if ( !in_array( $query->get( 'post_type' ), ['post', 'cortesias'], true ) ) {
+        return;
+    }
+
+    $query->set(
+        'meta_query',
+        [
+            [
+                'key' => 'responsavel_noticia',
+                'value' => intval( $_GET['responsavel'] ),
+            ],
+        ]
+    );
+
+});

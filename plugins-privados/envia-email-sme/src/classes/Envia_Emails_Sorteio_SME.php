@@ -767,4 +767,82 @@ class Envia_Emails_Sorteio_SME {
             return wp_mail( $destinatarios, $assunto, $tema_email, $headers );
         }
     }
+
+    public static function notifica_acao_inscrito( int $idInscrito, string $acao, $tipoEvento = 'sorteio' ) {
+
+        $tipo = $tipoEvento === 'cortesias' ? 'Ordem de Inscrição' : 'Sorteio';
+        $inscrito = self::get_inscrito_by_id( $idInscrito, $tipoEvento );
+        $email_notificacao = get_field( 'email_cancelamento_participacao', 'options' );
+        $assunto = '';
+        $template_email = '';
+        
+        if ( !$inscrito || !isset( $inscrito[0] ) ) {
+            return false;
+        }
+
+        switch ( $acao ) {
+
+            case 'notificar_cancelamento_participacao':
+                
+                $assunto = "[{$tipo}] Cancelamento de participação - ID {$inscrito[0]->post_id} - {$inscrito[0]->nome_completo}";
+                $titulo_post = $inscrito[0]->post_title;
+                $data_evento = $tipoEvento == 'cortesias' ? get_acf_info_by_id( $inscrito[0]->acf_id ) : $inscrito[0]->data_sorteada;
+                $modalidade = get_field( 'tipo_evento', $inscrito[0]->post_id );
+                $mensagem = 'O usuário abaixo realizou o cancelamento da participação para o evento ';
+                $agora = obter_data_com_timezone( 'd/m/Y \à\s H\hi', 'America/Sao_Paulo' );
+
+                if ( $tipoEvento === 'sorteio' ) {
+
+                    if ( $modalidade === 'data' ) {
+                        $data = date( 'd/m \à\s H\hi', strtotime( $data_evento ) );
+                        $mensagem .= "<strong>'{$titulo_post}'</strong>, no qual foi contemplado para a sessão do dia {$data}.";
+                    }
+
+                    if ( $modalidade === 'periodo' ) {
+                        $periodo = get_field( 'evento_periodo', $inscrito[0]->post_id );
+                        $mensagem .= "<strong>'{$titulo_post}'</strong>, no qual foi contemplado para o período de {$periodo['descricao']}.";
+                    }
+
+                    if ( $modalidade === 'premio' ) {
+                        $premio = get_premio_por_data(  $inscrito[0]->post_id,  $inscrito[0]->data_sorteada );
+                        $mensagem .= "<strong>'{$titulo_post}'</strong>, no qual foi contemplado com o prêmio '{$premio}'.";
+                    }
+                }
+
+                if ( $tipoEvento === 'cortesias' ) {
+                    
+                    if ( $modalidade === 'data' ) {
+                        $data =  date( 'd/m \à\s H\hi', strtotime( $data_evento['info'] ) );
+                        $mensagem .= "<strong>'{$titulo_post}'</strong>, na sessão do dia {$data}.";
+                    }
+
+                    if ( $modalidade === 'periodo' ) {
+                        $mensagem .= "<strong>'{$titulo_post}'</strong>, referente ao período de {$data_evento['info']}.";
+                    }
+
+                    if ( $modalidade === 'premio' ) {
+                        $mensagem .= "<strong>'{$titulo_post}'</strong>, referente ao prêmio {$data_evento['info']}.";
+                    }
+                }
+
+                $template_email = file_get_contents( DIR_ENVIA_EMAIL_SME . '/src/templates/tema-email-cancela-participacao.html' );
+                $template_email = str_replace( '{MENSAGEM}', $mensagem, $template_email );
+                $template_email = str_replace( '{POST-ID}', $inscrito[0]->post_id, $template_email );
+                $template_email = str_replace( '{LINK-ADMIN}', get_edit_post_link( $inscrito[0]->post_id ), $template_email );
+
+                $template_email = str_replace( '{NOME}', $inscrito[0]->nome_completo, $template_email );
+                $template_email = str_replace( '{CPF}', $inscrito[0]->cpf, $template_email );
+
+                $emails = array_filter( [ $inscrito[0]->email_institucional,  $inscrito[0]->email_secundario] );
+                $template_email = str_replace( '{EMAIL}', implode( ', ', $emails ), $template_email );
+
+                $template_email = str_replace( '{DATA-HORA-CANCELAMENTO}', $agora, $template_email );
+                $template_email = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/logo.png', $template_email);
+                
+            break;
+            
+        }
+
+        return self::sme_send_mail( $email_notificacao, null, $assunto, $template_email );
+    }
 }

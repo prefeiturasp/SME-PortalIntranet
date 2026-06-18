@@ -1704,6 +1704,10 @@ function ajax_confirmar_cancelar_presenca_cortesia() {
 
     if ( isset( $resultado['res'] ) && $resultado['res'] == 1 ) {
 
+        if ( $acao == 2 ) {
+            Envia_Emails_Sorteio_SME::notifica_acao_inscrito( $inscricao_id, 'notificar_cancelamento_participacao', 'cortesias' );
+        }
+
 		$mensagem_sucesso = $acao == 2 
 			? 'A oportunidade será disponibilizada para outro participante. Obrigado pela participação!' 
 			: 'Sua presença foi confirmada!'; 
