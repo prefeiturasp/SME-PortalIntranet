@@ -111,11 +111,20 @@ $oportunidades = new WP_Query( $oportunidade_args );
 
                             <?php
                             $status_oportunidade = Oportunidade::get_status( get_the_ID() ) ?? null;
+                            $usuario_inscrito = Inscricao::usuario_ja_inscrito( get_current_user_id(), get_the_ID() );
                             
                             if ( $status_oportunidade ) :
                                 ?>
                                 <span class="badge-oportunidade <?php echo esc_html( $status_oportunidade['class'] ); ?>">
                                     <?php echo esc_html( $status_oportunidade['label'] ); ?>
+                                </span>
+                                <?php
+                            endif;
+
+                            if ( $usuario_inscrito ) :
+                                ?>
+                                <span class="badge-oportunidade inscrito">
+                                    Inscrito
                                 </span>
                                 <?php
                             endif;

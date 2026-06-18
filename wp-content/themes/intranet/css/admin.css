@@ -546,3 +546,225 @@ table.wp-list-table td.tco_order {
 .responsavel-evento span {
     font-weight: 600;
 }
+
+.post-type-oportunidade {
+    background: #F8F7F9;
+}
+
+.post-type-oportunidade #post-body-content{
+    margin: 0;
+}
+
+#acf-group_69f0f2e4d2f4a,
+div#meu_meta_box_id{
+    border: 0;
+    box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+}
+
+#acf-group_69f0f2e4d2f4a .postbox-header,
+div#meu_meta_box_id .postbox-header{
+    background: #14447C;
+    color: #FFF;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    border: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+#acf-group_69f0f2e4d2f4a .acf-field.acf-accordion{
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+}
+
+#acf-group_69f0f2e4d2f4a .acf-accordion-title{
+    background: #14447C;
+    color: #FFF;
+}
+
+div#meu_meta_box_id.postbox .inside {
+    padding: 0;
+    margin: 0;
+}
+
+div#meu_meta_box_id .container-fluid{
+    padding: 0;
+}
+
+div#meu_meta_box_id table.dataTable.no-footer{
+    border: 0;
+}
+
+.meu-layout-superior {
+    background: #f8f7f9;
+    padding: 10px;
+}
+
+.meu-layout-superior p {
+    margin-bottom: 5px;
+}
+
+.meu-layout-superior label {
+    font-weight: 500;
+}
+
+.btn-aplicar-etapa{
+    background-color: #14447C;
+    margin-left: 15px;
+    border-color: #14447C;
+}
+
+.busca-personalizada {
+    margin-top: 5px;
+}
+
+#btn-exportar-excel, #btn-comunicar-selecionados {
+    margin-top: 20px;
+    margin-bottom: 12px;
+}
+
+#btn-comunicar-selecionados{
+    margin-left: 15px;
+}
+
+.btn-voltar-status {
+    color: #AF4F0D;
+    background: #FFEED4;
+    border: 2px solid #e9d3c4;
+}
+
+.copiar-texto {    
+    cursor: pointer;
+}
+
+/* Estilização do campo de busca personalizado */
+
+
+.campo-busca-estilizado {
+    padding: 10px 35px 10px 40px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    background-color: #fff;
+}
+
+.campo-busca-estilizado:focus {
+    outline: none;
+    border-color: #0073aa;
+    box-shadow: 0 0 5px rgba(0,115,170,0.3);
+}
+
+.icone-busca {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #999;
+    font-style: normal;
+}
+
+.btn-limpar-busca {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 16px;
+    display: none;
+}
+
+.btn-limpar-busca:hover {
+    color: #333;
+}
+
+/* Filtros adicionais */
+.filtros-header {
+    margin-bottom: 25px;
+}
+
+.filtro-select {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: white;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Indicador de busca ativa */
+.busca-ativa {
+    background-color: #e8f0fe;
+    border-color: #0073aa;
+}
+
+.nome-candidato {
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.card-etapa {
+    display: inline-block;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.card-etapa .data-etapa {
+    font-size: 10px;
+    font-weight: 400;
+}
+
+.data-inscricao{
+    color: #0c36ee;
+    background: #DDE9FD;
+}
+
+.analise-curricular {   
+    color: #4b53a3;    
+    background: #E1E7FF;    
+}
+
+.triagem-curricular,
+.candidatura-nao-avancou,
+.nao-selecionado {
+    color: #343a40;
+    background: #e4e6e8;
+}
+
+.convocado-teste{
+    color: #856404;
+    background: #fff3cd;
+}
+
+.entrevista-agendada {
+    color: #AF4F0D;
+    background: #FFEED4;
+}
+
+.analise-documental{
+    color: #4C7D8B;
+    background: #CFFBFE;
+}
+
+.candidatura-aprovada {
+    color: #155724;
+    background: #d4edda;
+}
+
+.entrega-documentos {
+    color: #1f5542;
+    background: #9bc9b4;
+}
+
+.fase-anuencia {
+    color: #784CA1;
+    background: #F4E8FF;
+}
