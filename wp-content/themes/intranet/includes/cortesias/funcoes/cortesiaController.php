@@ -643,13 +643,14 @@ function sync_datas_cortesias($post_id) {
             $wpdb->update(
                 $tabela_datas,
                 [
+                	'data_evento'             => null,
                     'estoque_total'           => $novo_total,
                     'estoque_atual'           => $novo_estoque_atual,
                     'encerramento_inscricoes' => $encerramento_inscricoes,
                     'premio'                  => null,
                 ],
                 ['id' => $registro->id],
-                ['%d', '%d', '%s', '%s'],
+                ['%s','%d', '%d', '%s', '%s'],
                 ['%d']
             );
 
