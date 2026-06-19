@@ -7,6 +7,7 @@ function handle_exportar_cortesias_excel() {
     $post_id = absint($_POST['post_id']);
     $tipo_evento = get_field( 'tipo_evento', $post_id );
     $requer_confirmacao_presenca = boolval( get_field( 'confirm_presen', $post_id ) );
+    $datasEvento = null;
 
     try {
         check_ajax_referer('exportar_cortesias_nonce', '_ajax_nonce');
@@ -31,7 +32,9 @@ function handle_exportar_cortesias_excel() {
 
         if ($tipo_evento == 'premio') {
             $datasEvento = get_field('evento_premios', $post_id);
-        } else {
+        }
+
+        if ($tipo_evento == 'data') {
             $datasEvento = get_field('evento_datas', $post_id);
         }
 
@@ -174,7 +177,7 @@ function gerar_aba_inscritos_corte($post_id, $local, $dataSorteio, $data_evento 
     // Verifica se existe o campo evento_datas para saber se é estrutura nova
     $usa_join = get_field('evento_datas', $post_id);
 
-    if ($usa_join || $data_evento) {
+    if (($usa_join || $data_evento) && $tipo_evento != 'periodo') {
         // Estrutura nova com JOIN e múltiplas datas
         $query = $wpdb->prepare("
             SELECT i." . implode(', i.', [
