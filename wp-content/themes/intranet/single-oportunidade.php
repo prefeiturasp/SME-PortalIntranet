@@ -1,5 +1,18 @@
 <?php
 // @codeCoverageIgnoreStart
+
+wp_enqueue_script( 'oportunidade' );
+wp_localize_script(
+    'oportunidade',
+    'oportunidade',
+    [
+        'ajax_url' => admin_url( 'admin-ajax.php' ),
+        'nonce_inscricao' => wp_create_nonce( 'realizar_inscricao' ),
+        'id' => get_the_ID(),
+        'form_complementar' => get_field( 'formulario_complementar' )
+    ]
+);
+
 $user = wp_get_current_user();
 $parceira = get_field('parceira', 'user_'. $user->ID );
 $email = $user->user_email;
@@ -15,14 +28,19 @@ get_header();
 the_post();
 
 $pagina_principal = get_field( 'pagina_principal_oportunidades', 'options' );
+$pagina_curriculo = get_field( 'pagina_meu_curriculo', 'options' );;
+$pagina_minhas_oportunidades = get_field( 'pagina_minhas_oportunidades', 'options' );
+
 $status_oportunidade = Oportunidade::get_status( get_the_ID() );
+$usuario_inscrito = Inscricao::usuario_ja_inscrito( get_current_user_id(), get_the_ID() );
+$curriculo = Inscricao::obter_curriculo_usuario( get_current_user_id() );
 
 ?>
 
 <div class="container mt-5" id="single-oportunidade">
 
     <div class="row">
-        <div class="col-lg-9 mb-4">
+        <div class="col mb-4">
             <div class="card card-oportunidade border-0 shadow-sm">
                 <div class="card-body p-4">
 
@@ -31,6 +49,12 @@ $status_oportunidade = Oportunidade::get_status( get_the_ID() );
                             <?php echo esc_html( $status_oportunidade['label'] ); ?>
                         </span>
                     <?php endif; ?>
+
+                    <?php if ( $usuario_inscrito ) : ?>
+                        <span class="badge-oportunidade inscrito">
+                            Inscrito
+                        </span>
+                    <?php endif;?>
 
                     <h1 class="titulo-oportunidade">
                         <?php echo esc_html( get_the_title() ); ?>
@@ -73,11 +97,14 @@ $status_oportunidade = Oportunidade::get_status( get_the_ID() );
                     <?php
                     if ( $local_id = get_field( 'local_trabalho' ) ) :
                         $local_trabalho = get_term_by( 'term_id', $local_id, 'locais' );
+                        $endereco_trabalho = !empty( $local_trabalho->description ) 
+                            ? $local_trabalho->description
+                            : get_field( 'endereco_trabalho' );
                         ?>
                         <div class="info-bloco">
                             <h3><i class="fa fa-map-marker" aria-hidden="true"></i> Local de Trabalho</h3>
                             <p><?php echo esc_html( $local_trabalho->name ); ?></p>
-                            <?php if ( $endereco_trabalho = get_field( 'endereco_trabalho' ) ) : ?>
+                            <?php if ( $endereco_trabalho ) : ?>
                                 <em class="text-secondary"><?php echo esc_html( $endereco_trabalho ); ?></em>
                             <?php endif; ?>
                         </div>
@@ -160,9 +187,66 @@ $status_oportunidade = Oportunidade::get_status( get_the_ID() );
                     </div>
 
                     <?php if ( $status_oportunidade['value'] === 'aberta' ) : ?>
-                        <a href="#" class="btn btn-inscricao btn-block">
-                            Inscrever-se nesta Oportunidade
-                        </a>
+
+                        <?php if (  $usuario_inscrito  ) : ?>
+
+                            <div class="card-informacoes inscrito">
+                                <div class="card-body p-4">
+                                    <strong><i class="fa fa-check-circle-o fa-lg mr-2" aria-hidden="true"></i> Você já está inscrito nessa oportunidade</strong>
+                                    <div class="mt-3">
+                                        <p class="text-secondary">
+                                            Sua inscrição na oportunidade <b>"<?php echo esc_html( get_the_title() ); ?>"</b> já foi realizada com sucesso. 
+                                            Você pode acompanhar o andamento da sua candidatura pelo e-mail informado ou acessando a área "Minhas Oportunidades", onde em breve você receberá atualizações sobre o processo.    
+                                        </p>
+
+                                        <a href="<?php the_permalink( $pagina_minhas_oportunidades->ID ); ?>" class="btn btn-primary mt-2">
+                                            Ir para Minhas Oportunidades
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <?php elseif ( !$curriculo ) : ?>
+
+                            <div class="alert alert-danger sem-curriculo">
+                                <div class="card-body p-4">
+                                    <strong><i class="fa fa-exclamation-circle fa-lg mr-2" aria-hidden="true"></i> Currículo não cadastrado</strong>
+                                    <div class="mt-3">
+                                        <p>
+                                            Para se inscrever em uma oportunidade, é necessário cadastrar seu currículo. Preencha suas informações para prosseguir com a candidatura.  
+                                        </p>
+
+                                        <a href="<?php the_permalink( $pagina_curriculo->ID ); ?>" class="btn btn-danger mt-2">
+                                            Cadastrar Meu Currículo
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <?php elseif ( $curriculo->status_curriculo !== 'finalizado' ) : ?>
+
+                            <div class="alert alert-warning curriculo-incompleto">
+                                <div class="card-body p-4">
+                                    <strong><i class="fa fa-exclamation-circle fa-lg mr-2" aria-hidden="true"></i> Currículo incompleto</strong>
+                                    <div class="mt-3">
+                                        <p>
+                                            Para se inscrever em uma oportunidade, é necessário completar o preenchimento do seu currículo. Atualize suas informações para prosseguir com a candidatura. 
+                                        </p>
+
+                                        <a href="<?php the_permalink( $pagina_curriculo->ID ); ?>" class="btn btn-warning mt-2">
+                                            Completar Meu Currículo
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+
+                        <?php else : ?>
+
+                            <button class="btn btn-inscricao btn-block">
+                                Inscrever-se nesta Oportunidade
+                            </button>
+
+                        <?php endif; ?>
                     <?php endif; ?>
 
                     <?php if ( $status_oportunidade['value'] === 'breve' ) : ?>
@@ -198,70 +282,14 @@ $status_oportunidade = Oportunidade::get_status( get_the_ID() );
                 </div>
             </div>
         </div>
+        
+        <!-- Outras oportunidades -->
+        <?php get_template_part( 'includes/oportunidades/template-parts/outras-oportunidades', null, [
+            'titulo' => 'Outras Oportunidades Abertas',
+            'url_pagina_principal' => get_the_permalink( $pagina_principal->ID ),
+            'status' => 'abertas' // abertas | encerradas | em-breve
+        ] ); ?>
 
-        <div class="col-lg-3">
-            <div class="card sidebar-card border-0 shadow-sm">
-                <div class="sidebar-header">
-
-                    <div>
-                        <h3>Outras Oportunidades Abertas</h3>
-                    </div>
-
-                    <a href="<?php the_permalink( $pagina_principal->ID ); ?>">
-                        Ver todas
-                    </a>
-
-                </div>
-
-                <div class="sidebar-item">
-
-                    <h4>
-                        COGEP / DIDES - Divisão de Desenvolvimento Profissional
-                    </h4>
-
-                    <span>
-                        STA – Serviços Técnicos Administrativos
-                    </span>
-
-                    <p>
-                        COGEP - Coordenadoria de Gestão de Pessoas
-                    </p>
-
-                </div>
-
-                <div class="sidebar-item">
-
-                    <h4>
-                        COPLAN / DIACON - Divisão de Acompanhamento
-                    </h4>
-
-                    <span>
-                        STA – Serviços Técnicos Administrativos
-                    </span>
-
-                    <p>
-                        COPLAN - Coordenadoria de Planejamento
-                    </p>
-
-                </div>
-
-                <div class="sidebar-item border-0">
-
-                    <h4>
-                        COTIC / DISIS - Divisão de Desenvolvimento de Sistemas
-                    </h4>
-
-                    <span>
-                        STE – Serviços Técnicos Educacionais
-                    </span>
-
-                    <p>
-                        COTIC - Coordenadoria de Tecnologia
-                    </p>
-
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 

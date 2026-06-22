@@ -5,7 +5,8 @@
 	$origem_dados = $dados['origem'];
 	$curriculo = $dados['dados'];
     $vivencias = $dados['vivencias'];
-	$informatica = $dados['informatica'];	
+	$informatica = $dados['informatica'];
+	$comportamental = $dados['comportamental'];
 
 	$cargos = [];
 
@@ -646,7 +647,7 @@
 								<small>Por favor nos dê mais detalhes da(s) sua(s) vivência(s) profissional(is) relevantes nos últimos anos, iniciando pela mais recente.</small>
 
 								<div class="bloco-vivencia" data-vivencia="1">
-									<h3 class="mt-3">Vivência Principal</h3>
+									<h3 class="mt-3">Vivência 1</h3>
 
 									<div class="form-group">
 										<label for="organizacaoEmp1">Organização/Empresa <span class="required-icon">*</span></label>
@@ -1067,7 +1068,169 @@
 						</div>
 					</div>
 
+					<!-- ETAPA 6 -->
+					 <div class="card etapa-formulario">
+					 	<div class="card-header" id="headingSix">
+							<h2 class="mb-0">
+								<button class="btn btn-block text-left collapsed"
+									type="button"
+									data-toggle="collapse"
+									data-target="#collapseSix">
+
+									<span class="numeral">6</span> Preferências e Perfil Comportamental
+								</button>
+							</h2>
+						</div>
+
+						<div id="collapseSix" class="collapse">
+							<div class="card-body">
+								<p>Por gentileza, indique a ação que mais reflete sua atitude nas situações a seguir.</p>
+
+								<table class="table table-striped">									
+									<tbody>
+										<tr class="align-middle">
+											<th width="40%" class="align-middle">Afirmação</th>
+											<td width="15%" class="text-center align-middle fw-600">Concordo plenamente</td>
+											<td width="15%" class="text-center align-middle fw-600">Concordo</td>
+											<td width="15%" class="text-center align-middle fw-600">Discordo</td>
+											<td width="15%" class="text-center align-middle fw-600">Discordo plenamente</td>
+										</tr>
+
+										<tr class="linha-comportamental-obrigatoria">
+											<th>Sinto-me mais motivado e produtivo quando meu trabalho envolve interação constante com pessoas, networking e trocas sociais frequentes.</th>
+											<td class="text-center"><input type="radio" name="comportamental[sociabilidade]" value="0" <?= checked($comportamental['sociabilidade'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[sociabilidade]" value="1" <?= checked($comportamental['sociabilidade'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[sociabilidade]" value="2" <?= checked($comportamental['sociabilidade'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[sociabilidade]" value="3" <?= checked($comportamental['sociabilidade'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-comportamental-obrigatoria">
+											<th>Sinto que minha produtividade é consideravelmente maior quando trabalho sozinho em tarefas técnicas, preferindo focar em dados e processos do que em interações sociais constantes ou networking.</th>
+											<td class="text-center"><input type="radio" name="comportamental[analitico]" value="0" <?= checked($comportamental['analitico'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[analitico]" value="1" <?= checked($comportamental['analitico'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[analitico]" value="2" <?= checked($comportamental['analitico'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[analitico]" value="3" <?= checked($comportamental['analitico'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-comportamental-obrigatoria">
+											<th>Sinto-me à vontade em ambientes de mudança constante e prefiro ter liberdade para criar novas soluções ou métodos, em vez de seguir estritamente regras, manuais ou padrões já estabelecidos.</th>
+											<td class="text-center"><input type="radio" name="comportamental[inovacao]" value="0" <?= checked($comportamental['inovacao'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[inovacao]" value="1" <?= checked($comportamental['inovacao'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[inovacao]" value="2" <?= checked($comportamental['inovacao'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[inovacao]" value="3" <?= checked($comportamental['inovacao'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-comportamental-obrigatoria">
+											<th>Sinto-me mais confortável e produtivo realizando tarefas técnicas, lidando com números, dados e prazos de forma isolada, do que trabalhando diretamente com atendimento ao público.</th>
+											<td class="text-center"><input type="radio" name="comportamental[tecnico]" value="0" <?= checked($comportamental['tecnico'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[tecnico]" value="1" <?= checked($comportamental['tecnico'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[tecnico]" value="2" <?= checked($comportamental['tecnico'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[tecnico]" value="3" <?= checked($comportamental['tecnico'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-comportamental-obrigatoria">
+											<th>Sinto-me mais produtivo e seguro quando sigo uma rotina com processos bem definidos e previsíveis, preferindo manter métodos que já funcionam do que buscar constantemente formas inovadoras ou diferentes de realizar o trabalho.</th>
+											<td class="text-center"><input type="radio" name="comportamental[rotina]" value="0" <?= checked($comportamental['rotina'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[rotina]" value="1" <?= checked($comportamental['rotina'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[rotina]" value="2" <?= checked($comportamental['rotina'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[rotina]" value="3" <?= checked($comportamental['rotina'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-comportamental-obrigatoria">
+											<th>Sinto-me mais seguro e produtivo utilizando métodos de trabalho tradicionais e ferramentas já conhecidas, preferindo manter uma rotina estável em vez de ter que lidar com inovações constantes, novas tecnologias ou análise detalhada de dados técnicos.</th>
+											<td class="text-center"><input type="radio" name="comportamental[conservador]" value="0" <?= checked($comportamental['conservador'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[conservador]" value="1" <?= checked($comportamental['conservador'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[conservador]" value="2" <?= checked($comportamental['conservador'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[conservador]" value="3" <?= checked($comportamental['conservador'] ?? '', '3', false) ?>></td>
+										</tr>
+
+										<tr class="linha-comportamental-obrigatoria">
+											<th>Sinto-me mais produtivo e realizado resolvendo problemas práticos e imediatos na execução direta das tarefas do que dedicando tempo ao planejamento detalhado, organização de processos ou gestão administrativa.</th>
+											<td class="text-center"><input type="radio" name="comportamental[executor]" value="0" <?= checked($comportamental['executor'] ?? '', '0', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[executor]" value="1" <?= checked($comportamental['executor'] ?? '', '1', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[executor]" value="2" <?= checked($comportamental['executor'] ?? '', '2', false) ?>></td>
+											<td class="text-center"><input type="radio" name="comportamental[executor]" value="3" <?= checked($comportamental['executor'] ?? '', '3', false) ?>></td>
+										</tr>
+
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+
+					<!-- ETAPA 7 -->
+					 <div class="card etapa-formulario">
+					 	<div class="card-header" id="headingSeven">
+							<h2 class="mb-0">
+								<button class="btn btn-block text-left collapsed"
+									type="button"
+									data-toggle="collapse"
+									data-target="#collapseSeven">
+
+									<span class="numeral">7</span> Finalização e Visualização
+								</button>
+							</h2>
+						</div>
+
+						<div id="collapseSeven" class="collapse">
+							<div class="card-body">
+								<div class="alert alert-warning mt-3">
+									<strong>Importante:</strong> <br>Independentemente da resposta selecionada abaixo, o(a) candidato(a) deverá realizar a inscrição em todas as vagas de seu interesse.
+								</div>
+
+								<div class="form-group campo-obrigatorio-radio">
+
+									<label for="visualizarCurriculo">Quem poderá visualizar as informações que você preencheu neste cadastro? <span class="required-icon">*</span></label>
+
+									<div class="form-check">
+										<input class="form-check-input"
+											type="radio"
+											name="visualizarCurriculo"
+											id="gestor"
+											value="0"
+											<?= checked($curriculo->visualizar_curriculo ?? '', '0', false) ?>>
+
+										<label class="form-check-label" for="gestor">
+											Apenas os gestores das vagas às quais eu me candidatar
+										</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input"
+											type="radio"
+											name="visualizarCurriculo"
+											id="todos"
+											value="1" <?= checked($curriculo->visualizar_curriculo ?? '', '1', false) ?>>
+
+										<label class="form-check-label" for="todos">
+											Qualquer gestor que esteja consultando currículos
+										</label>
+									</div>
+
+								</div>
+
+								<p><strong>Sugestões</strong><br><small>Você teria alguma sugestão para melhorar este questionário?</small></p>
+								
+								<div class="form-group">
+									<label for="sugestoes">
+										Utilize esse espaço livremente para expressar suas críticas e/ou sugestões.
+									</label>
+
+									<textarea
+										class="form-control"
+										id="sugestoes"
+										name="sugestoes"
+										placeholder="Escreva aqui suas sugestões..."
+										rows="6"><?= esc_textarea($curriculo->sugestoes ?? '') ?></textarea>
+								</div>
+
+							</div>
+						</div>
+					</div>
+
 					<div class="etapa-formulario text-right mb-4">
+						
+					<?php if($curriculo->status_curriculo === 'rascunho' || !$curriculo->status_curriculo): ?>
 						<button
 							type="submit"
 							name="acao_curriculo"
@@ -1077,6 +1240,7 @@
 							Salvar rascunho
 
 						</button>
+					<?php endif; ?>
 
 						<button
 							type="submit"
@@ -1627,6 +1791,29 @@
 			}
 		);
 
+		// Controla se o usuário está alterando o formulário
+		// Se alterar, impede o fechamento da página e mostra um alerta de confirmação
+		let formularioAlterado = false;
+
+		$('form :input').on('change input', function() {
+			formularioAlterado = true;
+		});
+
+		$('form').on('submit', function() {
+			formularioAlterado = false;
+		});
+
+		window.addEventListener('beforeunload', function(e) {
+
+			if (!formularioAlterado) {
+				return;
+			}
+
+			e.preventDefault();
+			e.returnValue = '';
+
+		});
+
 	});
 	
 </script>
@@ -1897,51 +2084,56 @@
 
 			});
 
+			function validarTabelaRadios(seletor, mensagemErro) {
+
+				$(seletor).each(function(){
+
+					const linha = $(this);
+					const radios = linha.find('input[type="radio"]');
+
+					if(!radios.is(':checked')) {
+
+						formularioValido = false;
+
+						if(!primeiroCampoComErro) {
+							primeiroCampoComErro = linha;
+						}
+
+						linha.addClass('linha-erro');
+
+						linha.find('th').append(
+							'<small class="erro-validacao text-danger d-block mt-1">' +
+								mensagemErro +
+							'</small>'
+						);
+
+					}
+
+				});
+
+			}
+
 			/*
 			|--------------------------------------------------------------------------
 			| INFORMÁTICA
 			|--------------------------------------------------------------------------
 			*/
 
-			$('.linha-informatica-obrigatoria').each(function(){
+			validarTabelaRadios(
+				'.linha-informatica-obrigatoria',
+				'Selecione ao menos um nível de conhecimento para continuar.'
+			);
 
-				const linha = $(this);
+			/*
+			|--------------------------------------------------------------------------
+			| PERFIL COMPORTAMENTAL
+			|--------------------------------------------------------------------------
+			*/
 
-				const radios = linha.find('input[type="radio"]');
-
-				if(!radios.is(':checked')) {
-
-					formularioValido = false;
-
-					if(!primeiroCampoComErro) {
-						primeiroCampoComErro = linha;
-					}
-
-					/*
-					|--------------------------------------------------------------------------
-					| Destaca linha
-					|--------------------------------------------------------------------------
-					*/
-
-					linha.addClass('linha-erro');
-
-					/*
-					|--------------------------------------------------------------------------
-					| Mensagem no TH
-					|--------------------------------------------------------------------------
-					*/
-
-					const th = linha.find('th');
-
-					th.append(
-						'<small class="erro-validacao text-danger d-block mt-1">' +
-							'Selecione ao menos um nível de conhecimento para continuar.' +
-						'</small>'
-					);
-
-				}
-
-			});
+			validarTabelaRadios(
+				'.linha-comportamental-obrigatoria',
+				'Por gentileza, indique a ação que mais reflete sua atitude nas situações a seguir.'
+			);
 
 			/*
 			|--------------------------------------------------------------------------

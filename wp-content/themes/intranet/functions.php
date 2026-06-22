@@ -5608,6 +5608,7 @@ include_once get_template_directory() . '/includes/cortesias/funcoes/cortesiaCon
 //############################### FUNÇÕES DO PORTAL DE OPORTUNIDADES ###############//
 //#################################################################################//
 include_once get_template_directory() . '/includes/oportunidades/funcoes/oportunidadeController.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/inscricaoController.php';
 //#################################################################################//
 
 // Alterar rotulo descrição para endereço
@@ -7449,6 +7450,9 @@ function obter_dados_candidato($user_id) {
     global $wpdb;
 
     $table = $wpdb->prefix . 'banco_talentos';
+    $table_vivencias = $wpdb->prefix . 'banco_talentos_vivencias';
+    $table_informatica = $wpdb->prefix . 'banco_talentos_informatica';
+    $table_comportamental = $wpdb->prefix . 'banco_talentos_comportamental';
 
     /*
     |--------------------------------------------------------------------------
@@ -7463,9 +7467,87 @@ function obter_dados_candidato($user_id) {
 
     if ($curriculo) {
 
+        /*
+        |--------------------------------------------------------------------------
+        | Vivências profissionais
+        |--------------------------------------------------------------------------
+        */
+
+        $curriculo_id = $curriculo->id;
+
+        // Vivencias
+        $vivencias = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT
+                    organizacao_empresa,
+                    cargo_funcao,
+                    duracao,
+                    atividades_competencias,
+                    outra_vivencia,
+                    ordem
+                FROM {$table_vivencias}
+                WHERE curriculo_id = %d
+                ORDER BY ordem ASC",
+                $curriculo_id
+            ),
+            ARRAY_A
+        );
+
+        $vivencias_formatadas = array();
+
+        foreach ($vivencias as $vivencia) {
+            $ordem = intval($vivencia['ordem']);
+            $vivencias_formatadas[$ordem] = $vivencia;
+        }
+
+        for ($i = 1; $i <= 3; $i++) {
+            if (
+                empty($vivencias_formatadas[$i]['outra_vivencia']) &&
+                !empty($vivencias_formatadas[$i + 1])
+            ) {
+                $vivencias_formatadas[$i]['outra_vivencia'] = '1';
+            }
+        }
+
+        // Informática
+        $informatica = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT competencia, nivel
+                FROM {$table_informatica} 
+                WHERE curriculo_id = %d",
+                $curriculo_id
+            ),
+            ARRAY_A
+        );
+
+        $informatica_formatada = array();
+
+        foreach ($informatica as $item) {
+            $informatica_formatada[$item['competencia']] = $item['nivel'];
+        }
+
+        // Comportamental
+        $comportamental = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT pergunta, nivel
+                FROM {$table_comportamental} 
+                WHERE curriculo_id = %d",
+                $curriculo_id
+            ),
+            ARRAY_A
+        );
+
+        $comportamental_formatado = array();
+        foreach ($comportamental as $item) {
+            $comportamental_formatado[$item['pergunta']] = $item['nivel'];
+        }
+
         return array(
             'origem' => 'banco',
-            'dados'  => $curriculo
+            'dados'  => $curriculo,
+            'vivencias' => $vivencias_formatadas,
+            'informatica' => $informatica_formatada,
+            'comportamental' => $comportamental_formatado
         );
     }
 
@@ -7770,6 +7852,7 @@ function salvar_banco_talentos() {
     $table = $wpdb->prefix . 'banco_talentos';
     $table_vivencias = $wpdb->prefix . 'banco_talentos_vivencias';
     $table_informatica = $wpdb->prefix . 'banco_talentos_informatica';
+    $table_comportamental = $wpdb->prefix . 'banco_talentos_comportamental';
 
     $user_id = get_current_user_id();
 
@@ -7966,6 +8049,10 @@ function salvar_banco_talentos() {
         // outros cursos
         'outros_cursos' => sanitize_textarea_field($_POST['outrosCursos'] ?? ''),
 
+        // finalizacao e visualizacao
+        'visualizar_curriculo' => $_POST['visualizarCurriculo'] ?? null,
+        'sugestoes' => sanitize_textarea_field($_POST['sugestoes'] ?? ''),
+
         // status
         'status_curriculo' => $status_curriculo,
 
@@ -7993,6 +8080,106 @@ function salvar_banco_talentos() {
 
     /*
     |--------------------------------------------------------------------------
+    | Funções auxiliares de validação
+    |--------------------------------------------------------------------------
+    */
+
+    function validar_vivencias(&$erros) {
+        $tem_vivencia_preenchida = false;
+        
+        for ($i = 1; $i <= 4; $i++) {
+            $organizacao = trim($_POST["organizacaoEmp{$i}"] ?? '');
+            $cargo_funcao = trim($_POST["cargoFuncao{$i}"] ?? '');
+            $duracao = trim($_POST["duracao{$i}"] ?? '');
+            $atividades = trim($_POST["atividadesComp{$i}"] ?? '');
+            
+            $vivencia_preenchida = !empty($organizacao) || !empty($cargo_funcao) || 
+                                !empty($duracao) || !empty($atividades);
+            
+            if ($vivencia_preenchida) {
+                $tem_vivencia_preenchida = true;
+                
+                // Valida campos individuais da vivência preenchida
+                if (empty($organizacao)) {
+                    $erros[] = "Vivência {$i}: Organização/Empresa é obrigatória";
+                }
+                if (empty($cargo_funcao)) {
+                    $erros[] = "Vivência {$i}: Cargo/Função é obrigatório";
+                }
+                if (empty($duracao)) {
+                    $erros[] = "Vivência {$i}: Duração é obrigatória";
+                }
+                if (empty($atividades)) {
+                    $erros[] = "Vivência {$i}: Atividades/Competências é obrigatório";
+                }
+            }
+        }
+        
+        // Verifica se pelo menos uma vivência foi preenchida
+        if (!$tem_vivencia_preenchida) {
+            $erros[] = 'É necessário preencher pelo menos uma experiência profissional';
+        }
+    }
+
+    function validar_informatica(&$erros) {
+        $competencias = $_POST['informatica'] ?? array();
+        
+        // Verifica se o array de competências foi enviado
+        if (empty($competencias)) {
+            $erros[] = 'Avaliação de competências de informática é obrigatória';
+            return;
+        }
+        
+        // Valores permitidos (0 = nenhum, 1 = básico, 2 = intermediário, 3 = avançado)
+        $niveis_validos = array('0', '1', '2', '3');
+        
+        foreach ($competencias as $competencia => $nivel) {
+            $competencia = sanitize_text_field($competencia);
+            $nivel = (string) $nivel;
+            
+            if (!in_array($nivel, $niveis_validos, true)) {
+                $erros[] = "Nível inválido para a competência '{$competencia}'";
+            }
+        }
+    }
+
+    function validar_comportamental(&$erros) {
+        $comportamental = $_POST['comportamental'] ?? array();
+        $perguntas_validas = array(
+            'sociabilidade',
+            'analitico',
+            'inovacao',
+            'tecnico',
+            'rotina',
+            'conservador',
+            'executor'
+        );
+        
+        $niveis_validos = array('0', '1', '2', '3');
+        $perguntas_respondidas = 0;
+        
+        foreach ($perguntas_validas as $pergunta) {
+            if (isset($comportamental[$pergunta]) && $comportamental[$pergunta] !== '') {
+                $nivel = (string) $comportamental[$pergunta];
+                
+                if (in_array($nivel, $niveis_validos, true)) {
+                    $perguntas_respondidas++;
+                } else {
+                    $erros[] = "Perfil comportamental - {$pergunta}: nível inválido";
+                }
+            } else {
+                $erros[] = "Perfil comportamental - {$pergunta} é obrigatório";
+            }
+        }
+        
+        // Opcional: verificar se todas as perguntas foram respondidas
+        if ($perguntas_respondidas !== count($perguntas_validas)) {
+            $erros[] = 'Todas as perguntas do perfil comportamental são obrigatórias';
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Validação backend
     |--------------------------------------------------------------------------
     */
@@ -8001,12 +8188,60 @@ function salvar_banco_talentos() {
 
         $erros = array();
 
+        if ( empty($dados['rf']) && count($dados['rf']) != 7 ) {
+            $erros[] = 'RF inválido.';
+        }
+
         if (empty($dados['nome_completo'])) {
             $erros[] = 'Nome completo é obrigatório.';
         }
 
         if (empty($dados['rf'])) {
             $erros[] = 'RF é obrigatório.';
+        }       
+
+        if (empty($dados['data_nascimento'])) {
+            $erros[] = 'Data de nascimento é obrigatório.';
+        }
+
+        if (empty($dados['identificacao_racial'])) {
+            $erros[] = 'Identificação racial é obrigatória.';
+        }
+
+        if (empty($dados['identidade_genero'])) {
+            $erros[] = 'Identidade de gênero é obrigatória.';
+        }
+
+        if ( !isset($dados['possui_deficiencia']) || $dados['possui_deficiencia'] === '' ){
+            $erros[] = 'Possui deficiência é obrigatória.';
+        }
+
+        if($dados['possui_deficiencia'] == 1) {
+             if ( !isset($dados['necessita_adaptacao']) || $dados['necessita_adaptacao'] === '' ) {
+                $erros[] = 'Necessita adaptação é obrigatória.';
+            }
+        }
+
+        if($dados['necessita_adaptacao'] == 1) {
+             if (empty($dados['descreva_adaptacao'])) {
+                $erros[] = 'Descreva adaptação é obrigatória.';
+            }
+        }
+
+         if ( !isset($dados['servidor_readaptado']) || $dados['servidor_readaptado'] === '' ) {
+            $erros[] = 'Servidor readaptado é obrigatório.';
+        }
+
+        if($dados['servidor_readaptado'] == 1) {
+            if ( !isset($dados['readaptado_necessita']) || $dados['readaptado_necessita'] === '' ) {
+                $erros[] = 'Readaptado necessita é obrigatória.';
+            }
+        }
+
+        if($dados['readaptado_necessita'] == 1) {
+            if (empty($dados['readaptado_descricao'])) {
+                $erros[] = 'Readaptado descrição é obrigatória.';
+            }
         }
 
         if (empty($dados['email_principal'])) {
@@ -8019,6 +8254,83 @@ function salvar_banco_talentos() {
         ) {
             $erros[] = 'E-mail principal inválido.';
         }
+
+        if (empty($dados['telefone_whatsapp'])) {
+            $erros[] = 'Telefone WhatsApp é obrigatório.';
+        }
+
+        if ( !isset($dados['concluiu_estagio']) || $dados['concluiu_estagio'] === '' ) {
+            $erros[] = 'Concluiu estágio é obrigatório.';
+        }
+
+        if (empty($dados['cargo_efetivo'])) {
+            $erros[] = 'Cargo efetivo é obrigatório.';
+        }
+
+        if ($dados['cargo_efetivo'] == 'Outro') {
+            if (empty($dados['cargo_outro'])) {
+                $erros[] = 'Cargo outro é obrigatório.';
+            }
+        }
+
+        if (empty($dados['dre_lotacao'])) {
+            $erros[] = 'DRE de lotação é obrigatório.';
+        }
+
+        if (empty($dados['unidade_lotacao'])) {
+            $erros[] = 'Unidade de lotação é obrigatório.';
+        }
+
+        if (empty($dados['dre_exercicio'])) {
+            $erros[] = 'DRE de exercício é obrigatório.';
+        }
+
+        if (empty($dados['unidade_exercicio'])) {
+            $erros[] = 'Unidade de exercício é obrigatório.';
+        }
+
+        if ( !isset($dados['acumula_cargo']) || $dados['acumula_cargo'] === '' ) {
+            $erros[] = 'Acumula cargo é obrigatório.';
+        }
+
+        if ($dados['acumula_cargo'] == 1) {
+            if (empty($dados['acumula_descricao'])) {
+                $erros[] = 'Informar cargo é obrigatório.';
+            }
+        }
+
+        if (empty($dados['escolaridade'])) {
+            $erros[] = 'Escolaridade é obrigatória.';
+        }
+
+        if ($dados['escolaridade'] != 'medio') {
+            if (empty($dados['curso_graduacao'])) {
+                $erros[] = 'Curso de graduação é obrigatório.';
+            }
+
+            if (empty($dados['ano_conclusao'])) {
+                $erros[] = 'Ano de conclusão é obrigatório.';
+            }
+        }        
+        
+        if ($dados['escolaridade'] != 'medio' && $dados['outra_graduacao'] === '') {
+            $erros[] = 'Outra graduação é obrigatória.';
+        }
+
+        if ($dados['outra_graduacao'] == 1 && $dados['escolaridade'] != 'medio') {
+            if (empty($dados['segunda_graduacao'])) {
+                $erros[] = 'Segunda graduação é obrigatória.';
+            }
+
+            if (empty($dados['ano_conclusao_seg'])) {
+                $erros[] = 'Ano de conclusão é obrigatório.';
+            }
+        }       
+
+        // Valida as tabelas relacionadas
+        validar_vivencias($erros);
+        validar_informatica($erros);
+        validar_comportamental($erros);
 
         if (!empty($erros)) {
 
@@ -8084,6 +8396,8 @@ function salvar_banco_talentos() {
         '%s',  // segunda_graduacao
         '%s',  // ano_conclusao_seg
         '%s',  // outros_cursos
+        '%d',  // visualizar_curriculo
+        '%s',  // sugestoes
         '%s',  // status_curriculo
         '%s'   // atualizado_em
     );
@@ -8315,6 +8629,98 @@ function salvar_banco_talentos() {
 
     /*
     |--------------------------------------------------------------------------
+    | Salva Preferências e Perfil Comportamental
+    |--------------------------------------------------------------------------
+    */
+
+    $comportamental = $_POST['comportamental'] ?? array();
+
+    /*
+    |--------------------------------------------------------------------------
+    | Perguntas válidas
+    |--------------------------------------------------------------------------
+    */
+
+    $perguntas_validas = array(
+        'sociabilidade',
+        'analitico',
+        'inovacao',
+        'tecnico',
+        'rotina',
+        'conservador',
+        'executor',
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Níveis válidos
+    |--------------------------------------------------------------------------
+    */
+
+    $niveis_validos = array(
+        '0',
+        '1',
+        '2',
+        '3',
+    );
+
+    /*
+    |--------------------------------------------------------------------------
+    | Remove respostas antigas
+    |--------------------------------------------------------------------------
+    */
+
+    $wpdb->delete(
+        $table_comportamental,
+        array(
+            'curriculo_id' => $curriculo_id
+        ),
+        array('%d')
+    );
+
+    foreach ($comportamental as $pergunta => $nivel) {
+
+        $pergunta = sanitize_text_field($pergunta);
+        $nivel = (string) $nivel;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Valida pergunta
+        |--------------------------------------------------------------------------
+        */
+
+        if (!in_array($pergunta, $perguntas_validas, true)) {
+            continue;
+        }
+
+        /*
+        |--------------------------------------------------------------------------
+        | Valida nível
+        |--------------------------------------------------------------------------
+        */
+
+        if (!in_array($nivel, $niveis_validos, true)) {
+            continue;
+        }        
+
+        $wpdb->insert(
+            $table_comportamental,
+            array(
+                'curriculo_id' => $curriculo_id,
+                'pergunta'     => $pergunta,
+                'nivel'        => (int) $nivel,
+            ),
+            array(
+                '%d',
+                '%s',
+                '%d',
+            )
+        );
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
     | Log erro SQL
     |--------------------------------------------------------------------------
     */
@@ -8336,10 +8742,18 @@ function salvar_banco_talentos() {
     |--------------------------------------------------------------------------
     */
 
+    if($acao_curriculo === 'finalizar') {
+        $acao = 'curriculo_enviado';
+    } else {
+        $acao = 'rascunho_salvo';
+    }
+
     wp_safe_redirect(
         add_query_arg(
-            'sucesso',
-            '1',
+            array(
+                'sucesso' => '1',
+                'acao'    => $acao
+            ),
             get_permalink()
         )
     );
@@ -9154,3 +9568,83 @@ add_action( 'pre_get_posts', function ( $query ) {
     );
 
 });
+
+/**
+ * Função que adiciona a meta box ao CPT
+ */
+function adicionar_meta_box_cpt() {
+    // Define em quais telas o metabox aparecerá
+    $screens = ['oportunidade']; // Pode adicionar vários CPTs ou 'post', 'page'
+    
+    foreach ($screens as $screen) {
+        add_meta_box(
+            'meu_meta_box_id',           // ID único da meta box
+            'Listagem de Candidatos Inscritos',     // Título exibido
+            'renderizar_meta_box_cpt',   // Função callback que exibe o HTML
+            $screen,                     // Post type onde aparecerá
+            'normal',                    // Contexto: 'normal', 'side', 'advanced'
+            'default'                       // Prioridade: 'high', 'core', 'default', 'low'
+        );
+    }
+}
+add_action('add_meta_boxes', 'adicionar_meta_box_cpt');
+
+/**
+ * Função que renderiza a meta box via arquivo externo
+ */
+function renderizar_meta_box_cpt($post) {
+    // Nonce ainda é importante mesmo sem salvamento
+    wp_nonce_field('meta_box_action', 'meta_box_nonce');
+    
+    // Inclui o arquivo de template
+    $template_path = get_template_directory() . '/includes/oportunidades/template-parts/listar-inscritos.php';
+    // Ou no tema: get_template_directory() . '/admin/meta-box-content.php'
+    
+    if (file_exists($template_path)) {
+        include $template_path;
+    } else {
+        echo '<p>Template não encontrado.</p>';
+    }
+}
+
+// remover ordenação dos postsbox em oportunidades para evitar que o usuário mova as caixas e perca o acesso a campos importantes
+function travar_post_boxes_oportunidade() {
+    global $post;
+ 
+    $tipo_post_alvo = 'oportunidade';
+ 
+    if ( isset( $post->post_type ) && $post->post_type === $tipo_post_alvo ) {
+        ?>
+        <style type="text/css">
+            /* Editor Clássico: Trava o cabeçalho e desativa os eventos de arrastar */
+            .meta-box-sortables {
+                pointer-events: none !important;
+            }
+            /* Restaura cliques nos inputs, botões e links dentro das caixas */
+            .postbox .inside,
+            .postbox .handlediv,
+            .postbox .toggle-indicator {
+                pointer-events: auto !important;
+            }
+            /* Remove o cursor de movimento e define padrão */
+            .postbox .hndle,
+            .postbox .hndle * {
+                cursor: default !important;
+            }
+ 
+            /* Esconde as alças de arrastar das caixas inferiores */
+            .postbox .hndle {
+                pointer-events: none !important;
+                cursor: default !important;
+            }
+            .postbox .handle-order-higher,
+            .postbox .handle-order-lower {
+                display: none !important;
+            }
+        </style>
+        <?php
+    }
+}
+// Vincula o estilo ao cabeçalho da página de edição
+add_action( 'admin_head-post-new.php', 'travar_post_boxes_oportunidade' );
+add_action( 'admin_head-post.php', 'travar_post_boxes_oportunidade' );
