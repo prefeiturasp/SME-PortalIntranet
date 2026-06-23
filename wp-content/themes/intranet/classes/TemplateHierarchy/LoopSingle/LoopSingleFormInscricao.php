@@ -20,6 +20,12 @@ class LoopSingleFormInscricao extends LoopSingle
         $parceira = get_field('parceira', 'user_' . $user_id);
         $this->tipo_evento = get_field('tipo_evento');
 
+		wp_localize_script(
+			'valida-inscricao',
+			'validacaoConfig',
+			['listaDominiosEmail' => obter_dominios_email_validacao() ?? []]
+		);
+
         if($dataLimite >= $current_date){
 
             if ($_SERVER["REQUEST_METHOD"] === "POST") { //requisição POST
@@ -219,15 +225,33 @@ class LoopSingleFormInscricao extends LoopSingle
                                 
                                 <div class="form-group col-12 col-md-6">
                                     <?php if(!$parceira): ?>
-                                        <label for="emailInsti">E-mail Institucional ou de Uso Principal <span>*</span></label>
-                                        <?php if ($user_email && strpos($user_email, '@sme.prefeitura') !== false) : ?>								
+                                        <label for="emailInsti">
+                                            E-mail Institucional ou de Uso Principal <span>*</span>
+                                            <i
+                                                class="fa fa-info-circle text-info"
+                                                aria-hidden="true"
+                                                data-toggle="tooltip"
+                                                title='&#9888; Verifique se este e-mail está correto, pois ele será utilizado para enviar as próximas orientações do evento, caso você seja contemplado(a). Se precisar alterá-lo, atualize seu cadastro na área "Perfil" da Intranet.'
+                                                >
+                                            </i>
+                                        </label>
+                                        <?php if ($user_email) : ?>								
                                             <input type="email" name="emailInstiDisa" class="form-control" id="emailInsti" value="<?= $user_email; ?>" disabled>
                                             <input type="hidden" name="emailInsti" value="<?= $user_email; ?>">
                                         <?php else: ?>
                                             <input type="email" name="emailInsti" class="form-control" id="emailInsti" placeholder="email@sme.prefeitura.sp.gov.br">
                                         <?php endif; ?>
                                     <?php else: ?>
-                                        <label for="emailInsti">E-mail Principal <span>*</span></label>
+                                        <label for="emailInsti">
+                                            E-mail Principal <span>*</span>
+                                            <i
+                                                class="fa fa-info-circle text-info"
+                                                aria-hidden="true"
+                                                data-toggle="tooltip"
+                                                title='&#9888; Certifique-se de que o e-mail informado foi digitado corretamente, pois ele será utilizado para enviar as próximas orientações do evento, caso você seja contemplado(a).'
+                                                >
+                                            </i>
+                                        </label>
                                         <input type="email" name="emailInsti" class="form-control" id="emailInsti" placeholder="Insira seu e-mail principal">
                                     <?php endif; ?>
                                 </div>
@@ -247,11 +271,7 @@ class LoopSingleFormInscricao extends LoopSingle
                                 ?>
                                 <div class="form-group col-12 col-md-6">
                                     <label for="emailSec">E-mail Secundário <span>*</span></label>
-                                    <?php if ($user_email && strpos($user_email, '@sme.prefeitura') == false && !$parceira) : ?>								
-                                        <input type="email"  name="emailSec" class="form-control" id="emailSec" value="<?= $user_email; ?>">
-                                    <?php else: ?>
-                                        <input type="email"  name="emailSec" class="form-control" id="emailSec" placeholder="email@provedor.com.br">
-                                    <?php endif; ?>
+                                    <input type="email"  name="emailSec" class="form-control" id="emailSec" placeholder="email@provedor.com.br">
                                 </div>
 
                                 <div class="form-group col-12 col-md-3">

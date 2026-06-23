@@ -25,6 +25,12 @@ class LoopCortesiasFormInscricao extends LoopCortesias
 		$qtd_ingressos_inscrito = get_field( 'quantidade_ingressos_inscrito' );
 		$datas_disponivies = get_datas_diponiveis( get_the_ID() );
 
+		wp_localize_script(
+			'valida-inscricao-cortesias',
+			'validacaoConfig',
+			['listaDominiosEmail' => obter_dominios_email_validacao() ?? []]
+		);
+
 		if( $dataLimite >= $current_date && !empty( $datas_disponivies ) ){
 
 			if ($_SERVER["REQUEST_METHOD"] === "POST") { //requisição POST
@@ -199,8 +205,17 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                     
                                     <div class="form-group col-12 col-md-6">
                                         <?php if(!$parceira): ?>
-                                            <label for="emailInsti">E-mail Institucional ou de Uso Principal <span>*</span></label>
-                                            <?php if ($user_email && strpos($user_email, '@sme.prefeitura') !== false) : ?>								
+                                            <label for="emailInsti">
+												E-mail Institucional ou de Uso Principal <span>*</span>
+												<i
+													class="fa fa-info-circle text-info"
+													aria-hidden="true"
+													data-toggle="tooltip"
+													title='&#9888; Verifique se este e-mail está correto, pois ele será utilizado para enviar as próximas orientações do evento, caso você seja contemplado(a). Se precisar alterá-lo, atualize seu cadastro na área "Perfil" da Intranet.'
+													>
+												</i>
+											</label>
+                                            <?php if ($user_email) : ?>								
                                                 <input type="email" name="emailInstiDisa" class="form-control" id="emailInsti" value="<?= $user_email; ?>" disabled>
                                                 <input type="hidden" name="emailInsti" value="<?= $user_email; ?>">
                                             <?php else: ?>
@@ -214,7 +229,16 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                                 >
                                             <?php endif; ?>
                                         <?php else: ?>
-                                            <label for="emailInsti">E-mail Institucional ou de Uso Principal <span>*</span></label>
+                                            <label for="emailInsti">
+												E-mail Institucional ou de Uso Principal <span>*</span>
+												<i
+													class="fa fa-info-circle text-info"
+													aria-hidden="true"
+													data-toggle="tooltip"
+													title='&#9888; Certifique-se de que o e-mail informado foi digitado corretamente, pois ele será utilizado para enviar as próximas orientações do evento, caso você seja contemplado(a).'
+													>
+												</i>
+											</label>
                                             <input
                                                 type="email"
                                                 name="emailInsti"
@@ -242,18 +266,14 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                     ?>
                                     <div class="form-group col-12 col-md-6">
                                         <label for="emailSec">E-mail Secundário <span>*</span></label>
-                                        <?php if ($user_email && strpos($user_email, '@sme.prefeitura') == false && !$parceira) : ?>								
-                                            <input type="email"  name="emailSec" class="form-control" id="emailSec" value="<?= $user_email; ?>">
-                                        <?php else: ?>
-                                            <input
-                                                type="email" 
-                                                name="emailSec"
-                                                class="form-control"
-                                                id="emailSec"
-                                                placeholder="email@provedor.com.br"
-                                                value="<?php echo esc_html( old( 'emailSec' ) ); ?>"
-                                            >
-                                        <?php endif; ?>
+										<input
+											type="email" 
+											name="emailSec"
+											class="form-control"
+											id="emailSec"
+											placeholder="email@provedor.com.br"
+											value="<?php echo esc_html( old( 'emailSec' ) ); ?>"
+										>
                                     </div>
 
                                     <div class="form-group  col-12 col-md-3">
