@@ -81,7 +81,7 @@ class Envia_Emails_Oportunidades_SME {
         $oportunidade = get_the_title($this->idOportunidade);
         $link = get_home_url() . '/minhas-oportunidades/';
         $logo = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/logo.png';
-        $iconeSeta = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/icon-seta.svg';
+        $iconeSeta = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/seta-azul.png';
         $iconeAviso = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/icone-aviso.png';
 
         $assunto = "Portal de Oportunidades SME | Atualização da sua candidatura";
