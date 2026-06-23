@@ -191,7 +191,7 @@ class Inscricao {
     }
 
     /**
-     * Realiza inscrição
+     * Atualiza etapa dos candidatos
     */
     public static function atualizar_etapa_candidatos( array $id_inscricoes, string $etapa, string $post_id ) {
 
@@ -241,6 +241,17 @@ class Inscricao {
                 'message' => 'Não foi possível completar ação.'
             ];
         }
+        
+        
+        // Instanciando a classe
+        $envio = new \EnviaEmailOportunidade\classes\Envia_Emails_Oportunidades_SME(
+            $id_inscricoes,  // Pode ser um único ID ou array de IDs
+            $post_id,        // ID da oportunidade
+            $etapa           // Etapa atual
+        );
+
+        // Executando o envio
+        $envio->enviar_emails_conforme_etapa();
 
         ob_start();
 
