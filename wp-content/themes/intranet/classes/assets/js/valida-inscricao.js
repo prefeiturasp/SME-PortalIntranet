@@ -33,7 +33,7 @@ jQuery(document).ready(function ($) {
             $(campo).closest('.form-check').find('.mensagem-erro').show();
         } else {
             // Para outros campos, adiciona a mensagem após o campo
-            if ($(campo).next('.mensagem-erro').length === 0) {
+            if ($(campo).next('.mensagem-erro:visible').length === 0) {
                 $(campo).after('<span class="mensagem-erro">' + mensagemPersonalizada + '</span>');
             }
             $(campo).next('.mensagem-erro').show();
@@ -59,6 +59,23 @@ jQuery(document).ready(function ($) {
         return /^\d{11}$/.test(cpfLimpo);
     }
 
+    // Função para validar o email digitado nos campos do formulário de inscrição
+    function possuiDominioEmailSuspeito(email) {
+
+        if (!email || !email.includes('@')) {
+            return false;
+        }
+    
+        const dominio = email
+            .split('@')
+            .pop()
+            .toLowerCase()
+            .trim();
+
+        return validacaoConfig.listaDominiosEmail.map(item => item.toLowerCase()).includes(dominio);
+    
+    }
+
     // Função para validar todos os campos obrigatórios
     function validarCampos(exibirMensagens = false) {
         let tipo_sorteio = jQuery('.news-content').first().data('tipo-evento');
@@ -81,6 +98,69 @@ jQuery(document).ready(function ($) {
                     todosPreenchidos = false;
                     camposComErro.push(`${label} (inválido)`);
                     if (exibirMensagens) adicionarMensagemErro($campo, 'CPF inválido. O CPF deve ter 11 dígitos.');
+                } else {
+                    removerMensagemErro($campo);
+                }
+                return;
+            }
+
+            // Validação específica para o campo de e-mail institucional/principal
+            if (campo === '#emailInsti') {;
+                const emailInstitucional = $.trim($campo.val());
+
+                if (emailInstitucional === '') {
+                    todosPreenchidos = false;
+                    camposComErro.push(label);
+                    if (exibirMensagens) adicionarMensagemErro($campo, 'Este campo é de preenchimento obrigatório.');
+
+                } else if (possuiDominioEmailSuspeito(emailInstitucional)) {
+
+                    todosPreenchidos = false;
+                    camposComErro.push(`${label} (verificar)`);
+                
+                    if (exibirMensagens) {
+                        adicionarMensagemErro(
+                            $campo,
+                            'O domínio informado parece estar incorreto. Verifique o e-mail digitado.'
+                        );
+                    }
+                } else {
+                    removerMensagemErro($campo);
+                }
+                return;
+            }
+
+            // Validação específica para o campo de e-mail secundário
+            if (campo === '#emailSec') {
+                const emailInstitucional = $.trim($('#emailInsti').val());
+                const emailSecundario = $.trim($campo.val());
+
+                if (emailSecundario === '') {
+
+                    removerMensagemErro($campo);
+                    todosPreenchidos = false;
+                    camposComErro.push(label);
+                    if (exibirMensagens) adicionarMensagemErro($campo, 'Este campo é de preenchimento obrigatório.');
+
+                } else if (possuiDominioEmailSuspeito(emailSecundario)) {
+
+                    removerMensagemErro($campo);
+                    todosPreenchidos = false;
+                    camposComErro.push(`${label} (verificar)`);
+                
+                    if (exibirMensagens) {
+                        adicionarMensagemErro(
+                            $campo,
+                            'O domínio informado parece estar incorreto. Verifique o e-mail digitado.'
+                        );
+                    }
+
+                } else if (emailSecundario === emailInstitucional) {
+                    
+                    removerMensagemErro($campo);
+                    todosPreenchidos = false;
+                    camposComErro.push(`${label} (inválido)`);
+                    if (exibirMensagens) adicionarMensagemErro($campo, 'O e-mail secundário deve ser diferente do e-mail institucional ou de uso principal.');
                 } else {
                     removerMensagemErro($campo);
                 }
@@ -305,8 +385,15 @@ jQuery(document).ready(function ($) {
         }
     });
 
+    let confirmouEmails = false;
+
     // Impede envio do formulário se CPF estiver repetido ou campos estiverem incompletos
     $('#form-inscri').on('submit', function (event) {
+
+        if (confirmouEmails) {
+            return true;
+        }
+
         const { todosPreenchidos, camposComErro } = validarCampos(true);
 
         if (cpfCadastrado) {
@@ -333,6 +420,43 @@ jQuery(document).ready(function ($) {
                 html: `<p>Por favor, preencha os seguintes campos obrigatórios:</p><ul style="text-align:left">${camposComErro.map(c => `<li>${c}</li>`).join('')}</ul>`,
                 confirmButtonText: 'Ok',
                 confirmButtonColor: '#14447C'
+            });
+        } else {
+            event.preventDefault();
+
+            const emailPrincipal = $('#emailInsti').val();
+            const emailSecundario = $('#emailSec').val();
+
+            Swal.fire({
+                html: `
+                    <div class="text-left">
+                        <h2 class="mb-4"><i class="fa fa-exclamation-circle text-warning" aria-hidden="true"></i> Confirme seus e-mails</h2>
+                        <span>Antes de concluir sua inscrição, confira se os e-mails informados estão corretos:</span>
+
+                        <div class="my-3">
+                            <div><strong>E-mail principal:</strong> <strong class="new-text-primary">${emailPrincipal}</strong></div>
+                            <div><strong>E-mail secundário:</strong> <strong class="new-text-primary">${emailSecundario}</strong></div>
+                        </div>
+
+                        <span>Toda comunicação sobre o evento, caso você seja contemplado(a), será enviada para esses e-mails.</span>
+
+                        <p class="mt-4">Deseja continuar?</p>
+                        <hr>
+                    </div>
+                `,
+                width: 600,
+                showCancelButton: true,
+                confirmButtonText: 'Sim',
+                cancelButtonText: 'Não',
+                confirmButtonColor: '#14447C',
+                reverseButtons: true
+
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+                    confirmouEmails = true;
+                    $('#form-inscri').submit();
+                }
             });
         }
     });

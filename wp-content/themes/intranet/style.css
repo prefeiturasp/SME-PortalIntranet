@@ -3782,3 +3782,7 @@ table.datatables td{
 .modal-form-complementar p {
     font-size: 16px;
 }
+
+.new-text-primary {
+    color: #14447C;
+}
