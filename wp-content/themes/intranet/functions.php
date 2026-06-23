@@ -5404,6 +5404,7 @@ include_once get_template_directory() . '/includes/cortesias/funcoes/cortesiaCon
 //#################################################################################//
 include_once get_template_directory() . '/includes/oportunidades/funcoes/oportunidadeController.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/inscricaoController.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/envioEmails.php';
 //#################################################################################//
 
 // Alterar rotulo descrição para endereço
