@@ -84,8 +84,12 @@ foreach ( $participantes as $participante ) :
                     echo '<button type="button" class="btn btn-voltar-status" data-id="' . esc_attr($participante['id']) . '" data-status="' . esc_attr($status_atual) . '">';
                     echo '<i class="fa fa-repeat" aria-hidden="true"></i>';
                     echo '</button>';
-                } else {                                                
-                    echo '<button type="button" class="btn btn-secondary" disabled>';
+                } else {
+                    if($status_atual != 'inscrito'){
+                        echo '<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="A comunicação para esta etapa já foi enviada." disabled>';
+                    } else {
+                        echo '<button type="button" class="btn btn-secondary" data-toggle="tooltip" disabled>';
+                    }                    
                     echo '<i class="fa fa-paper-plane" aria-hidden="true"></i>';
                     echo '</button>';
                 }
