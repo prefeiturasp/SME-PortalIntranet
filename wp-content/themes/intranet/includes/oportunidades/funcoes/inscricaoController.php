@@ -12,6 +12,7 @@ class Inscricao {
 
         if ( is_admin() ) {
             add_action( 'wp_ajax_atualizar_etapa_candidatos', [$this, 'handle_atualizar_etapa_candidatos'] );
+            add_action( 'wp_ajax_comunicar_selecionados', [$this, 'handle_comunicar_selecionados'] );
             add_action( 'wp_ajax_enviar_email_comunicado', [$this, 'handle_enviar_email_comunicado'] );
         }
     }
@@ -271,6 +272,91 @@ class Inscricao {
         ];
     }
 
+    public function handle_comunicar_selecionados() {
+
+        global $wpdb;
+
+        $id = isset($_POST['user_id']) ? intval($_POST['user_id']) : 0;
+        $status = isset($_POST['status']) ? sanitize_text_field($_POST['status']) : '';
+        $prazo = isset($_POST['prazo']) ? intval($_POST['prazo']) : 0;
+        $tipo_prazo = isset($_POST['tipo_prazo']) ? sanitize_text_field($_POST['tipo_prazo']) : '';
+        $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+
+
+        if (!$id || !$prazo || !$tipo_prazo) {
+
+            wp_send_json_error([
+                'message' => 'Dados obrigatórios não foram enviados.'
+            ]);
+
+        }
+
+
+        $data_atual = current_time('timestamp');
+
+
+        if ($tipo_prazo === 'horas') {
+
+            $data_prazo = strtotime("+{$prazo} hours", $data_atual);
+
+        } else {
+
+            $data_prazo = strtotime("+{$prazo} days", $data_atual);
+
+        }
+
+
+        $prazo_confirmacao = date('Y-m-d H:i:s', $data_prazo);
+
+
+        $resultado = $wpdb->update(
+            self::TABELA_INSCRICOES,
+            [
+                'prazo_confirmacao' => $prazo_confirmacao,
+                'status_confirm' => $status,
+                'confirmou_presenca' => 0
+            ],
+            [
+                'id' => $id
+            ],
+            [
+                '%s',
+                '%s'
+            ],
+            [
+                '%d'
+            ]
+        );
+
+
+        if ($resultado !== false) {
+
+            ob_start();
+        
+            $inscricoes = Oportunidade::get_inscricoes( $post_id );
+
+            get_template_part( 'includes/oportunidades/template-parts/linhas-tabela-inscritos', null, [
+                'participantes' => $inscricoes
+            ]); 
+
+            $html = ob_get_clean();
+
+            wp_send_json_success([
+                'message' => 'A solicitação de confirmação de interesse foi enviada ao candidato com sucesso.',
+                'prazo_confirmacao' => $prazo_confirmacao,
+                'html' => $html
+            ]);
+
+        } else {
+
+            wp_send_json_error([
+                'message' => 'Erro ao atualizar a inscrição.'
+            ]);
+
+        }
+
+    }
+
     public static function get_etapas_processo() {
         
         return array(
@@ -315,7 +401,7 @@ class Inscricao {
                 'classe' => 'nao-selecionado'
             ),
             'inscrito' => array(
-                'descricao' => '-',
+                'descricao' => '—',
                 'classe' => 'inscrito'
             )
         );

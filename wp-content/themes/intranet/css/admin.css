@@ -735,6 +735,11 @@ div#meu_meta_box_id table.dataTable.no-footer{
     background: #e4e6e8;
 }
 
+.expirado {
+    color: #343a40 !important;
+    background: #e4e6e8 !important;
+}
+
 .convocado-teste{
     color: #856404;
     background: #fff3cd;
@@ -765,6 +770,63 @@ div#meu_meta_box_id table.dataTable.no-footer{
     background: #F4E8FF;
 }
 
+#mensagem {
+    min-height: 150px;
+    background: #fff;
+}
+
+.modal-prazo h3 {
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 1.5;
+    color: #1F2937;
+}
+
+.modal-prazo label,
+.modal-prazo .alert,
+.modal-prazo .form-control-file {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.modal-prazo .btn-outline-primary{
+    color: #0073aa;
+    border-color: #0073aa;
+}
+
+.modal-prazo .btn-outline-primary:not(:disabled):not(.disabled).active,
+.modal-prazo .btn-outline-primary:hover {
+    color: #fff;
+    background-color: #0073aa;
+    border-color: #0073aa;
+}
+
+.modal-prazo .btn-outline-primary:focus,
+.modal-prazo .btn-outline-primary {
+    outline: 0;
+}
+
+.modal-comunicacao .swal2-actions {
+    justify-content: flex-end !important;
+    margin-right: 25px;
+}
+
+.modal-comunicacao.swal2-popup .swal2-styled {
+    padding: 5px 15px;
+}
+
+.modal-comunicacao.swal2-popup .swal2-styled.btn-outline-secondary{
+    color: #6c757d;
+    background-color: transparent;
+    background-image: none;
+    border: 1px solid #c3c3bc;
+}
+
+.modal-comunicacao.swal2-popup .swal2-styled.btn-outline-secondary:hover {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #adb1b4;
+}
 /* Modal "Comunicar candidatos" */
 #modal-comunicar-candidatos .alert {
     font-size: 14px;
