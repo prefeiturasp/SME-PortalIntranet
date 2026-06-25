@@ -827,3 +827,11 @@ div#meu_meta_box_id table.dataTable.no-footer{
     background-color: #6c757d;
     border-color: #adb1b4;
 }
+/* Modal "Comunicar candidatos" */
+#modal-comunicar-candidatos .alert {
+    font-size: 14px;
+}
+
+#modal-comunicar-candidatos #conteudo-email.ql-container {
+    min-height: 180px;
+}

@@ -13,6 +13,7 @@ class Inscricao {
         if ( is_admin() ) {
             add_action( 'wp_ajax_atualizar_etapa_candidatos', [$this, 'handle_atualizar_etapa_candidatos'] );
             add_action( 'wp_ajax_comunicar_selecionados', [$this, 'handle_comunicar_selecionados'] );
+            add_action( 'wp_ajax_enviar_email_comunicado', [$this, 'handle_enviar_email_comunicado'] );
         }
     }
 
@@ -406,6 +407,71 @@ class Inscricao {
         );
     }
 
+    /**
+     * AJAX - Enviar comunicado para os candidatos selecionados
+    */
+    public function handle_enviar_email_comunicado() {
+
+        check_ajax_referer( 'enviar_email_comunicado', 'nonce' );
+
+        $conteudo_email = wp_kses_post( $_POST['conteudo_email'] ?? '' );
+        $post_id = absint( $_POST['post_id'] ?? 0 );
+        $id_inscricoes = array_filter(
+            array_map(
+                'absint',
+                explode(',', $_POST['ids'] ?? '')
+            )
+        );
+
+        if ( empty( $id_inscricoes ) ) {
+            wp_send_json_error([
+                'message' => 'Nenhum candidato selecionado.'
+            ]);
+        }
+
+        if ( empty( wp_strip_all_tags( $conteudo_email ) ) ) {
+            wp_send_json_error([
+                'message' => 'O conteúdo do comunicado é obrigatório.'
+            ]);
+        }
+
+        if ( !$post_id ) {
+            wp_send_json_error([
+                'message' => 'Oportunidade inválida.'
+            ]);
+        }
+
+        $email_controller = new \EnviaEmailOportunidade\classes\Envia_Emails_Oportunidades_SME(
+            $id_inscricoes,
+            $post_id
+        );
+
+        $anexos = $email_controller->processar_anexos_email();
+
+        if ( is_wp_error( $anexos ) ) {
+            wp_send_json_error([
+                'message' => $anexos->get_error_message()
+            ]);
+        }
+
+        $resultado = $email_controller->enviar_comunicado_inscritos( $conteudo_email, $anexos );
+
+        if ( is_wp_error($resultado) ) {
+            wp_send_json_error([
+                'message' => $resultado->get_error_message()
+            ]);
+        }
+
+        foreach ( $anexos as $anexo ) {
+            @unlink( $anexo );
+        }
+
+        wp_send_json_success([
+            'message' => 'Comunicado enviado com sucesso.',
+            'enviados' => $resultado['enviados'],
+            'falhas' => $resultado['falhas']
+        ]);
+    }
 }
 
 new Inscricao();

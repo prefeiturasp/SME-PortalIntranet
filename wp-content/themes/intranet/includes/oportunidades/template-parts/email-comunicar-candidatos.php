@@ -15,6 +15,27 @@
             <div class='dado'>Olá,</div>
             <div class='dado'>Sua candidatura para a oportunidade abaixo recebeu uma atualização:</div>
             <div class='espaco'><span class="destaque-azul">{TITULO-OPORTUNIDADE}</span></div>
+
+            <div class='espaco'>
+                <span class="destaque" style="min-width:94%">
+
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;">
+                        <tr>                            
+                            <td style="vertical-align: top; padding-right: 20px; width: 24px;">
+                                <img src="{ICONE-MENSAGEM}" alt="Ícone de aviso"
+                                style="display:block; border:0; outline:none;">
+                            </td>
+                            
+                            <td style="vertical-align: top;">
+                                <h3 style="color: #0331CD; font-weight: 600;">Orientações Complementares:</h3>
+                                {ORIENTACOES-COMPLEMENTARES}
+                            </td>                            
+                        </tr>
+                    </table>
+                                        
+                </span>
+            </div>
+
             <div class='dado'>Para consultar os detalhes da atualização e acompanhar o andamento da sua candidatura, acesse a área <span style="color: #0331CD; font-weight: 600;">"Minhas Oportunidades"</span> pelo link abaixo:</div>
             <p>
                 <a href="{LINK-OPORTUNIDADES}" style="color: #FFFFFF; font-weight: 600; background: #0331CD; padding: 20px; display: inline-block; text-decoration: none; border-radius: 7px; margin-top: 30px; margin-bottom: 30px;"><img src="{ICONE-SETA}" alt="Ícone de oportunidades" style="vertical-align: middle"> Acessar minhas oportunidades</a>
