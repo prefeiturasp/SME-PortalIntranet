@@ -481,6 +481,276 @@ if ($current_post_id > 0) {
                 
                 alert('Função de comunicação será implementada para ' + checkboxes.length + ' candidato(s)');
             });
+
+            $(document).on('click', '.btn-comunicar-selecionados', function(){
+
+                var user_id = this.getAttribute('data-id');
+                var status = this.getAttribute('data-status');
+
+
+                Swal.fire({
+                    customClass: {
+                        popup: 'modal-comunicacao',
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-outline-secondary'
+                    },                 
+                    html: `
+                        <div class="text-left modal-prazo">
+
+                            <h3 class="mb-3">Prazo para Confirmação de Interesse no Processo Seletivo</h3>
+
+                            <p class="mb-3">
+                               Defina o prazo para que o(a) candidato(a) confirme o interesse em prosseguir no processo seletivo.
+                            </p>
+
+                            <hr>
+
+                            <div class="alert alert-primary" role="alert">
+                                O(a) candidato(a) receberá uma solicitação para informar se deseja continuar na etapa atual do processo seletivo até a data definida abaixo.
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Prazo para resposta <span class="text-danger">*</span></strong></label>
+
+                                <div class="row">
+
+                                    <div class="col-8 pr-0">
+                                        <input type="number" 
+                                            id="prazo" 
+                                            placeholder="Ex: 48" 
+                                            class="form-control" 
+                                            min="1">
+
+                                            <small id="erro-prazo" class="text-danger d-none">
+                                                Este campo é obrigatório.
+                                            </small>
+                                    </div>
+
+                                    <div class="col-4">
+
+                                        <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+
+                                            <label class="btn btn-outline-primary active w-50">
+                                                <input type="radio" 
+                                                    name="tipo_prazo" 
+                                                    value="horas" 
+                                                    autocomplete="off" 
+                                                    checked>
+                                                Horas
+                                            </label>
+
+                                            <label class="btn btn-outline-primary w-50">
+                                                <input type="radio" 
+                                                    name="tipo_prazo" 
+                                                    value="dias" 
+                                                    autocomplete="off">
+                                                Dias
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group">
+                                <label>Orientação complementar (opcional)</label>
+
+                                <div id="mensagem"></div>
+
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="anexos-email" class="m-0">Anexos (opcional)</label>
+                                <p class="text-secondary mt-0"><i class="fa fa-info-circle" aria-hidden="true"></i> Limite: 5 arquivos de, no máximo, 2MB cada.</p>
+                                <input
+                                    type="file"
+                                    class="form-control-file" 
+                                    id="anexos-email" 
+                                    name="anexo"
+                                    multiple
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                                >
+                            </div>
+
+
+                        </div>
+                    `,
+
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: '<i class="fa fa-paper-plane" aria-hidden="true"></i> Enviar',
+                    reverseButtons: true,                  
+                    focusConfirm: false,
+
+
+                    didOpen: () => {
+
+                        var editor = document.querySelector('#mensagem');
+
+                        var quill = new Quill(editor, {
+                            theme: 'snow',
+                            placeholder: 'Digite seu texto...',
+                            modules: {
+                                toolbar: [
+                                    ['bold', 'italic', 'underline'],
+                                    [{ list: 'ordered' }, { list: 'bullet' }],
+                                    [{ align: [] }],
+                                    [{ size: ['small', false, 'large', 'huge'] }],
+                                    ['link']
+                                ]
+                            }
+                        });
+
+
+                        editor.__quill = quill;
+
+                    },
+
+
+                    preConfirm: () => {
+
+                        let prazo = document.getElementById('prazo');
+                        let tipo_prazo = document.querySelector('input[name="tipo_prazo"]:checked').value;
+
+                        let quill = document.querySelector('#mensagem').__quill;
+                        let mensagem = quill.root.innerHTML;
+
+                        let anexo = document.getElementById('anexos-email').files;
+                        let post_id = document.getElementById('post_ID').value;
+
+                        let erro = document.getElementById('erro-prazo');
+                        
+                        if (!prazo.value) {
+
+                            prazo.classList.add('is-invalid');
+                            erro.classList.remove('d-none');
+
+                            return false;
+                        }
+
+
+                        return {
+
+                            user_id: user_id,
+                            status: status,
+                            prazo: prazo.value,
+                            tipo_prazo: tipo_prazo,
+                            mensagem: mensagem,
+                            anexo: anexo,
+                            post_id: post_id
+
+                        };
+
+                    }
+
+
+                }).then((result) => {
+
+
+                    if (result.isConfirmed) {
+
+                        var dados = result.value;
+
+                        var formData = new FormData();
+
+                        formData.append('action', 'comunicar_selecionados');
+
+                        formData.append('user_id', dados.user_id);
+                        formData.append('status', dados.status);
+                        formData.append('prazo', dados.prazo);
+                        formData.append('tipo_prazo', dados.tipo_prazo);
+                        formData.append('mensagem', dados.mensagem);
+                        formData.append('post_id', dados.post_id);
+
+
+                        if (dados.anexo) {
+                            formData.append('anexo', dados.anexo);
+                        }
+
+
+                        $.ajax({
+
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+
+
+                            beforeSend: function() {
+
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Enviando...',
+                                    text: 'Aguarde enquanto a comunicação é enviada.',
+                                    allowOutsideClick: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
+
+                            },
+
+
+                            success: function(response) {
+
+                                console.log(response);
+
+
+                                if (response.success) {
+
+                                    table.destroy();
+
+                                    $(document)
+                                        .find('#tabela-candidatos tbody')
+                                        .html(response.data.html);
+
+
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Comunicação enviada com sucesso',
+                                        text: response.data.message
+                                    });
+
+
+                                } else {
+
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Erro!',
+                                        text: response.data.message
+                                    });
+
+                                }
+
+                            },
+
+
+                            error: function(xhr) {
+
+                                console.log(xhr.responseText);
+
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erro na requisição!',
+                                    text: 'Não foi possível processar a solicitação.'
+                                });
+
+                            }
+
+                        });
+
+                    }
+
+
+                });
+
+
+            });
             
         } else {
             console.log('Nenhum dado para inicializar o DataTable');
