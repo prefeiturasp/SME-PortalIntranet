@@ -159,7 +159,7 @@ class Envia_Emails_Oportunidades_SME {
             null,
             [
                 'titulo_oportunidade' => $oportunidade,
-                'text_pre_link'       => $texto_pre_link,
+                'texto_pre_link'      => $texto_pre_link,
                 'link_oportunidades'  => $link,
                 'texto_inicial'      => $texto_inicial,
                 'texto_pos_titulo'   => $texto_pos_titulo,

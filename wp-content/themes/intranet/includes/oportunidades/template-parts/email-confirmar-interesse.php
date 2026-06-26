@@ -6,6 +6,7 @@ $titulo_oportunidade = esc_html( $titulo_oportunidade );
 $link_oportunidades = esc_url( $link_oportunidades );
 $texto_inicial = $texto_inicial ?? '';
 $texto_pos_titulo = $texto_pos_titulo ?? '';
+$texto_pre_link = $texto_pre_link ?? '';
 $mensagem = $mensagem ?? '';
 $mensagem_html = $mensagem ?? '';
 $mensagem = trim(
