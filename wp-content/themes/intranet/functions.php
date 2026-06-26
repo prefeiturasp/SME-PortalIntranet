@@ -9539,3 +9539,87 @@ function obter_dominios_email_validacao() {
 
     return array_values( $dominios );
 }
+
+// Adiciona regras de validação customizadas para o campo de e-mail no cadastro das Coordenadorias/DREs.
+add_action( 'acf/validate_save_post', function () {
+
+    if ( empty( $_POST['taxonomy'] ) || $_POST['taxonomy'] !== 'coordenadorias' ) {
+        return;
+    }
+
+    $parent = isset( $_POST['parent'] ) ? (int) $_POST['parent'] : 0;
+
+    $email = '';
+    $field_key_email = '';
+
+    if ( !empty( $_POST['acf'] ) && is_array( $_POST['acf'] ) ) {
+
+        foreach ( $_POST['acf'] as $key => $value ) {
+
+            $field = acf_get_field( $key );
+
+            if ( $field && $field['name'] === 'email_coordenadoria' ) {
+
+                $email = $value;
+                $field_key_email = $key;
+                break;
+            }
+        }
+    }
+
+    if ( $parent <= 0 && empty( $email ) ) {
+
+        acf_add_validation_error(
+            "acf[{$field_key_email}]",
+            'Este campo é de preenchimento obrigatório.'
+        );
+
+    } elseif ( $parent <= 0 && !empty( $email ) && !is_email( $email ) ) {
+
+        acf_add_validation_error(
+            "acf[{$field_key_email}]",
+            'Informe um e-mail válido.'
+        );
+
+    }
+});
+
+// Modifica a exibição do campo de e-mail no cadastro/edição das Coordenadorias/DREs.
+add_action('admin_footer', function () {
+
+    $screen = get_current_screen();
+
+    if ( !$screen || $screen->taxonomy !== 'coordenadorias' ) {
+        return;
+    }
+
+    ?>
+    <script>
+    jQuery(function($) {
+
+        const $campo = $('.acf-field[data-name="email_coordenadoria"]');
+        const $input = $campo.find('input');
+
+        $campo.find('.acf-label label').append(' <span class="acf-required">*</span>');
+
+        function atualizarObrigatoriedadeEmail() {
+
+            const parent = $('#parent').val();
+
+            if (parent && parent !== '0' && parent !== '-1') {
+                $campo.hide();
+                $input.val('');
+
+            } else {
+                $campo.show();
+            }
+        }
+
+        atualizarObrigatoriedadeEmail();
+
+        $('#parent').on('change', atualizarObrigatoriedadeEmail);
+
+    });
+    </script>
+    <?php
+});
