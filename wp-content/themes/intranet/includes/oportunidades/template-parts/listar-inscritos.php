@@ -197,6 +197,8 @@ if ($current_post_id > 0) {
     function inicializarComponentesTabelaInscritos() {
         // Máscara para celular
         jQuery('.celular-mask').mask('(00) 00000-0000');
+        jQuery('#filtro-situacao').trigger('change');
+        jQuery('#campo-busca-personalizado').trigger('keyup');
     }
 
     jQuery(document).ready(function($) {
