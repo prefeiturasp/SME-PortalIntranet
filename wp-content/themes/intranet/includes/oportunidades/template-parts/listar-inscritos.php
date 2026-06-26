@@ -175,7 +175,7 @@ if ($current_post_id > 0) {
                     <p class="text-secondary mt-0"><i class="fa fa-info-circle" aria-hidden="true"></i> Limite: 5 arquivos de, no máximo, 2MB cada.</p>
 					<input
 						type="file"
-						class="form-control-file" 
+						class="form-control-file anexos-email"
 						id="anexos-email" 
 						name="anexo"
                         multiple
@@ -616,12 +616,12 @@ if ($current_post_id > 0) {
                             </div>
                             
                             <div class="form-group">
-                                <label for="anexos-email" class="m-0">Anexos (opcional)</label>
+                                <label for="anexos-email-confirm" class="m-0">Anexos (opcional)</label>
                                 <p class="text-secondary mt-0"><i class="fa fa-info-circle" aria-hidden="true"></i> Limite: 5 arquivos de, no máximo, 2MB cada.</p>
                                 <input
                                     type="file"
-                                    class="form-control-file" 
-                                    id="anexos-email" 
+                                    class="form-control-file anexos-email"
+                                    id="anexos-email-confirm" 
                                     name="anexo"
                                     multiple
                                     accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
@@ -809,7 +809,7 @@ if ($current_post_id > 0) {
         }
 
         // Validação da quantidade de arquivos anexados no modal de comunicar candidatos
-        $('#modal-comunicar-candidatos #anexos-email').on('change', function () {
+        $(document).on('change', '.anexos-email', function() {
 
             const limite = 5;
 
