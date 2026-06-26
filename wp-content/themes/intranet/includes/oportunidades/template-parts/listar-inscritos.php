@@ -624,7 +624,7 @@ if ($current_post_id > 0) {
                                     type="file"
                                     class="form-control-file anexos-email"
                                     id="anexos-email-confirm" 
-                                    name="anexo"
+                                    name="anexos"
                                     multiple
                                     accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
                                 >
@@ -673,7 +673,7 @@ if ($current_post_id > 0) {
                         let quill = document.querySelector('#mensagem').__quill;
                         let mensagem = quill.root.innerHTML;
 
-                        let anexo = document.getElementById('anexos-email').files;
+                        let anexo = document.getElementById('anexos-email-confirm').files;
                         let post_id = document.getElementById('post_ID').value;
 
                         let erro = document.getElementById('erro-prazo');
@@ -721,8 +721,10 @@ if ($current_post_id > 0) {
                         formData.append('post_id', dados.post_id);
 
 
-                        if (dados.anexo) {
-                            formData.append('anexo', dados.anexo);
+                        let files = document.getElementById('anexos-email-confirm').files;
+
+                        for (let i = 0; i < files.length; i++) {
+                            formData.append('anexos[]', files[i]);
                         }
 
 

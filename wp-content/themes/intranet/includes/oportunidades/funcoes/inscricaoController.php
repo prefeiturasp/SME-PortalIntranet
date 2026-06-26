@@ -272,6 +272,10 @@ class Inscricao {
         ];
     }
 
+    /**
+     * Enviar comunicação de confirmação de interesse para o usuário selecionado
+     */
+
     public function handle_comunicar_selecionados() {
 
         global $wpdb;
@@ -281,6 +285,7 @@ class Inscricao {
         $prazo = isset($_POST['prazo']) ? intval($_POST['prazo']) : 0;
         $tipo_prazo = isset($_POST['tipo_prazo']) ? sanitize_text_field($_POST['tipo_prazo']) : '';
         $post_id = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+        $conteudo_email = wp_kses_post($_POST['mensagem'] ?? '');       
 
 
         if (!$id || !$prazo || !$tipo_prazo) {
@@ -321,7 +326,8 @@ class Inscricao {
             ],
             [
                 '%s',
-                '%s'
+                '%s',
+                '%d'
             ],
             [
                 '%d'
@@ -331,13 +337,39 @@ class Inscricao {
 
         if ($resultado !== false) {
 
-            ob_start();
-        
-            $inscricoes = Oportunidade::get_inscricoes( $post_id );
 
-            get_template_part( 'includes/oportunidades/template-parts/linhas-tabela-inscritos', null, [
-                'participantes' => $inscricoes
-            ]); 
+            $email_controller = new \EnviaEmailOportunidade\classes\Envia_Emails_Oportunidades_SME(
+                $id,
+                $post_id
+            );
+
+
+            $envio = $email_controller->enviar_email_confirmacao_interesse(
+                $conteudo_email,
+                $prazo_confirmacao
+            );
+
+
+            if (!$envio) {
+
+                wp_send_json_error([
+                    'message' => 'A inscrição foi atualizada, mas ocorreu um erro ao enviar o email.'
+                ]);
+
+            }
+
+
+            ob_start();
+
+            $inscricoes = Oportunidade::get_inscricoes($post_id);
+
+            get_template_part(
+                'includes/oportunidades/template-parts/linhas-tabela-inscritos',
+                null,
+                [
+                    'participantes' => $inscricoes
+                ]
+            );
 
             $html = ob_get_clean();
 

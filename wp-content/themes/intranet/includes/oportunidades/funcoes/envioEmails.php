@@ -17,11 +17,7 @@ class Envia_Emails_Oportunidades_SME {
 
     public function enviar_emails_conforme_etapa() {
         
-        switch ($this->etapa) {
-            case 'convocado_teste':
-            case 'entrevista_agendada':
-                $this->enviarEmailIndividuais();
-                break;
+        switch ($this->etapa) {            
             case 'analise_curricular':
             case 'nao_avancou_triagem':
             case 'nao_avancou_pos_entrevista':
@@ -37,8 +33,165 @@ class Envia_Emails_Oportunidades_SME {
 
     }
 
-    private function enviarEmailIndividuais() {        
-        // Lógica para enviar email individual
+    public function enviar_email_confirmacao_interesse( string $conteudo_email, string $prazo_confirmacao ) {
+
+        $anexos_processados = $this->processar_anexos_email();
+
+        if (is_wp_error($anexos_processados)) {
+
+            return false;
+
+        }
+
+        // Define o cabeçalho para e-mail HTML
+        $headers = [
+            'Content-Type: text/html; charset=UTF-8'
+        ];
+
+        global $wpdb;
+
+        $tabelaTalentos = $wpdb->prefix . 'banco_talentos';
+        $tabelaInscricoes = $wpdb->prefix . 'oportunidade_inscricoes';
+
+
+        /**
+         * ID da inscrição recebido no construtor
+         */
+        $id_inscricao = absint($this->idInscricoes);
+
+        if (!$id_inscricao) {
+            return false;
+        }
+
+
+        /**
+         * Busca dados do candidato
+         */
+        $sql = $wpdb->prepare(
+            "
+            SELECT 
+                t.email_principal,
+                t.email_secundario
+            FROM {$tabelaInscricoes} i
+            INNER JOIN {$tabelaTalentos} t 
+                ON t.id = i.curriculo_id
+            WHERE i.id = %d
+            ",
+            $id_inscricao
+        );
+
+
+        $inscricao = $wpdb->get_row($sql, ARRAY_A);
+
+
+        if (empty($inscricao)) {
+            return false;
+        }
+
+
+        /**
+         * Monta destinatários
+         */
+        $destinatarios = [];
+
+
+        if (!empty($inscricao['email_principal'])) {
+            $destinatarios[] = $inscricao['email_principal'];
+        }
+
+
+        if (!empty($inscricao['email_secundario'])) {
+            $destinatarios[] = $inscricao['email_secundario'];
+        }
+
+
+        if (empty($destinatarios)) {
+            return false;
+        }
+
+
+        /**
+         * Dados da oportunidade
+         */
+        $oportunidade = get_the_title($this->idOportunidade);
+
+
+        $pagina_minhas_oportunidades = get_field(
+            'pagina_minhas_oportunidades',
+            'options'
+        );
+
+
+        $link = $pagina_minhas_oportunidades
+            ? get_permalink($pagina_minhas_oportunidades->ID)
+            : home_url();
+
+
+
+        /**
+         * Conteúdo padrão do email
+         */
+        $texto_inicial = '<div class="dado">Olá,</div>';
+
+        $texto_inicial .= '
+            <div class="dado">
+                Você está participando do processo seletivo da oportunidade:
+            </div>
+        ';
+
+
+        $texto_pos_titulo = '
+            <div class="dado">
+                Sua candidatura recebeu uma atualização e o Gestor responsável solicita que você confirme seu interesse em continuar participando do processo seletivo.
+            </div>
+        ';
+
+
+        $texto_pre_link = 'Para consultar os detalhes da atualização e realizar sua confirmação, acesse a área <span style="color: #0331CD; font-weight: 600;">"Minhas Oportunidades"</span> pelo link abaixo:';
+
+        /**
+         * Renderiza template do email
+         */
+        ob_start();
+
+        get_template_part(
+            '/includes/oportunidades/template-parts/email-confirmar-interesse',
+            null,
+            [
+                'titulo_oportunidade' => $oportunidade,
+                'text_pre_link'       => $texto_pre_link,
+                'link_oportunidades'  => $link,
+                'texto_inicial'      => $texto_inicial,
+                'texto_pos_titulo'   => $texto_pos_titulo,
+                'mensagem'           => $conteudo_email,
+                'prazo_confirmacao' => date('d/m/Y \à\s H:i', strtotime($prazo_confirmacao)),
+            ]
+        );
+
+        $html = ob_get_clean();
+
+
+
+        /**
+         * Assunto do email
+         */
+        $assunto = 'Portal de Oportunidades SME | Atualização da sua candidatura';
+
+
+        /**
+         * Envio do email
+         */
+        $enviado = wp_mail(
+            $destinatarios,
+            $assunto,
+            $html,
+            $headers,
+            $anexos_processados
+        );
+
+
+        return $enviado;
+
     }
 
     private function enviarEmailAtualizarEtapa() {
@@ -81,7 +234,8 @@ class Envia_Emails_Oportunidades_SME {
         }
 
         $oportunidade = get_the_title($this->idOportunidade);
-        $link = get_home_url() . '/minhas-oportunidades/';
+        $pagina_minhas_oportunidades = get_field( 'pagina_minhas_oportunidades', 'options' );
+        $link = $pagina_minhas_oportunidades ? get_permalink( $pagina_minhas_oportunidades->ID ) : home_url();
         $logo = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/logo.png';
         $iconeSeta = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/seta-azul.png';
         $iconeAviso = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/icone-aviso.png';
