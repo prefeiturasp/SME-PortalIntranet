@@ -7,6 +7,7 @@ $link_oportunidades = esc_url( $link_oportunidades );
 $texto_inicial = $texto_inicial ?? '';
 $texto_pos_titulo = $texto_pos_titulo ?? '';
 $mensagem = $mensagem ?? '';
+$mensagem_html = $mensagem ?? '';
 $mensagem = trim(
     preg_replace('/\xC2\xA0/', '',
         strip_tags($mensagem)
@@ -82,7 +83,7 @@ $iconeCalendario = get_template_directory_uri() . '/includes/oportunidades/templ
                                 
                                 <td style="vertical-align: top;">
                                     <h3 style="color: #0331CD; font-weight: 600;">Orientações Complementares:</h3>
-                                    <?= $mensagem; ?>
+                                    <?= $mensagem_html; ?>
                                 </td>                            
                             </tr>
                         </table>
@@ -99,7 +100,7 @@ $iconeCalendario = get_template_directory_uri() . '/includes/oportunidades/templ
             
             <?php if ( isset( $link_oportunidades ) && !empty( $link_oportunidades ) ) : ?>
                 <p>
-                    <a href="<?= $link_oportunidades; ?>" style="color: #FFFFFF; font-weight: 600; background: #0331CD; padding: 20px; display: inline-block; text-decoration: none; border-radius: 7px; margin-top: 30px; margin-bottom: 30px;"><img src="<?= $icone_seta; ?>" alt="Ícone de oportunidades" style="vertical-align: middle"> Acessar minhas oportunidades</a>
+                    <a href="<?= $link_oportunidades; ?>" style="color: #FFFFFF; font-weight: 600; background: #0331CD; padding: 20px; display: inline-block; text-decoration: none; border-radius: 7px; margin-top: 30px; margin-bottom: 30px;"><img src="<?= $iconeSeta; ?>" alt="Ícone de oportunidades" style="vertical-align: middle"> Acessar minhas oportunidades</a>
                 </p>            
             <?php endif; ?>
             
@@ -111,7 +112,7 @@ $iconeCalendario = get_template_directory_uri() . '/includes/oportunidades/templ
                     <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="width:100%;">
                         <tr>                            
                             <td style="vertical-align: top; padding-right: 20px; width: 24px;">
-                                <img src="<?= $iconeMensagem; ?>" alt="Ícone de aviso"
+                                <img src="<?= $iconeAviso; ?>" alt="Ícone de aviso"
                                 style="display:block; border:0; outline:none;">
                             </td>
                             
