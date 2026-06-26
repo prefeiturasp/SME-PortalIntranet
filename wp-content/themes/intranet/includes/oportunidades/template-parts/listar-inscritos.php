@@ -763,6 +763,9 @@ if ($current_post_id > 0) {
                                         .find('#tabela-candidatos tbody')
                                         .html(response.data.html);
 
+                                    table = $(document).find('#tabela-candidatos').DataTable(tableConfig);
+                                    inicializarComponentesTabelaInscritos();
+
 
                                     Swal.fire({
                                         icon: 'success',
