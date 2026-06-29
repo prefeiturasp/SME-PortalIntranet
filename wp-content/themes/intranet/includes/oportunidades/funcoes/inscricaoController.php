@@ -14,6 +14,7 @@ class Inscricao {
             add_action( 'wp_ajax_atualizar_etapa_candidatos', [$this, 'handle_atualizar_etapa_candidatos'] );
             add_action( 'wp_ajax_comunicar_selecionados', [$this, 'handle_comunicar_selecionados'] );
             add_action( 'wp_ajax_enviar_email_comunicado', [$this, 'handle_enviar_email_comunicado'] );
+            add_action( 'wp_ajax_desfazer_etapa', [$this, 'handle_desfazer_etapa'] );
         }
     }
 
@@ -207,6 +208,7 @@ class Inscricao {
                 'success' => false,
                 'message' => 'É necessário selecionar pelo menos um inscrito.'
             ];
+
         }
 
         if ( !isset( $etapas_processo[$etapa] ) || empty( $etapas_processo[$etapa] ) ) {
@@ -215,16 +217,75 @@ class Inscricao {
                 'success' => false,
                 'message' => 'Etapa inválida.'
             ];
+
         }
 
         $ids = array_map( 'absint', $id_inscricoes );
+
         $placeholders = implode( ',', array_fill( 0, count( $ids ), '%d' ) );
 
+
+        /**
+         * Monta atualização do status_anterior
+         * somente quando a nova etapa permite desbloqueio
+         */
+        $status_anterior_case = '';
+
+        if ( self::permite_desbloqueio( $etapa ) ) {
+
+
+            $sql_status = $wpdb->prepare(
+                "
+                SELECT id, status
+                FROM " . self::TABELA_INSCRICOES . "
+                WHERE id IN ($placeholders)
+                ",
+                $ids
+            );
+
+
+            $inscricoes_atuais = $wpdb->get_results(
+                $sql_status,
+                ARRAY_A
+            );
+
+
+            if ( !empty( $inscricoes_atuais ) ) {
+
+                $cases = [];
+
+
+                foreach ( $inscricoes_atuais as $inscricao ) {
+
+                    $cases[] = $wpdb->prepare(
+                        "WHEN %d THEN %s",
+                        $inscricao['id'],
+                        $inscricao['status']
+                    );
+
+                }
+
+
+                $status_anterior_case = "
+                    status_anterior = CASE id
+                        " . implode( "\n", $cases ) . "
+                    END,
+                ";
+
+            }
+
+        }
+
+
+        /**
+         * Atualiza inscrições
+         */
         $query = $wpdb->prepare(
             "
             UPDATE " . self::TABELA_INSCRICOES . "
 
             SET
+                {$status_anterior_case}
                 status = %s,
                 updated_at = %s
 
@@ -242,19 +303,25 @@ class Inscricao {
                 'success' => false,
                 'message' => 'Não foi possível completar ação.'
             ];
+
         }
-        
-        
-        // Instanciando a classe
+
+
+        /**
+         * Envio de emails conforme etapa
+         */
         $envio = new \EnviaEmailOportunidade\classes\Envia_Emails_Oportunidades_SME(
             $id_inscricoes,  // Pode ser um único ID ou array de IDs
             $post_id,        // ID da oportunidade
             $etapa           // Etapa atual
         );
 
-        // Executando o envio
+
         $envio->enviar_emails_conforme_etapa();
 
+        /**
+         * Atualiza tabela
+         */
         ob_start();
 
         $inscricoes = Oportunidade::get_inscricoes( $post_id );
@@ -270,6 +337,7 @@ class Inscricao {
             'message' => 'Etapa atualizada com sucesso.',
             'html' => $html
         ];
+
     }
 
     /**
@@ -389,6 +457,138 @@ class Inscricao {
 
     }
 
+    public function handle_desfazer_etapa() {
+
+        global $wpdb;
+
+        $id = isset($_POST['id']) ? absint($_POST['id']) : 0;
+        $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
+
+        if (!$id) {
+            wp_send_json_error([
+                'message' => 'Inscrição inválida.'
+            ]);
+        }
+
+
+        /**
+         * Busca status atual e anterior
+         */
+        $inscricao = $wpdb->get_row(
+            $wpdb->prepare(
+                "
+                SELECT 
+                    status,
+                    status_anterior
+                FROM " . self::TABELA_INSCRICOES . "
+                WHERE id = %d
+                ",
+                $id
+            ),
+            ARRAY_A
+        );
+
+
+        if (empty($inscricao)) {
+            wp_send_json_error([
+                'message' => 'Inscrição não encontrada.'
+            ]);
+        }
+
+
+        /**
+         * Verifica se o status atual permite desbloqueio
+         */
+        if (!self::permite_desbloqueio($inscricao['status'])) {
+            wp_send_json_error([
+                'message' => 'Essa etapa não permite desbloqueio.'
+            ]);
+        }
+
+
+        /**
+         * Verifica se existe etapa anterior salva
+         */
+        if (empty($inscricao['status_anterior'])) {
+            wp_send_json_error([
+                'message' => 'Não existe uma etapa anterior para restaurar.'
+            ]);
+        }
+
+
+        /**
+         * Retorna para etapa anterior
+         */
+        $resultado = $wpdb->update(
+            self::TABELA_INSCRICOES,
+            [
+                'status' => $inscricao['status_anterior'],
+                'status_anterior' => $inscricao['status_anterior'],
+                'updated_at' => current_time('mysql')
+            ],
+            [
+                'id' => $id
+            ],
+            [
+                '%s',
+                '%s',
+                '%s'
+            ],
+            [
+                '%d'
+            ]
+        );
+
+
+        if ($resultado === false) {
+            wp_send_json_error([
+                'message' => 'Não foi possível desfazer a alteração.'
+            ]);
+        }
+
+        /**
+         * Envio de emails conforme etapa
+         */
+        $envio = new \EnviaEmailOportunidade\classes\Envia_Emails_Oportunidades_SME(
+            $id,  // Pode ser um único ID ou array de IDs
+            $post_id,        // ID da oportunidade
+            $inscricao['status']           // Etapa atual
+        );
+
+
+        $envio->enviar_emails_conforme_etapa();
+
+
+        if (!$envio) {
+
+            wp_send_json_error([
+                'message' => 'A inscrição foi atualizada, mas ocorreu um erro ao enviar o email.'
+            ]);
+
+        }
+
+        ob_start();
+
+        $inscricoes = Oportunidade::get_inscricoes($post_id);
+
+        get_template_part(
+            'includes/oportunidades/template-parts/linhas-tabela-inscritos',
+            null,
+            [
+                'participantes' => $inscricoes
+            ]
+        );
+
+        $html = ob_get_clean();
+
+
+        wp_send_json_success([
+            'message' => 'A etapa do candidato foi restaurada com sucesso.',
+            'html' => $html
+        ]);        
+
+    }
+
     public static function get_etapas_processo() {
         
         return array(
@@ -438,6 +638,38 @@ class Inscricao {
             )
         );
     }
+
+    public static function permite_desbloqueio($status) {
+        $etapas = [
+            'nao_avancou_triagem',
+            'nao_avancou_pos_entrevista',
+            'nao_selecionado'
+        ];
+
+        return in_array($status, $etapas, true);
+    }
+
+    public static function permite_comunicacao($status) {
+        $etapas_comunicacao = array(
+            'convocado_teste',
+            'entrevista_agendada',
+            'fase_anuencia',
+            'entrega_documentos'
+        );
+
+        return in_array($status, $etapas_comunicacao, true);
+    }
+
+    public static function sem_comunicacao($status) {
+        $etapas_desabilitado = array(
+            'analise_curricular',
+            'analise_documental',
+            'aprovado'
+        );
+
+        return in_array($status, $etapas_desabilitado, true);
+    }
+
 
     /**
      * AJAX - Enviar comunicado para os candidatos selecionados

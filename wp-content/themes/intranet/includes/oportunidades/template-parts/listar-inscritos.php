@@ -536,6 +536,7 @@ if ($current_post_id > 0) {
                 alert('Função de exportação será implementada');
             });
 
+            // Comunicar os selecionados
             $(document).on('click', '.btn-comunicar-selecionados', function(){
 
                 var user_id = this.getAttribute('data-id');
@@ -754,9 +755,6 @@ if ($current_post_id > 0) {
 
                             success: function(response) {
 
-                                console.log(response);
-
-
                                 if (response.success) {
 
                                     table.destroy();
@@ -767,7 +765,6 @@ if ($current_post_id > 0) {
 
                                     table = $(document).find('#tabela-candidatos').DataTable(tableConfig);
                                     inicializarComponentesTabelaInscritos();
-
 
                                     Swal.fire({
                                         icon: 'success',
@@ -809,6 +806,116 @@ if ($current_post_id > 0) {
                 });
 
 
+            });
+
+            // Desfazer alteração de etapa
+            $(document).on('click', '.btn-voltar-status', function(e) {
+
+                e.preventDefault();
+
+                let id_inscricao = $(this).data('id');
+                let status_atual = $(this).data('status');
+
+
+                Swal.fire({
+                    title: 'Desfazer alteração de etapa?',
+                    text: 'O candidato retornará para a etapa anterior antes desta alteração.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sim, desfazer',
+                    cancelButtonText: 'Cancelar',
+                    reverseButtons: true,
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                        cancelButton: 'btn btn-secondary'
+                    }
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+
+                        let post_id = document.getElementById('post_ID').value;
+
+                        let formData = new FormData();
+
+                        formData.append('action', 'desfazer_etapa');
+                        formData.append('id', id_inscricao);
+                        formData.append('post_id', post_id);
+
+                        $.ajax({
+
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+
+                            beforeSend: function() {
+
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Processando...',
+                                    text: 'Aguarde enquanto a etapa é restaurada.',
+                                    allowOutsideClick: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
+
+                            },
+
+                            success: function(response) {
+
+                                if (response.success) {
+
+                                    table.destroy();
+
+                                    $(document)
+                                        .find('#tabela-candidatos tbody')
+                                        .html(response.data.html);
+
+                                    table = $(document)
+                                        .find('#tabela-candidatos')
+                                        .DataTable(tableConfig);
+
+                                    inicializarComponentesTabelaInscritos();
+
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Sucesso!',
+                                        text: response.data.message
+                                    });
+
+
+                                } else {
+
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Erro!',
+                                        text: response.data.message
+                                    });
+
+                                }
+
+                            },
+
+
+                            error: function(xhr) {
+
+                                console.log(xhr.responseText);
+
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erro na requisição!',
+                                    text: 'Não foi possível processar a solicitação.'
+                                });
+
+                            }
+
+                        });
+
+                    }
+
+                });
             });
             
         } else {
