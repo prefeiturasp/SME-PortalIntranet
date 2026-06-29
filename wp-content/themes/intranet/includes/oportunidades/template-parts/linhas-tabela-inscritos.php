@@ -5,29 +5,6 @@ extract( $args );
 // Mapeamento dos status (código => [descrição, classe_css])
 $status_map = Inscricao::get_etapas_processo();
 
-// Array de etapas que permitem comunicação
-$etapas_comunicacao = array(
-    'convocado_teste',
-    'entrevista_agendada',
-    'fase_anuencia',
-    'entrega_documentos'
-);
-
-// Array de etapas que permitem desbloqueio
-$permite_desbloqueio = array(
-    'nao_avancou_triagem',
-    'nao_avancou_pos_entrevista',
-    'nao_selecionado'
-);
-
-// Array de etapas que usam botão desabilitado
-$etapas_desabilitado = array(
-    'analise_curricular',
-    'analise_documental',
-    'aprovado'
-);
-
-
 ?>
 
 <?php
@@ -40,8 +17,11 @@ foreach ( $participantes as $participante ) :
     $status_classe = $status_info['classe'];
     $status_atual = $participante['status']; 
 
+    $permite_comunicacao = Inscricao::permite_comunicacao($status_codigo);
+    $permite_desbloqueio = Inscricao::permite_desbloqueio($status_codigo);
+
     // Verifica se o checkbox deve ser desabilitado
-    $checkbox_disabled = in_array($status_codigo, $permite_desbloqueio) ? 'disabled' : '';
+    $checkbox_disabled = $permite_desbloqueio ? 'disabled' : '';
 
     ?>
     <tr data-inscricao-id="<?php echo esc_attr($participante['id']); ?>">
@@ -76,7 +56,7 @@ foreach ( $participantes as $participante ) :
                     <span class="data-etapa"><?php echo date('d/m/Y \à\s H:i', strtotime($participante['updated_at'])); ?></span>
                 <?php endif; ?>
             </span>
-            <?php if (in_array($status_atual, $etapas_comunicacao)) : ?>
+            <?php if ($permite_comunicacao) : ?>
                 <br><br>
                 <span class="notificacao-confirmacao">
                     <?php
@@ -150,7 +130,11 @@ foreach ( $participantes as $participante ) :
             <?php
                 
                 // Verifica qual botão mostrar
-                if (in_array($status_atual, $etapas_comunicacao)) {
+                if ($permite_desbloqueio) {
+                    echo '<button type="button" class="btn btn-voltar-status" data-placement="top" title="Desfazer alteração de etapa" data-toggle="tooltip" data-id="' . esc_attr($participante['id']) . '" data-status="' . esc_attr($status_atual) . '">';
+                    echo '<i class="fa fa-repeat" aria-hidden="true"></i>';
+                    echo '</button>';
+                } elseif ($permite_comunicacao) {
 
                     if ( $participante['prazo_confirmacao'] && $participante['status_confirm'] ==  $status_atual ) { 
 
@@ -170,10 +154,6 @@ foreach ( $participantes as $participante ) :
                         echo '</button>';
                     }
                     
-                } elseif (in_array($status_atual, $permite_desbloqueio)) {                                                
-                    echo '<button type="button" class="btn btn-voltar-status" data-id="' . esc_attr($participante['id']) . '" data-status="' . esc_attr($status_atual) . '">';
-                    echo '<i class="fa fa-repeat" aria-hidden="true"></i>';
-                    echo '</button>';
                 } else {
                     if($status_atual != 'inscrito'){
                         echo '<button type="button" class="btn btn-secondary" data-toggle="tooltip" data-placement="top" title="A comunicação para esta etapa já foi enviada." disabled>';
