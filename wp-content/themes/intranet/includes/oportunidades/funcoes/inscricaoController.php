@@ -16,6 +16,10 @@ class Inscricao {
             add_action( 'wp_ajax_enviar_email_comunicado', [$this, 'handle_enviar_email_comunicado'] );
             add_action( 'wp_ajax_desfazer_etapa', [$this, 'handle_desfazer_etapa'] );
         }
+
+        // Ações da Cron de atualização automática das etapas
+        add_action( 'processar_oportunidades_encerradas', [$this, 'processar_inscricoes_oportunidade_encerrada'] );
+        add_action( 'processar_oportunidades_encerradas_backup', [$this, 'processar_inscricoes_oportunidade_encerrada'] );
     }
 
     /**
@@ -196,7 +200,7 @@ class Inscricao {
     /**
      * Atualiza etapa dos candidatos
     */
-    public static function atualizar_etapa_candidatos( array $id_inscricoes, string $etapa, string $post_id ) {
+    public static function atualizar_etapa_candidatos( array $id_inscricoes, string $etapa, string $post_id, bool $auto = false ) {
 
         global $wpdb;
 
@@ -276,6 +280,17 @@ class Inscricao {
 
         }
 
+        $updated_at = current_time( 'mysql' );
+
+        if ( $auto ) {
+
+            $timezone = new DateTimeZone( 'America/Sao_Paulo' );
+            $encerramento_inscricoes = get_field( 'ence_inscricoes', $post_id, false );
+            $encerramento_inscricoes = new DateTime( $encerramento_inscricoes, $timezone );
+            $encerramento_inscricoes->setTime(23, 59, 59);
+            
+            $updated_at = $encerramento_inscricoes->format( 'Y-m-d H:i:s' );
+        }
 
         /**
          * Atualiza inscrições
@@ -287,11 +302,12 @@ class Inscricao {
             SET
                 {$status_anterior_case}
                 status = %s,
-                updated_at = %s
+                updated_at = %s,
+                atualizacao_auto = %d
 
             WHERE id IN ($placeholders)
             ",
-            array_merge( [$etapa, current_time( 'mysql' )], $ids )
+            array_merge( [$etapa, $updated_at, $auto], $ids )
         );
 
 
@@ -524,7 +540,8 @@ class Inscricao {
             [
                 'status' => $inscricao['status_anterior'],
                 'status_anterior' => $inscricao['status_anterior'],
-                'updated_at' => current_time('mysql')
+                'updated_at' => current_time('mysql'),
+                'atualizacao_auto' => 0,
             ],
             [
                 'id' => $id
@@ -532,7 +549,8 @@ class Inscricao {
             [
                 '%s',
                 '%s',
-                '%s'
+                '%s',
+                '%d'
             ],
             [
                 '%d'
@@ -735,6 +753,66 @@ class Inscricao {
             'enviados' => $resultado['enviados'],
             'falhas' => $resultado['falhas']
         ]);
+    }
+
+    public static function processar_inscricoes_oportunidade_encerrada() {
+
+        try {
+
+            $oportunidades_encerradas = Oportunidade::get_oportunidades_encerradas( true, true );
+            $etapa_selecionada = get_field( 'etapa_cron', 'options' ) ?: 'analise_curricular';
+
+            if ( !$oportunidades_encerradas ) {
+                return;
+            }
+
+            foreach ( $oportunidades_encerradas as $oportunidade_id ) {
+
+                try {
+
+                    $oportunidade_inscricoes = Oportunidade::get_inscritos_by_etapa( $oportunidade_id, 'inscrito' );
+
+                    if ( !$oportunidade_inscricoes ) {
+                        continue;
+                    }
+
+                    $inscricoes_id = wp_list_pluck( $oportunidade_inscricoes, 'id' );
+
+                    $resultado = self::atualizar_etapa_candidatos( $inscricoes_id, $etapa_selecionada, $oportunidade_id, true );
+
+                    if ( !$resultado['success'] ) {
+
+                        error_log(
+                            sprintf(
+                                '[CRON OPORTUNIDADE] Falha oportunidade %d: %s',
+                                $oportunidade_id,
+                                $resultado['message']
+                            )
+                        );
+
+                    }
+
+                    usleep( 500000 );
+
+                } catch ( \Throwable $e ) {
+
+                    error_log(
+                        sprintf(
+                            '[CRON OPORTUNIDADE] Erro ao processar oportunidade %d: %s',
+                            $oportunidade_id,
+                            $e->getMessage()
+                        )
+                    );
+
+                    continue;
+                }
+            }
+
+        } catch ( \Throwable $e ) {
+
+            error_log( '[CRON OPORTUNIDADES] Erro: ' . $e->getMessage() );
+
+        }
     }
 }
 

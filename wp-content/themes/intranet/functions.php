@@ -9623,3 +9623,52 @@ add_action('admin_footer', function () {
     </script>
     <?php
 });
+
+/**
+ * Registra os eventos WP-Cron para processamento automático
+ * das inscrições em oportunidades encerradas.
+ */
+add_action('init', function () {
+
+    $timezone = new DateTimeZone('America/Sao_Paulo');
+
+    /**
+     * Cron principal
+     */
+    if ( !wp_next_scheduled( 'processar_oportunidades_encerradas' ) ) {
+
+        $data_execucao = new DateTime( '04:00:00', $timezone );
+
+        if ( $data_execucao < new DateTime( 'now', $timezone ) ) {
+            $data_execucao->modify( '+1 day' );
+        }
+
+        wp_schedule_event(
+            $data_execucao->getTimestamp(),
+            'daily',
+            'processar_oportunidades_encerradas'
+        );
+    }
+
+    /**
+     * Cron de segurança
+     */
+    if ( !wp_next_scheduled( 'processar_oportunidades_encerradas_backup' ) ) {
+
+        $data_execucao_backup = new DateTime(
+            '04:15:00',
+            $timezone
+        );
+
+        if ( $data_execucao_backup < new DateTime('now', $timezone) ) {
+            $data_execucao_backup->modify('+1 day');
+        }
+
+        wp_schedule_event(
+            $data_execucao_backup->getTimestamp(),
+            'daily',
+            'processar_oportunidades_encerradas_backup'
+        );
+    }
+
+});

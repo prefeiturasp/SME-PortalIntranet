@@ -100,6 +100,7 @@ class Oportunidade {
                     oi.confirmou_presenca,
                     oi.created_at,
                     oi.updated_at,
+                    oi.atualizacao_auto,
                     bt.nome_completo,
                     bt.nome_social,
                     bt.email_principal,
@@ -115,6 +116,68 @@ class Oportunidade {
         );
 
         return $inscricoes;
+    }
+
+    public static function get_inscritos_by_etapa( int $oportunidade_id, string $etapa_processo ) {
+
+        global $wpdb;
+
+        $inscricoes = $wpdb->get_results(
+            $wpdb->prepare(
+                "SELECT 
+                    id,
+                    curriculo_id,
+                    rf,
+                    status
+                FROM " . self::TABELA_INSCRICOES . "
+                WHERE oportunidade_id = %d
+                AND status = %s",
+                $oportunidade_id,
+                $etapa_processo
+            ),
+            ARRAY_A
+        );
+
+        return $inscricoes;
+    }
+
+    public static function get_oportunidades_encerradas( bool $dia_anterior = false, bool $apenas_ids = false ) {
+        
+        $hoje = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+    
+        $args = [
+            'post_type' => 'oportunidade',
+            'post_status' => 'publish',
+            'posts_per_page' => -1,
+            'meta_query' => [
+                [
+                    'key' => 'ence_inscricoes',
+                    'value' => $hoje,
+                    'compare' => '='
+                ]
+            ]
+        ];
+
+        if ( $dia_anterior ) {
+
+            $timezone = new DateTimeZone( 'America/Sao_Paulo' );
+            $ontem = DateTime::createFromFormat( 'Ymd', $hoje, $timezone );
+            $ontem->modify('-1 day');
+
+            $args['meta_query'] = [
+                [
+                    'key' => 'ence_inscricoes',
+                    'value' => $ontem->format( 'Ymd' ),
+                    'compare' => '='
+                ]
+            ];
+        }
+
+        if ( $apenas_ids ) {
+            $args['fields'] = 'ids';
+        }
+
+        return get_posts( $args );
     }
 
 }
