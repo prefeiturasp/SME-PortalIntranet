@@ -16,6 +16,7 @@ foreach ( $participantes as $participante ) :
     $status_descricao = $status_info['descricao'];
     $status_classe = $status_info['classe'];
     $status_atual = $participante['status']; 
+    $atualizacao_auto = $participante['atualizacao_auto'] ?? 0;
 
     $permite_comunicacao = Inscricao::permite_comunicacao($status_codigo);
     $permite_desbloqueio = Inscricao::permite_desbloqueio($status_codigo);
@@ -53,7 +54,11 @@ foreach ( $participantes as $participante ) :
             <span class="card-etapa <?= esc_attr($status_classe) . ' ' . esc_attr($classe); ?>">
                 <?php echo esc_html($status_descricao); ?><br>
                 <?php if ($status_classe != 'inscrito'): ?>
-                    <span class="data-etapa"><?php echo date('d/m/Y \à\s H:i', strtotime($participante['updated_at'])); ?></span>
+                    <span class="data-etapa">
+                        <?php echo date('d/m/Y \à\s H:i', strtotime($participante['updated_at'])); ?>
+                        <br>
+                        <?php echo esc_html( $atualizacao_auto ? '(Alterado pelo sistema)' : '' ); ?>
+                    </span>
                 <?php endif; ?>
             </span>
             <?php if ($permite_comunicacao) : ?>
