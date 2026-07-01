@@ -5212,6 +5212,8 @@ function custom_single_post_endpoint($request) {
 			}
 		}
 	}
+
+    $post_data['dominios_validacao'] = obter_dominios_email_validacao();
     
     return new WP_REST_Response($post_data, 200);
 }
@@ -6651,6 +6653,19 @@ function custom_single_cortesia_endpoint( $post, $selected_fields = []) {
 	$datas_disponivies = get_datas_diponiveis( $post->ID );
 	$post_data['datas_dispo'] = $datas_disponivies;
 
+    
+	if($tipo_evento == 'premio'){
+		$datas_disponivies = get_field('evento_premios', $post->ID);
+		$post_data['premios'] = array();
+		if($datas_disponivies){
+			foreach ($datas_disponivies as $data) {
+				$post_data['premios'][] = esc_html( $data['premio'] );
+			}
+		}
+	}
+
+    $post_data['dominios_validacao'] = obter_dominios_email_validacao();
+	
     return new WP_REST_Response($post_data, 200);
 }
 
@@ -9648,3 +9663,28 @@ function travar_post_boxes_oportunidade() {
 // Vincula o estilo ao cabeçalho da página de edição
 add_action( 'admin_head-post-new.php', 'travar_post_boxes_oportunidade' );
 add_action( 'admin_head-post.php', 'travar_post_boxes_oportunidade' );
+
+/**
+ * Retorna os domínios de e-mail para validação.
+ */
+function obter_dominios_email_validacao() {
+
+    $dominios = get_field( 'email_validacao_dominios', 'options' );
+
+    if ( empty( $dominios ) ) {
+        return [];
+    }
+
+    $dominios = explode( "\n", $dominios );
+
+    $dominios = array_map(function( $dominio ) {
+            return strtolower( trim( $dominio ) );
+        },
+        $dominios
+    );
+
+    // Remove linhas vazias e valores duplicados
+    $dominios = array_unique( array_filter( $dominios ) );
+
+    return array_values( $dominios );
+}
