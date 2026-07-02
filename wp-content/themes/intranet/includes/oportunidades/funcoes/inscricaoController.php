@@ -12,8 +12,8 @@ class Inscricao {
 
         if ( is_admin() ) {
             add_action( 'wp_ajax_atualizar_etapa_candidatos', [$this, 'handle_atualizar_etapa_candidatos'] );
-            add_action( 'wp_ajax_comunicar_selecionados', [$this, 'handle_comunicar_selecionados'] );
             add_action( 'wp_ajax_enviar_email_comunicado', [$this, 'handle_enviar_email_comunicado'] );
+            add_action( 'wp_ajax_comunicar_selecionados', [$this, 'handle_comunicar_selecionados'] );
             add_action( 'wp_ajax_desfazer_etapa', [$this, 'handle_desfazer_etapa'] );
         }
 
