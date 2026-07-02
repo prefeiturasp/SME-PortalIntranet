@@ -144,22 +144,22 @@ function gerar_aba_inscritos_corte($post_id, $local, $dataSorteio, $data_evento 
 
     if($premio){
 
-        $infoCabecalho = 'Participantes Inscritos para o prêmio:' . $premio;
+        $infoCabecalho = 'Participantes Inscritos para o evento: ' . $titulo . ' | Prêmio: ' . $premio;
 
     } elseif ( $tipo_evento === 'periodo' ) {
 
         $info_periodo_evento = get_field( 'evento_periodo', $post_id );
-        $infoCabecalho = "Participantes Inscritos para o período: {$info_periodo_evento['descricao']}";
+        $infoCabecalho = "Participantes Inscritos para o evento: " . $titulo. "  | Período: " . $info_periodo_evento['descricao'];
 
     } else {
         $data_formatada = date('d/m/Y', strtotime($data_evento));
 		$hora_formatada = obter_hora_formatada($data_evento);
 
-        $infoCabecalho = 'Participantes Inscritos para o evento do dia ' . $data_formatada . ' às ' . $hora_formatada;
+        $infoCabecalho = 'Participantes Inscritos para o evento: ' . $titulo . ' | Evento do dia: ' . $data_formatada . ' às ' . $hora_formatada;
     }
 
     $dt = new DateTime('now', new DateTimeZone('America/Sao_Paulo'));
-    $infoCabecalho .= $dataSorteio ? ' - Data do Sorteio: ' . $dataSorteio : '';
+    //$infoCabecalho .= $dataSorteio ? ' - Data do Sorteio: ' . $dataSorteio : '';
     $infoCabecalho .= ' | Extraído em ' . $dt->format('d/m/Y - H:i');
 
     if ($requer_confirmacao_presenca) {
