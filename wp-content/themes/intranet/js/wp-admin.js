@@ -205,6 +205,27 @@ $s(document).on('shown.bs.modal', '.modal', function () {
             quill.on('text-change', toggleBtn);
         }
     });
+
+    // Modal de "Comunicar candidatos"
+    let $editorConteudoComunicado = $s('#modal-comunicar-candidatos #conteudo-email');
+    if (!$editorConteudoComunicado.data('quill')) {
+        var quill = new Quill($editorConteudoComunicado[0], {
+            theme: 'snow',
+            placeholder: 'Digite seu texto...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ list: 'ordered' }, { list: 'bullet' }],
+                    [{ align: [] }],
+                    [{ size: ['small', false, 'large', 'huge'] }],
+                    ['link']
+                ]
+            }
+        });
+
+        $editorConteudoComunicado.data('quill', quill);
+    }
+
 });
 
 // ==============================

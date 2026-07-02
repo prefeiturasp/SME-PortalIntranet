@@ -84,8 +84,16 @@ if ($current_post_id > 0) {
                 <button type="button" class="btn btn-outline-primary" id="btn-exportar-excel">
                     <i class="fa fa-file-excel-o" aria-hidden="true"></i> Exportar Excel
                 </button>
-                <button type="button" class="btn btn-outline-success" id="btn-comunicar-selecionados">
-                    <i class="fa fa-paper-plane" aria-hidden="true"></i> Comunicar Selecionados
+                <button
+                    type="button"
+                    class="btn btn-outline-success"
+                    id="btn-comunicar-selecionados"
+                    title="Para habilitar esta ação, selecione um ou mais candidatos na listagem."
+					data-toggle="modal"
+					data-target="#modal-comunicar-candidatos"
+                    disabled
+                    >
+                    <i class="fa fa-paper-plane" aria-hidden="true"></i> Comunicar Candidatos
                 </button>
 
                 <label for="etapa-massa">
@@ -136,6 +144,52 @@ if ($current_post_id > 0) {
             </div>
         </div>
     </div>
+
+	<div class="modal fade" id="modal-comunicar-candidatos" tabindex="-1" role="dialog">
+		<div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+			<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Comunicar Candidatos</h5>
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+				</button>
+			</div>
+			<div class="modal-body">
+
+				<div class="alert alert-warning" role="alert">
+					<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+					Utilize esta funcionalidade para enviar uma mensagem aos candidatos selecionados na listagem.
+					A seleção pode incluir candidatos em diferentes etapas ou status do processo seletivo,
+					porém o mesmo conteúdo será enviado para todos os destinatários.
+				</div>
+
+				<hr>
+                <div class="bloco-conteudo">
+                    <label for="conteudo-email">Mensagem <span class="text-danger">*</span></label>
+                    <p class="m-0 error-message" style="display: none;"></p>
+                    <div class="conteudo-email" name="conteudo_email" id="conteudo-email"></div>
+                </div>
+				<hr>
+				<div class="form-group">
+					<label for="anexos-email" class="m-0">Anexar arquivos (PDF, DOC, etc.)</label>
+                    <p class="text-secondary mt-0"><i class="fa fa-info-circle" aria-hidden="true"></i> Limite: 5 arquivos de, no máximo, 2MB cada.</p>
+					<input
+						type="file"
+						class="form-control-file anexos-email"
+						id="anexos-email" 
+						name="anexo"
+                        multiple
+                        accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+					>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+				<button type="button" class="btn btn-success btn-enviar"><i class="fa fa-paper-plane" aria-hidden="true"></i> Enviar Mensagem</button>
+			</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <script>
@@ -143,9 +197,13 @@ if ($current_post_id > 0) {
     function inicializarComponentesTabelaInscritos() {
         // Máscara para celular
         jQuery('.celular-mask').mask('(00) 00000-0000');
+        jQuery('#filtro-situacao').trigger('change');
+        jQuery('#campo-busca-personalizado').trigger('keyup');
     }
 
     jQuery(document).ready(function($) {
+
+        const $btnComunicarSelecionados = $('#btn-comunicar-selecionados'); // Botão Comunicar selecionados
 
         inicializarComponentesTabelaInscritos();
 
@@ -312,9 +370,16 @@ if ($current_post_id > 0) {
 
                 if ($('.check-item:checked').length) {
                     $('#etapa-massa').prop('disabled', false);
+
+                    $btnComunicarSelecionados.prop('disabled', false);
+                    $btnComunicarSelecionados.attr('title', '');
+
                 } else {
                     $('#etapa-massa').val('');
                     $('#etapa-massa').prop('disabled', true);
+
+                    $btnComunicarSelecionados.prop('disabled', true);
+                    $btnComunicarSelecionados.attr('title', 'Para habilitar esta ação, selecione um ou mais candidatos na listagem.');
                 }
             });
 
@@ -481,9 +546,536 @@ if ($current_post_id > 0) {
                 
                 alert('Função de comunicação será implementada para ' + checkboxes.length + ' candidato(s)');
             });
+
+            // Comunicar os selecionados
+            $(document).on('click', '.btn-comunicar-selecionados', function(){
+
+                var user_id = this.getAttribute('data-id');
+                var status = this.getAttribute('data-status');
+
+
+                Swal.fire({
+                    customClass: {
+                        popup: 'modal-comunicacao',
+                        confirmButton: 'btn btn-success',
+                        cancelButton: 'btn btn-outline-secondary'
+                    },                 
+                    html: `
+                        <div class="text-left modal-prazo">
+
+                            <h3 class="mb-3">Prazo para Confirmação de Interesse no Processo Seletivo</h3>
+
+                            <p class="mb-3">
+                               Defina o prazo para que o(a) candidato(a) confirme o interesse em prosseguir no processo seletivo.
+                            </p>
+
+                            <hr>
+
+                            <div class="alert alert-primary" role="alert">
+                                O(a) candidato(a) receberá uma solicitação para informar se deseja continuar na etapa atual do processo seletivo até a data definida abaixo.
+                            </div>
+
+                            <div class="form-group">
+                                <label><strong>Prazo para resposta <span class="text-danger">*</span></strong></label>
+
+                                <div class="row">
+
+                                    <div class="col-8 pr-0">
+                                        <input type="number" 
+                                            id="prazo" 
+                                            placeholder="Ex: 48" 
+                                            class="form-control" 
+                                            min="1">
+
+                                            <small id="erro-prazo" class="text-danger d-none">
+                                                Este campo é obrigatório.
+                                            </small>
+                                    </div>
+
+                                    <div class="col-4">
+
+                                        <div class="btn-group btn-group-toggle w-100" data-toggle="buttons">
+
+                                            <label class="btn btn-outline-primary active w-50">
+                                                <input type="radio" 
+                                                    name="tipo_prazo" 
+                                                    value="horas" 
+                                                    autocomplete="off" 
+                                                    checked>
+                                                Horas
+                                            </label>
+
+                                            <label class="btn btn-outline-primary w-50">
+                                                <input type="radio" 
+                                                    name="tipo_prazo" 
+                                                    value="dias" 
+                                                    autocomplete="off">
+                                                Dias
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="form-group">
+                                <label>Orientação complementar (opcional)</label>
+
+                                <div id="mensagem"></div>
+
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="anexos-email-confirm" class="m-0">Anexos (opcional)</label>
+                                <p class="text-secondary mt-0"><i class="fa fa-info-circle" aria-hidden="true"></i> Limite: 5 arquivos de, no máximo, 2MB cada.</p>
+                                <input
+                                    type="file"
+                                    class="form-control-file anexos-email"
+                                    id="anexos-email-confirm" 
+                                    name="anexos"
+                                    multiple
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png"
+                                >
+                            </div>
+
+
+                        </div>
+                    `,
+
+                    showCancelButton: true,
+                    cancelButtonText: 'Cancelar',
+                    confirmButtonText: '<i class="fa fa-paper-plane" aria-hidden="true"></i> Enviar',
+                    reverseButtons: true,                  
+                    focusConfirm: false,
+
+
+                    didOpen: () => {
+
+                        var editor = document.querySelector('#mensagem');
+
+                        var quill = new Quill(editor, {
+                            theme: 'snow',
+                            placeholder: 'Digite seu texto...',
+                            modules: {
+                                toolbar: [
+                                    ['bold', 'italic', 'underline'],
+                                    [{ list: 'ordered' }, { list: 'bullet' }],
+                                    [{ align: [] }],
+                                    [{ size: ['small', false, 'large', 'huge'] }],
+                                    ['link']
+                                ]
+                            }
+                        });
+
+
+                        editor.__quill = quill;
+
+                    },
+
+
+                    preConfirm: () => {
+
+                        let prazo = document.getElementById('prazo');
+                        let tipo_prazo = document.querySelector('input[name="tipo_prazo"]:checked').value;
+
+                        let quill = document.querySelector('#mensagem').__quill;
+                        let mensagem = quill.root.innerHTML;
+
+                        let anexo = document.getElementById('anexos-email-confirm').files;
+                        let post_id = document.getElementById('post_ID').value;
+
+                        let erro = document.getElementById('erro-prazo');
+                        
+                        if (!prazo.value) {
+
+                            prazo.classList.add('is-invalid');
+                            erro.classList.remove('d-none');
+
+                            return false;
+                        }
+
+
+                        return {
+
+                            user_id: user_id,
+                            status: status,
+                            prazo: prazo.value,
+                            tipo_prazo: tipo_prazo,
+                            mensagem: mensagem,
+                            anexo: anexo,
+                            post_id: post_id
+
+                        };
+
+                    }
+
+
+                }).then((result) => {
+
+
+                    if (result.isConfirmed) {
+
+                        var dados = result.value;
+
+                        var formData = new FormData();
+
+                        formData.append('action', 'comunicar_selecionados');
+
+                        formData.append('user_id', dados.user_id);
+                        formData.append('status', dados.status);
+                        formData.append('prazo', dados.prazo);
+                        formData.append('tipo_prazo', dados.tipo_prazo);
+                        formData.append('mensagem', dados.mensagem);
+                        formData.append('post_id', dados.post_id);
+
+
+                        let files = document.getElementById('anexos-email-confirm').files;
+
+                        for (let i = 0; i < files.length; i++) {
+                            formData.append('anexos[]', files[i]);
+                        }
+
+
+                        $.ajax({
+
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+
+
+                            beforeSend: function() {
+
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Enviando...',
+                                    text: 'Aguarde enquanto a comunicação é enviada.',
+                                    allowOutsideClick: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
+
+                            },
+
+
+                            success: function(response) {
+
+                                if (response.success) {
+
+                                    table.destroy();
+
+                                    $(document)
+                                        .find('#tabela-candidatos tbody')
+                                        .html(response.data.html);
+
+                                    table = $(document).find('#tabela-candidatos').DataTable(tableConfig);
+                                    inicializarComponentesTabelaInscritos();
+
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Comunicação enviada com sucesso',
+                                        text: response.data.message
+                                    });
+
+
+                                } else {
+
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Erro!',
+                                        text: response.data.message
+                                    });
+
+                                }
+
+                            },
+
+
+                            error: function(xhr) {
+
+                                console.log(xhr.responseText);
+
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erro na requisição!',
+                                    text: 'Não foi possível processar a solicitação.'
+                                });
+
+                            }
+
+                        });
+
+                    }
+
+
+                });
+
+
+            });
+
+            // Desfazer alteração de etapa
+            $(document).on('click', '.btn-voltar-status', function(e) {
+
+                e.preventDefault();
+
+                let id_inscricao = $(this).data('id');
+                let status_atual = $(this).data('status');
+
+
+                Swal.fire({
+                    title: 'Desfazer alteração de etapa?',
+                    text: 'O candidato retornará para a etapa anterior antes desta alteração.',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Sim, desfazer',
+                    cancelButtonText: 'Cancelar',
+                    reverseButtons: true,
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                        cancelButton: 'btn btn-secondary'
+                    }
+                }).then((result) => {
+
+                    if (result.isConfirmed) {
+
+                        let post_id = document.getElementById('post_ID').value;
+
+                        let formData = new FormData();
+
+                        formData.append('action', 'desfazer_etapa');
+                        formData.append('id', id_inscricao);
+                        formData.append('post_id', post_id);
+
+                        $.ajax({
+
+                            url: ajaxurl,
+                            type: 'POST',
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+
+                            beforeSend: function() {
+
+                                Swal.fire({
+                                    icon: 'info',
+                                    title: 'Processando...',
+                                    text: 'Aguarde enquanto a etapa é restaurada.',
+                                    allowOutsideClick: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
+
+                            },
+
+                            success: function(response) {
+
+                                if (response.success) {
+
+                                    table.destroy();
+
+                                    $(document)
+                                        .find('#tabela-candidatos tbody')
+                                        .html(response.data.html);
+
+                                    table = $(document)
+                                        .find('#tabela-candidatos')
+                                        .DataTable(tableConfig);
+
+                                    inicializarComponentesTabelaInscritos();
+
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Sucesso!',
+                                        text: response.data.message
+                                    });
+
+
+                                } else {
+
+                                    Swal.fire({
+                                        icon: 'error',
+                                        title: 'Erro!',
+                                        text: response.data.message
+                                    });
+
+                                }
+
+                            },
+
+
+                            error: function(xhr) {
+
+                                console.log(xhr.responseText);
+
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Erro na requisição!',
+                                    text: 'Não foi possível processar a solicitação.'
+                                });
+
+                            }
+
+                        });
+
+                    }
+
+                });
+            });
             
         } else {
             console.log('Nenhum dado para inicializar o DataTable');
+        }
+
+        // Validação da quantidade de arquivos anexados no modal de comunicar candidatos
+        $(document).on('change', '.anexos-email', function() {
+
+            const limite = 5;
+
+            if (this.files.length > limite) {
+                toastr.error(`Limite de arquivos excedido. Você pode selecionar no máximo ${limite} arquivos.`)
+                this.value = '';
+
+                return;
+            }
+
+        });
+
+        // Evento de click ao enviar o e-mail de comunicação
+		$('#modal-comunicar-candidatos .btn-enviar').on('click', function () {
+			
+            const $modal = $(this).closest('.modal');
+			const inscricoesSelecionadas = getInscricoesSelecionadas();
+			const $editor = $modal.find('#conteudo-email').first();
+			const instanciaQuill = $editor.data('quill');
+
+			let conteudoEmail = instanciaQuill.root.innerHTML.replace(/<img[^>]*role="img"[^>]*>/g, function(match){
+				var alt = match.match(/alt="([^"]*)"/);
+				return alt ? alt[1] : '';
+			});
+
+            if (instanciaQuill.getText().trim().length === 0) {
+                $editor.closest('.bloco-conteudo').find('.error-message').text('Este campo é de preenchimento obrigatório.').show();
+                return
+            }
+
+            var inputAnexos = $modal.find('#anexos-email')[0];
+            var anexos = inputAnexos.files;
+
+            Swal.fire({
+                title: 'Aguarde um instante...',
+                text: 'Estamos processando o envio dos e-mails.',
+                iconHtml: '<span class="dashicons dashicons-warning"></span>',
+                customClass: {
+                    popup: 'popup-notificar-sorteados',
+                },
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            enviarComunicado(inscricoesSelecionadas, conteudoEmail, anexos)
+		});
+
+		//Função para enviar o comunicado aos participantes selecionados.
+        function enviarComunicado(inscricoes, conteudoEmail, anexos) {
+
+            const formData = new FormData();
+
+            formData.append('action', 'enviar_email_comunicado');
+            formData.append('conteudo_email', conteudoEmail);
+            formData.append('ids', inscricoes);
+            formData.append('nonce', '<?php echo wp_create_nonce( 'enviar_email_comunicado' ); ?>');
+            formData.append('post_id', '<?php echo $current_post_id; ?>');
+
+            for (let i = 0; i < anexos.length; i++) {
+                formData.append('anexos[]', anexos[i]);
+            }
+
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                beforeSend: function () {
+                    demoraTimeout = setTimeout(function () {
+                        Swal.fire({
+                            title: 'Envio em andamento',
+                            text: 'Os e-mails estão sendo enviados aos candidatos selecionados.',
+                            iconHtml: '<span class="dashicons dashicons-email-alt2"></span>',
+                            showCancelButton: false,
+                            confirmButtonText: 'Fechar',
+                            allowOutsideClick: false,
+                            customClass: {
+                                popup: 'popup-notificar-sorteados',
+                            }
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.reload();
+                            }
+                        });
+                    }, 15000);
+                },
+                success: function(response) {
+
+                    clearTimeout(demoraTimeout);
+
+                    if (!response.success) {
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Erro!',
+                            confirmButtonText: 'Fechar',
+                            confirmButtonColor: '#14447C',
+                            text: response.data?.message || 'Erro ao enviar comunicado.'
+                        });
+
+                        return;
+                    }
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Comunicação enviada com sucesso!',
+                        confirmButtonText: 'Fechar',
+                        confirmButtonColor: '#14447C',
+                        willClose: () => {
+                            location.reload();
+                        }
+                    });
+
+                },
+                error: function (xhr, status, error) {
+                    clearTimeout(demoraTimeout); // cancela o alerta de demora
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro!',
+                        text: 'Ocorreu um problema ao enviar o comunicado.',
+                        confirmButtonText: 'Fechar',
+                        confirmButtonColor: '#14447C',
+                    });
+                    console.error('Erro:', error);
+                }
+            });
+        }
+        
+        function getInscricoesSelecionadas() {
+            const checkboxes = $('.check-item:checked');
+            const ids = [];
+
+            checkboxes.each(function() {
+                ids.push($(this).val());
+            });
+
+            return ids;
         }
     });
 </script>
