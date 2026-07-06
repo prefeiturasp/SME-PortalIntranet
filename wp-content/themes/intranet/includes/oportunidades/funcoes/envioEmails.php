@@ -9,10 +9,21 @@ class Envia_Emails_Oportunidades_SME {
     public $idOportunidade;
     public $etapa;
 
+    public const TABELA_ENVIOS = 'int_oportunidade_historico_envios';
+    public const TABELA_DESTINATARIOS = 'int_oportunidade_envio_destinatarios';
+
+    public const TIPO_COMUNICADO = 'comunicado';
+    public const TIPO_ATUALIZACAO_ETAPA = 'atualizacao';
+    public const TIPO_CONFIRMACAO = 'confirmacao';
+
     public function __construct($idInscricoes, $idOportunidade, $etapa = null) {
         $this->idInscricoes = $idInscricoes;
         $this->idOportunidade = $idOportunidade;
         $this->etapa = $etapa;
+    }
+
+    public static function registrar_hooks() {
+        add_action( 'wp_ajax_get_envio', [self::class, 'handle_get_envio'] );
     }
 
     public function enviar_emails_conforme_etapa() {
@@ -189,6 +200,7 @@ class Envia_Emails_Oportunidades_SME {
             $anexos_processados
         );
 
+        $this->registrar_historico_envio( $conteudo_email, $anexos_processados, $prazo_confirmacao, self::TIPO_CONFIRMACAO );
 
         return $enviado;
 
@@ -291,6 +303,7 @@ class Envia_Emails_Oportunidades_SME {
             );
         }
 
+        $this->registrar_historico_envio( null, [], null, self::TIPO_ATUALIZACAO_ETAPA );
     }
 
     public function enviar_comunicado_inscritos( string $conteudo_email, array $anexos = [] ) {
@@ -398,6 +411,7 @@ class Envia_Emails_Oportunidades_SME {
             }
         }
 
+        $this->registrar_historico_envio( $conteudo_email, $anexos );
 
         return [
             'enviados' => $enviados,
@@ -502,5 +516,156 @@ class Envia_Emails_Oportunidades_SME {
         }
 
         return $anexos;
+    }
+
+    /**
+     * Registra o histórico de um envio de e-mail no banco de dados.
+     *
+     * @param string $mensagem     O conteúdo do e-mail que foi enviado.
+     * @param array $anexos        Array com caminho dos arquivos anexados.
+     * @return int|false O ID do registro de envio em caso de sucesso, ou false em caso de falha.
+     */
+    private function registrar_historico_envio( ?string $mensagem = null, array $anexos = [], ?string $prazo_confirmacao = null, string $tipo_envio = 'comunicado' ) {
+        global $wpdb;
+
+        $user_id = get_current_user_id();
+
+        if ( !$user_id ) {
+            return false;
+        }
+
+        if ( empty( $this->idInscricoes ) ) {
+            return false;
+        }
+
+        $inscricoes = is_int( $this->idInscricoes ) ? [ $this->idInscricoes ] : $this->idInscricoes;
+
+        if ( $anexos ) {
+            $hash = obter_data_com_timezone( 'YmdHis', 'America/Sao_Paulo' );
+            $info_anexos = [];
+
+            foreach ( $anexos as $anexo ) {
+                $dir = WP_CONTENT_DIR . "/uploads/oportunidade-envios/{$this->idOportunidade}/{$hash}";
+
+                if ( !file_exists( $dir ) ) {
+                    wp_mkdir_p( $dir );
+                }
+                $destino = $dir . '/' . basename( $anexo );
+
+                rename( $anexo, $destino );
+
+                $info_anexos[] = [
+                    'nome' => basename( $anexo ),
+                    'caminho' => $destino
+                ];
+            }
+        }
+
+        //Faz o insert na tabela de histórico dos envios
+        $wpdb->insert(
+            self::TABELA_ENVIOS,
+            [
+                'user_id'		    => $user_id,
+                'post_id'		    => $this->idOportunidade,
+                'mensagem'		    => $mensagem,
+                'anexos'		    => isset( $info_anexos ) ? json_encode( $info_anexos, JSON_UNESCAPED_UNICODE ) : null,
+                'tipo_envio'        => $tipo_envio,
+                'etapa'             => $this->etapa,
+                'prazo_confirmacao' => $prazo_confirmacao,
+                'data_envio'        => obter_data_com_timezone( 'Y-m-d H:i:s', 'America/Sao_Paulo' ),
+                'public_id'         => bin2hex( random_bytes( 16 ) )
+            ],
+            [ '%d', '%d', '%s', '%s', '%s', '%s', '%s', '%s', '%s' ]
+        );
+
+        $envio_id = $wpdb->insert_id;
+
+        if ( !$envio_id ) {
+            error_log( 'Falha ao inserir na tabela historico_envios: ' . $wpdb->last_error );
+            return false;
+        }
+
+        //Insere cada destinatário na tabela envio destinatários vinculando ao envio
+        foreach ( $inscricoes as $inscricao_id ) {
+
+            $wpdb->insert(
+                self::TABELA_DESTINATARIOS,
+                [
+                    'envio_id'      => $envio_id,
+                    'inscricao_id'  => $inscricao_id,
+                ]
+            );
+        }
+
+        return $envio_id;
+    }
+
+    public function handle_get_envio() {
+
+        check_ajax_referer( 'visualizar_envio', 'nonce' );
+
+        if ( !is_user_logged_in() ) {
+            wp_send_json_error( [ 'message' => 'Usuário não autenticado.'] );
+        }
+
+        $public_id = sanitize_text_field ($_POST['public_id'] ?? '' );
+
+        if ( empty ($public_id ) ) {
+            wp_send_json_error( ['message' => 'Comunicado inválido.'] );
+        }
+
+        $envio = self::get_envio_by_public_id( $public_id );
+
+        if ( is_wp_error( $envio ) ) {
+            wp_send_json_error( ['message' => $envio->get_error_message()] );
+        }
+
+        wp_send_json_success($envio);
+    }
+
+    public static function get_envio_by_public_id( string $envio_id ) {
+
+        global $wpdb;
+
+        $envio = $wpdb->get_row(
+            $wpdb->prepare(
+                "
+                SELECT *
+                FROM " . self::TABELA_ENVIOS . "
+                WHERE public_id = %s
+                LIMIT 1
+                ",
+                $envio_id
+            ),
+        );
+
+        if ( empty( $envio ) ) {
+            return new WP_Error(
+                'envio_nao_encontrado',
+                'O envio não foi encontrado.'
+            );
+        }
+
+        if ( $envio->anexos ) {
+
+            $upload_dir = wp_upload_dir();
+            $upload_basedir = trailingslashit( $upload_dir['basedir'] );
+            $upload_baseurl = trailingslashit( $upload_dir['baseurl'] );
+            $anexos = json_decode( $envio->anexos, true );
+            $anexos_formatados = [];
+
+            foreach ( $anexos as $anexo ) {
+                $url = str_replace( $upload_basedir, $upload_baseurl, $anexo['caminho'] );
+
+                $anexos_formatados[] = [
+                    'nome' => $anexo['nome'],
+                    'url'  => $url
+                ];
+            }
+
+            $envio->anexos = $anexos_formatados;
+        }
+
+        return $envio;
     }
 }
