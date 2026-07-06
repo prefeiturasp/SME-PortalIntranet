@@ -583,3 +583,165 @@ jQuery(function($){
 
     });
 });
+
+/* Scripts da tabela de listagem das inscrições do usuário aba "Minhas Oportunidades" */
+
+jQuery(function($) {
+
+    const $table = $('#minhas-candidaturas #tabela-inscricoes-participante');
+
+    let instance = $table.DataTable({
+        pageLength: 20,
+        lengthChange: false,
+        ordering: false,
+        paging: true,
+        searching: false,
+        info: false,
+        stripeClasses: [],
+        autoWidth: false,
+        responsive: false,
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json',
+            paginate: {
+                previous: '<i class="fa fa-chevron-left"></i>',
+                next: '<i class="fa fa-chevron-right"></i>'
+            }
+        },
+        pagingType: "simple_numbers",
+        dom: 'rtip',
+    });
+
+    $table.removeClass('dataTable');
+    $table.removeClass('table-responsive');
+
+    $(document).on('click', '.btn-visualizar-comunicado', function () {
+
+        const publicId = $(this).data('id');
+        const linha = $(this).closest('tr');
+    
+        if (!publicId) {
+            return;
+        }
+    
+        $.ajax({
+    
+            url: ajax_obj.ajax_url,
+            type: 'POST',
+    
+            data: {
+                action: 'get_envio',
+                public_id: publicId,
+                nonce: ajax_obj.nonces.visualizar_envio
+            },
+    
+            beforeSend() {
+                Swal.fire({
+                    title: 'Carregando...',
+                    allowOutsideClick: false,
+                    didOpen() {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success(response) {
+                Swal.close();
+    
+                if (!response.success) {
+    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: response.data.message
+                    });
+    
+                    return;
+                }
+    
+                preencherModalComunicado(response.data, linha);
+            },
+    
+            error() {
+                Swal.close();
+    
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Não foi possível carregar o comunicado.'
+                });
+            }
+        });
+    });
+
+    function formatarDataHora(dataHora) {
+
+        if (!dataHora) {
+            return '';
+        }
+    
+        const [data, hora] = dataHora.split(' ');
+        const [ano, mes, dia] = data.split('-');
+        const [horas, minutos] = hora.split(':');
+    
+        return `${dia}/${mes}/${ano} às ${horas}:${minutos}`;
+    }
+
+    function preencherModalComunicado(envio, linha) {
+
+        const modal = $('#modal-comunicado');
+        const titulo = linha.find('#titulo-oportunidade a').text();
+        const subTitulo = linha.find('.subtitulo-oportunidade').html();
+        const dataInscricao = linha.data('data-inscricao')
+        const lista = modal.find('.js-anexos');
+
+        modal.find('.js-oportunidade').text(envio.oportunidade);
+        modal.find('.js-data-envio').text(formatarDataHora(envio.data_envio));
+        modal.find('.js-data-inscricao').html(dataInscricao);
+        
+        modal.find('.js-titulo').html(`<strong>${titulo}</strong>`);
+        modal.find('.js-titulo').append(subTitulo);
+    
+        lista.empty();
+
+        if (envio.mensagem && envio.mensagem.length) {
+            modal.find('#info-complementar').removeClass('d-none');
+            modal.find('.js-mensagem').html(envio.mensagem);
+        } else {
+            modal.find('#info-complementar').addClass('d-none');
+            modal.find('.js-mensagem').html('');
+        }
+    
+        if (envio.anexos && envio.anexos.length) {
+    
+            modal.find('.js-bloco-anexos').removeClass('d-none');
+    
+            envio.anexos.forEach(anexo => {
+                lista.append(`
+                    <a
+                        href="${anexo.url}"
+                        download
+                        class="list-group-item list-group-item-action d-flex align-items-center"
+                        >
+    
+                        <i class="fa fa-lg fa-download" aria-hidden="true"></i>
+    
+                        <div class="ml-3">
+                            <div class="fw-semibold">
+                                ${anexo.nome}
+                            </div>
+    
+                            <small class="text-muted">
+                                Clique para baixar o arquivo.
+                            </small>
+                        </div>
+    
+                    </a>
+                `);
+            });
+    
+        } else {
+            modal.find('.js-bloco-anexos').addClass('d-none');
+        }
+    
+        modal.modal('show');
+    }
+})

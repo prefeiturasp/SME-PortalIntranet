@@ -1,9 +1,11 @@
 <?php
 
+use EnviaEmailOportunidade\classes\Envia_Emails_Oportunidades_SME;
+
 class Inscricao {
 
     const TABELA_INSCRICOES = 'int_oportunidade_inscricoes';
-
+    const TABELA_CURRICULO = 'int_banco_talentos';
     const STATUS_INSCRITO = 'inscrito';
 
     public function __construct() {
@@ -424,7 +426,8 @@ class Inscricao {
 
             $email_controller = new \EnviaEmailOportunidade\classes\Envia_Emails_Oportunidades_SME(
                 $id,
-                $post_id
+                $post_id,
+                $status
             );
 
 
@@ -813,6 +816,67 @@ class Inscricao {
             error_log( '[CRON OPORTUNIDADES] Erro: ' . $e->getMessage() );
 
         }
+    }
+
+    public static function get_inscricoes_by_user_id( ?int $user_id = null ) {
+        global $wpdb;
+        
+        $user_id = $user_id ?: get_current_user_id();
+
+        $inscricoes = $wpdb->get_results(
+            $wpdb->prepare(
+                "
+                SELECT
+                    i.*,
+
+                    ec.public_id AS comunicado_public_id,
+                    cf.public_id AS confirmacao_public_id
+
+                FROM " . self::TABELA_INSCRICOES . " i
+
+                -- Último comunicado
+                LEFT JOIN (
+                    SELECT
+                        d.inscricao_id,
+                        MAX(d.envio_id) AS comunicado_id
+                    FROM " . Envia_Emails_Oportunidades_SME::TABELA_DESTINATARIOS . " d
+                    INNER JOIN " . Envia_Emails_Oportunidades_SME::TABELA_ENVIOS . " e
+                        ON e.id = d.envio_id
+                    WHERE e.tipo_envio <> %s
+                    GROUP BY d.inscricao_id
+                ) ultimo_comunicado
+                    ON ultimo_comunicado.inscricao_id = i.id
+
+                LEFT JOIN " . Envia_Emails_Oportunidades_SME::TABELA_ENVIOS . " ec
+                    ON ec.id = ultimo_comunicado.comunicado_id
+
+                -- Última confirmação
+                LEFT JOIN (
+                    SELECT
+                        d.inscricao_id,
+                        MAX(d.envio_id) AS confirmacao_id
+                    FROM " . Envia_Emails_Oportunidades_SME::TABELA_DESTINATARIOS . " d
+                    INNER JOIN " . Envia_Emails_Oportunidades_SME::TABELA_ENVIOS . " e
+                        ON e.id = d.envio_id
+                    WHERE e.tipo_envio = %s
+                    GROUP BY d.inscricao_id
+                ) ultima_confirmacao
+                    ON ultima_confirmacao.inscricao_id = i.id
+
+                LEFT JOIN " . Envia_Emails_Oportunidades_SME::TABELA_ENVIOS . " cf
+                    ON cf.id = ultima_confirmacao.confirmacao_id
+
+                WHERE i.user_id = %d
+
+                ORDER BY i.created_at DESC
+                ",
+                Envia_Emails_Oportunidades_SME::TIPO_CONFIRMACAO,
+                Envia_Emails_Oportunidades_SME::TIPO_CONFIRMACAO,
+                $user_id
+            ),
+        );
+
+        return $inscricoes;
     }
 }
 
