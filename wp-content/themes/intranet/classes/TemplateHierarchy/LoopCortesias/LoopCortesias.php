@@ -25,7 +25,13 @@ class LoopCortesias extends Util
 		echo '<div class="container mt-5">';
 			echo '<div class="row">';
 				new LoopCortesiasNoticiaPrincipal();
-				new LoopSingleInformacoesEvento();
+
+				// Sidebar (somente desktop)
+                echo '<div class="d-none d-lg-block col-lg-4 order-2">';                    
+					$informacoes = new LoopSingleInformacoesEvento();
+					$informacoes->getInformacoesEvento();
+                echo '</div>';
+
 				new LoopCortesiasRelacionadas(get_the_ID());		
 			echo '</div>';
 		echo '</div>';
