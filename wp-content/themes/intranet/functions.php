@@ -9674,3 +9674,41 @@ add_action('init', function () {
     }
 
 });
+
+
+// Altera o campo de seleção de forma de distribuição
+add_filter('acf/load_field/name=formas_distribuicao', function($field) {
+
+    // Limpa as opções existentes
+    $field['choices'] = [];
+
+    // Placeholder (funciona com Allow Null habilitado)
+    $field['placeholder'] = 'Selecione uma forma de distribuição';
+
+    $formas = get_field('formas_distri', 'option');
+
+    if (!empty($formas)) {
+
+        foreach ($formas as $forma) {
+
+            if (!empty($forma['nome'])) {
+                $field['choices'][$forma['nome']] = $forma['nome'];
+            }
+
+        }
+
+    }
+
+    return $field;
+
+});
+
+// Altera o link dos menus para publicados no lugar de todos
+add_action('admin_menu', function () {
+
+    global $menu;
+    
+    $menu[5][2] = 'edit.php?post_status=publish&post_type=post'; // Altera o link do menu "Sorteios"
+    $menu[8][2] = 'edit.php?post_status=publish&post_type=cortesias'; // Altera o link do menu "Ordem de Inscrição"
+
+}, 999);
