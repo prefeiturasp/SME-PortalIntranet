@@ -2904,27 +2904,27 @@ form.form-filtro-oportunidades .select2-container--default .select2-selection--s
 }
 
 /* Construtor "Minhas Oportunidades" (minhas_oportunidades_1_1) */
-div#minhas-candidaturas #tabela-inscricoes-participante {
+div#minhas-candidaturas #tabela-minhas-oportunidades {
     font-family: 'Open Sans', sans-serif;
     color: #1E1E1E;
     font-size: 14px;
     font-weight: 500;
 }
 
-div#minhas-candidaturas #tabela-inscricoes-participante tbody tr,
-div#minhas-candidaturas #tabela-inscricoes-participante thead {
+div#minhas-candidaturas #tabela-minhas-oportunidades tbody tr,
+div#minhas-candidaturas #tabela-minhas-oportunidades thead {
     background-color: #FFFFFF;
 }
 
-div#minhas-candidaturas #tabela-inscricoes-participante tbody tr:nth-of-type(odd) {
+div#minhas-candidaturas #tabela-minhas-oportunidades tbody tr:nth-of-type(odd) {
     background-color: #F9F9F9;
 }
-div#minhas-candidaturas #tabela-inscricoes-participante th,
-div#minhas-candidaturas #tabela-inscricoes-participante td {
+div#minhas-candidaturas #tabela-minhas-oportunidades th,
+div#minhas-candidaturas #tabela-minhas-oportunidades td {
     border: 1px solid #F0F0F0;
 }
 
-div#minhas-candidaturas #tabela-inscricoes-participante a{
+div#minhas-candidaturas #tabela-minhas-oportunidades a{
     text-decoration: none;
     color: #1E1E1E;
 }
@@ -2938,6 +2938,11 @@ div#minhas-candidaturas .modal .modal-content .modal-body p {
     font-size: 1rem;
     margin: 0;
     padding: 0;
+}
+
+div#minhas-candidaturas .modal .modal-content .modal-body .prazo-confirmacao {
+    font-weight: 600;
+    color: #14447C;
 }
 
 div#minhas-candidaturas .modal .modal-content .modal-body .js-titulo p {
@@ -2971,20 +2976,45 @@ div#minhas-candidaturas .dataTables_paginate .paginate_button.current {
     color: #FFFFFF !important;
 }
 
-#minhas-candidaturas #tabela-inscricoes-participante thead {
+#minhas-candidaturas #tabela-minhas-oportunidades thead {
     background-color: #14457c !important;
     color: #FFFFFF;
 }
 
-#minhas-candidaturas #tabela-inscricoes-participante thead th {
+#minhas-candidaturas #tabela-minhas-oportunidades thead th {
     white-space: nowrap;
     border-left: none;
     border-right: none;
 }
 
-#minhas-candidaturas #tabela-inscricoes-participante thead td {
+#minhas-candidaturas #tabela-minhas-oportunidades thead td {
     border-left: none;
     border-right: none;
+}
+
+#minhas-candidaturas #tabela-minhas-oportunidades .linha-destacada #titulo-oportunidade::before {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: #14457c;
+    vertical-align: middle;
+    animation: blink_smooth 1.5s infinite;
+
+}
+
+#minhas-candidaturas #tabela-minhas-oportunidades .linha-destacada td {
+    border-bottom: 1px solid #14457c;
+}
+
+#minhas-candidaturas #tabela-minhas-oportunidades .linha-destacada td:first-child {
+    border-left: 1px solid #14457c;
+}
+
+#minhas-candidaturas #tabela-minhas-oportunidades .linha-destacada td:last-child {
+    border-right: 1px solid #14457c;
 }
 
 #minhas-candidaturas #titulo-oportunidade a {

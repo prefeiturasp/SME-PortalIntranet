@@ -586,9 +586,22 @@ jQuery(function($){
 
 /* Scripts da tabela de listagem das inscrições do usuário aba "Minhas Oportunidades" */
 
+function formatarDataHora(dataHora) {
+
+    if (!dataHora) {
+        return '';
+    }
+
+    const [data, hora] = dataHora.split(' ');
+    const [ano, mes, dia] = data.split('-');
+    const [horas, minutos] = hora.split(':');
+
+    return `${dia}/${mes}/${ano} às ${horas}:${minutos}`;
+}
+
 jQuery(function($) {
 
-    const $table = $('#minhas-candidaturas #tabela-inscricoes-participante');
+    const $table = $('#minhas-candidaturas #tabela-minhas-oportunidades');
 
     let instance = $table.DataTable({
         pageLength: 20,
@@ -672,19 +685,6 @@ jQuery(function($) {
         });
     });
 
-    function formatarDataHora(dataHora) {
-
-        if (!dataHora) {
-            return '';
-        }
-    
-        const [data, hora] = dataHora.split(' ');
-        const [ano, mes, dia] = data.split('-');
-        const [horas, minutos] = hora.split(':');
-    
-        return `${dia}/${mes}/${ano} às ${horas}:${minutos}`;
-    }
-
     function preencherModalComunicado(envio, linha) {
 
         const modal = $('#modal-comunicado');
@@ -743,5 +743,261 @@ jQuery(function($) {
         }
     
         modal.modal('show');
+    }
+})
+
+/** Scripts das açoes de confirmação e cancelamento de interesse nas etapas do processo seletivo */
+jQuery(function($) {
+
+    $(document).on('click', '.btn-visualizar-confirmacao', function () {
+
+        const publicId = $(this).data('id');
+        const linha = $(this).closest('tr');
+    
+        if (!publicId) {
+            return;
+        }
+    
+        $.ajax({
+    
+            url: ajax_obj.ajax_url,
+            type: 'POST',
+    
+            data: {
+                action: 'get_envio',
+                public_id: publicId,
+                nonce: ajax_obj.nonces.visualizar_envio
+            },
+    
+            beforeSend() {
+                Swal.fire({
+                    title: 'Carregando...',
+                    allowOutsideClick: false,
+                    didOpen() {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success(response) {
+                Swal.close();
+    
+                if (!response.success) {
+    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: response.data.message
+                    });
+    
+                    return;
+                }
+    
+                preencherModalConfirmacao(response.data, linha);
+            },
+    
+            error() {
+                Swal.close();
+    
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Não foi possível carregar o comunicado.'
+                });
+            }
+        });
+    });
+
+    $(document).on('click', '.btn-confirmar-interesse-etapa', function () {
+
+        const postId = $(this).data('post-id');
+        const inscricaoId = $(this).data('inscricao-id');;
+    
+        Swal.fire({
+            icon: 'question',
+            title: 'Confirmar participação',
+            html: 'Deseja realmente confirmar seu interesse em continuar participando desta etapa do processo seletivo?',
+            showCancelButton: true,
+            confirmButtonText: 'Sim',
+            cancelButtonText: 'Não',
+            confirmButtonColor: '#14447C',
+            reverseButtons: true
+        }).then(result => {
+    
+            if (!result.isConfirmed) {
+                return;
+            }
+    
+            atualizarConfirmacao(inscricaoId, postId, 1);
+        });
+    });
+
+    $(document).on('click', '.btn-cancelar-interesse-etapa', function () {
+
+        const postId = $(this).data('post-id');
+        const inscricaoId = $(this).data('inscricao-id');
+    
+        Swal.fire({
+            icon: 'question',
+            title: 'Cancelar participação',
+            html: 'Deseja realmente cancelar sua participação nesta etapa do processo seletivo?',
+            showCancelButton: true,
+            confirmButtonText: 'Sim',
+            cancelButtonText: 'Não',
+            confirmButtonColor: '#dc3545',
+            reverseButtons: true
+        }).then(result => {
+    
+            if (!result.isConfirmed) {
+                return;
+            }
+    
+            atualizarConfirmacao(inscricaoId, postId, 2);
+        });
+    
+    });
+
+    function preencherModalConfirmacao(envio, linha) {
+
+        const modal = $('#modal-confirmacao');
+        const titulo = linha.find('#titulo-oportunidade a').text();
+        const subTitulo = linha.find('.subtitulo-oportunidade').html();
+        const dataInscricao = linha.data('data-inscricao')
+        const lista = modal.find('.js-anexos');
+        const inscricaoId = linha.data('inscricao-id');
+
+        modal.find('.js-oportunidade').text(envio.oportunidade);
+        modal.find('.js-data-envio').text(formatarDataHora(envio.data_envio));
+        modal.find('.js-data-inscricao').html(dataInscricao);
+        modal.find('.js-prazo-confirmacao').html(formatarDataHora(envio.prazo_confirmacao));
+        
+        modal.find('.js-titulo').html(`<strong>${titulo}</strong>`);
+        modal.find('.js-titulo').append(subTitulo);
+
+        modal.find('.btn-confirmar-interesse-etapa')
+            .data('inscricao-id', inscricaoId)
+            .data('post-id', envio.post_id);
+
+        modal.find('.btn-cancelar-interesse-etapa')
+            .data('inscricao-id', inscricaoId)
+            .data('post-id', envio.post_id);
+    
+        lista.empty();
+
+        if (envio.mensagem && envio.mensagem.length) {
+            modal.find('#info-complementar').removeClass('d-none');
+            modal.find('.js-mensagem').html(envio.mensagem);
+        } else {
+            modal.find('#info-complementar').addClass('d-none');
+            modal.find('.js-mensagem').html('');
+        }
+    
+        if (envio.anexos && envio.anexos.length) {
+    
+            modal.find('.js-bloco-anexos').removeClass('d-none');
+    
+            envio.anexos.forEach(anexo => {
+                lista.append(`
+                    <a
+                        href="${anexo.url}"
+                        download
+                        class="list-group-item list-group-item-action d-flex align-items-center"
+                        >
+    
+                        <i class="fa fa-lg fa-download" aria-hidden="true"></i>
+    
+                        <div class="ml-3">
+                            <div class="fw-semibold">
+                                ${anexo.nome}
+                            </div>
+    
+                            <small class="text-muted">
+                                Clique para baixar o arquivo.
+                            </small>
+                        </div>
+    
+                    </a>
+                `);
+            });
+    
+        } else {
+            modal.find('.js-bloco-anexos').addClass('d-none');
+        }
+    
+        modal.modal('show');
+    }
+
+    function atualizarConfirmacao(inscricaoId, postId, confirmouPresenca) {
+
+        $.ajax({
+    
+            url: ajax_obj.ajax_url,
+            type: 'POST',
+    
+            data: {
+                action: 'confirmar_participacao',
+                nonce: ajax_obj.nonces.confirmar_participacao,
+                inscricao_id: inscricaoId,
+                post_id: postId,
+                confirmou_presenca: confirmouPresenca
+            },
+    
+            beforeSend() {
+    
+                Swal.fire({
+                    title: 'Salvando sua resposta, aguarde...',
+                    allowOutsideClick: false,
+                    didOpen() {
+                        Swal.showLoading();
+                    }
+                });
+    
+            },
+    
+            success(response) {
+    
+                if (!response.success) {
+    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: response.data.message,
+                        confirmButtonText: 'Fechar',
+                        confirmButtonColor: '#14447C',
+                    });
+    
+                    return;
+                }
+    
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Resposta registrada!',
+                    text: response.data.message,
+                    confirmButtonText: 'Fechar',
+                    confirmButtonColor: '#14447C',
+                }).then(() => {
+    
+                    $('#modal-confirmacao').modal('hide');
+                    $(`[data-inscricao-id="${inscricaoId}"]`).replaceWith(response.data.html);
+    
+                    // Atualizar a tabela ou recarregar a página
+    
+                });
+    
+            },
+    
+            error() {
+    
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Não foi possível registrar sua resposta.',
+                    confirmButtonText: 'Fechar',
+                    confirmButtonColor: '#14447C',
+                });
+    
+            }
+    
+        });
+    
     }
 })
