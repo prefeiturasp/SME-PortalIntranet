@@ -137,7 +137,7 @@ class Envia_Emails_Oportunidades_SME {
             ? get_permalink($pagina_minhas_oportunidades->ID)
             : home_url();
 
-
+        $link = add_query_arg( 'highlight', $this->idOportunidade, $link );
 
         /**
          * Conteúdo padrão do email
@@ -248,6 +248,7 @@ class Envia_Emails_Oportunidades_SME {
         $oportunidade = get_the_title($this->idOportunidade);
         $pagina_minhas_oportunidades = get_field( 'pagina_minhas_oportunidades', 'options' );
         $link = $pagina_minhas_oportunidades ? get_permalink( $pagina_minhas_oportunidades->ID ) : home_url();
+        $link = add_query_arg( 'highlight', $this->idOportunidade, $link );
         $logo = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/logo.png';
         $iconeSeta = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/seta-azul.png';
         $iconeAviso = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/icone-aviso.png';
@@ -350,6 +351,7 @@ class Envia_Emails_Oportunidades_SME {
         $oportunidade = get_the_title( $this->idOportunidade );
         $pagina_minhas_oportunidades = get_field( 'pagina_minhas_oportunidades', 'options' );
         $link = $pagina_minhas_oportunidades ? get_permalink( $pagina_minhas_oportunidades->ID ) : home_url();
+        $link = add_query_arg( 'highlight', $this->idOportunidade, $link );
 
         $temaEmail = file_get_contents( get_template_directory() . '/includes/oportunidades/template-parts/email-comunicar-candidatos.php' );
         $logo = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/logo.png';
