@@ -1,6 +1,7 @@
 <?php
 namespace EnviaEmailOportunidade\classes;
 
+use Inscricao;
 use WP_Error;
 
 class Envia_Emails_Oportunidades_SME {
@@ -563,6 +564,10 @@ class Envia_Emails_Oportunidades_SME {
             }
         }
 
+        if ( strlen( wp_strip_all_tags( $mensagem ) ) === 0 ) {
+            $mensagem = null;
+        }
+
         //Faz o insert na tabela de histórico dos envios
         $wpdb->insert(
             self::TABELA_ENVIOS,
@@ -669,5 +674,52 @@ class Envia_Emails_Oportunidades_SME {
         }
 
         return $envio;
+    }
+
+    /**
+     * Dispara um e-mail de notificação para os gestor da Oportunidade e para a Coordenadoria/DRE
+     * @param object $incricao  Objeto da inscrição 
+     */
+    public static function notificar_confirmacao_candidato( object $inscricao ) {
+
+        $post_id = $inscricao->oportunidade_id;
+        $termos = get_the_terms( $post_id, 'coordenadorias' );
+        $envio_confirmacao = self::get_envio_by_public_id( $inscricao->confirmacao_public_id );
+        $etapas_processo = Inscricao::get_etapas_processo();
+        $headers = ['Content-Type: text/html; charset=UTF-8'];
+
+        if (  is_wp_error( $envio_confirmacao ) || empty( $envio_confirmacao ) ) {
+            return;
+        }
+
+        $responsavel_confirmacao = get_userdata( $envio_confirmacao->user_id );
+        $email_responsavel = $responsavel_confirmacao->data->user_email;
+
+        if ( !is_wp_error( $termos ) && !empty( $termos ) ) {
+
+            $setor = $termos[0];
+            $coordenadoria = $setor->parent ? get_term( $setor->parent, 'coordenadorias' ) : $setor;
+            $email_coordenadoria = (string) get_field( 'email_coordenadoria', $coordenadoria );
+
+            if ( $email_coordenadoria ) {
+                $headers[] = 'Cc: ' . $email_coordenadoria;
+            }
+        }
+
+        $assunto = 'Portal de Oportunidades SME | Resposta da Confirmação de Interesse - ';
+        $assunto .= $etapas_processo[$inscricao->status_confirm]['descricao'];
+
+        /**
+         * Renderiza template do email
+         */
+        ob_start();
+
+        get_template_part( '/includes/oportunidades/template-parts/email-notificar-confirmacao-responsavel', null, [
+            'inscricao' => $inscricao
+        ]);
+
+        $template = ob_get_clean();
+
+        return wp_mail( $email_responsavel, $assunto, $template, $headers );
     }
 }
