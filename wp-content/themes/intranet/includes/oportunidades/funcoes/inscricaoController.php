@@ -986,6 +986,8 @@ class Inscricao {
         $inscricao = self::get_inscricao_by_id( $inscricao_id );
         $etapas_processo = self::get_etapas_processo();
 
+        Envia_Emails_Oportunidades_SME::notificar_confirmacao_candidato( $inscricao );
+
         ob_start();
 
         get_template_part( 'includes/oportunidades/template-parts/minhas-oportunidades/linha-inscricao', null, [
