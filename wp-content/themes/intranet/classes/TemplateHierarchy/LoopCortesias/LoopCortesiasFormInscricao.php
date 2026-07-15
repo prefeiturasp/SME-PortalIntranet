@@ -359,8 +359,8 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                         $dre = old( 'dre' );
                                         
                                         if(!$parceira){
-											if($dados->dre){
-												$dre = $dados->dre;
+											if($inscricao->dre){
+												$dre = $inscricao->dre;
 											} else {
 												$dre = get_field('dre', 'user_' . $user_id);
 											}
