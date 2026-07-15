@@ -9699,16 +9699,155 @@ add_filter('acf/load_field/name=formas_distribuicao', function($field) {
 
     }
 
+    // Recupera o ID do post
+	$post_id = 0;
+
+	if (!empty($_GET['post'])) {
+		$post_id = (int) $_GET['post'];
+	} elseif (!empty($_POST['post_ID'])) {
+		$post_id = (int) $_POST['post_ID'];
+	}
+
+	// Recupera o valor salvo diretamente do banco
+	if ($post_id > 0) {
+
+		$valor_atual = get_post_meta($post_id, $field['name'], true);
+
+		// Se o valor não existir mais nas opções,
+		// adiciona-o temporariamente ao select.
+		if (
+			!empty($valor_atual)
+			&& !isset($field['choices'][$valor_atual])
+		) {
+
+			$field['choices'][$valor_atual] = '⚠ ' . $valor_atual . ' (informação removida)';
+
+		}
+
+	}
+
     return $field;
 
 });
 
 // Altera o link dos menus para publicados no lugar de todos
-add_action('admin_menu', function () {
+add_action('load-edit.php', function () {
 
-    global $menu;
-    
-    $menu[5][2] = 'edit.php?post_status=publish&post_type=post'; // Altera o link do menu "Sorteios"
-    $menu[8][2] = 'edit.php?post_status=publish&post_type=cortesias'; // Altera o link do menu "Ordem de Inscrição"
+	global $typenow;
 
-}, 999);
+	if (!in_array($typenow, ['post', 'cortesias'], true)) {
+		return;
+	}
+
+	// Obtém todos os parâmetros GET
+	$query = $_GET;
+
+	// Remove o post_type da validação, pois ele é esperado
+	unset($query['post_type']);
+
+	// Se existir qualquer outro parâmetro, não redireciona
+	if (!empty($query)) {
+		return;
+	}
+
+	wp_safe_redirect(
+		admin_url(sprintf(
+			'edit.php?post_status=publish&post_type=%s',
+			$typenow
+		))
+	);
+
+	exit;
+
+});
+
+add_filter('views_edit-cortesias', function($views) {
+
+    // Altera o link do filtro "Todos"
+    if (isset($views['all'])) {
+
+        $views['all'] = str_replace(
+            'edit.php?post_type=cortesias',
+            'edit.php?post_type=cortesias&all_posts=1',
+            $views['all']
+        );
+
+    }
+
+    return $views;
+
+});
+
+/**
+ * Retorna a inscrição mais recente do usuário logado com base no CPF.
+ *
+ * @param string|null $tipo_inscricao 'post' ou 'cortesia'.
+ * @return object|null Dados da inscrição ou null caso não encontre.
+ */
+function obter_ultima_inscricao_usuario_logado($tipo_inscricao = null) {
+	global $wpdb;
+
+	$current_user = wp_get_current_user();
+
+	if (empty($current_user->ID)) {
+		return null;
+	}
+
+	// Obtém o CPF salvo no ACF.
+	$cpf = get_field('cpf', 'user_' . $current_user->ID);
+
+	if (empty($cpf)) {
+		return null;
+	}
+
+	// Remove qualquer caractere que não seja número.
+	$cpf = preg_replace('/\D/', '', $cpf);
+
+	$tabela_inscricoes = $wpdb->prefix . 'inscricoes';
+	$tabela_cortesias  = $wpdb->prefix . 'cortesias_inscricoes';
+
+	// Define a ordem de busca.
+	if ($tipo_inscricao === 'cortesia') {
+		$tabelas = [
+			$tabela_cortesias,
+			$tabela_inscricoes,
+		];
+	} else {
+		// Padrão: busca primeiro nas inscrições.
+		$tabelas = [
+			$tabela_inscricoes,
+			$tabela_cortesias,
+		];
+	}
+
+	foreach ($tabelas as $tabela) {
+
+		$inscricao = $wpdb->get_row(
+			$wpdb->prepare(
+				"
+				SELECT
+					nome_completo,
+					email_institucional,
+					celular,
+					email_secundario,
+					telefone_comercial,
+					dre,
+					cargo_principal,
+					unidade_setor,
+					disciplina
+				FROM {$tabela}
+				WHERE cpf = %s
+				ORDER BY data_inscricao DESC
+				LIMIT 1
+				",
+				$cpf
+			)
+		);
+
+		if ($inscricao) {
+			return $inscricao;
+		}
+	}
+
+	return null;
+}

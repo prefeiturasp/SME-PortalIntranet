@@ -17,6 +17,8 @@ class LoopCortesiasFormInscricao extends LoopCortesias
 	}
 
     public function getFormInscri(){
+		$inscricao = obter_ultima_inscricao_usuario_logado('cortesia'); 
+
 		$user_id = get_current_user_id();
 		$current_date = obter_data_com_timezone('Ymd', 'America/Sao_Paulo');
 		$dataLimite = get_field('enc_inscri');
@@ -24,6 +26,8 @@ class LoopCortesiasFormInscricao extends LoopCortesias
 		$this->tipo_evento = get_field('tipo_evento');
 		$qtd_ingressos_inscrito = get_field( 'quantidade_ingressos_inscrito' );
 		$datas_disponivies = get_datas_diponiveis( get_the_ID() );
+
+		$dados = buscar_dados_api($user_id); 
 
 		wp_localize_script(
 			'valida-inscricao-cortesias',
@@ -182,13 +186,22 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                     <?php
                                         if(!$parceira) {
                                             $nome = esc_html(get_user_meta($user_id, 'first_name', true)) . ' ' . esc_html(get_user_meta($user_id, 'last_name', true));
+
+											if(!$nome && $inscricao->nome_completo){
+												$nome = $inscricao->nome_completo;
+											}
+
                                             $user_data = get_userdata($user_id);
                                             $user_email = $user_data->user_email;
+
+											if(!$user_email && $inscricao->email_institucional){
+												$user_email = $inscricao->email_institucional;
+											}
                                         }
                                     ?>
                                     <div class="form-group col-12 col-md-6">
                                         <label for="nomeComp">Nome completo <span>*</span></label>
-                                        <?php if(!$parceira): ?>
+                                        <?php if(!$parceira && $nome != ''): ?>
                                             <input type="text" class="form-control" id="nomeComp" value="<?= $nome; ?>" disabled>
                                             <input type="hidden" name="nomeComp" value="<?= $nome; ?>">
                                         <?php else: ?>
@@ -215,7 +228,7 @@ class LoopCortesiasFormInscricao extends LoopCortesias
 													>
 												</i>
 											</label>
-                                            <?php if ($user_email) : ?>								
+                                            <?php if ($user_email && $user_email != '') : ?>								
                                                 <input type="email" name="emailInstiDisa" class="form-control" id="emailInsti" value="<?= $user_email; ?>" disabled>
                                                 <input type="hidden" name="emailInsti" value="<?= $user_email; ?>">
                                             <?php else: ?>
@@ -256,12 +269,22 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                     <?php
                                     if ( !$parceira ) {
 
-                                        $celular = get_field('celular', 'user_' . $user_id);
-                                        $cpf = get_field('cpf', 'user_' . $user_id);
-                                        if($cpf){
-                                            $cpf = preg_replace('/[^0-9]/', '', $cpf);
-                                            $cpf = substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
-                                        }
+                                        $cpf = get_field( 'cpf', 'user_' . $user_id );
+
+										if($inscricao->celular){
+											$celular = $inscricao->celular;
+										} else {
+											$celular = get_field('celular', 'user_' . $user_id);
+										}
+
+										if( $cpf ){
+											$cpf = preg_replace('/[^0-9]/', '', $cpf);
+											$cpf = substr($cpf, 0, 3) . '.' . substr($cpf, 3, 3) . '.' . substr($cpf, 6, 3) . '-' . substr($cpf, 9, 2);
+										}
+
+										if($inscricao->email_secundario){
+											$email_secundario = $inscricao->email_secundario;
+										}
                                     }
                                     ?>
                                     <div class="form-group col-12 col-md-6">
@@ -272,7 +295,7 @@ class LoopCortesiasFormInscricao extends LoopCortesias
 											class="form-control"
 											id="emailSec"
 											placeholder="email@provedor.com.br"
-											value="<?php echo esc_html( old( 'emailSec' ) ); ?>"
+											value="<?= $email_secundario; ?>"
 										>
                                     </div>
 
@@ -313,6 +336,13 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                 </div>
 
                                 <div class="form-row">
+
+									<?php
+										if($inscricao->telefone_comercial){
+											$telefone_comercial = $inscricao->telefone_comercial;
+										}
+									?>
+
 									<div class="form-group col-12 col-md-6">
                                         <label for="telCom">Telefone Comercial</label>
                                         <input
@@ -321,15 +351,20 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                             class="form-control"
                                             id="telCom"
                                             placeholder="(00) 0000-0000"
-                                            value="<?php echo esc_html( old( 'telCom' ) ); ?>"
+                                            value="<?= $telefone_comercial; ?>"
                                             >
                                     </div>
                                     <?php
                                     
                                         $dre = old( 'dre' );
                                         
-                                        if(!$parceira)
-                                            $dre = get_field('dre', 'user_' . $user_id);
+                                        if(!$parceira){
+											if($dados->dre){
+												$dre = $dados->dre;
+											} else {
+												$dre = get_field('dre', 'user_' . $user_id);
+											}
+										}
                                         
                                         $dres = array(
                                             "SME",
@@ -366,8 +401,13 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                 <div class="form-row">
                                     <?php 
                                         $cargo = old( 'cargo_principal' );
-                                        if(!$parceira)
-                                            $cargo = get_field('cargo_principal', 'user_' . $user_id);
+                                        if(!$parceira){
+											if($inscricao->cargo_principal){
+												$cargo = $inscricao->cargo_principal;
+											} else {
+												$cargo = get_field('cargo_principal', 'user_' . $user_id);
+											}
+										}
                                     ?>
                                     <div class="form-group col-12 col-md-6">
                                         <label for="cargo_principal">Cargo atual <span>*</span></label>
@@ -377,8 +417,15 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                     <div class="form-group col-12 col-md-6">
                                         <?php
                                             
-                                            if(!$parceira)
-                                                $local = get_field('local', 'user_' . $user_id);
+                                            if(!$parceira){
+												if($dados->unidade_exercicio){
+													$local = $dados->unidade_exercicio;
+												} elseif($inscricao->unidade_setor){
+													$local = $inscricao->unidade_setor;
+												} else {
+													$local = get_field('local', 'user_' . $user_id);
+												}
+											}
 
                                             if ( !isset( $local ) || empty( $local ) ) {
                                                 $local = old( 'uniSetor' );
@@ -390,6 +437,11 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                 </div>
 
                                 <div class="form-row">
+									<?php
+										if($inscricao->disciplina){
+											$disciplina = $inscricao->disciplina;
+										}
+									?>
                                     <div class="form-group col-12">
                                         <label for="disciplina">Se professor, indicar a disciplina que leciona</label>
                                         <input
@@ -398,7 +450,7 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                             class="form-control"
                                             id="disciplina"
                                             placeholder="Insira o nome da disciplina que leciona"
-                                            value="<?php echo esc_html( old( 'disciplina' ) ); ?>"
+                                            value="<?= $disciplina; ?>"
                                             >
                                     </div>							
                                 </div>
