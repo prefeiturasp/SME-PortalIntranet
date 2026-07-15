@@ -9779,12 +9779,12 @@ add_filter('views_edit-cortesias', function($views) {
 });
 
 /**
- * Retorna a inscrição mais recente do usuário logado com base no CPF.
+ * Retorna a inscrição mais recente do usuário logado com base no CPF,
+ * considerando tanto inscrições quanto cortesias.
  *
- * @param string|null $tipo_inscricao 'post' ou 'cortesia'.
  * @return object|null Dados da inscrição ou null caso não encontre.
  */
-function obter_ultima_inscricao_usuario_logado($tipo_inscricao = null) {
+function obter_ultima_inscricao_usuario_logado() {
 	global $wpdb;
 
 	$current_user = wp_get_current_user();
@@ -9806,25 +9806,11 @@ function obter_ultima_inscricao_usuario_logado($tipo_inscricao = null) {
 	$tabela_inscricoes = $wpdb->prefix . 'inscricoes';
 	$tabela_cortesias  = $wpdb->prefix . 'cortesias_inscricoes';
 
-	// Define a ordem de busca.
-	if ($tipo_inscricao === 'cortesia') {
-		$tabelas = [
-			$tabela_cortesias,
-			$tabela_inscricoes,
-		];
-	} else {
-		// Padrão: busca primeiro nas inscrições.
-		$tabelas = [
-			$tabela_inscricoes,
-			$tabela_cortesias,
-		];
-	}
-
-	foreach ($tabelas as $tabela) {
-
-		$inscricao = $wpdb->get_row(
-			$wpdb->prepare(
-				"
+	$inscricao = $wpdb->get_row(
+		$wpdb->prepare(
+			"
+			SELECT *
+			FROM (
 				SELECT
 					nome_completo,
 					email_institucional,
@@ -9834,20 +9820,36 @@ function obter_ultima_inscricao_usuario_logado($tipo_inscricao = null) {
 					dre,
 					cargo_principal,
 					unidade_setor,
-					disciplina
-				FROM {$tabela}
+					disciplina,
+					data_inscricao,
+					'post' AS tipo_inscricao
+				FROM {$tabela_inscricoes}
 				WHERE cpf = %s
-				ORDER BY data_inscricao DESC
-				LIMIT 1
-				",
-				$cpf
-			)
-		);
 
-		if ($inscricao) {
-			return $inscricao;
-		}
-	}
+				UNION ALL
 
-	return null;
+				SELECT
+					nome_completo,
+					email_institucional,
+					celular,
+					email_secundario,
+					telefone_comercial,
+					dre,
+					cargo_principal,
+					unidade_setor,
+					disciplina,
+					data_inscricao,
+					'cortesia' AS tipo_inscricao
+				FROM {$tabela_cortesias}
+				WHERE cpf = %s
+			) AS inscricoes
+			ORDER BY data_inscricao DESC
+			LIMIT 1
+			",
+			$cpf,
+			$cpf
+		)
+	);
+
+	return $inscricao;
 }

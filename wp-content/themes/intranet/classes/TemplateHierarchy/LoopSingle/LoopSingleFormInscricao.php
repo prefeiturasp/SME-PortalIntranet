@@ -14,7 +14,7 @@ class LoopSingleFormInscricao extends LoopSingle
 
     public function getFormInscri() {
 
-        $inscricao = obter_ultima_inscricao_usuario_logado('post');        
+        $inscricao = obter_ultima_inscricao_usuario_logado();
 
         $user_id = get_current_user_id();
         $current_date = obter_data_com_timezone('Ymd', 'America/Sao_Paulo');
@@ -335,8 +335,8 @@ class LoopSingleFormInscricao extends LoopSingle
                                     $dre = '';
                                     
                                     if(!$parceira){
-                                        if($dados->dre){
-                                            $dre = $dados->dre;
+                                        if($inscricao->dre){
+                                            $dre = $inscricao->dre;
                                         } else {
                                             $dre = get_field('dre', 'user_' . $user_id);
                                         }
