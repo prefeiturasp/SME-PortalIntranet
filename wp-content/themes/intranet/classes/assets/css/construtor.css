@@ -3094,3 +3094,58 @@ div#minhas-candidaturas .dataTables_paginate .paginate_button.current {
     background: #F4E8FF;
     border: 1px solid #784CA1;
 }
+
+/* Construtor "Minhas Oportunidades (Filtro)" (filtro_minhas_oportunidades_1_1) */
+.filtro-minhas-oportunidades {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.filtro-minhas-oportunidades .card-header {
+    background: #14457c !important;
+    color: #fff;
+    font-size: 14px;
+    max-height: 46px;
+}
+
+.filtro-minhas-oportunidades .card-body {
+    padding: 1.5rem;
+}
+
+.filtro-minhas-oportunidades label {
+    font-weight: 600;
+    margin-bottom: .45rem;
+}
+
+.filtro-minhas-oportunidades .form-control {
+    height: 40px;
+    border-radius: 6px;
+}
+
+.filtro-minhas-oportunidades .input-group-text {
+    border-radius: 6px 0 0 6px;
+}
+
+.filtro-minhas-oportunidades .input-group .form-control {
+    border-radius: 0 6px 6px 0;
+}
+
+.filtro-minhas-oportunidades .btn {
+    min-width: 160px;
+    height: 40px;
+    border-radius: 6px;
+}
+
+.filtro-minhas-oportunidades .btn-primary {
+    background: #14457c;
+    border-color: #14457c;
+}
+
+.filtro-minhas-oportunidades .btn-primary:hover {
+    background: #173863;
+    border-color: #173863;
+}
+
+.filtro-minhas-oportunidades .btn-outline-secondary {
+    border-color: #d5d9e2;
+}

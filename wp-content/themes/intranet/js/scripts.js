@@ -599,6 +599,9 @@ function formatarDataHora(dataHora) {
     return `${dia}/${mes}/${ano} às ${horas}:${minutos}`;
 }
 
+/**
+ * Scripts da listagem das inscrições do candidado na página de "Minhas Oportunidades"
+ */
 jQuery(function($) {
 
     const $table = $('#minhas-candidaturas #tabela-minhas-oportunidades');
@@ -608,7 +611,7 @@ jQuery(function($) {
         lengthChange: false,
         ordering: false,
         paging: true,
-        searching: false,
+        searching: true,
         info: false,
         stripeClasses: [],
         autoWidth: false,
@@ -744,6 +747,95 @@ jQuery(function($) {
     
         modal.modal('show');
     }
+
+    /**
+     * Scripts do filtro de oportunidades em "Minhas Oportunidades"
+     */
+
+    //Filtro personalizado para o tipo de oportunidade
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+
+        if (settings.nTable !== instance.table().node()) {
+            return true;
+        }
+
+        const tipoSelecionado = $('#filtro-tipo').val();
+
+        if (!tipoSelecionado) {
+            return true;
+        }
+
+        const td = instance.cell(dataIndex, 0).node();
+
+        if (!td) {
+            return true;
+        }
+
+        const tipos = ($(td).data('tipo') || '').toString().split(',');
+
+        return tipos.includes(tipoSelecionado);
+    });
+
+    // Função para aplicar os filtros selecionados na instancia atual da tabela
+    function aplicarFiltros() {
+
+        const titulo = $('#filtro-titulo').val().trim();
+        const etapa  = $('#filtro-etapa').val();
+
+        // Coluna do título da oportunidade
+        instance.column(0).search(titulo);
+        // Coluna da etapa etapa do processo seletivo.
+        instance.column(2).search(etapa);
+
+        instance.draw();
+    }
+
+    // Função para exibir o componente de sem resultados.
+    function atualizarEstadoTabela() {
+
+        const total = instance.rows({filter: 'applied'}).count();
+    
+        if (total === 0) {
+            $('#minhas-candidaturas').addClass('d-none');
+            $('#sem-resultado').removeClass('d-none');
+    
+        } else {
+            $('#minhas-candidaturas').removeClass('d-none');
+            $('#sem-resultado').addClass('d-none');
+        }
+    }
+
+    // Ação de clique no botão de filtrar da página de Minhas Oportunidades
+    $('#btn-filtrar').on('click', function () {
+        aplicarFiltros();
+    });
+
+    // Evento para tratar ação da tecla enter no campo de busca pelo titulo da oportunidade
+    $('#filtro-titulo').on('keypress', function (e) {
+
+        if (e.which === 13) {
+            e.preventDefault();
+            aplicarFiltros();
+        }
+
+    });
+
+    // Ação de clique no botão de limpar filtros da página de Minhas Oportunidades
+    $('#btn-limpar-filtros').on('click', function () {
+
+        $('#filtro-titulo').val('');
+        $('#filtro-etapa').val('');
+        $('#filtro-tipo').val('');
+
+        instance.columns().search('');
+        instance.draw();
+
+    });
+
+    // Evento que é disparado sempre que a tabela é construida novamente
+    instance.on('draw', function () {
+        atualizarEstadoTabela();
+    });
 })
 
 /** Scripts das açoes de confirmação e cancelamento de interesse nas etapas do processo seletivo */

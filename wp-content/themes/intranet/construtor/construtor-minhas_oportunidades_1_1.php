@@ -8,9 +8,6 @@ wp_localize_script('scripts_js', 'ajax_obj', [
     ]
 ]);
 
-
-$filtros = [];
-
 $oportunidade_destaque = absint( $_GET['highlight'] ) ?? null;
 
 $inscricoes = Inscricao::get_inscricoes_by_user_id( $oportunidade_destaque );
@@ -20,23 +17,20 @@ $info_cadidato = Inscricao::obter_curriculo_usuario( get_current_user_id() );
 ?>
 <div class="container mt-4">
     <div class="row">
-        <?php if ( !$inscricoes && !$filtros ) : ?>
+        <?php if ( !$inscricoes ) : ?>
             <div class="alert alert-primary text-center w-100 mb-5" role="alert">
-                Você ainda não tem inscrições realizadas.
+                Você ainda não se inscreveu para nenhuma oportunidade.
             </div>
         <?php endif; ?>
         
-        <?php if ( !$inscricoes && $filtros ) : ?>
-            <div class="no-results-inscricoes w-100 mb-5">
-                <h2 class="search-title ml-3">
-                    <span class="azul-claro-acervo"><strong class="text-primary">0</strong></span> <strong>resultados</strong>
-                </h2>
-                <div class="search-image d-flex flex-column justify-content-center align-items-center">
-                    <img src="https://educacao.sme.prefeitura.sp.gov.br/wp-content/themes/sme-portal-institucional/img/search-empty.png" alt="Imagem ilustrativa para nenhum resultado de busca encontrado">
-                    <h2 class="text-primary mt-4">Nenhuma inscrição encontrada para os filtros selecionados.</h2>
+        <div class="container mb-5 d-none" id="sem-resultado">
+            <div class="alerta-sem-oportunidades">
+                <div class="alerta-info">
+                    <i class="fa fa-search fa-3x mb-3" aria-hidden="true"></i>
+                    <p>Nenhuma Oportunidade encontrada para os filtros selecionados.</p>
                 </div>
             </div>
-        <?php endif; ?>
+        </div>
         
         <?php if ( $inscricoes ) : ?>
             <div class="col-sm-12 mb-4 tabela-scroll" id="minhas-candidaturas">
@@ -286,3 +280,19 @@ $info_cadidato = Inscricao::obter_curriculo_usuario( get_current_user_id() );
         <?php endif; ?>
     </div>
 </div>
+
+<?php if ( $oportunidade_destaque ) : ?>
+    <script>
+        jQuery(function($) {
+
+            const $tabela = $('#tabela-minhas-oportunidades');
+
+            if ($tabela.length) {
+                $('html, body').animate({
+                    scrollTop: $tabela.offset().top - 400
+                }, 800);
+
+            }
+        });
+    </script>
+<?php endif; ?>

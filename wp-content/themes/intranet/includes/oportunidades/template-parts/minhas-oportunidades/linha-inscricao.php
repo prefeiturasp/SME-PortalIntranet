@@ -5,6 +5,7 @@ $etapa = $etapas_processo[$inscricao->status];
 $etapa_classe = $etapa['classe'];
 
 $destacar_linha = isset( $oportunidade_destaque ) && $oportunidade_destaque == $inscricao->oportunidade_id;
+$tipos_oportindade = get_field( 'tipo_oportunidade', $inscricao->oportunidade_id );
 
 ?>
 <tr
@@ -12,11 +13,15 @@ $destacar_linha = isset( $oportunidade_destaque ) && $oportunidade_destaque == $
     data-inscricao-id="<?php echo esc_html( $inscricao->id ); ?>"
     class="<?php echo esc_html( $destacar_linha ? 'linha-destacada' : 'linha-inscricao' ); ?>"
     >
-    <td id="titulo-oportunidade">
+    <td
+        id="titulo-oportunidade"
+        data-search="<?php echo esc_html( get_the_title( $inscricao->oportunidade_id ) ); ?>"
+        data-tipo="<?php echo esc_html( implode( ',', wp_list_pluck( $tipos_oportindade, 'value' ) ) ); ?>"
+        >
         <a href="<?php echo esc_url( get_the_permalink( $inscricao->oportunidade_id ) ); ?>" target="_blank">
             <?php echo esc_html( get_the_title( $inscricao->oportunidade_id ) ); ?>
         </a>
-        <?php if ( $tipos_oportindade = get_field( 'tipo_oportunidade', $inscricao->oportunidade_id ) ) : ?>
+        <?php if ( $tipos_oportindade ) : ?>
             <div class="subtitulo-oportunidade">
                 <?php foreach ( $tipos_oportindade as $tipo ) : ?>
                     <p><?php echo esc_html( $tipo['label'] ); ?></p>
@@ -60,7 +65,11 @@ $destacar_linha = isset( $oportunidade_destaque ) && $oportunidade_destaque == $
         ?>
     <?php endif; ?>
 
-    <td id="etapa-processo-seletivo" class="<?php echo $exibir_botao_confirmacao ? 'd-flex flex-column' : ''; ?>">
+    <td
+        id="etapa-processo-seletivo"
+        class="<?php echo $exibir_botao_confirmacao ? 'd-flex flex-column' : ''; ?>"
+        data-search="<?php echo esc_html( $inscricao->status ); ?>"
+        >
         <span class="badge-oportunidade <?php echo esc_html( $etapa_classe ); ?>">
             <i class="fa fa-circle" aria-hidden="true"></i>
             <?php echo esc_html( $inscricao->status === 'inscrito' ? 'Inscrição Realizada' : $etapa['descricao'] ); ?>
