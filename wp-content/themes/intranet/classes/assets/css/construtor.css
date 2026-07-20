@@ -2913,3 +2913,250 @@ form.form-filtro-oportunidades .select2-container--default .select2-selection--s
     height: 100% !important;
     right: 10px !important;
 }
+
+/* Construtor "Minhas Oportunidades" (minhas_oportunidades_1_1) */
+div#minhas-candidaturas #tabela-minhas-oportunidades {
+    font-family: 'Open Sans', sans-serif;
+    color: #1E1E1E;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+div#minhas-candidaturas #tabela-minhas-oportunidades tbody tr,
+div#minhas-candidaturas #tabela-minhas-oportunidades thead {
+    background-color: #FFFFFF;
+}
+
+div#minhas-candidaturas #tabela-minhas-oportunidades tbody tr:nth-of-type(odd) {
+    background-color: #F9F9F9;
+}
+div#minhas-candidaturas #tabela-minhas-oportunidades th,
+div#minhas-candidaturas #tabela-minhas-oportunidades td {
+    border: 1px solid #F0F0F0;
+}
+
+div#minhas-candidaturas #tabela-minhas-oportunidades a{
+    text-decoration: none;
+    color: #1E1E1E;
+}
+
+div#minhas-candidaturas .modal .modal-dialog {
+    width: 100%;
+    max-width: 650px;
+}
+
+div#minhas-candidaturas .modal .modal-content .modal-body p {
+    font-size: 1rem;
+    margin: 0;
+    padding: 0;
+}
+
+div#minhas-candidaturas .modal .modal-content .modal-body .prazo-confirmacao {
+    font-weight: 600;
+    color: #14447C;
+}
+
+div#minhas-candidaturas .modal .modal-content .modal-body .js-titulo p {
+    font-size: 14px;
+    color: #6C757D;
+}
+
+div#minhas-candidaturas .dataTables_paginate {
+    float: none !important;
+    text-align: center;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+}
+
+div#minhas-candidaturas .dataTables_paginate .paginate_button {
+    border: 1px solid #F1F1F1;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    background-color: #FFFFFF;
+    color: #333333 !important;
+}
+
+div#minhas-candidaturas .dataTables_paginate .paginate_button:hover {
+    background: #14447C !important;
+    color: #FFFFFF !important;
+}
+
+div#minhas-candidaturas .dataTables_paginate .paginate_button.current {
+    background: #14447C !important;
+    color: #FFFFFF !important;
+}
+
+#minhas-candidaturas #tabela-minhas-oportunidades thead {
+    background-color: #14457c !important;
+    color: #FFFFFF;
+}
+
+#minhas-candidaturas #tabela-minhas-oportunidades thead th {
+    white-space: nowrap;
+    border-left: none;
+    border-right: none;
+}
+
+#minhas-candidaturas #tabela-minhas-oportunidades thead td {
+    border-left: none;
+    border-right: none;
+}
+
+#minhas-candidaturas #tabela-minhas-oportunidades .linha-destacada #titulo-oportunidade::before {
+    content: "";
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    border-radius: 50%;
+    background: #14457c;
+    vertical-align: middle;
+    animation: blink_smooth 1.5s infinite;
+
+}
+
+#minhas-candidaturas #tabela-minhas-oportunidades .linha-destacada td {
+    border-bottom: 1px solid #14457c;
+}
+
+#minhas-candidaturas #tabela-minhas-oportunidades .linha-destacada td:first-child {
+    border-left: 1px solid #14457c;
+}
+
+#minhas-candidaturas #tabela-minhas-oportunidades .linha-destacada td:last-child {
+    border-right: 1px solid #14457c;
+}
+
+#minhas-candidaturas #titulo-oportunidade a {
+    font-weight: bold;
+}
+
+#etapa-processo-seletivo .badge-oportunidade { 
+    display: flex;
+    align-items: center;
+    max-width: fit-content;
+    white-space: nowrap;
+}
+
+#etapa-processo-seletivo .badge-oportunidade i {
+    font-size: 8px;
+    margin-right: 4px;
+}
+
+#etapa-processo-seletivo .inscrito {   
+    color: #037DC2;   
+    background: #F0F9FF; 
+    border: 1px solid #037DC2;
+}
+
+#etapa-processo-seletivo .analise-curricular {   
+    color: #4b53a3;    
+    background: #E1E7FF;  
+    border: 1px solid #4b53a3 
+}
+
+#etapa-processo-seletivo .triagem-curricular,
+#etapa-processo-seletivo .candidatura-nao-avancou,
+#etapa-processo-seletivo .nao-selecionado {
+    color: #343a40;
+    background: #e4e6e8;
+    border: 1px solid #343a40
+}
+
+#etapa-processo-seletivo .expirado {
+    color: #343a40;
+    background: #e4e6e8;
+    border: 1px solid #343a40;;
+}
+
+#etapa-processo-seletivo .convocado-teste{
+    color: #856404;
+    background: #fff3cd;
+    border: 1px solid #856404;
+}
+
+#etapa-processo-seletivo .entrevista-agendada {
+    color: #AF4F0D;
+    background: #FFEED4;
+    border: 1px solid #AF4F0D;
+}
+
+#etapa-processo-seletivo .analise-documental{
+    color: #4C7D8B;
+    background: #CFFBFE;
+    border: 1px solid #4C7D8B;
+}
+
+#etapa-processo-seletivo .candidatura-aprovada {
+    color: #155724;
+    background: #d4edda;
+    border: 1px solid #155724;
+}
+
+#etapa-processo-seletivo .entrega-documentos {
+    color: #1f5542;
+    background: #9bc9b4;
+    border: 1px solid #1f5542;
+}
+
+#etapa-processo-seletivo .fase-anuencia {
+    color: #784CA1;
+    background: #F4E8FF;
+    border: 1px solid #784CA1;
+}
+
+/* Construtor "Minhas Oportunidades (Filtro)" (filtro_minhas_oportunidades_1_1) */
+.filtro-minhas-oportunidades {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.filtro-minhas-oportunidades .card-header {
+    background: #14457c !important;
+    color: #fff;
+    font-size: 14px;
+    max-height: 46px;
+}
+
+.filtro-minhas-oportunidades .card-body {
+    padding: 1.5rem;
+}
+
+.filtro-minhas-oportunidades label {
+    font-weight: 600;
+    margin-bottom: .45rem;
+}
+
+.filtro-minhas-oportunidades .form-control {
+    height: 40px;
+    border-radius: 6px;
+}
+
+.filtro-minhas-oportunidades .input-group-text {
+    border-radius: 6px 0 0 6px;
+}
+
+.filtro-minhas-oportunidades .input-group .form-control {
+    border-radius: 0 6px 6px 0;
+}
+
+.filtro-minhas-oportunidades .btn {
+    min-width: 160px;
+    height: 40px;
+    border-radius: 6px;
+}
+
+.filtro-minhas-oportunidades .btn-primary {
+    background: #14457c;
+    border-color: #14457c;
+}
+
+.filtro-minhas-oportunidades .btn-primary:hover {
+    background: #173863;
+    border-color: #173863;
+}
+
+.filtro-minhas-oportunidades .btn-outline-secondary {
+    border-color: #d5d9e2;
+}

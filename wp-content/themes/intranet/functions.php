@@ -1,4 +1,6 @@
 <?php
+
+use EnviaEmailOportunidade\classes\Envia_Emails_Oportunidades_SME;
 use Respect\Validation\Rules\Length;
 use EnviaEmailSme\classes\Envia_Emails_Sorteio_SME;
 
@@ -5612,6 +5614,7 @@ include_once get_template_directory() . '/includes/cortesias/funcoes/cortesiaCon
 include_once get_template_directory() . '/includes/oportunidades/funcoes/oportunidadeController.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/inscricaoController.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/envioEmails.php';
+Envia_Emails_Oportunidades_SME::registrar_hooks();
 //#################################################################################//
 
 // Alterar rotulo descrição para endereço

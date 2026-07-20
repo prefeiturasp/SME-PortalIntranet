@@ -153,7 +153,7 @@ class Oportunidade {
                 [
                     'key' => 'ence_inscricoes',
                     'value' => $hoje,
-                    'compare' => '='
+                    'compare' => '<'
                 ]
             ]
         ];
