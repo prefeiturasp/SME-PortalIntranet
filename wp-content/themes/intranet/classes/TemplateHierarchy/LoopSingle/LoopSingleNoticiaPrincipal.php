@@ -65,6 +65,12 @@ class LoopSingleNoticiaPrincipal extends LoopSingle
 
 			echo '</div>';
 
+			// Sidebar apenas no mobile
+			echo '<div class="d-lg-none mb-4">';
+				$informacoes = new LoopSingleInformacoesEvento();
+				$informacoes->getInformacoesEvento();
+			echo '</div>';
+
 			echo '<div class="infos-noticia">';
 
 				
