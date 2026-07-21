@@ -582,3 +582,513 @@ jQuery(function($){
 
     });
 });
+
+/* Scripts da tabela de listagem das inscrições do usuário aba "Minhas Oportunidades" */
+
+function formatarDataHora(dataHora) {
+
+    if (!dataHora) {
+        return '';
+    }
+
+    const [data, hora] = dataHora.split(' ');
+    const [ano, mes, dia] = data.split('-');
+    const [horas, minutos] = hora.split(':');
+
+    return `${dia}/${mes}/${ano} às ${horas}:${minutos}`;
+}
+
+/**
+ * Scripts da listagem das inscrições do candidado na página de "Minhas Oportunidades"
+ */
+jQuery(function($) {
+
+    const $table = $('#minhas-candidaturas #tabela-minhas-oportunidades');
+
+    let instance = $table.DataTable({
+        pageLength: 20,
+        lengthChange: false,
+        ordering: false,
+        paging: true,
+        searching: true,
+        info: false,
+        stripeClasses: [],
+        autoWidth: false,
+        responsive: false,
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json',
+            paginate: {
+                previous: '<i class="fa fa-chevron-left"></i>',
+                next: '<i class="fa fa-chevron-right"></i>'
+            }
+        },
+        pagingType: "simple_numbers",
+        dom: 'rtip',
+    });
+
+    $table.removeClass('dataTable');
+    $table.removeClass('table-responsive');
+
+    $(document).on('click', '.btn-visualizar-comunicado', function () {
+
+        const publicId = $(this).data('id');
+        const linha = $(this).closest('tr');
+    
+        if (!publicId) {
+            return;
+        }
+    
+        $.ajax({
+    
+            url: ajax_obj.ajax_url,
+            type: 'POST',
+    
+            data: {
+                action: 'get_envio',
+                public_id: publicId,
+                nonce: ajax_obj.nonces.visualizar_envio
+            },
+    
+            beforeSend() {
+                Swal.fire({
+                    title: 'Carregando...',
+                    allowOutsideClick: false,
+                    didOpen() {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success(response) {
+                Swal.close();
+    
+                if (!response.success) {
+    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: response.data.message
+                    });
+    
+                    return;
+                }
+    
+                preencherModalComunicado(response.data, linha);
+            },
+    
+            error() {
+                Swal.close();
+    
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Não foi possível carregar o comunicado.'
+                });
+            }
+        });
+    });
+
+    function preencherModalComunicado(envio, linha) {
+
+        const modal = $('#modal-comunicado');
+        const titulo = linha.find('#titulo-oportunidade a').text();
+        const subTitulo = linha.find('.subtitulo-oportunidade').html();
+        const dataInscricao = linha.data('data-inscricao')
+        const lista = modal.find('.js-anexos');
+
+        modal.find('.js-oportunidade').text(envio.oportunidade);
+        modal.find('.js-data-envio').text(formatarDataHora(envio.data_envio));
+        modal.find('.js-data-inscricao').html(dataInscricao);
+        
+        modal.find('.js-titulo').html(`<strong>${titulo}</strong>`);
+        modal.find('.js-titulo').append(subTitulo);
+    
+        lista.empty();
+
+        if (envio.mensagem && envio.mensagem.length) {
+            modal.find('#info-complementar').removeClass('d-none');
+            modal.find('.js-mensagem').html(envio.mensagem);
+        } else {
+            modal.find('#info-complementar').addClass('d-none');
+            modal.find('.js-mensagem').html('');
+        }
+    
+        if (envio.anexos && envio.anexos.length) {
+    
+            modal.find('.js-bloco-anexos').removeClass('d-none');
+    
+            envio.anexos.forEach(anexo => {
+                lista.append(`
+                    <a
+                        href="${anexo.url}"
+                        download
+                        class="list-group-item list-group-item-action d-flex align-items-center"
+                        >
+    
+                        <i class="fa fa-lg fa-download" aria-hidden="true"></i>
+    
+                        <div class="ml-3">
+                            <div class="fw-semibold">
+                                ${anexo.nome}
+                            </div>
+    
+                            <small class="text-muted">
+                                Clique para baixar o arquivo.
+                            </small>
+                        </div>
+    
+                    </a>
+                `);
+            });
+    
+        } else {
+            modal.find('.js-bloco-anexos').addClass('d-none');
+        }
+    
+        modal.modal('show');
+    }
+
+    /**
+     * Scripts do filtro de oportunidades em "Minhas Oportunidades"
+     */
+
+    //Filtro personalizado para o tipo de oportunidade
+    $.fn.dataTable.ext.search.push(function (settings, data, dataIndex) {
+
+        if (settings.nTable !== instance.table().node()) {
+            return true;
+        }
+
+        const tipoSelecionado = $('#filtro-tipo').val();
+
+        if (!tipoSelecionado) {
+            return true;
+        }
+
+        const td = instance.cell(dataIndex, 0).node();
+
+        if (!td) {
+            return true;
+        }
+
+        const tipos = ($(td).data('tipo') || '').toString().split(',');
+
+        return tipos.includes(tipoSelecionado);
+    });
+
+    // Função para aplicar os filtros selecionados na instancia atual da tabela
+    function aplicarFiltros() {
+
+        const titulo = $('#filtro-titulo').val().trim();
+        const etapa  = $('#filtro-etapa').val();
+
+        // Coluna do título da oportunidade
+        instance.column(0).search(titulo);
+        // Coluna da etapa etapa do processo seletivo.
+        instance.column(2).search(etapa);
+
+        instance.draw();
+    }
+
+    // Função para exibir o componente de sem resultados.
+    function atualizarEstadoTabela() {
+
+        const total = instance.rows({filter: 'applied'}).count();
+    
+        if (total === 0) {
+            $('#minhas-candidaturas').addClass('d-none');
+            $('#sem-resultado').removeClass('d-none');
+    
+        } else {
+            $('#minhas-candidaturas').removeClass('d-none');
+            $('#sem-resultado').addClass('d-none');
+        }
+    }
+
+    // Ação de clique no botão de filtrar da página de Minhas Oportunidades
+    $('#btn-filtrar').on('click', function () {
+        aplicarFiltros();
+    });
+
+    // Evento para tratar ação da tecla enter no campo de busca pelo titulo da oportunidade
+    $('#filtro-titulo').on('keypress', function (e) {
+
+        if (e.which === 13) {
+            e.preventDefault();
+            aplicarFiltros();
+        }
+
+    });
+
+    // Ação de clique no botão de limpar filtros da página de Minhas Oportunidades
+    $('#btn-limpar-filtros').on('click', function () {
+
+        $('#filtro-titulo').val('');
+        $('#filtro-etapa').val('');
+        $('#filtro-tipo').val('');
+
+        instance.columns().search('');
+        instance.draw();
+
+    });
+
+    // Evento que é disparado sempre que a tabela é construida novamente
+    instance.on('draw', function () {
+        atualizarEstadoTabela();
+    });
+})
+
+/** Scripts das açoes de confirmação e cancelamento de interesse nas etapas do processo seletivo */
+jQuery(function($) {
+
+    $(document).on('click', '.btn-visualizar-confirmacao', function () {
+
+        const publicId = $(this).data('id');
+        const linha = $(this).closest('tr');
+    
+        if (!publicId) {
+            return;
+        }
+    
+        $.ajax({
+    
+            url: ajax_obj.ajax_url,
+            type: 'POST',
+    
+            data: {
+                action: 'get_envio',
+                public_id: publicId,
+                nonce: ajax_obj.nonces.visualizar_envio
+            },
+    
+            beforeSend() {
+                Swal.fire({
+                    title: 'Carregando...',
+                    allowOutsideClick: false,
+                    didOpen() {
+                        Swal.showLoading();
+                    }
+                });
+            },
+            success(response) {
+                Swal.close();
+    
+                if (!response.success) {
+    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: response.data.message
+                    });
+    
+                    return;
+                }
+    
+                preencherModalConfirmacao(response.data, linha);
+            },
+    
+            error() {
+                Swal.close();
+    
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Não foi possível carregar o comunicado.'
+                });
+            }
+        });
+    });
+
+    $(document).on('click', '.btn-confirmar-interesse-etapa', function () {
+
+        const postId = $(this).data('post-id');
+        const inscricaoId = $(this).data('inscricao-id');;
+    
+        Swal.fire({
+            icon: 'question',
+            title: 'Confirmar participação',
+            html: 'Deseja realmente confirmar seu interesse em continuar participando desta etapa do processo seletivo?',
+            showCancelButton: true,
+            confirmButtonText: 'Sim',
+            cancelButtonText: 'Não',
+            confirmButtonColor: '#14447C',
+            reverseButtons: true
+        }).then(result => {
+    
+            if (!result.isConfirmed) {
+                return;
+            }
+    
+            atualizarConfirmacao(inscricaoId, postId, 1);
+        });
+    });
+
+    $(document).on('click', '.btn-cancelar-interesse-etapa', function () {
+
+        const postId = $(this).data('post-id');
+        const inscricaoId = $(this).data('inscricao-id');
+    
+        Swal.fire({
+            icon: 'question',
+            title: 'Cancelar participação',
+            html: 'Deseja realmente cancelar sua participação nesta etapa do processo seletivo?',
+            showCancelButton: true,
+            confirmButtonText: 'Sim',
+            cancelButtonText: 'Não',
+            confirmButtonColor: '#dc3545',
+            reverseButtons: true
+        }).then(result => {
+    
+            if (!result.isConfirmed) {
+                return;
+            }
+    
+            atualizarConfirmacao(inscricaoId, postId, 2);
+        });
+    
+    });
+
+    function preencherModalConfirmacao(envio, linha) {
+
+        const modal = $('#modal-confirmacao');
+        const titulo = linha.find('#titulo-oportunidade a').text();
+        const subTitulo = linha.find('.subtitulo-oportunidade').html();
+        const dataInscricao = linha.data('data-inscricao')
+        const lista = modal.find('.js-anexos');
+        const inscricaoId = linha.data('inscricao-id');
+
+        modal.find('.js-oportunidade').text(envio.oportunidade);
+        modal.find('.js-data-envio').text(formatarDataHora(envio.data_envio));
+        modal.find('.js-data-inscricao').html(dataInscricao);
+        modal.find('.js-prazo-confirmacao').html(formatarDataHora(envio.prazo_confirmacao));
+        
+        modal.find('.js-titulo').html(`<strong>${titulo}</strong>`);
+        modal.find('.js-titulo').append(subTitulo);
+
+        modal.find('.btn-confirmar-interesse-etapa')
+            .data('inscricao-id', inscricaoId)
+            .data('post-id', envio.post_id);
+
+        modal.find('.btn-cancelar-interesse-etapa')
+            .data('inscricao-id', inscricaoId)
+            .data('post-id', envio.post_id);
+    
+        lista.empty();
+
+        if (envio.mensagem && envio.mensagem.length) {
+            modal.find('#info-complementar').removeClass('d-none');
+            modal.find('.js-mensagem').html(envio.mensagem);
+        } else {
+            modal.find('#info-complementar').addClass('d-none');
+            modal.find('.js-mensagem').html('');
+        }
+    
+        if (envio.anexos && envio.anexos.length) {
+    
+            modal.find('.js-bloco-anexos').removeClass('d-none');
+    
+            envio.anexos.forEach(anexo => {
+                lista.append(`
+                    <a
+                        href="${anexo.url}"
+                        download
+                        class="list-group-item list-group-item-action d-flex align-items-center"
+                        >
+    
+                        <i class="fa fa-lg fa-download" aria-hidden="true"></i>
+    
+                        <div class="ml-3">
+                            <div class="fw-semibold">
+                                ${anexo.nome}
+                            </div>
+    
+                            <small class="text-muted">
+                                Clique para baixar o arquivo.
+                            </small>
+                        </div>
+    
+                    </a>
+                `);
+            });
+    
+        } else {
+            modal.find('.js-bloco-anexos').addClass('d-none');
+        }
+    
+        modal.modal('show');
+    }
+
+    function atualizarConfirmacao(inscricaoId, postId, confirmouPresenca) {
+
+        $.ajax({
+    
+            url: ajax_obj.ajax_url,
+            type: 'POST',
+    
+            data: {
+                action: 'confirmar_participacao',
+                nonce: ajax_obj.nonces.confirmar_participacao,
+                inscricao_id: inscricaoId,
+                post_id: postId,
+                confirmou_presenca: confirmouPresenca
+            },
+    
+            beforeSend() {
+    
+                Swal.fire({
+                    title: 'Salvando sua resposta, aguarde...',
+                    allowOutsideClick: false,
+                    didOpen() {
+                        Swal.showLoading();
+                    }
+                });
+    
+            },
+    
+            success(response) {
+    
+                if (!response.success) {
+    
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: response.data.message,
+                        confirmButtonText: 'Fechar',
+                        confirmButtonColor: '#14447C',
+                    });
+    
+                    return;
+                }
+    
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Resposta registrada!',
+                    text: response.data.message,
+                    confirmButtonText: 'Fechar',
+                    confirmButtonColor: '#14447C',
+                }).then(() => {
+    
+                    $('#modal-confirmacao').modal('hide');
+                    $(`[data-inscricao-id="${inscricaoId}"]`).replaceWith(response.data.html);
+    
+                    // Atualizar a tabela ou recarregar a página
+    
+                });
+    
+            },
+    
+            error() {
+    
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    text: 'Não foi possível registrar sua resposta.',
+                    confirmButtonText: 'Fechar',
+                    confirmButtonColor: '#14447C',
+                });
+    
+            }
+    
+        });
+    
+    }
+})

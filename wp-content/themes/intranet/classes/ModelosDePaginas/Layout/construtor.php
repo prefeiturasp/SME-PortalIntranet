@@ -450,7 +450,15 @@ class Construtor extends Util
 											elseif( get_row_layout() == 'fx_cl1_filtro_oportunidades_1_1' ):
 												get_template_part( 'construtor/construtor', 'filtro_oportunidades_1_1' );
 
-											/** --------------- Portal de oportunidades (Final) ------------- **/
+											// Listagem das inscrições em Oportunidades do usuário logado
+											elseif( get_row_layout() == 'fx_cl1_minhas_oportunidades_1_1' ):
+												get_template_part( 'construtor/construtor', 'minhas_oportunidades_1_1' );
+
+											// Formulário do filtro de "Minhas oportunidades"
+											elseif( get_row_layout() == 'fx_cl1_filtro_minhas_oportunidades_1_1' ):
+												get_template_part( 'construtor/construtor', 'filtro_minhas_oportunidades_1_1' );
+
+											/** --------------- Portal de oportunidades (Final) ------------- **/										
 
 											// Integracao Pagina
 											elseif( get_row_layout() == 'integrar_pagina' ):
