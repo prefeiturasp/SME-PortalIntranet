@@ -1,5 +1,6 @@
 <?php
 namespace Classes\TemplateHierarchy\LoopCortesias;
+use Classes\TemplateHierarchy\LoopSingle\LoopSingleInformacoesEvento;
 use EnviaEmailSme\classes\Envia_Emails_Sorteio_SME;
 use WP_Error;
 
@@ -67,6 +68,12 @@ class LoopCortesiasNoticiaPrincipal extends LoopCortesias
 						echo '</div>';
 				endif;			
 
+			echo '</div>';
+
+			// Sidebar apenas no mobile
+			echo '<div class="d-lg-none mb-4">';
+				$informacoes = new LoopSingleInformacoesEvento();
+				$informacoes->getInformacoesEvento();
 			echo '</div>';
 
 			echo '<div class="infos-noticia">';
