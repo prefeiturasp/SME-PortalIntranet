@@ -127,7 +127,7 @@ foreach ( $participantes as $participante ) :
                 
             <?php endif; ?>
         </td>
-        <?php $url = home_url('/visualizar-curriculo/?user_id=' . $participante['user_id']); ?>
+        <?php $url = home_url('/index.php/visualizar-curriculo/?user_id=' . $participante['user_id']); ?>
         <td class="text-nowrap"><span class="copiar-texto" data-texto="<?php echo esc_html($participante['rf']); ?>" data-toggle="tooltip" title="Clique para copiar a informação"><?php echo esc_html($participante['rf']); ?> <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio"></span></td>
         <td class="text-nowrap"><span class="copiar-texto" data-texto="<?php echo esc_html($participante['email_principal']); ?>" data-toggle="tooltip" title="Clique para copiar a informação"><?php echo esc_html($participante['email_principal']); ?> <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio"></span></td>
         <td class="text-nowrap"><span class="copiar-texto" data-texto="<?php echo esc_html($participante['telefone_whatsapp']); ?>" data-toggle="tooltip" title="Clique para copiar a informação"><span class="celular-mask" data-texto="<?php echo esc_html($participante['telefone_whatsapp']); ?>"><?php echo esc_html($participante['telefone_whatsapp']); ?></span> <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio"></span></td>
