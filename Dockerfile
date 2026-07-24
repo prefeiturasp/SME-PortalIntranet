@@ -45,6 +45,17 @@ ENV AUTO_CREATE_INDEX_FILE="false"
 ENV PHP_MAX_EXECUTION_TIME="120"
 
 # ==========================================================
+## Instalação do APM Agent
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+ARG APM_AGENT_VERSION=1.17.0
+
+RUN curl -L -O https://github.com/elastic/apm-agent-php/releases/download/v${APM_AGENT_VERSION}/apm-agent-php_${APM_AGENT_VERSION}_amd64.deb \
+    && dpkg -i apm-agent-php_${APM_AGENT_VERSION}_amd64.deb \
+    && rm apm-agent-php_${APM_AGENT_VERSION}_amd64.deb
 
 # You can easily change PHP-FPM configurations
 # by using pre-defined Docker's environment variables.
@@ -71,5 +82,8 @@ COPY modsecurity/owasp-crs.conf /usr/share/modsecurity-crs/owasp-crs.load
 RUN find /var/www/html -type d -exec chmod 755 {} \; && find /var/www/html -type f -exec chmod 644 {} \; && chmod 660 /var/www/html/wp-config.php && chmod 664 /var/www/html/.htaccess
 RUN chmod +x /usr/local/bin/docker-php-entrypoint && dos2unix /usr/local/bin/docker-php-entrypoint && sed -i '/disable ghostscript format types/,+6d' /etc/ImageMagick-6/policy.xml
 RUN rm -Rf phpconf modsecurity
+
+# Adiciona diretório do APM ao open_basedir
+RUN sed -i '/open_basedir\]/ s|$|:/proc/self:/opt/elastic|' /etc/php/fpm/pool.d/x-override-php-defaults.conf
 
 ENTRYPOINT [ "/usr/local/bin/docker-php-entrypoint" ]
