@@ -14,6 +14,20 @@ Text Domain: sme-portal-intranet
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap');
 
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: url('fonts/Roboto-Regular.ttf') format('truetype');
+}
+
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 700;
+    src: url('fonts/Roboto-Bold.ttf') format('truetype');
+}
+
 /* =WordPress Core
 -------------------------------------------------------------- */
 
@@ -3785,4 +3799,106 @@ table.datatables td{
 
 .new-text-primary {
     color: #14447C;
+}
+
+.curriculo-container{
+    position: relative;
+}
+
+.curriculo-toolbar{
+    position: fixed;
+    top:0;
+    left:0;
+    right:0;
+    z-index:9999;
+    display:flex;
+    gap:10px;
+    padding:15px 20px;
+    background:#fff;
+    border-bottom:1px solid #ddd;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.curriculo-toolbar .btn-close-window {
+    margin-left: auto;
+}
+
+.curriculo-wrapper{
+	max-width: 1100px;
+	margin: auto;
+	background: #fff;
+	padding: 40px;
+	box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    margin-top: 60px;
+}
+
+.titulo-secao{
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:15px;    
+    color: #14457c;
+    text-decoration: underline;
+
+}
+
+.subtitulo-secao{
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:10px;
+    text-decoration: underline;
+}
+
+.curriculo-subsecao{
+    padding-bottom: 20px;
+}
+
+@media print {
+
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    .curriculo-toolbar {
+        display: none !important;
+    }
+
+    header,
+    footer {
+        display: none !important;
+    }
+
+    .curriculo-wrapper {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        max-width: 100%;
+        box-shadow: none;
+    }
+
+    body {
+        background: #fff !important;
+    }
+
+    table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .table th,
+    .table td {
+        padding: .55rem .75rem !important;
+        vertical-align: top !important;
+    }
+
+    .table-striped tbody tr:nth-child(odd) td,
+    .table-striped tbody tr:nth-child(odd) th {
+        background: #f8f9fa !important;
+    }
+
+    .table-bordered {
+        border: 1px solid #dee2e6 !important;
+    }
+
 }

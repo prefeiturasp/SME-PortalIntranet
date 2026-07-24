@@ -4,6 +4,7 @@
 require_once __ROOT__.'/classes/LoadDependences.php';
 require_once __ROOT__.'/classes/Lib/Util.php';
 require_once __ROOT__.'/classes/Lib/SimpleXLSXGen.php';
+require_once __ROOT__.'/classes/Lib/dompdf/autoload.inc.php';
 
 require_once __ROOT__.'/classes/Header/Header.php';
 

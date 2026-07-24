@@ -5407,6 +5407,8 @@ include_once get_template_directory() . '/includes/cortesias/funcoes/cortesiaCon
 //#################################################################################//
 include_once get_template_directory() . '/includes/oportunidades/funcoes/oportunidadeController.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/inscricaoController.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/curriculoController.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/CurriculoPDF.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/envioEmails.php';
 Envia_Emails_Oportunidades_SME::registrar_hooks();
 //#################################################################################//
@@ -9279,6 +9281,12 @@ add_filter('acf/fields/taxonomy/query/name=setor', function ($args, $field, $pos
 
 // adiciona a barra de admin para gestores da unidade e admin do portal
 add_filter('show_admin_bar', function($show) {
+
+    // Verifica se está na página de visualizar currículo
+    if (is_page('visualizar-curriculo') || 
+        (isset($_GET['page']) && $_GET['page'] === 'visualizar-curriculo')) {
+        return false; // Força ocultar a barra
+    }
 
     if (
         current_user_can('gestor_unidade') ||

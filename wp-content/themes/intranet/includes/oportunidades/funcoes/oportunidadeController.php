@@ -92,6 +92,7 @@ class Oportunidade {
             $wpdb->prepare(
                 "SELECT 
                     oi.id,
+                    oi.user_id,
                     oi.curriculo_id,
                     oi.rf,
                     oi.status,

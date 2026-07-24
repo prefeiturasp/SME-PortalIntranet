@@ -1066,5 +1066,37 @@ if ($current_post_id > 0) {
 
             return ids;
         }
+       
+        $(document).on('click', '.btn-ver-curriculo', function (e) {
+
+            e.preventDefault();
+
+            const url = $(this).attr('href');
+
+            const largura = 1200;
+            const altura = 900;
+
+            const esquerda = (screen.width - largura) / 2;
+            const topo = (screen.height - altura) / 2;
+
+            window.open(
+                url,
+                'curriculo',
+                `
+                width=${largura},
+                height=${altura},
+                left=${esquerda},
+                top=${topo},
+                scrollbars=yes,
+                resizable=yes
+                `
+            );
+
+        });
+
+        $('#btn-imprimir').on('click', function () {
+            window.print();
+        });
+
     });
 </script>

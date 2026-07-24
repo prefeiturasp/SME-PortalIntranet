@@ -97,6 +97,8 @@ $table_prefix = getenv('WORDPRESS_TABLE_PREFIX');
  */
 define('WP_DEBUG', getenv('WORDPRESS_DEBUG'));
 define('WP_DEBUG_DISPLAY', getenv('WORDPRESS_DEBUG_DISPLAY'));
+define( 'WP_DEBUG_LOG', true );
+ 
 
 $cron_disabled = getenv('CRON_DISABLED');
 
