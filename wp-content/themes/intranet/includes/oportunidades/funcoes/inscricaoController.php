@@ -157,6 +157,72 @@ class Inscricao {
     }
 
     /**
+     * Retorna vivências do currículo
+     */
+
+    public static function obter_vivencias_curriculo(int $curriculo_id): array {
+        global $wpdb;
+
+        $tabela = $wpdb->prefix . 'banco_talentos_vivencias';
+
+        return $wpdb->get_results(
+            $wpdb->prepare(
+                "
+                SELECT *
+                FROM {$tabela}
+                WHERE curriculo_id = %d
+                ORDER BY ordem ASC
+                ",
+                $curriculo_id
+            )
+        );
+    }
+
+    /**
+     * Retorna as competências de informática do currículo
+     */
+    public static function obter_informatica_curriculo(int $curriculo_id): array
+    {
+        global $wpdb;
+
+        $tabela = $wpdb->prefix . 'banco_talentos_informatica';
+
+        return $wpdb->get_results(
+            $wpdb->prepare(
+                "
+                SELECT *
+                FROM {$tabela}
+                WHERE curriculo_id = %d
+                ORDER BY id ASC
+                ",
+                $curriculo_id
+            )
+        );
+    }
+
+    /**
+     * Retorna Preferências e Perfil Comportamental do currículo
+     */
+    public static function obter_comportamental_curriculo(int $curriculo_id): array
+    {
+        global $wpdb;
+
+        $tabela = $wpdb->prefix . 'banco_talentos_comportamental';
+
+        return $wpdb->get_results(
+            $wpdb->prepare(
+                "
+                SELECT *
+                FROM {$tabela}
+                WHERE curriculo_id = %d
+                ORDER BY id ASC
+                ",
+                $curriculo_id
+            )
+        );
+    }
+
+    /**
      * Verifica se usuário possui inscrição ativa
     */
     public static function usuario_ja_inscrito( int $usuario_id, int $oportunidade_id ) {
