@@ -26,7 +26,7 @@ if (!$comportamental) {
 
 // Incluir os arquivos de mapeamento
 require_once get_template_directory() . '/includes/oportunidades/dados/helpers.php';
-require_once get_template_directory() . '/includes/oportunidades/dados/mapeamentos.php';
+require get_template_directory() . '/includes/oportunidades/dados/mapeamentos.php';
 $ESTRUTURA_CURRICULO = require get_template_directory() . '/includes/oportunidades/dados/estrutura-curriculo.php';
 
 // Fazer o decode do cargo efetivo, que é armazenado como JSON no banco de dados
