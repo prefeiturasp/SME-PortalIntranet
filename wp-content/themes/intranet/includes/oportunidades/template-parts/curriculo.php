@@ -25,8 +25,9 @@ if (!$comportamental) {
 }
 
 // Incluir os arquivos de mapeamento
-require_once get_template_directory() . '/includes/oportunidades/curriculo/helpers.php';
-require_once get_template_directory() . '/includes/oportunidades/curriculo/mapeamentos.php';
+require_once get_template_directory() . '/includes/oportunidades/dados/helpers.php';
+require_once get_template_directory() . '/includes/oportunidades/dados/mapeamentos.php';
+$ESTRUTURA_CURRICULO = require get_template_directory() . '/includes/oportunidades/dados/estrutura-curriculo.php';
 
 // Fazer o decode do cargo efetivo, que é armazenado como JSON no banco de dados
 $cargos = [];
@@ -59,57 +60,68 @@ foreach ($comportamental as $item) {
         <div class="col-12">
             <section class="curriculo-secao">
 
-                <p class="titulo-secao">Identificação do Candidato</p>
+                <p class="titulo-secao"><?= $ESTRUTURA_CURRICULO['identificacao']['titulo']; ?></p>
 
                 <div class="curriculo-subsecao">
 
-                    <p class="subtitulo-secao">Dados Pessoais e Funcionais</p>
+                    <?php $dadosPessoais = $ESTRUTURA_CURRICULO['identificacao']['subsecoes']['dados_pessoais']; ?>
+
+                    <p class="subtitulo-secao">
+                        <?= $dadosPessoais['titulo']; ?>
+                    </p>
 
                     <table class="table table-striped">
-
                         <tbody>
+                            <?php foreach ($dadosPessoais['campos'] as $campo => $config) : ?>
+                                <tr>
+                                    <th>
+                                        <?= $config['label']; ?>
+                                    </th>                                    
+                                    <td>
+                                        <?php
+                                        $valorCampo = $curriculo->$campo ?? '';
 
-                            <tr>
-                                <th>Nome Completo</th>
-                                <td><?= valor($curriculo->nome_completo); ?></td>
-                            </tr>
+                                        if (isset($config['mapa'])) {
 
-                            <tr>
-                                <th>Nome Social</th>
-                                <td><?= valor($curriculo->nome_social); ?></td>
-                            </tr>
+                                            $valorCampo = traduzir(
+                                                $valorCampo,
+                                                $config['mapa']
+                                            );
 
-                            <tr>
-                                <th>RF</th>
-                                <td><?= valor($curriculo->rf); ?></td>
-                            </tr>
+                                        }
 
+                                        echo valor($valorCampo);
+
+                                        ?>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
                         </tbody>
-
                     </table>
-
                 </div>
 
                 <div class="curriculo-subsecao">
 
-                    <p class="subtitulo-secao">Identificação Pessoal</p>
+                    <?php $identiPessoal = $ESTRUTURA_CURRICULO['identificacao']['subsecoes']['identificacao_pessoal']; ?>
+
+                    <p class="subtitulo-secao"><?= $identiPessoal['titulo']; ?></p>
 
                     <table class="table table-striped">
 
                         <tbody>
 
                             <tr>
-                                <th>Data de Nascimento</th>
+                                <th><?= $identiPessoal['campos']['data_nascimento']['label']; ?></th>
                                 <td><?= date('d/m/Y', strtotime($curriculo->data_nascimento)); ?></td>
                             </tr>
 
                             <tr>
-                                <th>Como você se identifica?</th>
+                                <th><?= $identiPessoal['campos']['identificacao_racial']['label']; ?></th>
                                 <td><?= traduzir($curriculo->identificacao_racial, $MAPEAMENTO_IDENTIFICACAO_RACIAL); ?></td>
                             </tr>
 
-                                <tr>
-                                <th>Qual sua identidade de gênero?</th>
+                            <tr>
+                                <th><?= $identiPessoal['campos']['identidade_genero']['label']; ?></th>
                                 <td><?= traduzir($curriculo->identidade_genero, $MAPEAMENTO_IDENTIFICACAO_GENERO); ?></td>
                             </tr>
 
@@ -121,28 +133,30 @@ foreach ($comportamental as $item) {
 
                 <div class="curriculo-subsecao">
 
-                    <p class="subtitulo-secao">Informações Complementares</p>
+                    <?php $infoComplementares = $ESTRUTURA_CURRICULO['identificacao']['subsecoes']['informacoes_complementares']; ?>
+
+                    <p class="subtitulo-secao"><?= $infoComplementares['titulo']; ?></p>
 
                     <table class="table table-striped">
 
                         <tbody>
 
                             <tr>
-                                <th>Você é uma pessoa com deficiência?</th>
+                                <th><?= $infoComplementares['campos']['possui_deficiencia']['label']; ?></th>
                                 <td><?= sim_nao($curriculo->possui_deficiencia); ?></td>
                             </tr>
 
                             <?php if ((int) $curriculo->possui_deficiencia === 1) : ?>
 
                                 <tr>
-                                    <th>Você precisa de algum tipo de adaptação para executar trabalhos de escritório?</th>
+                                    <th><?= $infoComplementares['campos']['necessita_adaptacao']['label']; ?></th>
                                     <td><?= sim_nao($curriculo->necessita_adaptacao); ?></td>
                                 </tr>
 
                                 <?php if ((int) $curriculo->necessita_adaptacao === 1) : ?>
 
                                     <tr>
-                                        <th>Se sim, por gentileza, descreva as adaptações que seriam necessárias ao ambiente ou tecnologias assistivas.</th>
+                                        <th><?= $infoComplementares['campos']['descreva_adaptacao']['label']; ?></th>
                                         <td><?= valor($curriculo->descreva_adaptacao); ?></td>
                                     </tr>
 
@@ -151,21 +165,21 @@ foreach ($comportamental as $item) {
                             <?php endif; ?>
 
                             <tr>
-                                <th>Você é servidor em readaptação funcional (readaptado)?</th>
+                                <th><?= $infoComplementares['campos']['servidor_readaptado']['label']; ?></th>
                                 <td><?= sim_nao($curriculo->servidor_readaptado); ?></td>
                             </tr>
 
                             <?php if ((int) $curriculo->servidor_readaptado === 1) : ?>
 
                                 <tr>
-                                    <th>Você precisa de algum tipo de adaptação para executar trabalhos de escritório?</th>
+                                    <th><?= $infoComplementares['campos']['readaptado_necessita']['label']; ?></th>
                                     <td><?= sim_nao($curriculo->readaptado_necessita); ?></td>
                                 </tr>
 
                                 <?php if ((int) $curriculo->readaptado_necessita === 1) : ?>
 
                                     <tr>
-                                        <th>Se sim, por gentileza, descreva as adaptações que seriam necessárias ao ambiente ou tecnologias assistivas.</th>
+                                        <th><?= $infoComplementares['campos']['readaptado_descricao']['label']; ?></th>
                                         <td><?= valor($curriculo->readaptado_descricao); ?></td>
                                     </tr>
 
@@ -181,35 +195,37 @@ foreach ($comportamental as $item) {
 
                 <div class="curriculo-subsecao">
 
-                    <p class="subtitulo-secao">Contato</p>
+                    <?php $contato = $ESTRUTURA_CURRICULO['identificacao']['subsecoes']['contato']; ?>
+
+                    <p class="subtitulo-secao"><?= $contato['titulo']; ?></p>
 
                     <table class="table table-striped">
 
                         <tbody>
 
                             <tr>
-                                <th>Telefone de contato (WhatsApp)</th>
+                                <th><?= $contato['campos']['telefone_whatsapp']['label']; ?></th>
                                 <td><?= valor($curriculo->telefone_whatsapp); ?></td>
                             </tr>
 
                             <?php if (!empty($curriculo->telefone_opcional)) : ?>
 
                                 <tr>
-                                    <th>Telefone de contato (Opcional)</th>
+                                    <th><?= $contato['campos']['telefone_opcional']['label']; ?></th>
                                     <td><?= valor($curriculo->telefone_opcional); ?></td>
                                 </tr>
 
                             <?php endif; ?>
 
                             <tr>
-                                <th>E-mail Institucional ou de Uso Principal</th>
+                                <th><?= $contato['campos']['email_principal']['label']; ?></th>
                                 <td><?= valor($curriculo->email_principal); ?></td>
                             </tr>
 
                             <?php if (!empty($curriculo->email_secundario)) : ?>
 
                                 <tr>
-                                    <th>E-mail secundário</th>
+                                    <th><?= $contato['campos']['email_secundario']['label']; ?></th>
                                     <td><?= valor($curriculo->email_secundario); ?></td>
                                 </tr>
 
@@ -223,19 +239,21 @@ foreach ($comportamental as $item) {
 
                 <div class="curriculo-subsecao">
 
-                    <p class="subtitulo-secao">Lotação e Exercício</p>
+                    <?php $lotacaoExercicio = $ESTRUTURA_CURRICULO['identificacao']['subsecoes']['lotacao_exercicio']; ?>
+
+                    <p class="subtitulo-secao"><?= $lotacaoExercicio['titulo']; ?></p>
 
                     <table class="table table-striped">
 
                         <tbody>
 
                             <tr>
-                                <th>Concluiu o estágio probatório?</th>
+                                <th><?= $lotacaoExercicio['campos']['concluiu_estagio']['label']; ?></th>
                                 <td><?= sim_nao($curriculo->concluiu_estagio); ?></td>
                             </tr>
 
                             <tr>
-                                <th>Qual é o seu cargo efetivo?</th>
+                                <th><?= $lotacaoExercicio['campos']['cargo_efetivo']['label']; ?></th>
                                 <td>
 
                                     <?php
@@ -246,7 +264,7 @@ foreach ($comportamental as $item) {
 
                                     } else {
 
-                                        echo '<em>Não informado</em>';
+                                        echo '<em>—</em>';
 
                                     }
 
@@ -258,41 +276,41 @@ foreach ($comportamental as $item) {
                             <?php if (in_array('Outro', $cargos, true)) : ?>
 
                                 <tr>
-                                    <th>Informe o cargo</th>
+                                    <th><?= $lotacaoExercicio['campos']['cargo_outro']['label']; ?></th>
                                     <td><?= valor($curriculo->cargo_outro); ?></td>
                                 </tr>
 
                             <?php endif; ?>
 
                             <tr>
-                                <th>DRE de lotação</th>
+                                <th><?= $lotacaoExercicio['campos']['dre_lotacao']['label']; ?></th>
                                 <td><?= traduzir($curriculo->dre_lotacao, $MAPEAMENTO_OPCOES_DRES); ?></td>
                             </tr>
 
                             <tr>
-                                <th>Unidade de Lotação</th>
+                                <th><?= $lotacaoExercicio['campos']['unidade_lotacao']['label']; ?></th>
                                 <td><?= valor($curriculo->unidade_lotacao); ?></td>
                             </tr>
 
                             <tr>
-                                <th>DRE de Exercício</th>
+                                <th><?= $lotacaoExercicio['campos']['dre_exercicio']['label']; ?></th>
                                 <td><?= traduzir($curriculo->dre_exercicio, $MAPEAMENTO_OPCOES_DRES); ?></td>
                             </tr>
 
                             <tr>
-                                <th>Unidade de Exercício</th>
+                                <th><?= $lotacaoExercicio['campos']['unidade_exercicio']['label']; ?></th>
                                 <td><?= valor($curriculo->unidade_exercicio); ?></td>
                             </tr>
 
                             <tr>
-                                <th>Você acumula cargo na SME ou em outro órgão?</th>
+                                <th><?= $lotacaoExercicio['campos']['acumula_cargo']['label']; ?></th>
                                 <td><?= sim_nao($curriculo->acumula_cargo); ?></td>
                             </tr>
 
                             <?php if ((int) $curriculo->acumula_cargo === 1) : ?>
 
                                 <tr>
-                                    <th>Informe o órgão e o cargo onde acumula</th>
+                                    <th><?= $lotacaoExercicio['campos']['acumula_descricao']['label']; ?></th>
                                     <td><?= valor($curriculo->acumula_descricao); ?></td>
                                 </tr>
 
@@ -308,18 +326,22 @@ foreach ($comportamental as $item) {
 
             <section class="curriculo-secao">
 
-                <p class="titulo-secao">Formação Acadêmica</p>
+                <?php $formacao = $ESTRUTURA_CURRICULO['formacao']; ?>
+
+                <p class="titulo-secao"><?= $formacao['titulo']; ?></p>
 
                 <div class="curriculo-subsecao">
 
-                    <p class="subtitulo-secao">Escolaridade</p>
+                    <?php $escolaridade = $formacao['subsecoes']['escolaridade']; ?>
+
+                    <p class="subtitulo-secao"><?= $escolaridade['titulo']; ?></p>
 
                     <table class="table table-striped">
 
                         <tbody>
 
                             <tr>
-                                <th>Qual seu nível de escolaridade?</th>
+                                <th><?= $escolaridade['campos']['escolaridade']['label']; ?></th>
                                 <td><?= traduzir($curriculo->escolaridade, $CURRICULO_MAPA_ESCOLARIDADE); ?></td>
                             </tr>
 
@@ -333,36 +355,38 @@ foreach ($comportamental as $item) {
 
                     <div class="curriculo-subsecao">
 
-                        <p class="subtitulo-secao">Bacharelado, Tecnólogo, Licenciatura</p>
+                        <?php $graduacao = $formacao['subsecoes']['graduacao']; ?>
+
+                        <p class="subtitulo-secao"><?= $graduacao['titulo']; ?></p>
 
                         <table class="table table-striped">
 
                             <tbody>
 
                                 <tr>
-                                    <th>Curso de graduação (nome do curso e da instituição de ensino)</th>
+                                    <th><?= $graduacao['campos']['curso_graduacao']['label']; ?></th>
                                     <td><?= valor($curriculo->curso_graduacao); ?></td>
                                 </tr>
 
                                 <tr>
-                                    <th>Ano de conclusão ou previsão de concluir</th>
+                                    <th><?= $graduacao['campos']['ano_conclusao']['label']; ?></th>
                                     <td><?= valor($curriculo->ano_conclusao); ?></td>
                                 </tr>
 
                                 <tr>
-                                    <th>Possui outra graduação e gostaria de informar?</th>
+                                    <th><?= $graduacao['campos']['outra_graduacao']['label']; ?></th>
                                     <td><?= sim_nao($curriculo->outra_graduacao); ?></td>
                                 </tr>
 
                                 <?php if ((int) $curriculo->outra_graduacao === 1) : ?>
 
                                     <tr>
-                                        <th>Segunda graduação (nome do curso e da instituição de ensino)</th>
+                                        <th><?= $graduacao['campos']['segunda_graduacao']['label']; ?></th>
                                         <td><?= valor($curriculo->segunda_graduacao); ?></td>
                                     </tr>
 
                                     <tr>
-                                        <th>Ano de conclusão ou previsão de concluir</th>
+                                        <th><?= $graduacao['campos']['ano_conclusao_seg']['label']; ?></th>
                                         <td><?= valor($curriculo->ano_conclusao_seg); ?></td>
                                     </tr>
 
@@ -378,14 +402,16 @@ foreach ($comportamental as $item) {
 
                 <div class="curriculo-subsecao">
 
-                    <p class="subtitulo-secao">Outros Cursos e/ou Projetos Relevantes</p>
+                    <?php $outrosCursos = $formacao['subsecoes']['outros_cursos']; ?>
+
+                    <p class="subtitulo-secao"><?= $outrosCursos['titulo']; ?></p>
 
                     <table class="table table-striped">
 
                         <tbody>
 
                             <tr>
-                                <th>Por favor, descreva outros cursos e/ou projetos relevantes</th>
+                                <th><?= $outrosCursos['campos']['outros_cursos']['label']; ?></th>
                                 <td><?= valor($curriculo->outros_cursos); ?></td>
                             </tr>
 
@@ -399,7 +425,9 @@ foreach ($comportamental as $item) {
 
             <section class="curriculo-secao">
 
-                <p class="titulo-secao">Vivências Profissionais</p>    
+                <?php $vivenciasSecao = $ESTRUTURA_CURRICULO['vivencias']; ?>
+
+                <p class="titulo-secao"><?= $vivenciasSecao['titulo']; ?></p>    
 
                 <?php if (!empty($vivencias)) : ?>
 
@@ -407,29 +435,31 @@ foreach ($comportamental as $item) {
 
                         <div class="curriculo-subsecao">
 
-                            <p class="subtitulo-secao">Vivência <?php echo $indice + 1; ?></p>
+                            <?php $vivenciaTemplate = $vivenciasSecao['subsecoes']['vivencia']; ?>
+
+                            <p class="subtitulo-secao"><?= $vivenciaTemplate['titulo'] . ' ' . ($indice + 1); ?></p>
 
                             <table class="table table-striped">
 
                                 <tbody>
 
                                     <tr>
-                                        <th>Organização / Empresa</th>
+                                        <th><?= $vivenciaTemplate['campos']['organizacao_empresa']['label']; ?></th>
                                         <td><?= valor($vivencia->organizacao_empresa); ?></td>
                                     </tr>
 
                                     <tr>
-                                        <th>Cargo / Função</th>
+                                        <th><?= $vivenciaTemplate['campos']['cargo_funcao']['label']; ?></th>
                                         <td><?= valor($vivencia->cargo_funcao); ?></td>
                                     </tr>
 
                                     <tr>
-                                        <th>Duração</th>
+                                        <th><?= $vivenciaTemplate['campos']['duracao']['label']; ?></th>
                                         <td><?= traduzir($vivencia->duracao, $MAPEAMENTO_DURACAO); ?></td>
                                     </tr>
 
                                     <tr>
-                                        <th>Atividades e Competências Desenvolvidas</th>
+                                        <th><?= $vivenciaTemplate['campos']['atividades_competencias']['label']; ?></th>
                                         <td><?= valor($vivencia->atividades_competencias); ?></td>
                                     </tr>
 
@@ -443,7 +473,7 @@ foreach ($comportamental as $item) {
 
                 <?php else : ?>
 
-                    <p><em>Nenhuma vivência profissional cadastrada.</em></p>
+                    <p><em><?= $vivenciasSecao['mensagem_vazia']; ?></em></p>
 
                 <?php endif; ?>
 
@@ -451,18 +481,22 @@ foreach ($comportamental as $item) {
 
             <section class="curriculo-secao">
 
-                <p class="titulo-secao">Conhecimentos em Informática e Tecnologia</p>
-                <p>Quais dos sistemas a seguir você já trabalhou e/ou tem facilidade de navegação?</p>
+                <?php $tecnologia = $ESTRUTURA_CURRICULO['tecnologia']; ?>
+
+                <p class="titulo-secao"><?= $tecnologia['titulo']; ?></p>
+                <p><?= $tecnologia['descricao']; ?></p>
 
                 <div class="curriculo-subsecao">
+
+                    <?php $competenciasSecao = $tecnologia['subsecoes']['competencias']; ?>
 
                     <table class="table table-striped">
 
                         <thead>
 
                             <tr>
-                                <th>Sistema</th>
-                                <th>Nível</th>
+                                <th><?= $competenciasSecao['campos']['sistema']['label']; ?></th>
+                                <th><?= $competenciasSecao['campos']['nivel']['label']; ?></th>
                             </tr>
 
                         </thead>
@@ -494,20 +528,24 @@ foreach ($comportamental as $item) {
 
             </section>
 
-            <section class="current-section">
+            <section class="curriculo-secao">
 
-                <p class="titulo-secao">Preferências e Perfil Comportamental</p>
-                <p>Por gentileza, indique a ação que mais reflete sua atitude nas situações a seguir.</p>
+                <?php $comportamental = $ESTRUTURA_CURRICULO['comportamental']; ?>
+
+                <p class="titulo-secao"><?= $comportamental['titulo']; ?></p>
+                <p><?= $comportamental['descricao']; ?></p>
 
                 <div class="curriculo-subsecao">
+
+                    <?php $perfilSecao = $comportamental['subsecoes']['perfil']; ?>
 
                     <table class="table table-striped">
 
                         <thead>
 
                             <tr>
-                                <th>Afirmação</th>
-                                <th>Ação</th>
+                                <th><?= $perfilSecao['campos']['afirmacao']['label']; ?></th>
+                                <th><?= $perfilSecao['campos']['acao']['label']; ?></th>
                             </tr>
 
                         </thead>

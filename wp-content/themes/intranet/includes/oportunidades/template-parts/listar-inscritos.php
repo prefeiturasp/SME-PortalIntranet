@@ -81,9 +81,18 @@ if ($current_post_id > 0) {
 
             <div class="col-md-5">
 
-                <button type="button" class="btn btn-outline-primary" id="btn-exportar-excel">
-                    <i class="fa fa-file-excel-o" aria-hidden="true"></i> Exportar Excel
-                </button>
+                <a
+                    class="btn btn-outline-primary" 
+                    id="btn-exportar-excel"
+                    href="<?= admin_url(
+                        'admin-post.php?action=exportar_curriculos_excel&oportunidade_id=' . get_the_ID()
+                    ); ?>">
+
+                    <i class="fa fa-file-excel-o"></i>
+
+                    Exportar Excel
+
+                </a>
                 <button
                     type="button"
                     class="btn btn-outline-success"
@@ -500,42 +509,8 @@ if ($current_post_id > 0) {
                     });
 
                 });
-            };
-                       
-            // Exportar Excel
-            $('#btn-exportar-excel').on('click', function() {
-                var data = [];
-                var headers = [];
-                
-                $('#tabela-candidatos thead th').each(function(index, th) {
-                    if (index !== 0) {
-                        headers.push($(th).text().trim());
-                    }
-                });
-                
-                $('#tabela-candidatos tbody tr').each(function() {
-                    var row = [];
-                    $(this).find('td').each(function(index, td) {
-                        if (index !== 0) {
-                            // Para a coluna de situação, extrai apenas o texto
-                            if (index === 2) {
-                                var text = getSituacaoTexto($(td).html());
-                                row.push(text);
-                            } else {
-                                var text = $(td).text().trim();
-                                row.push(text);
-                            }
-                        }
-                    });
-                    if (row.length > 0) {
-                        data.push(row);
-                    }
-                });
-                
-                console.log('Exportar dados:', headers, data);
-                alert('Função de exportação será implementada');
-            });
-
+            };                      
+            
             // Comunicar os selecionados
             $(document).on('click', '.btn-comunicar-selecionados', function(){
 

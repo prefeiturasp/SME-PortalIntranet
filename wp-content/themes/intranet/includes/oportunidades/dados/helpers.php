@@ -10,7 +10,7 @@ if (!defined('ABSPATH')) {
 function valor($valor): string
 {
 	if ($valor === null || $valor === '') {
-		return '<em>Não informado</em>';
+		return '<em>—</em>';
 	}
 
 	return nl2br(esc_html($valor));
@@ -30,7 +30,7 @@ function sim_nao($valor): string
 function traduzir($valor, array $mapa): string
 {
 	if ($valor === null || $valor === '') {
-		return '<em>Não informado</em>';
+		return '<em>—</em>';
 	}
 
 	return $mapa[$valor] ?? esc_html($valor);
@@ -42,7 +42,7 @@ function traduzir($valor, array $mapa): string
 function traduzir_lista(array $valores, array $mapa): string
 {
 	if (empty($valores)) {
-		return '<em>Não informado</em>';
+		return '<em>—</em>';
 	}
 
 	$traduzidos = [];

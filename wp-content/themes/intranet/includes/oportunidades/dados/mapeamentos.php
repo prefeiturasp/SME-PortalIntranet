@@ -126,3 +126,8 @@ $MAPEAMENTO_OPCOES_DRES = [
     'dre-sao-miguel'            => 'DRE São Miguel',
     'coordenadoria-sme'         => 'Coordenadoria/SME',
 ];
+
+$MAPEAMENTO_OPCOES_VISUALIZACAO = [
+    '0'   => 'Apenas os gestores das vagas às quais eu me candidatar',
+    '1'   => 'Qualquer gestor que esteja consultando currículos',
+];
