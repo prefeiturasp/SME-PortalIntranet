@@ -1956,11 +1956,11 @@ function obter_informacoes_datas_sorteio( $post_id, ?string $filtro = null, ?str
 				$item['data']
 				));
 
-				$instrucoes = $wpdb->get_var($wpdb->prepare("
+				$instrucoes_pendentes = $wpdb->get_var($wpdb->prepare("
 					SELECT id
 					FROM $tabela 
 					WHERE post_id = %d
-					AND enviou_email_instrucoes = 1
+					AND enviou_email_instrucoes = 0
 					AND data_sorteada = %s 
 					LIMIT 1
 				",
@@ -1972,7 +1972,7 @@ function obter_informacoes_datas_sorteio( $post_id, ?string $filtro = null, ?str
 					'data' => $item['premio'],
 					'sorteio_realizado' => boolval( $status ),
 					'status' =>  boolval( $status ) ? 'Sorteio Realizado' : 'Aguardando Sorteio',
-					'instrucoes' => boolval( $instrucoes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+					'instrucoes' => !boolval( $instrucoes_pendentes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
 				] );
 			}
 
@@ -1993,22 +1993,22 @@ function obter_informacoes_datas_sorteio( $post_id, ?string $filtro = null, ?str
 			$post_id,
 			));
 
-			$instrucoes = $wpdb->get_var($wpdb->prepare("
+			$instrucoes_pendentes = $wpdb->get_var($wpdb->prepare("
 				SELECT id
 				FROM $tabela 
 				WHERE post_id = %d
-				AND enviou_email_instrucoes = 1
+				AND sorteado = 1
+				AND enviou_email_instrucoes = 0
 				LIMIT 1
 			",
 			$post_id,
-			$item['data']
 			));
 
 			array_push( $datas_info, [
 				'data' => $data_sorteio,
 				'sorteio_realizado' => boolval( $status ),
 				'status' =>  boolval( $status ) ? 'Sorteio Realizado' : 'Aguardando Sorteio',
-				'instrucoes' => boolval( $instrucoes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+				'instrucoes' => !boolval( $instrucoes_pendentes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
 			] );
 
 			return $datas_info;
@@ -2070,11 +2070,11 @@ function obter_informacoes_datas_sorteio( $post_id, ?string $filtro = null, ?str
 				$item['data']
 				));
 
-				$instrucoes = $wpdb->get_var($wpdb->prepare("
+				$instrucoes_pendentes = $wpdb->get_var($wpdb->prepare("
 					SELECT id
 					FROM $tabela 
 					WHERE post_id = %d
-					AND enviou_email_instrucoes = 1
+					AND enviou_email_instrucoes = 0
 					AND data_sorteada = %s 
 					LIMIT 1
 				",
@@ -2086,7 +2086,7 @@ function obter_informacoes_datas_sorteio( $post_id, ?string $filtro = null, ?str
 					'data' => date( 'd/m/Y H:i', strtotime( $item['data'] ) ),
 					'sorteio_realizado' => boolval( $status ),
 					'status' =>  boolval( $status ) ? 'Sorteio Realizado' : 'Aguardando Sorteio',
-					'instrucoes' => boolval( $instrucoes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+					'instrucoes' => !boolval( $instrucoes_pendentes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
 				] );
 			}
 

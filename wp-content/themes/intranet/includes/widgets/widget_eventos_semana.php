@@ -304,9 +304,9 @@ function get_cortesias_semana() {
                         ];
                     }
                 }
-            } elseif( $tipo_evento === 'periodo' && $data_encerramento_inscricoes = get_field( 'evento_periodo_data_sorteio' ) ){
+            } elseif( $tipo_evento === 'periodo' && $data_encerramento_inscricoes = get_field( 'evento_periodo_encerramento_inscricoes' ) ){
 
-                $data_encerramento_inscricoes = get_field( 'evento_periodo_data_sorteio', $post_id, false );
+                $data_encerramento_inscricoes = get_field( 'evento_periodo_encerramento_inscricoes', $post_id, false );
 
                 if ( $data_encerramento_inscricoes ) {
                     $data_formatada = date( 'Y-m-d', strtotime( $data_encerramento_inscricoes ) );
