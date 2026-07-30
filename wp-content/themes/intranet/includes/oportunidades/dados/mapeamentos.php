@@ -131,3 +131,18 @@ $MAPEAMENTO_OPCOES_VISUALIZACAO = [
     '0'   => 'Apenas os gestores das vagas às quais eu me candidatar',
     '1'   => 'Qualquer gestor que esteja consultando currículos',
 ];
+
+/**
+ * Cargos efetivos
+ */
+$MAPEAMENTO_CARGOS_EFETIVOS = [
+    'Auxiliar Técnico de Educação (ATE)',
+    'Agente Escolar',
+    'Coordenador(a) Pedagógico',
+    'Diretor(a) de Escola',
+    'Professor(a) de Educação Infantil (PEI)',
+    'Professor(a) de Educação Infantil e Ensino Fundamental I (PEIF)',
+    'Professor(a) de Ensino Fundamental II e Médio',
+    'Supervisor(a) Escolar',
+    'Outro',
+];

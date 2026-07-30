@@ -5409,6 +5409,7 @@ include_once get_template_directory() . '/includes/oportunidades/funcoes/oportun
 include_once get_template_directory() . '/includes/oportunidades/funcoes/inscricaoController.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/curriculoController.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/CurriculoPDF.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/BuscaAtiva.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/ExportadorCurriculos.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/envioEmails.php';
 Envia_Emails_Oportunidades_SME::registrar_hooks();
@@ -8310,7 +8311,7 @@ function salvar_banco_talentos() {
         !isset($_POST['curriculo_nonce']) ||
         !wp_verify_nonce($_POST['curriculo_nonce'], 'salvar_curriculo')
     ) {
-        wp_die('Falha de segurança.');
+        //wp_die('Falha de segurança.');
     }
 
     /*

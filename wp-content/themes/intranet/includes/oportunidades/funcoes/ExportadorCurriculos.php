@@ -673,8 +673,8 @@ class ExportadorCurriculos
         array &$cabecalho
     ): void
     {
-        $cabecalho[] = $this->estilizarCabecalho($this->estrutura['visualizacao']['titulo']);
-        $cabecalho[] = $this->estilizarCabecalho($this->estrutura['visualizacao']['sugestoes']);
+        $cabecalho[] = $this->estilizarCabecalho($this->estrutura['visualizacao']['subsecoes']['visualizarCurriculo']['titulo']);
+        $cabecalho[] = $this->estilizarCabecalho($this->estrutura['visualizacao']['subsecoes']['sugestoes']['titulo']);
     }
 
     /**

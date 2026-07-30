@@ -26,7 +26,7 @@ if (!$comportamental) {
 
 // Incluir os arquivos de mapeamento
 require_once get_template_directory() . '/includes/oportunidades/dados/helpers.php';
-require_once get_template_directory() . '/includes/oportunidades/dados/mapeamentos.php';
+require get_template_directory() . '/includes/oportunidades/dados/mapeamentos.php';
 $ESTRUTURA_CURRICULO = require get_template_directory() . '/includes/oportunidades/dados/estrutura-curriculo.php';
 
 // Fazer o decode do cargo efetivo, que é armazenado como JSON no banco de dados
@@ -575,6 +575,56 @@ foreach ($comportamental as $item) {
 
                 </div>
 
+            </section>
+
+            <section class="curriculo-secao">
+                <p class="titulo-secao"><?= $ESTRUTURA_CURRICULO['visualizacao']['titulo']; ?></p>
+
+                <div class="curriculo-subsecao">
+                    <?php $infoVisualizacao = $ESTRUTURA_CURRICULO['visualizacao']['subsecoes']['visualizarCurriculo']; ?>
+
+                    <p class="subtitulo-secao"><?= $infoVisualizacao['titulo']; ?></p>
+
+                    <table class="table table-striped">
+
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <?php 
+                                        if($curriculo->visualizar_curriculo == 1){
+                                            echo $infoVisualizacao['campos']['todos']['label'];
+                                        } else {
+                                            echo $infoVisualizacao['campos']['gestor']['label'];
+                                        }
+                                    ?>
+                                </td>                                
+                            </tr>
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                <?php if($curriculo->sugestoes): ?>
+                    <div class="curriculo-subsecao">
+                        <?php $infoSugestoes = $ESTRUTURA_CURRICULO['visualizacao']['subsecoes']['sugestoes']; ?>
+
+                        <p class="subtitulo-secao"><?= $infoSugestoes['titulo']; ?></p>
+
+                        <table class="table table-striped">
+
+                            <tbody>
+
+                                <tr>
+                                    <td><?= valor($curriculo->sugestoes ?? '') ?></td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+                <?php endif; ?>
             </section>
         </div>
     </div>
