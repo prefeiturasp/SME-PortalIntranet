@@ -267,8 +267,29 @@ return [
     ],
 
     'visualizacao' => [
-        'titulo' => 'Quem poderá visualizar as informações que você preencheu neste cadastro?',
-        'sugestoes' => 'Sugestões',
+        'titulo' => 'Finalização e Visualização',
+
+        'subsecoes' => [
+
+            'visualizarCurriculo' => [
+
+                'titulo' => 'Quem poderá visualizar as informações que você preencheu neste cadastro?',
+                'campos' => [
+                    'gestor' => [
+                        'label' => 'Apenas os gestores das vagas às quais eu me candidatar',
+                    ],
+                    'todos' => [
+                        'label' => 'Qualquer gestor que esteja consultando currículos',
+                    ],
+                ],
+
+            ],
+
+            'sugestoes' => [
+                'titulo' => 'Sugestões',
+            ],
+
+        ],
     ],
 
     'etapa' => [
