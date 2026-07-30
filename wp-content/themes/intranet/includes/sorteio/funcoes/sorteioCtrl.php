@@ -728,15 +728,15 @@ function processa_ajax_sortear(){//** OK */
 
 		if($tipo == 1){
 			if($premio){
-				$msg =  'A quantidade a ser sorteada para o prêmio ' . $premio . ' é maior que o número de inscrições válidas para este sorteio!';
+				$msg =  'A quantidade a ser sorteada para o prêmio ' . $premio . ' é maior que o número de inscrições válidas.';
 			} else {
-				$msg =  'A quantidade a ser sorteada é maior que o número de inscrições válidas para este evento!';
+				$msg =  'A quantidade de participantes a serem sorteados é maior que o número de inscrições válidas.';
 			}
 		} else if ($tipo == 2){
 			if($premio){
-				$msg =  'A quantidade a ser resorteada para o prêmio ' . $premio . ' é maior que o número de inscrições válidas para este sorteio!';
+				$msg =  'A quantidade a ser resorteada para o prêmio ' . $premio . ' é maior que o número de inscrições válidas.';
 			} else {
-				$msg =  'A quantidade a ser resorteada é maior que o número de inscrições válidas para este evento!';
+				$msg =  'A quantidade de participantes a serem resorteados é maior que o número de inscrições válidas.';
 			}
 		}
 
@@ -832,6 +832,21 @@ function processa_ajax_sortear(){//** OK */
 
 		$total = count($resultados);
 		$total = $total - count($numSorteados);
+
+		if ( $tipo == 1 ) {
+
+			$linha_id = $tipo_evento === 'periodo'
+				? null
+				: (int) str_replace( 'row-', '', $_POST['linha_id'] ) + 1;
+
+			$dados = [
+				'num_disponivel' => (int) sanitize_text_field( $_POST['total_disponiveis'] ),
+				'qtd_vagas_sorteado' => (int) sanitize_text_field( $_POST['vagas_por_sorteado'] ),
+				'num_sorteio' => (int) sanitize_text_field( $_POST['total_sorteados'] )
+			];
+
+			atualizar_valores_sorteio( $idPost, $tipo_evento, $dados, $linha_id );
+		}
 
 		wp_send_json(array(
 			"res" => $res,
@@ -1941,11 +1956,11 @@ function obter_informacoes_datas_sorteio( $post_id, ?string $filtro = null, ?str
 				$item['data']
 				));
 
-				$instrucoes = $wpdb->get_var($wpdb->prepare("
+				$instrucoes_pendentes = $wpdb->get_var($wpdb->prepare("
 					SELECT id
 					FROM $tabela 
 					WHERE post_id = %d
-					AND enviou_email_instrucoes = 1
+					AND enviou_email_instrucoes = 0
 					AND data_sorteada = %s 
 					LIMIT 1
 				",
@@ -1957,7 +1972,7 @@ function obter_informacoes_datas_sorteio( $post_id, ?string $filtro = null, ?str
 					'data' => $item['premio'],
 					'sorteio_realizado' => boolval( $status ),
 					'status' =>  boolval( $status ) ? 'Sorteio Realizado' : 'Aguardando Sorteio',
-					'instrucoes' => boolval( $instrucoes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+					'instrucoes' => !boolval( $instrucoes_pendentes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
 				] );
 			}
 
@@ -1978,22 +1993,22 @@ function obter_informacoes_datas_sorteio( $post_id, ?string $filtro = null, ?str
 			$post_id,
 			));
 
-			$instrucoes = $wpdb->get_var($wpdb->prepare("
+			$instrucoes_pendentes = $wpdb->get_var($wpdb->prepare("
 				SELECT id
 				FROM $tabela 
 				WHERE post_id = %d
-				AND enviou_email_instrucoes = 1
+				AND sorteado = 1
+				AND enviou_email_instrucoes = 0
 				LIMIT 1
 			",
 			$post_id,
-			$item['data']
 			));
 
 			array_push( $datas_info, [
 				'data' => $data_sorteio,
 				'sorteio_realizado' => boolval( $status ),
 				'status' =>  boolval( $status ) ? 'Sorteio Realizado' : 'Aguardando Sorteio',
-				'instrucoes' => boolval( $instrucoes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+				'instrucoes' => !boolval( $instrucoes_pendentes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
 			] );
 
 			return $datas_info;
@@ -2055,11 +2070,11 @@ function obter_informacoes_datas_sorteio( $post_id, ?string $filtro = null, ?str
 				$item['data']
 				));
 
-				$instrucoes = $wpdb->get_var($wpdb->prepare("
+				$instrucoes_pendentes = $wpdb->get_var($wpdb->prepare("
 					SELECT id
 					FROM $tabela 
 					WHERE post_id = %d
-					AND enviou_email_instrucoes = 1
+					AND enviou_email_instrucoes = 0
 					AND data_sorteada = %s 
 					LIMIT 1
 				",
@@ -2071,7 +2086,7 @@ function obter_informacoes_datas_sorteio( $post_id, ?string $filtro = null, ?str
 					'data' => date( 'd/m/Y H:i', strtotime( $item['data'] ) ),
 					'sorteio_realizado' => boolval( $status ),
 					'status' =>  boolval( $status ) ? 'Sorteio Realizado' : 'Aguardando Sorteio',
-					'instrucoes' => boolval( $instrucoes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+					'instrucoes' => !boolval( $instrucoes_pendentes ) ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
 				] );
 			}
 
@@ -2954,4 +2969,29 @@ function ajax_confirmar_cancelar_presenca_sorteio() {
 		: 'Houve um erro ao confirmar sua presença.';
 
     wp_send_json_error( ['message' => $mensagem_erro] );
+}
+
+/**
+ * Salva os valores preenchidos nos campos após realizar o sorteio 
+*/
+function atualizar_valores_sorteio( int $post_id, string $tipo_evento, array $dados, $row = null ) {
+
+    if ( $tipo_evento !== 'periodo' ) {
+
+		$repetidor = $tipo_evento == 'premio' ? 'evento_premios' : 'evento_datas';
+
+        foreach ( $dados as $campo => $valor ) {
+            update_sub_field(
+                [$repetidor, $row, $campo],
+                $valor,
+                $post_id
+            );
+        }
+
+        return;
+    }
+
+    foreach ( $dados as $campo => $valor ) {
+        update_field("evento_periodo_{$campo}", $valor, $post_id);
+    }
 }

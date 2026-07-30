@@ -177,9 +177,9 @@ function realizarSorteio(tipo, data_sorteios = null, qtd_sortear = null, $target
     let data;
     let msg;
     
-    if(tipo == 1 && (!qtd_sortear || qtd_sortear == null || qtd_sortear == '') ){
+    if(tipo == 1 && (!qtd_sortear || qtd_sortear == null || qtd_sortear == '' || qtd_sortear <= 0) ){
         //qtd_sorteio = $s('#acf-field_67eed3e15dcb4').val();
-        msg = "Informe a quantidade a ser sorteada, por gentileza!";
+        msg = "Informe uma quantidade de participantes a serem sorteados maior que zero.";
     } else if (tipo == 1 && tipo_sorteio != 'periodo' && (data_sorteios || data_sorteios != null || data_sorteios != '')) {
         //qtd_sorteio = $s('#qtd-resorteada').val();
         msg = "Informe a data a ser sorteada, por gentileza!";
@@ -191,6 +191,21 @@ function realizarSorteio(tipo, data_sorteios = null, qtd_sortear = null, $target
         msg = "Informe a data a ser resorteada, por gentileza!";
     }
 
+    let $linha = null;
+    let linhaId = null;
+    let totalDisponiveis = null;
+    let vagasPorSorteado = null;
+    let totalSorteados = null;
+
+    if ($target !== null) {
+        $linha = $target.closest('.acf-row');
+
+        linhaId = $linha.data('id') || 0;
+        totalDisponiveis = parseInt($linha.find('[data-name="num_disponivel"] input').val(), 10);
+        vagasPorSorteado = parseInt($linha.find('[data-name="qtd_vagas_sorteado"] input').val(), 10);
+        totalSorteados = parseInt($linha.find('[data-name="num_sorteio"] input').val(), 10);
+    }
+
     acao = 'sortear';
     data = {
         action: acao,
@@ -198,18 +213,20 @@ function realizarSorteio(tipo, data_sorteios = null, qtd_sortear = null, $target
         qtdSorteio: qtd_sortear,
         tipo: tipo,
         data_selecionada_sorteio: data_sorteios,
-        premio: premio
+        premio: premio,
+        linha_id: linhaId,
+        total_disponiveis: totalDisponiveis,
+        vagas_por_sorteado: vagasPorSorteado,
+        total_sorteados: totalSorteados
     };
 
-    if(!qtd_sortear || qtd_sortear == null || qtd_sortear == '') { 
+    if(!qtd_sortear || qtd_sortear == null || qtd_sortear == '' || qtd_sortear <= 0) { 
         exibeMsg(msg, "info", 3000);
-        $s('.btn-acf-repetidor').prop('disabled', false);
-        $s('#btn-resortear').prop('disabled', false);
+        marcarSorteiosRelizados()
         
     } else if(tipo_sorteio != 'periodo' && (!data_sorteios || data_sorteios == null || data_sorteios == '')) { 
         exibeMsg(msg, "info", 3000);
-        $s('.btn-acf-repetidor').prop('disabled', false);
-        $s('#btn-resortear').prop('disabled', false);
+        marcarSorteiosRelizados();
     } else {
 
         $s.post(ajaxurl, data, function(response){ 
@@ -228,6 +245,10 @@ function realizarSorteio(tipo, data_sorteios = null, qtd_sortear = null, $target
                     }
 
                     marcarSorteiosRelizados();
+
+                    if ($target !== null) {
+                        $linha.find('.num-sorteio-reset').removeClass('is-visible');
+                    }
 
                 }, 500);
 
@@ -251,8 +272,7 @@ function realizarSorteio(tipo, data_sorteios = null, qtd_sortear = null, $target
 
             } else {
                 exibeMsg(response.msg, "info", 5000);
-                $s('.btn-acf-repetidor').prop('disabled', false);
-                $s('#btn-resortear').prop('disabled', false);
+                marcarSorteiosRelizados();
             }
 
         });
@@ -549,6 +569,24 @@ jQuery(document).ready(function($) {
         var data = $linha.find('[data-name="data"] input').val();
         var numero = $linha.find('[data-name="num_sorteio"] input').val();
         var target = $(this);
+
+
+        const totalDisponiveis = parseInt($linha.find('[data-name="num_disponivel"] input').val(), 10) || 1;
+        const vagasPorSorteado = parseInt($linha.find('[data-name="qtd_vagas_sorteado"] input').val(), 10) || 1;
+        const totalSorteadosInput = parseInt($linha.find('[data-name="num_sorteio"] input').val(), 10);
+
+        const totalSorteados = totalSorteadosInput * vagasPorSorteado;
+
+        if (totalSorteados > totalDisponiveis) {
+            
+            let mensagem = tipo_sorteio != 'premio'
+                ? 'A quantidade de participantes a serem sorteados excede o limite permitido com base no total de vagas disponíveis e na quantidade de vagas por sorteado.'
+                : 'A quantidade de participantes a serem sorteados excede o limite permitido com base no total de prêmios disponíveis e na quantidade de prêmios por sorteado.';
+
+            marcarSorteiosRelizados();
+            return exibeMsg(mensagem, 'error', 5000);
+        }
+
         
         if (tipo_sorteio == 'premio') {
             // Verifica se existe o campo "premio" e se tem valor
@@ -1264,4 +1302,105 @@ jQuery(function($) {
         }
 
     });
+});
+
+/* Scripts dos novos campos do fluxo de sorteios */
+jQuery(function ($) {
+
+    //Atualiza a sugestão de quantidade de sorteados
+    function atualizarSugestao($linha) {
+
+        if ($linha.hasClass('num-sorteio-manual')) {
+            return;
+        }
+
+        const totalDisponiveis = parseInt($linha.find('[data-name="num_disponivel"] input').val(), 10) || 1;
+        const vagasPorSorteado = parseInt($linha.find('[data-name="qtd_vagas_sorteado"] input').val(), 10) || 1;
+        const totalSorteados = vagasPorSorteado > 0 ? Math.floor(totalDisponiveis / vagasPorSorteado) : 0;
+
+        $linha.find('[data-name="num_sorteio"] input')
+            .val(totalSorteados)
+            .attr('max', totalSorteados)
+            .trigger('change');
+    }
+
+    /**
+     * Adiciona o botão de recalcular ao lado do input.
+     */
+    function adicionarOpcaoRecalcular($linha) {
+
+        const $wrapper = $linha.find('[data-name="num_sorteio"] .acf-input');
+
+        if ($wrapper.find('.num-sorteio-reset').length) {
+            return;
+        }
+
+        $wrapper.css('position', 'relative');
+
+        $wrapper.append(`
+            <button
+                type="button"
+                class="num-sorteio-reset"
+                title="Usar sugestão automática">
+                <span class="dashicons dashicons-update"></span>
+            </button>
+        `);
+    }
+
+
+    // Opções para a Inicialização
+    $('.acf-row').each(function () {
+        adicionarOpcaoRecalcular($(this));
+    });
+
+     // Adicionar as ações nas novas linhas do repetidor
+    if (typeof acf !== 'undefined') {
+        acf.addAction('append', function ($el) {
+            $el.find('.acf-row').addBack('.acf-row').each(function () {
+                adicionarOpcaoRecalcular($(this));
+            });
+        });
+    }
+
+    // Escutar os eventos de alteração dos campos base
+    $(document).on(
+        'input change',
+        '[data-name="num_disponivel"] input, [data-name="qtd_vagas_sorteado"] input',
+        function () {
+            atualizarSugestao($(this).closest('.acf-row'));
+        }
+    );
+
+    // Evento de alterações no campo de quantidade de sorteados
+    $(document).on(
+        'input',
+        '[data-name="num_sorteio"] input',
+        function () {
+
+            const $linha = $(this).closest('.acf-row');
+            const valor = parseInt($(this).val(), 10) || 1;
+            const valorMaximo = parseInt($(this).attr('max'), 10);
+
+            $linha.addClass('num-sorteio-manual');
+            $linha.find('.num-sorteio-reset').addClass('is-visible');
+
+        }
+    );
+
+    // Ação do botão de Recalcular
+    $(document).on(
+        'click',
+        '.num-sorteio-reset',
+        function () {
+
+            const $linha = $(this).closest('.acf-row');
+            $linha.removeClass('num-sorteio-manual');
+
+            atualizarSugestao($linha);
+
+            $(this).removeClass('is-visible');
+
+        }
+    );
+
 });
