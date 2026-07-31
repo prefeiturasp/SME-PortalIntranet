@@ -1109,25 +1109,27 @@ function redirects_admin() {
 	$links = '';
 	$alllinks = get_field('redirecionar','option');
 
-	foreach($alllinks as $link){
-		$origem = $link['origem'];
-		$origem = str_replace('https://educacao.sme.prefeitura.sp.gov.br', '', $origem);
-		$origem = str_replace('http://educacao.sme.prefeitura.sp.gov.br', '', $origem);
-		$origem = convert_chars_url($origem);
-		
-		if (strpos($origem, '/uploads/') == false) {
-			$lastChar = substr($origem, -1);
-			if($lastChar == '/'){
-				$origem = substr($origem, 0, -1);				
-				$origem = '^' . $origem . '(\/|)$';
-			} else {
-				$origem = '^' . $origem . '(\/|)$';
-			}
-		}
+    if ( is_array( $alllinks ) && ! empty( $alllinks ) ) {
+        foreach($alllinks as $link){
+            $origem = $link['origem'];
+            $origem = str_replace('https://educacao.sme.prefeitura.sp.gov.br', '', $origem);
+            $origem = str_replace('http://educacao.sme.prefeitura.sp.gov.br', '', $origem);
+            $origem = convert_chars_url($origem);
+            
+            if (strpos($origem, '/uploads/') == false) {
+                $lastChar = substr($origem, -1);
+                if($lastChar == '/'){
+                    $origem = substr($origem, 0, -1);				
+                    $origem = '^' . $origem . '(\/|)$';
+                } else {
+                    $origem = '^' . $origem . '(\/|)$';
+                }
+            }
 
-		$destino = $link['destino'];
-		$links .= 'RedirectMatch 301 ' . $origem . ' ' . $destino . PHP_EOL;
-	}
+            $destino = $link['destino'];
+            $links .= 'RedirectMatch 301 ' . $origem . ' ' . $destino . PHP_EOL;
+        }
+    }
 
 	$path = ABSPATH;
     $htaccess_content = file_get_contents( $path . '.htaccess' );

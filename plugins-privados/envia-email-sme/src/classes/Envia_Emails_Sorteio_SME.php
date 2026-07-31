@@ -182,8 +182,8 @@ class Envia_Emails_Sorteio_SME {
                     $textoSorteio = 'Você foi sorteado(a) para o evento <strong>' . $incrito[0]["post_title"] . '</strong>';
                     $dataEvento = $incrito[0]['data_sorteada'];
                     $dataEvento = '<strong>Data:</strong> ' . $this->converte_data_sorteio_com_hora($dataEvento);
-                    $hora_evento = $this->obter_informacoes_data_evento($this->idEvento, $incrito[0]['data_sorteada']);
-                    $horaTime = strtotime($hora_evento);
+                    //$hora_evento = $this->obter_informacoes_data_evento($this->idEvento, $incrito[0]['data_sorteada']);
+                    //$horaTime = strtotime($hora_evento);
                     $textoDestaque = 'Atenção para as informações do evento:';                   
                     $textoComparecimento = 'É necessário confirmar sua presença, fique atento ao prazo para garantir seu ingresso no evento. ';
 
