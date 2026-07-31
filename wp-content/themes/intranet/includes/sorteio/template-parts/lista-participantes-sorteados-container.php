@@ -1,4 +1,8 @@
-<?php extract( $args ); ?>
+<?php
+extract( $args );
+
+$requer_confirmacao = get_field( 'confirm_presen', get_the_ID() );
+?>
 
 <div class="accordion-sorteio" id="lista-participantes-sorteados" data-post="<?php echo esc_html( get_the_ID() ); ?>">
 
@@ -49,6 +53,18 @@
                     >
                         <span class="text-white">
                             <?= $label_collapse; ?></strong>
+                            <?php
+                            if ( $requer_confirmacao ) :
+                                $info_confirmacoes = get_confirmacoes_sorteio( get_the_ID(), $tipo_evento, $item['data'] );
+
+                                if ( $info_confirmacoes->total_sorteados > 0 && $info_confirmacoes->enviadas > 0 ) :
+                                    $texto_confirmacoes = _n( 'confirmação pendente', 'confirmações pendentes', $info_confirmacoes->pendentes );
+                                    ?>
+                                    <em><?php echo esc_html( "({$info_confirmacoes->pendentes} {$texto_confirmacoes})" ); ?></em>
+                                    <?php
+                                endif;
+
+                            endif; ?>
                         </span>
                         <span class="accordion-icon dashicons dashicons-controls-play ml-2"></span>
                     </div>
