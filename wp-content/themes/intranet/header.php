@@ -330,11 +330,11 @@ use Classes\Header\Header;
                                     <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle user-action">
                                         <?php
                                             $image_id = get_field('imagem', 'user_' . get_current_user_id());
-                                            $image_profile = $img_atts = wp_get_attachment_image_src($image_id, 'thumbnail');
+                                            $image_profile = $img_atts = wp_get_attachment_image_src($image_id['ID'], 'thumbnail');
                                                                         
-                                            if($image_id['sizes']['thumbnail']):
+                                            if($image_profile[0]):
                                         ?>
-                                            <img src="<?= $image_id['sizes']['thumbnail']; ?>" alt="Imagem de perfil">
+                                            <img src="<?= $image_profile[0]; ?>" alt="Imagem de perfil">
                                         <?php else: ?>
                                             <img src="<?= get_template_directory_uri() . '/img/user-image.jpg'; ?>" class="avatar" alt="Avatar"> 
                                         <?php endif; ?>
@@ -343,11 +343,11 @@ use Classes\Header\Header;
                                     <div class="dropdown-menu">
                                         <?php
                                             $image_id = get_field('imagem', 'user_' . get_current_user_id());
-                                            $image_profile = $img_atts = wp_get_attachment_image_src($image_id, 'thumbnail');
+                                            $image_profile = $img_atts = wp_get_attachment_image_src($image_id['ID'], 'thumbnail');
                                                                         
-                                            if($image_id['sizes']['thumbnail']):
+                                            if($image_profile[0]):
                                         ?>
-                                            <img src="<?= $image_id['sizes']['thumbnail']; ?>" alt="Imagem de perfil">
+                                            <img src="<?= $image_profile[0]; ?>" alt="Imagem de perfil">
                                         <?php else: ?>
                                             <img src="<?= get_template_directory_uri() . '/img/user-image.jpg'; ?>" class="avatar" alt="Avatar"> 
                                         <?php endif; ?>
@@ -357,7 +357,7 @@ use Classes\Header\Header;
                                         <?php
                                             if (current_user_can('administrator') || current_user_can('contributor')) {
                                                 // Exibe o conteúdo para Administradores ou Colaboradores
-                                                echo '<a href="' . get_home_url() . '/agenda-de-eventos-sme/" class="dropdown-item">Agenda de Eventos</a>';
+                                                echo '<a href="' . get_home_url() . '/index.php/agenda-de-eventos-sme/" class="dropdown-item">Agenda de Eventos</a>';
                                             }
                                         ?>                                    
                                         <a href="<?= wp_logout_url(); ?>" class="dropdown-item">Sair</a>

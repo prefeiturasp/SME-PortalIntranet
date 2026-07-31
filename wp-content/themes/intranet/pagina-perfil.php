@@ -180,11 +180,11 @@ get_header(); // Loads the header.php template.
                                             $user_meta = get_user_meta( $current_user_id, 'wp_capabilities', true );
                                             $parceira = get_field('parceira', 'user_'. $current_user->ID );
                                             $image_id = get_field('imagem', 'user_' . $current_user->ID);
-                                            $image_profile = $img_atts = wp_get_attachment_image_src($image_id, 'thumbnail');
+                                            $image_profile = wp_get_attachment_image_src($image_id['ID'], 'thumbnail');
                                                                            
-                                            if($image_id['sizes']['thumbnail']):
+                                            if($image_profile[0]):
                                         ?>
-                                                <img src="<?= $image_id['sizes']['thumbnail']; ?>" alt="Imagem de perfil">
+                                                <img src="<?= $image_profile[0]; ?>" alt="Imagem de perfil">
                                         <?php else: ?>
                                             <img src="<?= get_template_directory_uri() . '/img/user-image.jpg'; ?>" alt="Avatar">                                     
                                         <?php endif; ?>

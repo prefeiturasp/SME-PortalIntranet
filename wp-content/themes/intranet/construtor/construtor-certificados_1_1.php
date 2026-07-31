@@ -158,10 +158,10 @@
 					
                     if(isset($_GET['busca'])){
                         $getPagina = '&pagina=';
-                        $new_url = preg_replace('/&?pagina=[^&]*/', '', $actual_link);
+                        $new_url = preg_replace('/&?\?pagina=[^&]*/', '', $actual_link);
                     } else {
                         $getPagina = '?pagina=';
-                        $new_url = preg_replace('/?pagina=[^&]*/', '', $actual_link);
+                        $new_url = preg_replace('/\?pagina=[^&]*/', '', $actual_link);
                     }
                 ?>
                     <?php if($result && $totalPages > 1):?>
