@@ -2995,3 +2995,51 @@ function atualizar_valores_sorteio( int $post_id, string $tipo_evento, array $da
         update_field("evento_periodo_{$campo}", $valor, $post_id);
     }
 }
+
+function get_confirmacoes_sorteio( int $post_id, string $tipo_evento, ?string $data_sorteada = null ) {
+	global $wpdb;
+
+	$agora = obter_data_com_timezone( 'Y-m-d H:i:s', 'America/Sao_Paulo' );
+
+	if ( $tipo_evento === 'periodo' ) {
+
+		return $wpdb->get_row(
+			$wpdb->prepare("
+				SELECT
+					COUNT(id) AS total_sorteados,
+					SUM(prazo_confirmacao IS NOT NULL) AS enviadas,
+					SUM(
+						prazo_confirmacao IS NOT NULL
+						AND confirmou_presenca = 0
+						AND prazo_confirmacao > %s
+					) AS pendentes
+				FROM {$wpdb->evento_inscricoes}
+				WHERE post_id = %d
+			",
+				$agora,
+				$post_id,
+				$data_sorteada
+			)
+		);
+	}
+
+	return $wpdb->get_row(
+		$wpdb->prepare("
+			SELECT
+				COUNT(id) AS total_sorteados,
+				SUM(prazo_confirmacao IS NOT NULL) AS enviadas,
+				SUM(
+					prazo_confirmacao IS NOT NULL
+					AND confirmou_presenca = 0
+					AND prazo_confirmacao > %s
+				) AS pendentes
+			FROM {$wpdb->evento_inscricoes}
+			WHERE post_id = %d
+			AND data_sorteada = %s
+		",
+			$agora,
+			$post_id,
+			$data_sorteada
+		)
+	);
+}

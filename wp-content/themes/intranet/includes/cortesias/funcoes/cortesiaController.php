@@ -1737,3 +1737,34 @@ function ajax_confirmar_cancelar_presenca_cortesia() {
 
     wp_send_json_error( ['message' => $mensagem_erro] );
 }
+
+function get_confirmacoes_cortesia( int $post_id, string $tipo_evento, ?string $data = null ) {
+	global $wpdb;
+
+    $tabela_inscricoes = $wpdb->prefix . 'cortesias_inscricoes';
+    $tabela_acf = $wpdb->prefix . 'cortesias_acf_datas';
+	$agora = obter_data_com_timezone( 'Y-m-d H:i:s', 'America/Sao_Paulo' );
+
+    $where_and = $tipo_evento === 'periodo' ?  "AND a.data_evento IS NULL" : "AND a.data_evento = %s";
+    $valores_query = $tipo_evento === 'periodo' ? [$agora, $post_id] : [$agora, $post_id, $data];
+
+	return $wpdb->get_row(
+		$wpdb->prepare("
+			SELECT
+				SUM(i.prazo_confirmacao IS NOT NULL) AS enviadas,
+				SUM(
+					i.prazo_confirmacao IS NOT NULL
+					AND i.confirmou_presenca = 0
+					AND i.prazo_confirmacao > %s
+				) AS pendentes
+			FROM {$tabela_inscricoes} i
+            JOIN {$tabela_acf} a
+                ON a.id = i.acf_id
+                AND a.post_id = i.post_id
+			WHERE i.post_id = %d
+			    {$where_and}
+		",
+			$valores_query
+		)
+	);
+}
