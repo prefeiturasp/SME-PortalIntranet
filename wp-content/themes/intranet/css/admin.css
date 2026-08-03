@@ -974,3 +974,38 @@ div#meu_meta_box_id table.dataTable.no-footer{
     cursor: help;
     font-size: 14px;
 }
+
+.busca-collapse-titulo{
+    color: #2f3d4a;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    background: #f8f9fb;
+    border: 1px solid #d9dee5;
+    border-radius: 8px;
+    padding: 8px 20px;
+    transition: .25s;
+}
+
+.busca-collapse-titulo:hover,
+.busca-collapse-titulo:focus{
+    color:#215F9A;
+    text-decoration:none;
+}
+
+.busca-collapse-titulo small{
+    font-size:12px;
+    margin-left:6px;
+}
+
+.toggle-icon{
+    color:#6c757d;
+    transition:
+        transform .25s ease,
+        color .25s ease;
+}
+
+.busca-collapse-titulo[aria-expanded="true"] .toggle-icon{
+    transform:rotate(180deg);
+    color:#215F9A;
+}
