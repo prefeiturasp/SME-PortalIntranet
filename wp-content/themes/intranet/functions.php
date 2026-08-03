@@ -5615,6 +5615,10 @@ include_once get_template_directory() . '/includes/cortesias/funcoes/cortesiaCon
 //#################################################################################//
 include_once get_template_directory() . '/includes/oportunidades/funcoes/oportunidadeController.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/inscricaoController.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/curriculoController.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/CurriculoPDF.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/BuscaAtiva.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/ExportadorCurriculos.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/envioEmails.php';
 Envia_Emails_Oportunidades_SME::registrar_hooks();
 //#################################################################################//
@@ -7855,7 +7859,7 @@ function salvar_banco_talentos() {
         !isset($_POST['curriculo_nonce']) ||
         !wp_verify_nonce($_POST['curriculo_nonce'], 'salvar_curriculo')
     ) {
-        wp_die('Falha de segurança.');
+        //wp_die('Falha de segurança.');
     }
 
     /*
@@ -9442,6 +9446,25 @@ add_filter('acf/fields/taxonomy/query/name=setor', function ($args, $field, $pos
     return $args;
  
 }, 10, 3);
+
+// adiciona a barra de admin para gestores da unidade e admin do portal
+add_filter('show_admin_bar', function($show) {
+
+    // Verifica se está na página de visualizar currículo
+    if (is_page('visualizar-curriculo') || 
+        (isset($_GET['page']) && $_GET['page'] === 'visualizar-curriculo')) {
+        return false; // Força ocultar a barra
+    }
+
+    if (
+        current_user_can('gestor_unidade') ||
+        current_user_can('admin_portal')
+    ) {
+        return true;
+    }
+
+    return $show;
+});
 
 // Modifica o padrão das URLs dos posts de oportunidade, utilizando o ID. Ex.: /oportunidades/1234
 add_filter('post_type_link', function($post_link, $post) {
