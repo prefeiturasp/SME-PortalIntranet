@@ -10,6 +10,7 @@ namespace Classes\Lib;
  * Class SimpleXLSXGen
  * Export data to MS Excel. PHP XLSX generator
  * Author: sergey.shuchkin@gmail.com
+ * Modified: Added border support and fixed font-size per cell
  */
 
 class SimpleXLSXGenExp {
@@ -21,6 +22,8 @@ class SimpleXLSXGenExp {
     protected $template;
     protected $XF, $XF_KEYS; // cellXfs
     protected $SI, $SI_KEYS; // shared strings
+    
+    // Number formats
     const N_NORMAL = 0; // General
     const N_INT = 1; // 0
     const N_DEC = 2; // 0.00
@@ -29,6 +32,8 @@ class SimpleXLSXGenExp {
     const N_DATE = 14; // mm-dd-yy
     const N_TIME = 20; // h:mm
     const N_DATETIME = 22; // m/d/yy h:mm
+    
+    // Font styles
     const F_NORMAL = 0;
     const F_HYPERLINK = 1;
     const F_BOLD = 2;
@@ -36,6 +41,9 @@ class SimpleXLSXGenExp {
     const F_UNDERLINE = 8;
     const F_STRIKE = 16;
     const F_COLOR = 32;
+    const F_FONTSIZE = 64; // NOVO: indicador de tamanho de fonte personalizado
+    
+    // Fill styles
     const FL_NONE = 0; // none
     const FL_SOLID = 1; // solid
     const FL_MEDIUM_GRAY = 2; // mediumGray
@@ -43,6 +51,8 @@ class SimpleXLSXGenExp {
 	const FL_LIGHT_GRAY = 8; // lightGray
     const FL_GRAY_125 = 16; // gray125
     const FL_COLOR = 32;
+    
+    // Alignment
     const A_DEFAULT = 0;
     const A_LEFT = 1;
     const A_RIGHT = 2;
@@ -50,19 +60,39 @@ class SimpleXLSXGenExp {
     const A_TOP = 8;
     const A_MIDDLE = 16;
     const A_BOTTOM = 32;
+    const A_WRAPTEXT = 64;
+    
+    // Border styles
+    const BORDER_NONE = 0;
+    const BORDER_THIN = 1;
+    const BORDER_MEDIUM = 2;
+    const BORDER_THICK = 3;
+    const BORDER_DOUBLE = 4;
+    const BORDER_DOTTED = 5;
+    const BORDER_DASHED = 6;
+    const BORDER_HAIR = 7;
+    const BORDER_MEDIUM_DASHED = 8;
+    const BORDER_DASH_DOT = 9;
+    const BORDER_MEDIUM_DASH_DOT = 10;
+    const BORDER_DASH_DOT_DOT = 11;
+    const BORDER_MEDIUM_DASH_DOT_DOT = 12;
+    const BORDER_SLANT_DASH_DOT = 13;
 
     public function __construct() {
         $this->curSheet = -1;
         $this->defaultFont = 'Calibri';
+        $this->defaultFontSize = 11;
         $this->sheets = [ ['name' => 'Sheet1', 'rows' => [], 'hyperlinks' => [], 'mergecells' => [], 'colwidth' => [] ] ];
         $this->SI = [];		// sharedStrings index
         $this->SI_KEYS = []; //  & keys
-        $this->XF  = [  // styles
-            [self::N_NORMAL, self::A_DEFAULT, self::F_NORMAL, self::FL_NONE, 0, 0],
-            [self::N_NORMAL, self::A_DEFAULT, self::F_NORMAL, self::FL_GRAY_125, 0, 0], // hack
+        
+        // XF structure: [numfmt, align, font, fill, font_color, bgcolor, border_style, border_color, font_size]
+        $this->XF  = [
+            [self::N_NORMAL, self::A_DEFAULT, self::F_NORMAL, self::FL_NONE, 0, 0, self::BORDER_NONE, 'FF000000', 0],
+            [self::N_NORMAL, self::A_DEFAULT, self::F_NORMAL, self::FL_GRAY_125, 0, 0, self::BORDER_NONE, 'FF000000', 0],
         ];
-        $this->XF_KEYS['0-0-0-0-0-0'] = 0; // & keys
-        $this->XF_KEYS['0-0-0-16-0-0'] = 1;
+        $this->XF_KEYS['0-0-0-0-0-0-0-FF000000-0'] = 0;
+        $this->XF_KEYS['0-0-0-16-0-0-0-FF000000-0'] = 1;
 
         $this->template = [
             '_rels/.rels' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -98,7 +128,7 @@ class SimpleXLSXGenExp {
 <styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
 {FONTS}
 {FILLS}
-<borders count="1"><border><left/><right/><top/><bottom/><diagonal/></border></borders>
+{BORDERS}
 <cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" /></cellStyleXfs>
 {XF}
 <cellStyles count="1">
@@ -122,11 +152,8 @@ class SimpleXLSXGenExp {
 {TYPES}
 </Types>',
         ];
-
-        // <col min="1" max="1" width="22.1796875" bestFit="1" customWidth="1"/>
-        // <row r="1" spans="1:2" x14ac:dyDescent="0.35"><c r="A1" t="s"><v>0</v></c><c r="B1"><v>100</v></c></row><row r="2" spans="1:2" x14ac:dyDescent="0.35"><c r="A2" t="s"><v>1</v></c><c r="B2"><v>200</v></c></row>
-        // <si><t>Простой шаблон</t></si><si><t>Будем делать генератор</t></si>
     }
+
     public static function fromArray( array $rows, $sheetName = null ) {
         return (new static())->addSheet( $rows, $sheetName );
     }
@@ -311,19 +338,28 @@ class SimpleXLSXGenExp {
                 $this->_writeEntry($fh, $cdrec, $cfilename, $template);
                 $entries++;
             } elseif ( $cfilename === 'xl/styles.xml' ) {
-                $XF = $FONTS = $F_KEYS = $FILLS = $FL_KEYS = [];
-//                print_r( $this->XF );
+                $XF = $FONTS = $F_KEYS = $FILLS = $FL_KEYS = $BORDERS = $BORDER_KEYS = [];
+                
                 foreach( $this->XF as $xf ) {
-                    // 0 - num fmt, 1 - align, 2 - font, 3 - fill, 4 - font color, 5 - bgcolor
-                    // fonts
-                    $F_KEY = $xf[2].'-'.$xf[4];
+                    // 0 - num fmt, 1 - align, 2 - font, 3 - fill, 4 - font color, 5 - bgcolor, 6 - border style, 7 - border color, 8 - font size
+                    
+                    // Process fonts
+                    $fontSize = $xf[8] ?? 0;
+                    $F_KEY = $xf[2].'-'.$xf[4].'-'.$fontSize;
                     if ( isset($F_KEYS[ $F_KEY ]) ) {
                         $F_ID = $F_KEYS[ $F_KEY ];
                     } else {
                         $F_ID = $F_KEYS[ $F_KEY ] = count( $FONTS );
 
+                        $fontSizeTag = '';
+                        if ($fontSize > 0) {
+                            $fontSizeTag = '<sz val="'.$fontSize.'"/>';
+                        } elseif ($this->defaultFontSize > 0) {
+                            $fontSizeTag = '<sz val="'.$this->defaultFontSize.'"/>';
+                        }
+
                         $FONTS[] = '<font><name val="'.$this->defaultFont.'"/><family val="2"/>'
-                            . ( $this->defaultFontSize ? '<sz val="'.$this->defaultFontSize.'"/>' : '' )
+                            . $fontSizeTag
                             .( $xf[2] & self::F_BOLD ? '<b/>' : '')
                             .( $xf[2] & self::F_ITALIC ? '<i/>' : '')
                             .( $xf[2] & self::F_UNDERLINE ? '<u/>' : '')
@@ -332,7 +368,8 @@ class SimpleXLSXGenExp {
                             .( $xf[2] & self::F_COLOR ? '<color rgb="'.$xf[4].'"/>' : '')
                             .'</font>';
                     }
-                    // fills
+                    
+                    // Process fills
                     $FL_KEY = $xf[3].'-'.$xf[5];
                     if (isset($FL_KEYS[$FL_KEY])) {
                         $FL_ID = $FL_KEYS[ $FL_KEY ];
@@ -349,6 +386,31 @@ class SimpleXLSXGenExp {
                             .( $xf[3] & self::FL_COLOR ? '><fgColor rgb="'.$xf[5].'"/><bgColor indexed="64"/></patternFill>' : ' />')
                             .'</fill>';
                     }
+                    
+                    // Process borders
+                    $borderStyle = $xf[6] ?? self::BORDER_NONE;
+                    $borderColor = $xf[7] ?? 'FF000000';
+                    
+                    $BORDER_KEY = $borderStyle . '-' . $borderColor;
+                    if (isset($BORDER_KEYS[$BORDER_KEY])) {
+                        $BORDER_ID = $BORDER_KEYS[$BORDER_KEY];
+                    } else {
+                        $BORDER_ID = $BORDER_KEYS[$BORDER_KEY] = count($BORDERS);
+                        $styleName = $this->getBorderStyleName($borderStyle);
+                        if ($borderStyle !== self::BORDER_NONE) {
+                            $BORDERS[] = '<border>
+                                <left style="' . $styleName . '"><color rgb="' . $borderColor . '"/></left>
+                                <right style="' . $styleName . '"><color rgb="' . $borderColor . '"/></right>
+                                <top style="' . $styleName . '"><color rgb="' . $borderColor . '"/></top>
+                                <bottom style="' . $styleName . '"><color rgb="' . $borderColor . '"/></bottom>
+                                <diagonal/>
+                            </border>';
+                        } else {
+                            $BORDERS[] = '<border><left/><right/><top/><bottom/><diagonal/></border>';
+                        }
+                    }
+                    
+                    // Process alignment
                     $align = ($xf[1] & self::A_LEFT ? ' horizontal="left"' : '')
                         .($xf[1] & self::A_RIGHT ? ' horizontal="right"' : '')
                         .($xf[1] & self::A_CENTER ? ' horizontal="center"' : '')
@@ -356,22 +418,41 @@ class SimpleXLSXGenExp {
                         .($xf[1] & self::A_MIDDLE ? ' vertical="center"' : '')
                         .($xf[1] & self::A_BOTTOM ? ' vertical="bottom"' : '');
 
-                    $XF[] = '<xf numFmtId="'.$xf[0].'" fontId="'.$F_ID.'" fillId="'.$FL_ID.'" borderId="0" xfId="0"'
+                    if ($xf[1] & self::A_WRAPTEXT) {
+                        $align .= ' wrapText="1"';
+                    }
+
+                    $XF[] = '<xf numFmtId="'.$xf[0].'" fontId="'.$F_ID.'" fillId="'.$FL_ID.'" borderId="'.$BORDER_ID.'" xfId="0"'
                         .($xf[0] > 0 ? ' applyNumberFormat="1"' : '')
                         .($F_ID > 0 ? ' applyFont="1"' : '')
                         .($FL_ID > 0 ? ' applyFill="1"' : '')
+                        .($BORDER_ID > 0 ? ' applyBorder="1"' : '')
                         .($align ? ' applyAlignment="1"><alignment'.$align . '/></xf>' : '/>');
 
                 }
-                // wrap collections
+                
+                // Wrap collections
                 array_unshift( $XF, '<cellXfs count="'.count($XF).'">');
                 $XF[] = '</cellXfs>';
+                
                 array_unshift($FONTS, '<fonts count="'.count($FONTS).'">');
                 $FONTS[] = '</fonts>';
+                
                 array_unshift($FILLS, '<fills count="'.count($FILLS).'">');
                 $FILLS[] = '</fills>';
+                
+                // If no borders were added, add a default empty border
+                if (empty($BORDERS)) {
+                    $BORDERS[] = '<border><left/><right/><top/><bottom/><diagonal/></border>';
+                }
+                array_unshift($BORDERS, '<borders count="'.count($BORDERS).'">');
+                $BORDERS[] = '</borders>';
 
-                $template = str_replace(['{FONTS}','{XF}','{FILLS}'], [implode("\r\n", $FONTS), implode("\r\n", $XF), implode("\r\n", $FILLS)], $template);
+                $template = str_replace(
+                    ['{FONTS}','{XF}','{FILLS}','{BORDERS}'], 
+                    [implode("\r\n", $FONTS), implode("\r\n", $XF), implode("\r\n", $FILLS), implode("\r\n", $BORDERS)], 
+                    $template
+                );
                 $this->_writeEntry($fh, $cdrec, $cfilename, $template);
                 $entries++;
             } else {
@@ -428,8 +509,6 @@ class SimpleXLSXGenExp {
         $lastmod_dateM  = str_pad(decbin(date('m')), 4, '0', STR_PAD_LEFT);
         $lastmod_dateY  = str_pad(decbin(date('Y')-1980), 7, '0', STR_PAD_LEFT);
 
-        # echo "ModTime: $lastmod_timeS-$lastmod_timeM-$lastmod_timeH (".date("s H H").")\n";
-        # echo "ModDate: $lastmod_dateD-$lastmod_dateM-$lastmod_dateY (".date("d m Y").")\n";
         $e['modtime'] = bindec("$lastmod_timeH$lastmod_timeM$lastmod_timeS");
         $e['moddate'] = bindec("$lastmod_dateY$lastmod_dateM$lastmod_dateD");
 
@@ -504,6 +583,9 @@ class SimpleXLSXGenExp {
 
                     $ct = $cv = null;
                     $N = $A = $F = $FL = $C = $B = 0;
+                    $borderStyle = self::BORDER_NONE;
+                    $borderColor = 'FF000000';
+                    $fontSize = 0; // NOVO: tamanho da fonte para esta célula
 
                     if ( is_string($v) ) {
 
@@ -526,16 +608,18 @@ class SimpleXLSXGenExp {
                                 }
                                 if ( preg_match('/<style([^>]+)>/', $v, $m ) ) {
 
+                                    // CORREÇÃO: Capturar o font-size para esta célula específica
                                     if (preg_match('/font-size="([^"]+)"/', $m[1], $m2)) {
-                                        $this->defaultFontSize = $m2[1]; // Aplica o tamanho da fonte
+                                        $fontSize = (int) $m2[1];
+                                        $F += self::F_FONTSIZE; // Marcar que tem tamanho personalizado
                                     }
                                     
                                     if (preg_match('/size="([^"]+)"/', $m[1], $m2)) {
-                                        $this->defaultFontSize = $m2[1]; // Alternativa para 'size'
+                                        $fontSize = (int) $m2[1];
+                                        $F += self::F_FONTSIZE; // Marcar que tem tamanho personalizado
                                     }
 
                                     if ( preg_match('/ color="([^"]+)"/', $m[1], $m2) ) {
-
                                         $F += self::F_COLOR;
                                         $C = strlen($m2[1]) === 8 ? $m2[1] : ('FF' . ltrim($m2[1],'#'));
                                     }
@@ -545,6 +629,14 @@ class SimpleXLSXGenExp {
                                     }
                                     if ( preg_match('/ height="([^"]+)"/', $m[1], $m2) ) {
                                         $RH = $m2[1];
+                                    }
+                                    
+                                    // Process border styles
+                                    if ( preg_match('/ border="([^"]+)"/', $m[1], $m2) ) {
+                                        $borderStyle = $this->getBorderStyle($m2[1]);
+                                    }
+                                    if ( preg_match('/ bordercolor="([^"]+)"/', $m[1], $m2) ) {
+                                        $borderColor = strlen($m2[1]) === 8 ? $m2[1] : ('FF' . ltrim($m2[1],'#'));
                                     }
                                 }
                                 if ( strpos( $v, '<left>' ) !== false ) {
@@ -564,6 +656,9 @@ class SimpleXLSXGenExp {
                                 }
                                 if ( strpos( $v, '<bottom>' ) !== false ) {
                                     $A += self::A_BOTTOM;
+                                }
+                                if (strpos($v, '<wraptext>') !== false) {
+                                    $A += self::A_WRAPTEXT;
                                 }
                                 if ( preg_match( '/<a href="(https?:\/\/[^"]+)">(.*?)<\/a>/i', $v, $m ) ) {
                                     $h = explode( '#', $m[1] );
@@ -617,7 +712,10 @@ class SimpleXLSXGenExp {
                             } elseif ( preg_match( "/^[a-zA-Z0-9_\.\-]+@([a-zA-Z0-9][a-zA-Z0-9\-]*\.)+[a-zA-Z]{2,}$/", $v ) ) {
                                 $this->sheets[ $idx ]['hyperlinks'][] = ['ID' => 'rId' . ( count( $this->sheets[ $idx ]['hyperlinks'] ) + 1 ), 'R' => $cname, 'H' => 'mailto:' . $v, 'L' => ''];
                                 $F += self::F_HYPERLINK; // Hyperlink
+                            } elseif (strpos($v,"\n") !== false) {
+                                $A |= self::A_WRAPTEXT;
                             }
+                            
                             if ( ($N === self::N_DATE || $N === self::N_DATETIME) && $cv < 0 ) {
                                 $cv = null;
                                 $N = 0;
@@ -662,7 +760,7 @@ class SimpleXLSXGenExp {
 
                     $cs = 0;
 
-                    if ( $N + $A + $F + $FL > 0 ) {
+                    if ( $N + $A + $F + $FL + $borderStyle + $fontSize > 0 ) {
 
                         if ( $FL === self::FL_COLOR ) {
                             $FL += self::FL_SOLID;
@@ -672,15 +770,15 @@ class SimpleXLSXGenExp {
                             $C = 'FF0563C1';
                         }
 
-                        $XF_KEY = $N . '-' . $A  . '-' . $F. '-'. $FL . '-' . $C . '-' . $B;
-//                        echo $cname .'='.$XF_KEY.PHP_EOL;
+                        $XF_KEY = $N . '-' . $A  . '-' . $F. '-'. $FL . '-' . $C . '-' . $B . '-' . $borderStyle . '-' . $borderColor . '-' . $fontSize;
+                        
                         if ( isset( $this->XF_KEYS[ $XF_KEY ] ) ) {
                             $cs = $this->XF_KEYS[ $XF_KEY ];
                         }
                         if ( $cs === 0 ) {
                             $cs = count( $this->XF );
                             $this->XF_KEYS[ $XF_KEY ] = $cs;
-                            $this->XF[] = [$N, $A, $F, $FL, $C, $B];
+                            $this->XF[] = [$N, $A, $F, $FL, $C, $B, $borderStyle, $borderColor, $fontSize];
                         }
                     }
 
@@ -763,25 +861,71 @@ class SimpleXLSXGenExp {
 
         return (float) $excelDate + $excelTime;
     }
+    
     public function setDefaultFont( $name ) {
         $this->defaultFont = $name;
         return $this;
     }
+    
     public function setDefaultFontSize( $size ) {
         $this->defaultFontSize = $size;
         return $this;
     }
+    
     public function mergeCells( $range ) {
         $this->sheets[$this->curSheet]['mergecells'][] = $range;
         return $this;
     }
+    
     public function setColWidth($col, $width) {
         $this->sheets[$this->curSheet]['colwidth'][$col] = $width;
         return $this;
     }
+    
     public function esc( $str ) {
         // XML UTF-8: #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
         // but we use fast version
         return str_replace( ['&', '<', '>', "\x00","\x03","\x0B"], ['&amp;', '&lt;', '&gt;', '', '', ''], $str );
+    }
+    
+    // Métodos auxiliares para bordas
+    protected function getBorderStyle($style) {
+        $styles = [
+            'none' => self::BORDER_NONE,
+            'thin' => self::BORDER_THIN,
+            'medium' => self::BORDER_MEDIUM,
+            'thick' => self::BORDER_THICK,
+            'double' => self::BORDER_DOUBLE,
+            'dotted' => self::BORDER_DOTTED,
+            'dashed' => self::BORDER_DASHED,
+            'hair' => self::BORDER_HAIR,
+            'mediumDashed' => self::BORDER_MEDIUM_DASHED,
+            'dashDot' => self::BORDER_DASH_DOT,
+            'mediumDashDot' => self::BORDER_MEDIUM_DASH_DOT,
+            'dashDotDot' => self::BORDER_DASH_DOT_DOT,
+            'mediumDashDotDot' => self::BORDER_MEDIUM_DASH_DOT_DOT,
+            'slantDashDot' => self::BORDER_SLANT_DASH_DOT,
+        ];
+        return isset($styles[$style]) ? $styles[$style] : self::BORDER_NONE;
+    }
+    
+    protected function getBorderStyleName($style) {
+        $names = [
+            self::BORDER_NONE => 'none',
+            self::BORDER_THIN => 'thin',
+            self::BORDER_MEDIUM => 'medium',
+            self::BORDER_THICK => 'thick',
+            self::BORDER_DOUBLE => 'double',
+            self::BORDER_DOTTED => 'dotted',
+            self::BORDER_DASHED => 'dashed',
+            self::BORDER_HAIR => 'hair',
+            self::BORDER_MEDIUM_DASHED => 'mediumDashed',
+            self::BORDER_DASH_DOT => 'dashDot',
+            self::BORDER_MEDIUM_DASH_DOT => 'mediumDashDot',
+            self::BORDER_DASH_DOT_DOT => 'dashDotDot',
+            self::BORDER_MEDIUM_DASH_DOT_DOT => 'mediumDashDotDot',
+            self::BORDER_SLANT_DASH_DOT => 'slantDashDot',
+        ];
+        return isset($names[$style]) ? $names[$style] : 'none';
     }
 }

@@ -92,6 +92,7 @@ class Oportunidade {
             $wpdb->prepare(
                 "SELECT 
                     oi.id,
+                    oi.user_id,
                     oi.curriculo_id,
                     oi.rf,
                     oi.status,
@@ -178,6 +179,206 @@ class Oportunidade {
         }
 
         return get_posts( $args );
+    }
+
+    /**
+     * Retorna os IDs dos currículos das inscrições informadas.
+     *
+     * @param array $inscricoes
+     * @return int[]
+     */
+    public static function get_curriculos_ids(array $inscricoes): array {
+        if (empty($inscricoes)) {
+            return [];
+        }
+
+        return array_values(
+            array_unique(
+                array_map(
+                    static function ($inscricao) {
+                        return (int) $inscricao['curriculo_id'];
+                    },
+                    $inscricoes
+                )
+            )
+        );
+    }
+
+    /**
+     * Obtém vários currículos de uma única vez.
+     *
+     * O retorno é indexado pelo ID do currículo para facilitar o acesso.
+     *
+     * @param int[] $curriculo_ids
+     * @return array
+     */
+    public static function obter_curriculos(array $curriculo_ids): array {
+        global $wpdb;
+
+        if (empty($curriculo_ids)) {
+            return [];
+        }
+
+        $curriculo_ids = array_map('absint', $curriculo_ids);
+
+        $placeholders = implode(',', array_fill(0, count($curriculo_ids), '%d'));
+
+        $sql = $wpdb->prepare(
+            "
+            SELECT *
+            FROM {$wpdb->prefix}banco_talentos
+            WHERE id IN ($placeholders)
+            ",
+            $curriculo_ids
+        );
+
+        $resultados = $wpdb->get_results($sql, ARRAY_A);
+
+        if (empty($resultados)) {
+            return [];
+        }
+
+        $curriculos = [];
+
+        foreach ($resultados as $curriculo) {
+            $curriculos[(int) $curriculo['id']] = $curriculo;
+        }
+
+        return $curriculos;
+    }
+
+    /**
+     * Obtém registros de uma tabela relacionados aos currículos informados.
+     *
+     * Os resultados são agrupados pelo curriculo_id.
+     *
+     * @param int[]  $curriculo_ids
+     * @param string $tabela
+     *
+     * @return array
+     */
+    private static function obter_registros_por_curriculo(
+        array $curriculo_ids,
+        string $tabela
+    ): array {
+
+        global $wpdb;
+
+        if (empty($curriculo_ids)) {
+            return [];
+        }
+
+        $curriculo_ids = array_map('absint', $curriculo_ids);
+
+        $placeholders = implode(',', array_fill(0, count($curriculo_ids), '%d'));
+
+        $sql = $wpdb->prepare(
+            "
+            SELECT *
+            FROM {$tabela}
+            WHERE curriculo_id IN ({$placeholders})
+            ORDER BY curriculo_id ASC, id ASC
+            ",
+            $curriculo_ids
+        );
+
+        $resultados = $wpdb->get_results($sql, ARRAY_A);
+
+        if (empty($resultados)) {
+            return [];
+        }
+
+        $dados = [];
+
+        foreach ($resultados as $registro) {
+
+            $curriculo_id = (int) $registro['curriculo_id'];
+
+            if (!isset($dados[$curriculo_id])) {
+                $dados[$curriculo_id] = [];
+            }
+
+            $dados[$curriculo_id][] = $registro;
+        }
+
+        return $dados;
+    }
+
+    /**
+     * Obtém todas as vivências dos currículos informados.
+     *
+     * @param int[] $curriculo_ids
+     *
+     * @return array
+     */
+    public static function obter_vivencias(array $curriculo_ids): array {
+        global $wpdb;
+
+        return self::obter_registros_por_curriculo(
+            $curriculo_ids,
+            $wpdb->prefix . 'banco_talentos_vivencias'
+        );
+    }
+
+    /**
+     * Obtém todos os conhecimentos em informática dos currículos informados.
+     *
+     * @param int[] $curriculo_ids
+     *
+     * @return array
+     */
+    public static function obter_informatica(array $curriculo_ids): array {
+        global $wpdb;
+
+        return self::obter_registros_por_curriculo(
+            $curriculo_ids,
+            $wpdb->prefix . 'banco_talentos_informatica'
+        );
+    }
+
+    /**
+     * Obtém todas as respostas comportamentais dos currículos informados.
+     *
+     * @param int[] $curriculo_ids
+     *
+     * @return array
+     */
+    public static function obter_comportamental(array $curriculo_ids): array {
+        global $wpdb;
+
+        return self::obter_registros_por_curriculo(
+            $curriculo_ids,
+            $wpdb->prefix . 'banco_talentos_comportamental'
+        );
+    }
+
+    /**
+     * Obtém todos os dados necessários para exportação dos currículos
+     * de uma oportunidade.
+     *
+     * @param int $oportunidade_id
+     * @return array
+     */
+    public static function obter_dados_exportacao(int $oportunidade_id): array {
+        $inscricoes = self::get_inscricoes($oportunidade_id);        
+
+        if (empty($inscricoes)) {
+            return [];
+        }
+
+        $curriculo_ids = self::get_curriculos_ids($inscricoes);
+        $curriculos = self::obter_curriculos($curriculo_ids);
+        $vivencias = self::obter_vivencias($curriculo_ids);
+        $informatica = self::obter_informatica($curriculo_ids);
+        $comportamental = self::obter_comportamental($curriculo_ids);
+
+        return [
+            'inscricoes'      => $inscricoes,
+            'curriculos'      => $curriculos,
+            'vivencias'       => $vivencias,
+            'informatica'     => $informatica,
+            'comportamental'  => $comportamental,
+        ];
     }
 
 }

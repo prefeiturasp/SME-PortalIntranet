@@ -885,3 +885,177 @@ div#meu_meta_box_id table.dataTable.no-footer{
     cursor: help;
     font-size: 14px;
 }
+
+/** Formulário de busca ativa **/
+
+.busca-ativa-card{
+    max-width: 100%;
+}
+
+.tecnologia-row{
+	display:flex;
+	flex-wrap:wrap;
+}
+
+.tecnologia-col{
+	flex:0 0 20%;
+	max-width:20%;
+	padding-right:15px;
+	padding-left:15px;
+}
+
+.tecnologia-col .form-group{
+	margin-bottom:0;
+}
+
+.tecnologia-col label{
+	font-weight:600;
+	font-size:13px;
+	line-height:1.2;
+	min-height:36px;
+	display:flex;
+	align-items:flex-end;
+    min-height:42px;
+}
+
+/** End Formulário de busca ativa **/
+
+/** Currículos **/
+
+.busca-ativa{
+    background:#f4f5f7;
+    padding:25px;
+    border-radius:10px;
+}
+
+.busca-ativa-form {
+    padding: 15px;
+}
+
+.busca-ativa-card .card-header {
+    background: #FFFFFF;
+    border: 0;
+    padding-left: 0;
+    padding-top: 0;
+}
+
+.busca-ativa-form .card-body {
+    padding: 0;
+}
+
+.busca-ativa-form .card-body input,
+.busca-ativa-form .card-body select {
+    width: 100%;
+    max-width: 100%;
+}
+
+.card-curriculo{
+    border:none;
+    border-radius:12px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    transition:.2s;
+}
+
+.card-curriculo:hover{
+    box-shadow:0 6px 18px rgba(0,0,0,.12);
+}
+
+.card-curriculo .card-title{
+    font-size:18px;
+    font-weight:600;
+    color:#1d2129;
+    margin-bottom:18px;
+}
+
+.curriculo-texto{
+    font-size:15px;
+    color:#555;
+    line-height:1.5;
+}
+
+.curriculo-data{
+    font-size:13px;
+    color:#777;
+}
+
+.curriculo-link{
+    font-size:14px;
+    font-weight:600;
+    text-decoration:none;
+}
+
+.curriculo-link i{
+    margin-right:6px;
+}
+/* Botão para recalcular a quantidade de sorteados (Fluxo de sorteios)*/
+.num-sorteio-reset {
+    position:absolute;
+    top:50%;
+    right:24px;
+    transform:translateY(-50%);
+    width:22px;
+    height:22px;
+    padding:0;
+    border:0;
+    background:transparent;
+    cursor:pointer;
+    color:#2271b1;
+    opacity:0;
+    pointer-events:none;
+    transition:.2s;
+}
+
+.num-sorteio-reset:hover {
+    color:#135e96;
+}
+
+.num-sorteio-reset.is-visible {
+    opacity:1;
+    pointer-events:auto;
+}
+
+[data-name="num_sorteio"] input {
+    padding-right:32px;
+}
+
+/*Tooltip de instruções (Fluxo de sorteios)*/
+.acf-tooltip-info {
+    margin-left: 4px;
+    cursor: help;
+    font-size: 14px;
+}
+
+.busca-collapse-titulo{
+    color: #2f3d4a;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+    background: #f8f9fb;
+    border: 1px solid #d9dee5;
+    border-radius: 8px;
+    padding: 8px 20px;
+    transition: .25s;
+}
+
+.busca-collapse-titulo:hover,
+.busca-collapse-titulo:focus{
+    color:#215F9A;
+    text-decoration:none;
+}
+
+.busca-collapse-titulo small{
+    font-size:12px;
+    margin-left:6px;
+}
+
+.toggle-icon{
+    color:#6c757d;
+    transition:
+        transform .25s ease,
+        color .25s ease;
+}
+
+.busca-collapse-titulo[aria-expanded="true"] .toggle-icon{
+    transform:rotate(180deg);
+    color:#215F9A;
+}

@@ -4,6 +4,7 @@
 require_once __ROOT__.'/classes/LoadDependences.php';
 require_once __ROOT__.'/classes/Lib/Util.php';
 require_once __ROOT__.'/classes/Lib/SimpleXLSXGen.php';
+require_once __ROOT__.'/classes/Lib/dompdf/autoload.inc.php';
 
 require_once __ROOT__.'/classes/Header/Header.php';
 
@@ -28,9 +29,6 @@ require_once __ROOT__.'/classes/HistoricoEmails/HistoricoEmails.php';
 
 //Tela de histórico de participações no painel adminstrativo
 require_once __ROOT__.'/classes/HistoricoParticipacoes/HistoricoParticipacoes.php';
-
-//Curriculos Cadastrados
-require_once __ROOT__.'/classes/Curriculos/CurriculosCadastrados.php';
 
 require_once __ROOT__.'/classes/Cpt/Cpt.php';
 require_once __ROOT__.'/classes/Cpt/CptPosts.php';
