@@ -1531,10 +1531,10 @@ function obter_informacoes_datas_cortesia( $post_id, ?string $filtro = null, ?st
 
 			}
 
-			foreach ( $datas as $item ) {
+			foreach ( $datas as $key => $item ) {
 
                 $acf_data = get_acf_info_by_key( $post_id,  $item['data'] );
-				$instrucoes = check_envio_email_instrucoes_cortesia( $post_id, $acf_data->id );
+				$instrucoes_pendentes = check_envio_email_instrucoes_cortesia( $post_id, $acf_data->id );
                 $estoque_atual = intval( $acf_data->estoque_atual );
 
 				array_push( $datas_info, [
@@ -1542,8 +1542,12 @@ function obter_informacoes_datas_cortesia( $post_id, ?string $filtro = null, ?st
                     'estoque_atual' => $estoque_atual > 0
                         ? $estoque_atual . ' ' . _n( 'cortesia', 'cortesias', $estoque_atual ) . ' ' . _n( 'disponível', 'disponíveis', $estoque_atual )
                         : 'Cortesias esgotadas',
-					'instrucoes' => $instrucoes ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+					'instrucoes' => !$instrucoes_pendentes ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
 				] );
+
+                if ( is_null( $instrucoes_pendentes ) ) {
+                    $datas_info[$key]['instrucoes'] = '';
+                }
 			}
 
 			return $datas_info;
@@ -1554,7 +1558,7 @@ function obter_informacoes_datas_cortesia( $post_id, ?string $filtro = null, ?st
 		if ( $data_sorteio = get_field( 'evento_periodo_descricao', $post_id ) ) {
 			
             $acf_data = get_acf_info_by_key( $post_id );
-			$instrucoes = check_envio_email_instrucoes_cortesia( $post_id, $acf_data->id );
+			$instrucoes_pendentes = check_envio_email_instrucoes_cortesia( $post_id, $acf_data->id );
             $estoque_atual = intval( $acf_data->estoque_atual );
 
             array_push( $datas_info, [
@@ -1562,8 +1566,12 @@ function obter_informacoes_datas_cortesia( $post_id, ?string $filtro = null, ?st
                 'estoque_atual' => $estoque_atual > 0
                     ? $estoque_atual . ' ' . _n( 'cortesia', 'cortesias', $estoque_atual ) . ' ' . _n( 'disponível', 'disponíveis', $estoque_atual )
                     : 'Cortesias esgotadas',
-                'instrucoes' => $instrucoes ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+                'instrucoes' => !$instrucoes_pendentes ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
             ] );
+
+            if ( is_null( $instrucoes_pendentes ) ) {
+                $datas_info[0]['instrucoes'] = '';
+            }
 
 			return $datas_info;
 		}
@@ -1590,10 +1598,10 @@ function obter_informacoes_datas_cortesia( $post_id, ?string $filtro = null, ?st
 				} );
 			}
 
-			foreach ( $datas as $item ) {
+			foreach ( $datas as $key => $item ) {
 
                 $acf_data = get_acf_info_by_key( $post_id,  $item['data'] );
-                $instrucoes = check_envio_email_instrucoes_cortesia( $post_id, $acf_data->id );
+                $instrucoes_pendentes = check_envio_email_instrucoes_cortesia( $post_id, $acf_data->id );
                 $estoque_atual = intval( $acf_data->estoque_atual );
 
                 array_push( $datas_info, [
@@ -1601,8 +1609,12 @@ function obter_informacoes_datas_cortesia( $post_id, ?string $filtro = null, ?st
                     'estoque_atual' => $estoque_atual > 0
                         ? $estoque_atual . ' ' . _n( 'cortesia', 'cortesias', $estoque_atual ) . ' ' . _n( 'disponível', 'disponíveis', $estoque_atual )
                         : 'Cortesias esgotadas',
-					'instrucoes' => $instrucoes ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
+					'instrucoes' => !$instrucoes_pendentes ? 'Instruções enviadas 📧' : 'Instruções pendentes ⚠️'
 				] );
+
+                if ( is_null( $instrucoes_pendentes ) ) {
+                    $datas_info[$key]['instrucoes'] = '';
+                }
 			}
 
 			return $datas_info;
@@ -1618,24 +1630,27 @@ function obter_informacoes_datas_cortesia( $post_id, ?string $filtro = null, ?st
 
  */
 function check_envio_email_instrucoes_cortesia( int $post_id, $acf_data_id ) {
-
     global $wpdb;
 
     $tabela = $wpdb->prefix . 'cortesias_inscricoes';
 
-    $instrucoes = $wpdb->get_var($wpdb->prepare("
-        SELECT 1
-        FROM $tabela 
+    $resultado = $wpdb->get_row($wpdb->prepare("
+        SELECT
+            COUNT(*) AS total,
+            SUM(enviou_email_instrucoes = 0) AS pendentes
+        FROM $tabela
         WHERE post_id = %d
-        AND enviou_email_instrucoes = 1
-        AND acf_id = %d 
-        LIMIT 1
-        ",
+          AND acf_id = %d
+    ",
         $post_id,
         $acf_data_id
     ));
 
-    return boolval( $instrucoes );
+    if ( (int) $resultado->total == 0 ) {
+        return null;
+    }
+
+    return (int) $resultado->total == 0 || (int) $resultado->pendentes > 0;
 }
 
 add_action('wp_ajax_confirmar_cancelar_presenca_cortesia', 'ajax_confirmar_cancelar_presenca_cortesia');
@@ -1721,4 +1736,36 @@ function ajax_confirmar_cancelar_presenca_cortesia() {
 		: 'Houve um erro ao confirmar sua participação.';
 
     wp_send_json_error( ['message' => $mensagem_erro] );
+}
+
+
+function get_confirmacoes_cortesia( int $post_id, string $tipo_evento, ?string $data = null ) {
+	global $wpdb;
+
+    $tabela_inscricoes = $wpdb->prefix . 'cortesias_inscricoes';
+    $tabela_acf = $wpdb->prefix . 'cortesias_acf_datas';
+	$agora = obter_data_com_timezone( 'Y-m-d H:i:s', 'America/Sao_Paulo' );
+
+    $where_and = $tipo_evento === 'periodo' ?  "AND a.data_evento IS NULL" : "AND a.data_evento = %s";
+    $valores_query = $tipo_evento === 'periodo' ? [$agora, $post_id] : [$agora, $post_id, $data];
+
+	return $wpdb->get_row(
+		$wpdb->prepare("
+			SELECT
+				SUM(i.prazo_confirmacao IS NOT NULL) AS enviadas,
+				SUM(
+					i.prazo_confirmacao IS NOT NULL
+					AND i.confirmou_presenca = 0
+					AND i.prazo_confirmacao > %s
+				) AS pendentes
+			FROM {$tabela_inscricoes} i
+            JOIN {$tabela_acf} a
+                ON a.id = i.acf_id
+                AND a.post_id = i.post_id
+			WHERE i.post_id = %d
+			    {$where_and}
+		",
+			$valores_query
+		)
+	);
 }
