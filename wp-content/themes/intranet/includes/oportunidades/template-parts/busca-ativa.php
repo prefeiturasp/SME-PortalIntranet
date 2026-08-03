@@ -157,42 +157,75 @@ if (!defined('ABSPATH')) {
 
                 </div>
 
+                <?php
+
+                    $collapseTecnologia = false;
+
+                    if (!empty($_GET['informatica']) && is_array($_GET['informatica'])) {
+                        foreach ($_GET['informatica'] as $nivel) {
+                            if ($nivel !== '') {
+                                $collapseTecnologia = true;
+                                break;
+                            }
+                        }
+                    }
+                ?>
+
                 <!-- Tecnologia -->
-                <h5 class="mt-4">
-                    Informática e Tecnologia <small>(opcional)</small>
-                </h5>
+                <div class="mt-4 mb-3">
+                    <a
+                        class="d-flex justify-content-between align-items-center busca-collapse-titulo"
+                        data-toggle="collapse"
+                        href="#collapseTecnologia"
+                        role="button"
+                        aria-expanded="<?= $collapseTecnologia ? 'true' : 'false'; ?>"
+                        aria-controls="collapseTecnologia">
 
-                <div class="row tecnologia-row">
+                        <span>
+                            <strong>Informática e Tecnologia</strong>
+                            <small class="text-muted">(opcional)</small>
+                        </span>
 
-                    <?php foreach ($filtros['competencias'] as $valor => $label) : ?>
+                        <i class="fa fa-chevron-down toggle-icon"></i>
 
-                        <div class="col tecnologia-col">
+                    </a>
+                </div>
 
-                            <div class="form-group">
+                <div id="collapseTecnologia" class="collapse <?= $collapseTecnologia ? 'show' : ''; ?>">
 
-                                <label><?= esc_html($label); ?></label>
+                    <div class="row tecnologia-row">
 
-                                <select
-                                    class="form-control"
-                                    name="informatica[<?= esc_attr($valor); ?>]">
+                        <?php foreach ($filtros['competencias'] as $valor => $label) : ?>
 
-                                    <option value="">Selecione</option>
+                            <div class="col tecnologia-col">
 
-                                    <?php foreach ($filtros['niveis_competencia'] as $nivel => $descricao) : ?>
-                                        <?php if ($nivel == '0') continue; ?>
-                                        <option value="<?= esc_attr($nivel); ?>" <?= selected($nivel, $_GET['informatica'][$valor]) ?>>
-                                            <?= esc_html($descricao); ?>
-                                        </option>
+                                <div class="form-group">
 
-                                    <?php endforeach; ?>
+                                    <label><?= esc_html($label); ?></label>
 
-                                </select>
+                                    <select
+                                        class="form-control"
+                                        name="informatica[<?= esc_attr($valor); ?>]">
+
+                                        <option value="">Selecione</option>
+
+                                        <?php foreach ($filtros['niveis_competencia'] as $nivel => $descricao) : ?>
+                                            <?php if ($nivel == '0') continue; ?>
+                                            <option value="<?= esc_attr($nivel); ?>" <?= selected($nivel, $_GET['informatica'][$valor]) ?>>
+                                                <?= esc_html($descricao); ?>
+                                            </option>
+
+                                        <?php endforeach; ?>
+
+                                    </select>
+
+                                </div>
 
                             </div>
 
-                        </div>
+                        <?php endforeach; ?>
 
-                    <?php endforeach; ?>
+                    </div>
 
                 </div>
 
