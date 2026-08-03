@@ -63,6 +63,12 @@ extract( $args );
 														<div class="event-info-inner">
 															<a class="event-title" href="<?php echo esc_url( $evento['link'] ); ?>">
 																<?php echo esc_html( $evento['title'] ); ?>
+
+																<?php if ( get_field( 'confirm_presen', $evento['post_id'] ) ) : ?>
+																	<span class="badge badge-success">Requer confirmação</span>
+																<?php else : ?>
+																	<span class="badge badge-secondary">Não requer confirmação</span>
+																<?php endif; ?>
 															</a>
 
 															<?php
@@ -145,6 +151,12 @@ extract( $args );
 														<div class="event-info-inner">
 															<a class="event-title" href="<?php echo esc_url( $cortesia['link'] ); ?>">
 																<?php echo esc_html( $cortesia['title'] ); ?>
+
+																<?php if ( get_field( 'confirm_presen', $cortesia['post_id'] ) ) : ?>
+																	<span class="badge badge-success">Requer confirmação</span>
+																<?php else : ?>
+																	<span class="badge badge-secondary">Não requer confirmação</span>
+																<?php endif; ?>
 															</a>
 
 															<?php

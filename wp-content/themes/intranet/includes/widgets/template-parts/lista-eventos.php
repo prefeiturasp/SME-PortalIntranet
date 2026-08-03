@@ -29,6 +29,12 @@ if ( !empty( $eventos ) || !empty( $cortesias ) ) :
                                 <div class="event-info-inner">
                                     <a class="event-title" href="<?= esc_url(get_edit_post_link($evento['post_id'])); ?>">
                                         <?= esc_html($evento['title']); ?>
+
+                                        <?php if ( get_field( 'confirm_presen', $evento['post_id'] ) ) : ?>
+                                            <span class="badge badge-success">Requer confirmação</span>
+                                        <?php else : ?>
+                                            <span class="badge badge-secondary">Não requer confirmação</span>
+                                        <?php endif; ?>
                                     </a>
 
                                     <?php
@@ -114,6 +120,12 @@ if ( !empty( $eventos ) || !empty( $cortesias ) ) :
                                 <div class="event-info-inner">
                                     <a class="event-title" href="<?= esc_url(get_edit_post_link($cortesia['post_id'])); ?>">
                                         <?= esc_html($cortesia['title']); ?>
+                                        
+                                        <?php if ( get_field( 'confirm_presen', $cortesia['post_id'] ) ) : ?>
+                                            <span class="badge badge-success">Requer confirmação</span>
+                                        <?php else : ?>
+                                            <span class="badge badge-secondary">Não requer confirmação</span>
+                                        <?php endif; ?>
                                     </a>
 
                                     <?php

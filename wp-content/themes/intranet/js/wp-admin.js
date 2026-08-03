@@ -586,3 +586,40 @@ jQuery(function($){
 
 
 });
+
+jQuery(function ($) {
+
+    $('.instrucoes-tooltip').each(function () {
+
+        $(this).find('.acf-th').each(function () {
+
+            const $description = $(this).find('.description');
+
+            if (!$description.length) {
+                return;
+            }
+
+            const texto = $.trim($description.text());
+
+            if (!texto) {
+                return;
+            }
+
+            $description.remove();
+
+            $('<i>', {
+                class: 'fa fa-info-circle text-primary acf-tooltip-info',
+                'data-toggle': 'tooltip',
+                'data-placement': 'top',
+                title: texto,
+                tabindex: 0,
+                'aria-label': texto
+            }).appendTo(this);
+
+        });
+
+    });
+
+    $('[data-toggle="tooltip"]').tooltip();
+
+});

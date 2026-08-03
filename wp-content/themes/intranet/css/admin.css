@@ -839,3 +839,49 @@ div#meu_meta_box_id table.dataTable.no-footer{
     background-color: #6c757d;
     border-color: #adb1b4;
 }
+/* Modal "Comunicar candidatos" */
+#modal-comunicar-candidatos .alert {
+    font-size: 14px;
+}
+
+#modal-comunicar-candidatos #conteudo-email.ql-container {
+    min-height: 180px;
+}
+
+/* Botão para recalcular a quantidade de sorteados (Fluxo de sorteios)*/
+.num-sorteio-reset {
+    position:absolute;
+    top:50%;
+    right:24px;
+    transform:translateY(-50%);
+    width:22px;
+    height:22px;
+    padding:0;
+    border:0;
+    background:transparent;
+    cursor:pointer;
+    color:#2271b1;
+    opacity:0;
+    pointer-events:none;
+    transition:.2s;
+}
+
+.num-sorteio-reset:hover {
+    color:#135e96;
+}
+
+.num-sorteio-reset.is-visible {
+    opacity:1;
+    pointer-events:auto;
+}
+
+[data-name="num_sorteio"] input {
+    padding-right:32px;
+}
+
+/*Tooltip de instruções (Fluxo de sorteios)*/
+.acf-tooltip-info {
+    margin-left: 4px;
+    cursor: help;
+    font-size: 14px;
+}
