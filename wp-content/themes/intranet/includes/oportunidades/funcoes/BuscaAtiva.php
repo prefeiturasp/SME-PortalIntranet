@@ -8,6 +8,7 @@ class BuscaAtiva
 	public function __construct()
 	{
 		add_action('admin_menu', array($this, 'admin_menu'));
+		add_action('admin_init', [$this, 'processarExportacao']);
 	}
 
 	public function admin_menu()
@@ -282,10 +283,11 @@ class BuscaAtiva
 	 *
 	 * @return array
 	 */
-	private function obterCurriculos(
+	public function obterCurriculos(
 		array $filtros = [],
 		int $pagina = 1,
-		int $porPagina = 21
+		int $porPagina = 21,
+		bool $exportacao = false
 	): array {
 
 		$filtros = $this->obterFiltrosBusca();
@@ -296,11 +298,15 @@ class BuscaAtiva
 		$offset = ($pagina - 1) * $porPagina;
 
 		$sql = "
+
 			SELECT SQL_CALC_FOUND_ROWS
 
 				bt.id,
 				bt.user_id,
 				bt.nome_completo,
+				bt.rf,
+				bt.telefone_whatsapp,
+				bt.email_principal,
 				bt.cargo_efetivo,
 				bt.dre_exercicio,
 				bt.escolaridade,
@@ -313,12 +319,20 @@ class BuscaAtiva
 
 			ORDER BY bt.nome_completo ASC
 
-			LIMIT %d OFFSET %d
 		";
 
+		if (!$exportacao) {
+			$sql .= "
+				LIMIT %d OFFSET %d
+			";
+		}
+
 		$params = $where['params'];
-		$params[] = $porPagina;
-		$params[] = $offset;
+
+		if (!$exportacao) {
+			$params[] = $porPagina;
+			$params[] = $offset;
+		}
 
 		$sqlPreparado = $wpdb->prepare(
 			$sql,
@@ -364,6 +378,31 @@ class BuscaAtiva
 
 		require get_template_directory()
 			. '/includes/oportunidades/template-parts/busca-ativa.php';
+	}
+
+	public function processarExportacao(){
+
+		if (
+			empty($_GET['page'])
+			|| $_GET['page'] !== 'busca_ativa'
+		) {
+			return;
+		}
+
+		if (
+			empty($_GET['exportar'])
+		) {
+			return;
+		}
+
+		$exportador = new ExportarBuscaAtiva(
+			$this
+		);
+
+		$exportador->exportar();
+
+		exit;
+
 	}
 
 }

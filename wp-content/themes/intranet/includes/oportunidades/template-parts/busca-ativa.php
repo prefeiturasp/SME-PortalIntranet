@@ -254,6 +254,20 @@ if (!defined('ABSPATH')) {
                 (<?= number_format_i18n($resultado['total']); ?>)
             </h2>
 
+            <?php
+                $paramsExportacao = $_GET;
+                $paramsExportacao['exportar'] = 1;
+            ?>
+
+            <a
+                href="<?= esc_url(add_query_arg($paramsExportacao)); ?>"
+                class="btn btn-success ml-2">
+
+                <i class="fa fa-download"></i>
+                Exportar Resultado
+
+            </a>
+
         </div>
 
         <div class="card-body">

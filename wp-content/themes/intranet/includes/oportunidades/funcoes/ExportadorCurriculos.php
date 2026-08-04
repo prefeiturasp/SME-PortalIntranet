@@ -1,5 +1,5 @@
 <?php
-
+namespace Classes\Curriculos;
 require_once get_template_directory() . '/includes/oportunidades/dados/helpers.php';
 require_once get_template_directory() . '/includes/oportunidades/dados/mapeamentos.php';
 
@@ -207,7 +207,7 @@ class ExportadorCurriculos
      * @param string $texto
      * @return string
      */
-    private function estilizarCabecalho(string $texto): string {
+    public static function estilizarCabecalho(string $texto): string {
         return sprintf(
             '<style font-size="11" bgcolor="#4E95D9" color="#FFFFFF" align="center" height="90" valign="center" border="thin" bordercolor="000000"><center><wraptext><middle><b>%s</b></middle></wraptext></center></style>',
             $texto
@@ -220,7 +220,7 @@ class ExportadorCurriculos
      * @param string $texto
      * @return string
      */
-    private function estilizarLinha(string $texto): string {
+    public static function estilizarLinha(string $texto): string {
         return sprintf(
             '<style font-size="11" bgcolor="#A6CAEC" align="center" valign="center" border="thin" bordercolor="000000"><center><wraptext><middle>%s</middle></wraptext></center></style>',
             $texto

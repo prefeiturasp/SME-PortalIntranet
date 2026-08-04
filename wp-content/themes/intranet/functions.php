@@ -5410,6 +5410,7 @@ include_once get_template_directory() . '/includes/oportunidades/funcoes/inscric
 include_once get_template_directory() . '/includes/oportunidades/funcoes/curriculoController.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/CurriculoPDF.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/BuscaAtiva.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/ExportarBuscaAtiva.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/ExportadorCurriculos.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/envioEmails.php';
 Envia_Emails_Oportunidades_SME::registrar_hooks();
