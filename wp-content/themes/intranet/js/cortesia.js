@@ -897,6 +897,8 @@ jQuery(function($){
         var $tabela = $(this).closest('table');
         var $btnNotificarSorteados = $tabela.closest('.conteudo-lista').find('.accordion-buttons .btn-notificar-sorteados');
         const $btnRequerConfirmacao = $('div[data-name="confirm_presen"]').find('input[type="checkbox"]');
+        const $bloco = $tabela.closest('.conteudo-lista');
+        const $contador = $bloco.find('.count-selecionados');
 
         // conta apenas os itens ativos
         var totalItensSelecionados = $tabela.find('.check-item:checked:not(:disabled)').length;
@@ -909,6 +911,16 @@ jQuery(function($){
 
         if ($btnRequerConfirmacao.is(':checked')) {
             $btnNotificarSorteados.prop('disabled', (totalItensSelecionados == 0));
+        }
+
+        if (totalItensSelecionados > 0 && $contador.length) {
+
+            const label = totalItensSelecionados == 1 ? 'Selecionado' : 'Selecionados';
+            $contador.find('strong').html(`${totalItensSelecionados} ${label}`);
+            $contador.removeClass('d-none');
+
+        } else {
+            $contador.addClass('d-none');
         }
     });
 
@@ -1117,4 +1129,37 @@ jQuery(function($) {
 
     bloquearCampoComAviso();
 
+});
+
+jQuery(function ($) {
+    let ultimoCheck = null;
+
+    $(document).on('click', '.check-item', function (e) {
+
+        const $tabela = $(this).closest('table');
+        const $checks = $tabela.find('.check-item:visible:not(:disabled)');
+
+        if (e.shiftKey && ultimoCheck) {
+
+            const $ultimo = $(ultimoCheck);
+
+            if ($ultimo.closest('table')[0] === $tabela[0]) {
+
+                const inicio = $checks.index($ultimo);
+                const fim = $checks.index(this);
+
+                if (inicio !== -1 && fim !== -1) {
+
+                    const marcar = $ultimo.prop('checked');
+
+                    $checks.slice(Math.min(inicio, fim), Math.max(inicio, fim) + 1)
+                        .prop('checked', marcar)
+                        .trigger('change');
+                }
+            }
+        }
+
+        ultimoCheck = this;
+
+    });
 });
