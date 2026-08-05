@@ -195,6 +195,7 @@ function retorna_lista_cortesias_html($post_id, $data, $unica = false, $sancao =
                         <button data-data="<?= esc_attr($data); ?>" class="btn btn-enviar-instrucoes" data-toggle="modal" data-target="#modal_<?= esc_attr($dataConf); ?>" data-postid="<?= $post_id; ?>" data-responsavel="<?= $responsavel; ?>">
                             <i class="fa fa-envelope-open" aria-hidden="true"></i> Enviar Instruções 
                         </button>
+                        <div class="text-secondary mt-2 count-selecionados d-none"><strong>0 Selecionados</strong></div>
                     </div>
 
                     <div class="modal fade" id="modal_<?= esc_attr($dataConf); ?>" data-data="<?= esc_attr($dataConf); ?>" tabindex="-1" role="dialog" aria-labelledby="modal_<?= esc_attr($dataConf); ?>_label" aria-hidden="true">
