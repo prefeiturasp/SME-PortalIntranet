@@ -197,7 +197,7 @@ function realizarSorteio(tipo, data_sorteios = null, qtd_sortear = null, $target
     let vagasPorSorteado = null;
     let totalSorteados = null;
 
-    if ($target !== null) {
+    if ($target && $target !== null) {
         $linha = $target.closest('.acf-row');
 
         linhaId = $linha.data('id') || 0;
