@@ -2,6 +2,8 @@
 
 namespace Classes\Curriculos;
 
+use Inscricao;
+
 class BuscaAtiva
 {
 
@@ -301,10 +303,10 @@ class BuscaAtiva
 				bt.id,
 				bt.user_id,
 				bt.nome_completo,
+				bt.nome_social,
 				bt.cargo_efetivo,
+				bt.cargo_outro,
 				bt.dre_exercicio,
-				bt.escolaridade,
-				bt.servidor_readaptado,
 				bt.atualizado_em
 
 			FROM {$wpdb->prefix}banco_talentos bt
@@ -338,6 +340,9 @@ class BuscaAtiva
 			"SELECT FOUND_ROWS()"
 		);
 
+		// Adiciona as informações sobre o processo em etapa mais avançanda que o candidato está participando.
+		$resultados = Inscricao::adicionar_processo_ativo( $resultados );
+
 		return [
 			'dados' => $resultados,
 			'total' => $total,
@@ -346,6 +351,7 @@ class BuscaAtiva
 			'total_paginas' => (int) ceil(
 				$total / $porPagina
 			),
+			'filtros_ativos' => empty( array_filter( $filtros ) ) ? false : true
 		];
 	}
 

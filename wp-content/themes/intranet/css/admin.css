@@ -842,9 +842,30 @@ div#meu_meta_box_id table.dataTable.no-footer{
     max-width: 100%;
 }
 
+.busca-ativa-card .card-header {
+    background: #FFFFFF;
+    border: 0;
+    padding-left: 0;
+    padding-top: 0;
+}
+
 .tecnologia-row{
 	display:flex;
 	flex-wrap:wrap;
+}
+
+.busca-ativa-form {
+    padding: 15px;
+}
+
+.busca-ativa-form .card-body {
+    padding: 0;
+}
+
+.busca-ativa-form .card-body input,
+.busca-ativa-form .card-body select {
+    width: 100%;
+    max-width: 100%;
 }
 
 .tecnologia-col{
@@ -870,57 +891,70 @@ div#meu_meta_box_id table.dataTable.no-footer{
 
 /** End Formulário de busca ativa **/
 
-/** Currículos **/
+/** Formulário de busca ativa - Listagem dos currículos **/
 
-.busca-ativa{
-    background:#f4f5f7;
+.busca-ativa-card-resultados {
+    background: transparent;
+    border: none;
+    max-width: 100%;
+}
+
+.busca-ativa-card-resultados .busca-ativa{
+    background:#F6F8FD;
     padding:25px;
     border-radius:10px;
 }
 
-.busca-ativa-form {
-    padding: 15px;
+.busca-ativa-card-resultados .card-header {
+    border: 1px solid rgba(0, 0, 0, .125);;
+    padding: 1rem;
+    background-color: #FFFFFF;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
 }
 
-.busca-ativa-card .card-header {
-    background: #FFFFFF;
-    border: 0;
-    padding-left: 0;
-    padding-top: 0;
+.busca-ativa-card-resultados .card-header strong,
+.busca-ativa-card-resultados .card-header p {
+    margin: 0;
 }
 
-.busca-ativa-form .card-body {
-    padding: 0;
+.busca-ativa-card-resultados .card-header p {
+    font-weight: 600;
 }
 
-.busca-ativa-form .card-body input,
-.busca-ativa-form .card-body select {
-    width: 100%;
-    max-width: 100%;
+.busca-ativa-card-resultados .processo-ativo {
+    min-height: 24px;
 }
 
-.card-curriculo{
+.busca-ativa-card-resultados .card-curriculo{
     border:none;
     border-radius:12px;
+    padding: 4px;
     box-shadow:0 2px 8px rgba(0,0,0,.08);
     transition:.2s;
 }
 
-.card-curriculo:hover{
+.busca-ativa-card-resultados .card-curriculo:hover{
     box-shadow:0 6px 18px rgba(0,0,0,.12);
 }
 
-.card-curriculo .card-title{
-    font-size:18px;
-    font-weight:600;
-    color:#1d2129;
-    margin-bottom:18px;
+.busca-ativa-card-resultados .card-curriculo .curriculo-info {
+    min-height: 78px;
 }
 
-.curriculo-texto{
-    font-size:15px;
+.busca-ativa-card-resultados .card-curriculo .card-title{
+    font-size: 18px;
+    font-weight: 600;
+    color: #1d2129;
+    margin-bottom: 10px;
+}
+
+.busca-ativa-card-resultados .curriculo-texto{
+    font-size:14px;
     color:#555;
     line-height:1.5;
+    font-weight: 600;
 }
 
 .curriculo-data{
@@ -937,6 +971,7 @@ div#meu_meta_box_id table.dataTable.no-footer{
 .curriculo-link i{
     margin-right:6px;
 }
+
 /* Botão para recalcular a quantidade de sorteados (Fluxo de sorteios)*/
 .num-sorteio-reset {
     position:absolute;
