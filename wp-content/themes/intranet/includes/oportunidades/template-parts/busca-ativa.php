@@ -245,75 +245,78 @@ if (!defined('ABSPATH')) {
 
     </div>
 
-    <div class="card busca-ativa-card mt-4">
-
-        <div class="card-header">
-
-            <h2>
-                Currículos cadastrados
-                (<?= number_format_i18n($resultado['total']); ?>)
-            </h2>
-
+    <?php if ( empty( $resultado['dados'] ) && !$resultado['filtros_ativos'] ) : ?>
+        <div class="alert alert-primary text-center mt-5" role="alert">
+            Ainda não existem candidatos disponíveis para consulta.
         </div>
+    <?php endif; ?>
 
-        <div class="card-body">
+    <?php if ( empty( $resultado['dados'] ) && $resultado['filtros_ativos'] ) : ?>
+        <div class="alert alert-light text-center border mt-5" role="alert">
+            <i class="fa fa-search fa-3x mb-4 d-block" aria-hidden="true"></i>
+            <strong>Nenhum candidato encontrado para os filtros selecionados.</strong>
+        </div>
+    <?php endif; ?>
 
-                    
+    <?php if ( isset( $resultado['dados'] ) && !empty( $resultado['dados'] ) ) : ?>
+        <div class="busca-ativa-card-resultados mt-4" id="lista-curriculos">
 
-            <div class="busca-ativa">
+            <div class="card-header">
+                <strong><i class="fa fa-address-card-o" aria-hidden="true"></i> Resultados</strong>
+                <p class="text-muted ml-1">
+                    <?php $label_resultados = _n( 'candidato encontrado', 'candidatos encontrados', $resultado['total'] ?? 0 );  ?>
+                    (<?= number_format_i18n( $resultado['total'] ?? 0 ) . ' ' . $label_resultados; ?>)
+                </p>
+            </div>
 
+            <div class="card-body p-0">
                 <div class="row">
 
                     <?php foreach ($resultado['dados'] as $curriculo) : ?>
 
                         <div class="col-xl-4 col-lg-6 mb-4">
-
                             <div class="card card-curriculo h-100">
-
                                 <div class="card-body d-flex flex-column">
+                                    <?php if ( isset( $curriculo['nome_social' ] ) && !empty( $curriculo['nome_social' ] ) ) : ?>
+                                        <h5 class="card-title">
+                                            <?= esc_html( $curriculo['nome_social'] ); ?>
+                                            <p class="text-muted m-0">(<?= esc_html( $curriculo['nome_completo'] ); ?>)</p>
+                                        </h5>
+                                    <?php else : ?>
+                                        <h5 class="card-title">
+                                            <?= esc_html($curriculo['nome_completo']); ?>
+                                            <p class="text-muted m-0">&nbsp;</p>
+                                        </h5>
+                                    <?php endif; ?>
 
-                                    <h5 class="card-title">
+                                    <div class="curriculo-info">
+                                        <div class="curriculo-texto">
+                                            <?php
+                                                if ( isset( $curriculo['cargo_outro'] ) && !empty( $curriculo['cargo_outro'] ) ) {
+                                                    $curriculo['cargo_efetivo'] = str_replace( "Outro", $curriculo['cargo_outro'], $curriculo['cargo_efetivo'] );
+                                                }
 
-                                        <?= esc_html($curriculo['nome_completo']); ?>
+                                                $cargos = json_decode($curriculo['cargo_efetivo'], true);
+                                                
+                                                if ( !empty( $cargos ) ) {
+                                                    echo esc_html( implode( ', ', $cargos ) );
+                                                } else {
+                                                    echo '<em>—</em>';
+                                                }
+                                            ?>
+                                        </div>
 
-                                    </h5>
-
-                                    <div class="curriculo-texto">
-
-                                        <?php 
-                                            $cargos = json_decode($curriculo['cargo_efetivo'], true);
-                                            
-                                            if (!empty($cargos)) {
-                                                echo esc_html(implode(', ', $cargos));
-                                            } else {
-                                                echo '<em>—</em>';
-                                            }
-                                        ?>
-
+                                        <div class="curriculo-texto mb-3">
+                                            <?= esc_html( $filtros['dres'][$curriculo['dre_exercicio']] ?? '-' ); ?>
+                                        </div>
                                     </div>
 
-                                    <div class="curriculo-texto mb-3">
+                                    <div class="curriculo-data">
 
-                                        <?= esc_html(
-                                            $filtros['dres'][$curriculo['dre_exercicio']]
-                                            ?? '-'
-                                        ); ?>
-
-                                    </div>
-
-                                    <div class="curriculo-data mb-4">
-
-                                        Currículo atualizado em
-                                        <strong>
-
-                                            <?= esc_html(
-                                                date_i18n(
-                                                    'd/m/Y',
-                                                    strtotime($curriculo['updated_at'])
-                                                )
-                                            ); ?>
-
-                                        </strong>
+                                        <span class="text-secondary">
+                                            Currículo atualizado em
+                                            <?= esc_html( date_i18n( 'd/m/Y', strtotime( $curriculo['atualizado_em'] ) ) ); ?>
+                                        </span>
 
                                     </div>
 
@@ -322,14 +325,21 @@ if (!defined('ABSPATH')) {
                                         <a
                                             href="<?= esc_url($url); ?>"
                                             class="curriculo-link btn-ver-curriculo"
-                                            data-curriculo="<?= $curriculo['id']; ?>">
+                                            data-curriculo="<?= $curriculo['id']; ?>"
+                                            >
 
-                                            <i class="fa fa-user-circle-o"></i>
-                                            Ver currículo
+                                            <i class="fa fa-file-pdf-o" aria-hidden="true"></i> Ver CV
                                         </a>
-
                                     </div>
 
+                                    <div class="processo-ativo mt-2">
+                                        <?php if ( isset( $curriculo['processo_ativo'] ) && !is_null( $curriculo['processo_ativo'] ) ) : ?>
+                                            <span class="badge candidatura-aprovada">
+                                                <i class="fa fa-rocket" aria-hidden="true"></i>
+                                                <?php echo esc_html( $curriculo['processo_ativo']['descricao'] ); ?>
+                                            </span>
+                                        <?php endif;?>
+                                    </div>
                                 </div>
 
                             </div>
@@ -340,40 +350,17 @@ if (!defined('ABSPATH')) {
 
                 </div>
 
+                <?php
+                get_template_part( 'includes/oportunidades/template-parts/componentes/paginacao', null, [
+                    'pagina_atual' => $resultado['pagina'],
+                    'total_paginas' => $resultado['total_paginas'],
+                    'parametro' => 'paged',
+                ]);
+                ?>
             </div>
 
-            <?php if ($resultado['total_paginas'] > 1) : ?>
-
-                <nav>
-                    <ul class="pagination">
-
-                        <?php for ($i = 1; $i <= $resultado['total_paginas']; $i++) : ?>
-
-                            <li class="page-item <?= $i === $resultado['pagina'] ? 'active' : ''; ?>">
-
-                                <a
-                                    class="page-link"
-                                    href="<?= esc_url(
-                                        add_query_arg(
-                                            'paged',
-                                            $i
-                                        )
-                                    ); ?>">
-                                    <?= $i; ?>
-                                </a>
-
-                            </li>
-
-                        <?php endfor; ?>
-
-                    </ul>
-                </nav>
-
-            <?php endif; ?>
-
         </div>
-
-    </div>
+    <?php endif; ?>
 
 </div>
 
@@ -412,5 +399,24 @@ if (!defined('ABSPATH')) {
             window.print();
         });
 
+        $(function () {
+
+            const params = new URLSearchParams(window.location.search);
+
+            if (!params.has('paged')) {
+                return;
+            }
+
+            const $seletor = $('#lista-curriculos');
+
+            if (!$seletor || !$seletor.length) {
+                return;
+            }
+
+            $('html, body').animate({
+                scrollTop: $seletor.offset().top - 20
+            }, 300);
+
+        });
     });
 </script>

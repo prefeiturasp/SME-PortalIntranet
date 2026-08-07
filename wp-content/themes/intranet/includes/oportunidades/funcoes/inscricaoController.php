@@ -682,47 +682,58 @@ class Inscricao {
         return array(
             'analise_curricular' => array(
                 'descricao' => 'Em Análise Curricular',
-                'classe' => 'analise-curricular'
+                'classe' => 'analise-curricular',
+                'ordem' => 1
             ),
             'nao_avancou_triagem' => array(
                 'descricao' => 'Candidatura não avançou na Triagem',
-                'classe' => 'triagem-curricular'
+                'classe' => 'triagem-curricular',
+                'ordem' => 2
             ),
             'convocado_teste' => array(
                 'descricao' => 'Convocado para Teste/Avaliação',
-                'classe' => 'convocado-teste'
+                'classe' => 'convocado-teste',
+                'ordem' => 3
             ),
             'entrevista_agendada' => array(
                 'descricao' => 'Entrevista Agendada',
-                'classe' => 'entrevista-agendada'
+                'classe' => 'entrevista-agendada',
+                'ordem' => 4
             ),
             'nao_avancou_pos_entrevista' => array(
                 'descricao' => 'Candidatura não avançou pós-entrevista',
-                'classe' => 'candidatura-nao-avancou'
+                'classe' => 'candidatura-nao-avancou',
+                'ordem' => 5
             ),
             'fase_anuencia' => array(
                 'descricao' => 'Em Fase de Anuência',
-                'classe' => 'fase-anuencia'
+                'classe' => 'fase-anuencia',
+                'ordem' => 6
             ),
             'entrega_documentos' => array(
                 'descricao' => 'Em Fase de Entrega de Documentos',
-                'classe' => 'entrega-documentos'
+                'classe' => 'entrega-documentos',
+                'ordem' => 7
             ),
             'analise_documental' => array(
                 'descricao' => 'Análise Documental + Publicação DOC',
-                'classe' => 'analise-documental'
+                'classe' => 'analise-documental',
+                'ordem' => 8
             ),
             'aprovado' => array(
                 'descricao' => 'Processo Finalizado - Candidato Aprovado',
-                'classe' => 'candidatura-aprovada'
+                'classe' => 'candidatura-aprovada',
+                'ordem' => 9
             ),
             'nao_selecionado' => array(
                 'descricao' => 'Processo Finalizado - Candidato não selecionado',
-                'classe' => 'nao-selecionado'
+                'classe' => 'nao-selecionado',
+                'ordem' => 10
             ),
             'inscrito' => array(
                 'descricao' => '—',
-                'classe' => 'inscrito'
+                'classe' => 'inscrito',
+                'ordem' => 0
             )
         );
     }
@@ -1177,6 +1188,111 @@ class Inscricao {
                 : 'Interesse cancelado com sucesso.'
         ];
 
+    }
+
+    /**
+     * Busca os processos seletivos em etapas de finalização para os usuários informados.
+     *
+     * Considera apenas inscrições que estejam nas etapas definidas como relevantes
+     * para a Busca Ativa. Quando um usuário possuir mais de uma inscrição em uma
+     * dessas etapas, será retornada a inscrição que estiver na etapa mais avançada,
+     * de acordo com a ordem definida no mapa de etapas do processo (get_etapas_processo()).
+     *
+     * @param array $user_ids IDs dos usuários que devem ser consultados.
+     *
+     * @return array Array indexado pelo ID do usuário, contendo os dados do processo
+     *               em finalização mais avançado encontrado para cada usuário.
+     */
+    private static function get_processos_em_finalizacao_by_user_ids( array $user_ids ) {
+
+        global $wpdb;
+
+        if ( empty( $user_ids ) ) {
+            return [];
+        }
+
+        $mapa_etapas = self::get_etapas_processo();
+
+        $etapas_buscadas = [
+            'convocado_teste'     => true,
+            'entrevista_agendada' => true,
+            'fase_anuencia'       => true,
+            'entrega_documentos'  => true,
+        ];
+
+        $placeholders_users  = implode( ',', array_fill( 0, count( $user_ids ), '%d' ) );
+        $placeholders_etapas = implode( ',', array_fill( 0, count( $etapas_buscadas ), '%s' ) );
+
+        $sql = "
+            SELECT
+                id,
+                user_id,
+                oportunidade_id,
+                status
+            FROM " . self::TABELA_INSCRICOES . "
+            WHERE
+                user_id IN ($placeholders_users)
+                AND status IN ($placeholders_etapas)
+        ";
+
+        $params = array_merge( $user_ids, array_keys( $etapas_buscadas ) );
+        $inscricoes = $wpdb->get_results( $wpdb->prepare( $sql, $params ) );
+
+        $processos = [];
+
+        foreach ( $inscricoes as $inscricao ) {
+
+            $etapa = $mapa_etapas[$inscricao->status] ?? null;
+
+            if ( !$etapa ) {
+                continue;
+            }
+
+            $ordem = $etapa['ordem'];
+
+            if ( !isset( $processos[$inscricao->user_id] ) || $ordem > $processos[$inscricao->user_id]['ordem'] ) {
+
+                $processos[$inscricao->user_id] = [
+                    'ordem'        => $ordem,
+                    'etapa'        => $inscricao->status,
+                    'descricao'    => $etapa['descricao'],
+                    'classe'       => $etapa['classe'],
+                    'inscricao_id' => $inscricao->id,
+                    'oportunidade_id' => $inscricao->oportunidade_id,
+                ];
+
+            }
+        }
+
+        return $processos;
+    }
+
+    /**
+     * Adiciona aos currículos o processo seletivo em etapa de finalização.
+     *
+     * Para cada currículo, verifica se o usuário possui uma inscrição em uma das
+     * etapas consideradas e adiciona as informações o processo encontrado no índice 'processo_ativo'.
+     *
+     * Quando o usuário não possui nenhuma inscrição nas etapas consideradas,
+     * o índice 'processo_ativo' recebe null.
+     *
+     * @param array $curriculos Lista de currículos que será enriquecida com as informações do processo seletivo.
+     *
+     * @return array Lista de currículos enriquecida com o índice 'processo_ativo'.
+     */
+    public static function adicionar_processo_ativo( array $curriculos ) {
+
+        $user_ids = array_unique( array_column( $curriculos, 'user_id' ) );
+        $processos_ativos = self::get_processos_em_finalizacao_by_user_ids( $user_ids );
+
+        foreach ( $curriculos as &$curriculo ) {
+            $curriculo['processo_ativo'] = $processos_ativos[$curriculo['user_id']] ?? null;
+
+        }
+
+        unset($curriculo);
+
+        return $curriculos;
     }
 }
 
