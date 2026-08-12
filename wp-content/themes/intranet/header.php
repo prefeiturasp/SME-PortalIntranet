@@ -327,7 +327,7 @@ use Classes\Header\Header;
                                     <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle user-action">
                                         <?php
                                             $image_id = get_field('imagem', 'user_' . get_current_user_id());
-                                            $image_profile = $img_atts = wp_get_attachment_image_src($image_id['ID'], 'thumbnail');
+                                            $image_profile = $img_atts = wp_get_attachment_image_src($image_id['ID'] ?? 0, 'thumbnail');
                                                                         
                                             if($image_profile[0]):
                                         ?>
@@ -340,7 +340,7 @@ use Classes\Header\Header;
                                     <div class="dropdown-menu">
                                         <?php
                                             $image_id = get_field('imagem', 'user_' . get_current_user_id());
-                                            $image_profile = $img_atts = wp_get_attachment_image_src($image_id['ID'], 'thumbnail');
+                                            $image_profile = $img_atts = wp_get_attachment_image_src($image_id['ID'] ?? 0, 'thumbnail');
                                                                         
                                             if($image_profile[0]):
                                         ?>

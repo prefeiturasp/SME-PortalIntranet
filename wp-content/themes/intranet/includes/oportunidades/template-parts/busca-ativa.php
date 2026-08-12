@@ -245,29 +245,48 @@ if (!defined('ABSPATH')) {
 
     </div>
 
-    <?php if ( empty( $resultado['dados'] ) && !$resultado['filtros_ativos'] ) : ?>
-        <div class="alert alert-primary text-center mt-5" role="alert">
-            Ainda não existem candidatos disponíveis para consulta.
-        </div>
-    <?php endif; ?>
-
-    <?php if ( empty( $resultado['dados'] ) && $resultado['filtros_ativos'] ) : ?>
-        <div class="alert alert-light text-center border mt-5" role="alert">
-            <i class="fa fa-search fa-3x mb-4 d-block" aria-hidden="true"></i>
-            <strong>Nenhum candidato encontrado para os filtros selecionados.</strong>
-        </div>
-    <?php endif; ?>
-
-    <?php if ( isset( $resultado['dados'] ) && !empty( $resultado['dados'] ) ) : ?>
-        <div class="busca-ativa-card-resultados mt-4" id="lista-curriculos">
-
-            <div class="card-header">
+    <?php
+    $params_exportacao = $_GET;
+    $params_exportacao['exportar'] = 1;
+    ?>
+    <div class="busca-ativa-card-resultados mt-4">
+        <div class="card-header">
+            <div class="d-flex align-items-baseline">
                 <strong><i class="fa fa-address-card-o" aria-hidden="true"></i> Resultados</strong>
                 <p class="text-muted ml-1">
                     <?php $label_resultados = _n( 'candidato encontrado', 'candidatos encontrados', $resultado['total'] ?? 0 );  ?>
                     (<?= number_format_i18n( $resultado['total'] ?? 0 ) . ' ' . $label_resultados; ?>)
                 </p>
             </div>
+
+            <a
+                href="<?= esc_url(add_query_arg($params_exportacao)); ?>"
+                class="btn btn-primary ml-2 <?php echo esc_attr( empty( $resultado['dados'] ) ? 'link-disabled' : '' ); ?>"
+                >
+                <i class="fa fa-download"></i>
+                Exportar Candidatos
+            </a>
+        </div>
+    </div>
+
+    <?php if ( empty( $resultado['dados'] ) && !$resultado['filtros_ativos'] ) : ?>
+        <div class="alert alert-primary text-center mt-4" role="alert">
+            Ainda não existem candidatos disponíveis para consulta.
+        </div>
+    <?php endif; ?>
+
+    <?php if ( empty( $resultado['dados'] ) && $resultado['filtros_ativos'] ) : ?>
+        <div class="alert alert-light text-center border mt-4" role="alert">
+            <i class="fa fa-search fa-3x mb-4 d-block" aria-hidden="true"></i>
+            <strong>Nenhum candidato encontrado para os filtros selecionados.</strong>
+        </div>
+    <?php endif; ?>
+
+    <?php
+    if ( isset( $resultado['dados'] ) && !empty( $resultado['dados'] ) ) :
+        
+        ?>
+        <div class="busca-ativa-card-resultados mt-2" id="lista-curriculos">
 
             <div class="card-body p-0">
                 <div class="row">
@@ -293,7 +312,8 @@ if (!defined('ABSPATH')) {
                                         <div class="curriculo-texto">
                                             <?php
                                                 if ( isset( $curriculo['cargo_outro'] ) && !empty( $curriculo['cargo_outro'] ) ) {
-                                                    $curriculo['cargo_efetivo'] = str_replace( "Outro", $curriculo['cargo_outro'], $curriculo['cargo_efetivo'] );
+                                                    $outro_cargo = ucfirst( strtolower( $curriculo['cargo_outro'] ) );
+                                                    $curriculo['cargo_efetivo'] = str_replace( "Outro", $outro_cargo, $curriculo['cargo_efetivo'] );
                                                 }
 
                                                 $cargos = json_decode($curriculo['cargo_efetivo'], true);
@@ -360,7 +380,9 @@ if (!defined('ABSPATH')) {
             </div>
 
         </div>
-    <?php endif; ?>
+        <?php
+    endif;
+    ?>
 
 </div>
 

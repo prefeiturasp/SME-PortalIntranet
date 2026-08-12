@@ -207,9 +207,10 @@ class ExportadorCurriculos
      * @param string $texto
      * @return string
      */
-    private function estilizarCabecalho(string $texto): string {
+    public static function estilizarCabecalho(string $texto, int $altura = 90): string {
         return sprintf(
-            '<style font-size="11" bgcolor="#4E95D9" color="#FFFFFF" align="center" height="90" valign="center" border="thin" bordercolor="000000"><center><wraptext><middle><b>%s</b></middle></wraptext></center></style>',
+            '<style font-size="11" bgcolor="#4E95D9" color="#FFFFFF" align="center" height="%d" valign="center" border="thin" bordercolor="000000"><center><wraptext><middle><b>%s</b></middle></wraptext></center></style>',
+            $altura,
             $texto
         );
     }
@@ -220,7 +221,7 @@ class ExportadorCurriculos
      * @param string $texto
      * @return string
      */
-    private function estilizarLinha(string $texto): string {
+    public static function estilizarLinha(string $texto): string {
         return sprintf(
             '<style font-size="11" bgcolor="#A6CAEC" align="center" valign="center" border="thin" bordercolor="000000"><center><wraptext><middle>%s</middle></wraptext></center></style>',
             $texto
@@ -363,9 +364,11 @@ class ExportadorCurriculos
             "A1:{$ultimaColuna}1"
         );
 
-        $xlsx->downloadAs(
-            'curriculos-oportunidade-' . $oportunidade_id . '.xlsx'
-        );
+        $titulo_oportunidade = get_the_title( $oportunidade_id );
+        $titulo_oportunidade = str_replace( '-', '_', sanitize_title( $titulo_oportunidade ) );
+        $nome_arquivo = "Relatório_de_Candidatos_{$titulo_oportunidade}_ID_{$oportunidade_id}.xlsx";
+
+        $xlsx->downloadAs( $nome_arquivo );
 
         exit;
     }
