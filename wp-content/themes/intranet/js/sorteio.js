@@ -772,6 +772,14 @@ jQuery(document).ready(function($) {
             }
         });
 
+        const dadosEnvio = {
+            selecionados: selecionados,
+            opcao: opcao,
+            collapse: $modal.closest('.collapse').attr('id')
+        }
+
+        sessionStorage.setItem('estado_envio_instrucoes', JSON.stringify(dadosEnvio));
+
         $.ajax({
             url: ajaxurl,
             type: 'POST',
@@ -1448,4 +1456,45 @@ jQuery(function ($) {
         ultimoCheck = this;
 
     });
+
+
+    const storageKey = 'estado_envio_instrucoes';
+    const dados = sessionStorage.getItem(storageKey);
+
+    if (!dados) {
+        return;
+    }
+
+    sessionStorage.removeItem(storageKey);
+
+    const retorno = JSON.parse(dados);
+
+    const $collapse = $('#' + retorno.collapse);
+    const ultimoParicipanteSelecionado = retorno.selecionados.pop();
+
+    if (!$collapse.length) {
+        return;
+    }
+
+    $collapse.collapse('show');
+
+    $collapse.one('shown.bs.collapse', function () {
+
+        let $destino = $collapse;
+
+        if (ultimoParicipanteSelecionado) {
+
+            const $checkbox = $collapse.find('.check-item[value="' + ultimoParicipanteSelecionado + '"]');
+
+            if ($checkbox.length) {
+                $destino = $checkbox.closest('tr');
+            }
+        }
+
+        $('html, body').animate({
+            scrollTop: $destino.offset().top - 100
+        }, 400);
+
+    });
+    
 });
