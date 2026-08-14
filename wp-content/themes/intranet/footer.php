@@ -1509,7 +1509,7 @@
 	<script>
 		jQuery(function ($) {
 			$('html, body').animate({
-            	scrollTop: $('#conteudo').offset().top - 10
+            	scrollTop: $('.content-sorteio').offset().top - 10
         	}, 400);
 		});
 	</script>
