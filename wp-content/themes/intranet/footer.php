@@ -1504,6 +1504,17 @@
 		});
 	</script>
 <?php endif; ?>
+
+<?php if ( wp_is_mobile() && is_singular( ['post', 'cortesias'] ) ) : ?>
+	<script>
+		jQuery(function ($) {
+			$('html, body').animate({
+            	scrollTop: $('#conteudo').offset().top - 10
+        	}, 400);
+		});
+	</script>
+<?php endif; ?>
+
 </body>
 </html>
 <?php // @codeCoverageIgnoreEnd
