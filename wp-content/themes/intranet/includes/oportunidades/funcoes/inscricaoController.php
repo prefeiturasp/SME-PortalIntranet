@@ -1214,7 +1214,7 @@ class Inscricao {
         $mapa_etapas = self::get_etapas_processo();
 
         $etapas_buscadas = [
-            'convocado_teste'     => true,
+            'analise_documental'  => true,
             'entrevista_agendada' => true,
             'fase_anuencia'       => true,
             'entrega_documentos'  => true,
