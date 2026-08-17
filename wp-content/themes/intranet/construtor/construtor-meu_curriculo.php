@@ -2182,3 +2182,33 @@
 	});
 
 </script>
+
+<script>
+	jQuery(function ($) {
+
+		//Atualiza o estado dos checkboxes de cargo efetivo.
+		function atualizarCargosEfetivos() {
+
+			const $outro = $('#cargoOutroCheck');
+			const $cargosNormais = $('input[name="cargoEfetivo[]"]').not($outro);
+			const $cargosNormaisSelecionados = $cargosNormais.filter(':checked');
+
+			if ($cargosNormaisSelecionados.length > 0) {
+				$cargosNormais.not(':checked').prop('disabled', true);
+
+			} else {
+				$cargosNormais.prop('disabled', false);
+				
+			}
+
+			// Mantém a opção "Outro" sempre habilitada.
+			$outro.prop('disabled', false);
+		}
+
+		$('input[name="cargoEfetivo[]"]').on('change', function () {
+			atualizarCargosEfetivos();
+		});
+
+		atualizarCargosEfetivos();
+	});
+</script>
