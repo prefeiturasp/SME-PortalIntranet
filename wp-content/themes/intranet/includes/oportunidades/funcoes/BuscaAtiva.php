@@ -2,12 +2,15 @@
 
 namespace Classes\Curriculos;
 
+use Inscricao;
+
 class BuscaAtiva
 {
 
 	public function __construct()
 	{
 		add_action('admin_menu', array($this, 'admin_menu'));
+		add_action('admin_init', [$this, 'processarExportacao']);
 	}
 
 	public function admin_menu()
@@ -282,10 +285,11 @@ class BuscaAtiva
 	 *
 	 * @return array
 	 */
-	private function obterCurriculos(
+	public function obterCurriculos(
 		array $filtros = [],
 		int $pagina = 1,
-		int $porPagina = 21
+		int $porPagina = 21,
+		bool $exportacao = false
 	): array {
 
 		$filtros = $this->obterFiltrosBusca();
@@ -301,10 +305,13 @@ class BuscaAtiva
 				bt.id,
 				bt.user_id,
 				bt.nome_completo,
+				bt.nome_social,
+				bt.rf,
+				bt.telefone_whatsapp,
+				bt.email_principal,
 				bt.cargo_efetivo,
+				bt.cargo_outro,
 				bt.dre_exercicio,
-				bt.escolaridade,
-				bt.servidor_readaptado,
 				bt.atualizado_em
 
 			FROM {$wpdb->prefix}banco_talentos bt
@@ -313,17 +320,20 @@ class BuscaAtiva
 
 			ORDER BY bt.nome_completo ASC
 
-			LIMIT %d OFFSET %d
 		";
 
-		$params = $where['params'];
-		$params[] = $porPagina;
-		$params[] = $offset;
+		if (!$exportacao) {
+			$sql .= "
+				LIMIT %d OFFSET %d
+			";
+		}
 
-		$sqlPreparado = $wpdb->prepare(
-			$sql,
-			$params
-		);		
+		$params = $where['params'];
+
+		if (!$exportacao) {
+			$params[] = $porPagina;
+			$params[] = $offset;
+		}
 
 		$resultados = $wpdb->get_results(
 			$wpdb->prepare(
@@ -333,10 +343,12 @@ class BuscaAtiva
 			ARRAY_A
 		);
 		
-
 		$total = (int) $wpdb->get_var(
 			"SELECT FOUND_ROWS()"
 		);
+
+		// Adiciona as informações sobre o processo em etapa mais avançanda que o candidato está participando.
+		$resultados = Inscricao::adicionar_processo_ativo( $resultados );
 
 		return [
 			'dados' => $resultados,
@@ -346,6 +358,7 @@ class BuscaAtiva
 			'total_paginas' => (int) ceil(
 				$total / $porPagina
 			),
+			'filtros_ativos' => empty( array_filter( $filtros ) ) ? false : true
 		];
 	}
 
@@ -364,6 +377,24 @@ class BuscaAtiva
 
 		require get_template_directory()
 			. '/includes/oportunidades/template-parts/busca-ativa.php';
+	}
+
+	public function processarExportacao(){
+
+		if ( empty( $_GET['page'] ) || $_GET['page'] !== 'busca_ativa' ) {
+			return;
+		}
+
+		if ( empty( $_GET['exportar'] ) ) {
+			return;
+		}
+
+		$exportador = new ExportarBuscaAtiva( $this );
+
+		$exportador->exportar();
+
+		exit;
+
 	}
 
 }
