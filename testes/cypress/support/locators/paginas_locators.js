@@ -133,3 +133,70 @@ export class Visualizar_Pagina_Publicada_Localizadores {
 	itens_menu_mobile = () =>
 		'#menu .menu-menu-superior-container #menu-menu-superior > li > a.nav-link'
 }
+
+export class Categorias_Localizadores {
+	// Opcoes de tela
+	botao_opcoes_de_tela = () => '#show-settings-link'
+	checkbox_descricao = () => '#description-hide'
+	checkbox_slug = () => '#slug-hide'
+	checkbox_contagem = () => '#posts-hide'
+	campo_itens_por_pagina = () => '#edit_categorias-noticias_per_page'
+	botao_aplicar_opcoes_de_tela = () => '#screen-options-apply'
+
+	// Busca de categorias
+	campo_busca = () => '#tag-search-input'
+	botao_pesquisar = () => '#search-submit'
+
+	// Formulario para adicionar categoria
+	formulario_adicionar_categoria = () => '#addtag'
+	campo_nome = () => '#tag-name'
+	campo_slug = () => '#tag-slug'
+	select_categoria_ascendente = () => '#parent'
+	campo_descricao = () => '#tag-description'
+	botao_adicionar_categoria = () => '#submit'
+	mensagem_retorno = () => '#ajax-response'
+
+	// Formulario para editar categoria
+	botao_editar_categoria = () => '[type="submit"]'
+
+	// Lista de categorias
+	formulario_lista = () => '#posts-filter'
+	tabela_categorias = () => '.wp-list-table.tags'
+	lista_categorias = () => '#the-list'
+	linhas_categorias = () => '#the-list > tr'
+	linha_categoria = (id) => `#tag-${id}`
+	link_nome_categoria = () => '#the-list .row-title'
+	coluna_descricao = () => '.column-description'
+	coluna_slug = () => '.column-slug'
+	coluna_contagem = () => '.column-posts'
+	checkbox_selecionar_todas = () => '#cb-select-all-1'
+	checkbox_categoria = (id) => `#cb-select-${id}`
+
+	// Acoes de cada categoria
+	link_editar = () => '.row-actions .edit a'
+	botao_edicao_rapida = () => '.row-actions .editinline'
+	link_excluir = () => '.row-actions .delete-tag'
+	link_visualizar = () => '.row-actions .view a'
+
+	// Formulario de edicao da categoria
+	campo_nome_edicao = () => '#name'
+	campo_descricao_edicao = () => '#description'
+	botao_salvar_categoria = () => '#submit'
+
+	// Acoes em massa e paginacao
+	select_acao_em_massa = () => '#bulk-action-selector-top'
+	botao_aplicar_acao_em_massa = () => '#doaction'
+	campo_pagina_atual = () => '#current-page-selector'
+	total_de_itens = () => '.tablenav.top .displaying-num'
+	total_de_paginas = () => '.tablenav.top .total-pages'
+
+	// Edicao rapida
+	formulario_edicao_rapida = () => 'tr.inline-edit-row:visible'
+	campo_nome_edicao_rapida = () =>
+		'tr.inline-edit-row:visible input[name="name"]'
+	campo_slug_edicao_rapida = () =>
+		'tr.inline-edit-row:visible input[name="slug"]'
+	botao_atualizar_categoria = () => 'tr.inline-edit-row:visible .save'
+	botao_cancelar_edicao_rapida = () => 'tr.inline-edit-row:visible .cancel'
+	mensagem_erro_edicao_rapida = () => 'tr.inline-edit-row:visible .notice-error'
+}

@@ -5,7 +5,7 @@ import {
 	And,
 	Before,
 } from 'cypress-cucumber-preprocessor/steps'
-import gerarPagina from '../../utils/intranet/gerar_paginas'
+import gerarPagina, { gerarConteudo } from '../../utils/intranet/gerar_paginas'
 
 const Dado = Given
 const Quando = When
@@ -13,6 +13,9 @@ const Entao = Then
 const E = And
 
 const novaPagina = gerarPagina()
+const novaCategoria = gerarConteudo()
+const categoriaEditada = gerarConteudo()
+const categoriaParaExclusao = gerarConteudo()
 //const editarNoticia = gerarNoticia()
 
 //----------------------------Dado----------------------------------------//
@@ -29,6 +32,34 @@ Dado('eu publiquei uma página', () => {
 	cy.clicar_botao_publicar()
 })
 
+Dado('eu possuo uma categoria cadastrada', () => {
+	cy.realizar_login_intranet()
+	cy.visitar_pagina_categorias()
+	cy.preencher_formulario_categoria(
+		novaCategoria.nome,
+		novaCategoria.descricao,
+	)
+	cy.clicar_botao_adicionar_categoria()
+	cy.validar_categoria_na_listagem(
+		novaCategoria.nome,
+		novaCategoria.descricao,
+	)
+})
+
+Dado('eu possuo uma categoria cadastrada para exclusão', () => {
+	cy.realizar_login_intranet()
+	cy.visitar_pagina_categorias()
+	cy.preencher_formulario_categoria(
+		categoriaParaExclusao.nome,
+		categoriaParaExclusao.descricao,
+	)
+	cy.clicar_botao_adicionar_categoria()
+	cy.validar_categoria_na_listagem(
+		categoriaParaExclusao.nome,
+		categoriaParaExclusao.descricao,
+	)
+})
+
 // Dado('eu acesso a listagem de noticias no wp-admin', () => {
 // 	cy.realizar_login_intranet()
 // 	cy.visitar_listagem_noticias_intranet()
@@ -41,6 +72,14 @@ E('acesso a página de adição de páginas', () => {
 
 E('clico no botão publicar', () => {
 	cy.clicar_botao_publicar()
+})
+
+E('acesso a página de categorias', () => {
+	cy.visitar_pagina_categorias()
+})
+
+E('clico no botão adicionar categoria', () => {
+	cy.clicar_botao_adicionar_categoria()
 })
 
 // E('acesso uma notícia publicada', () => {
@@ -75,6 +114,25 @@ Quando('preencho todos os campos do formulário de adição de página', () => {
 	cy.preencher_conteudo_pagina(novaPagina.conteudo)
 })
 
+Quando('preencho os campos do formulário de categoria', () => {
+	cy.preencher_formulario_categoria(
+		novaCategoria.nome,
+		novaCategoria.descricao,
+	)
+})
+
+Quando('edito os campos da categoria', () => {
+	cy.editar_categoria(
+		novaCategoria.nome,
+		categoriaEditada.nome,
+		categoriaEditada.descricao,
+	)
+})
+
+Quando('excluo a categoria', () => {
+	cy.excluir_categoria(categoriaParaExclusao.nome)
+})
+
 // Quando('edito todos os campos do formulário', () => {
 // 	cy.editar_titulo(editarNoticia.titulo)
 // 	cy.editar_subtitulo(editarNoticia.subtitulo)
@@ -105,6 +163,24 @@ Entao(
 )
 Entao('devo visualizar a página publicada no portal da intranet', () => {
 	cy.validar_titulo_pagina_publicada(novaPagina.titulo)
+})
+
+Entao('devo visualizar a categoria cadastrada na listagem', () => {
+	cy.validar_categoria_na_listagem(
+		novaCategoria.nome,
+		novaCategoria.descricao,
+	)
+})
+
+Entao('devo visualizar a categoria editada na listagem', () => {
+	cy.validar_categoria_na_listagem(
+		categoriaEditada.nome,
+		categoriaEditada.descricao,
+	)
+})
+
+Entao('não devo visualizar a categoria excluída na listagem', () => {
+	cy.validar_categoria_excluida(categoriaParaExclusao.nome)
 })
 
 // Entao(
