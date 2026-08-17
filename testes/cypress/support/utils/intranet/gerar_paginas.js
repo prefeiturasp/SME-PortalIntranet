@@ -8,4 +8,13 @@ function gerarPagina() {
 	return pagina
 }
 
+function gerarConteudo() {
+	const conteudo = {
+		nome: faker.lorem.words(2),
+		descricao: faker.lorem.words(2),
+	}
+	return conteudo
+}
+
+export { gerarConteudo }
 export default gerarPagina
