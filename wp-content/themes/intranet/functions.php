@@ -9864,3 +9864,53 @@ function obter_ultima_inscricao_usuario_logado() {
 
 	return $inscricao;
 }
+
+/**
+ * Ordena um array de eventos (Sorteios/Ordem de inscrição) de acordo com a ordem estabelecida
+ * 1º - Eventos atribuidos ao usuário logado
+ * 2º - Eventos em ordem alfabética (ASC) considerando o usuário atribuido como responsável seguido do título do evento
+ * 3º - Eventos sem responsável atribuido
+ */
+function ordenar_eventos_por_responsavel( array $itens ) {
+
+    if ( empty( $itens ) ) {
+        return $itens;
+    }
+
+    $usuario_logado_id = get_current_user_id();
+
+    usort( $itens, function( $a, $b ) use ( $usuario_logado_id ) {
+
+        $a_responsavel = (int) $a['id_responsavel'];
+        $b_responsavel = (int) $b['id_responsavel'];
+
+        // Ordenar eventos do usuário logado
+        if ( $a_responsavel === $usuario_logado_id && $b_responsavel !== $usuario_logado_id ) {
+            return -1;
+        }
+
+        if ( $b_responsavel === $usuario_logado_id && $a_responsavel !== $usuario_logado_id ) {
+            return 1;
+        }
+
+        // Ordenar os eventos sem responsável posicionando eles sempre no final
+        if ( empty( $a_responsavel ) && !empty( $b_responsavel ) ) {
+            return 1;
+        }
+
+        if ( ! empty( $a_responsavel ) && empty( $b_responsavel ) ) {
+            return -1;
+        }
+
+        // Ordenar os demais em ordem alfabética considerenado o nome do responsável
+        $comparacao = strcasecmp( $a['nome_responsavel'], $b['nome_responsavel'] );
+
+        if ( $comparacao === 0 ) {
+            return strcasecmp( $a['title'], $b['title'] );
+        }
+
+        return $comparacao;
+    });
+
+    return $itens;
+}

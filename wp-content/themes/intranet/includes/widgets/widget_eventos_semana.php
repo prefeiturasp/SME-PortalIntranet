@@ -32,6 +32,7 @@ function renderizar_eventos_semana() {
     $timestamp = strtotime( $hoje );
     $inicio_semana  = date( 'Ymd', strtotime( 'monday this week', $timestamp ) );
     $fim_semana    = date('Ymd', strtotime( 'sunday this week', $timestamp ) );
+    $user_id = get_current_user_id();
 
     add_filter( 'posts_where', 'filtro_posts_where_evento_datas' );
     add_filter( 'posts_where', 'filtro_posts_where_evento_premios' );
@@ -86,11 +87,12 @@ function renderizar_eventos_semana() {
         while ($query->have_posts()) {
             $query->the_post();
             $post_id = get_the_ID();
+            $tipo_evento = get_field( 'tipo_evento' );
     
             $evento_datas = [];
 
             // Caso 1: repetidor
-            if (have_rows('evento_datas')) {
+            if ( $tipo_evento === 'data' && have_rows('evento_datas') ) {
                 while (have_rows('evento_datas')) {
                     the_row();
 
@@ -111,7 +113,7 @@ function renderizar_eventos_semana() {
                         ];
                     }
                 }
-            } elseif (have_rows('evento_premios')) {
+            } elseif ( $tipo_evento === 'premio' && have_rows('evento_premios') ) {
                 while (have_rows('evento_premios')) {
                     the_row();
 
@@ -132,7 +134,7 @@ function renderizar_eventos_semana() {
                         ];
                     }
                 }
-            } elseif( $data_sorteio = get_field('evento_periodo_data_sorteio') ){
+            } elseif(  $tipo_evento === 'periodo' && $data_sorteio = get_field('evento_periodo_data_sorteio') ){
                 // Caso 2: campo único
                 $data_sorteio = get_field('evento_periodo_data_sorteio', $post_id, false);
     
@@ -172,12 +174,28 @@ function renderizar_eventos_semana() {
 
                 if ( in_array( $label, array_keys( $eventos ) ) ) {
 
+                    $responsavel = get_field( 'responsavel_noticia', $post_id );
+                    $nome_responsavel = $responsavel->display_name ?? 'Sem responsável';
+                    $id_responsavel = $responsavel->ID ?? 0;
+                    $classe_responsavel = '';
+            
+                    if ( empty( $id_responsavel ) ) {
+                        $classe_responsavel = 'text-secondary';
+                    } elseif ( $user_id == $id_responsavel ) {
+                        $classe_responsavel = 'text-success';
+                    } else {
+                        $classe_responsavel = 'text-primary';
+                    }
+
                     $eventos[$label][$post_id] = [
                         'post_id'  => $post_id,
                         'title'    => get_the_title(),
                         'data'     => $data,
                         'link'     => get_edit_post_link(),
                         'local'    => get_field('local'),
+                        'nome_responsavel' => $nome_responsavel,
+                        'id_responsavel' => $id_responsavel,
+                        'classe_responsavel' => $classe_responsavel
                     ];
 
                 }
@@ -186,11 +204,23 @@ function renderizar_eventos_semana() {
     }
 
     wp_reset_postdata();
+
+    foreach ( $eventos as &$eventos_dia ) {
+        $eventos_dia = ordenar_eventos_por_responsavel( $eventos_dia );
+    }
+
+    unset( $eventos_dia );
     
     remove_filter( 'posts_where', 'filtro_posts_where_evento_datas' );
     remove_filter( 'posts_where', 'filtro_posts_where_evento_premios' );
 
     $cortesias = get_cortesias_semana();
+
+    foreach ( $cortesias as &$cortesias_dia ) {
+        $cortesias_dia = ordenar_eventos_por_responsavel( $cortesias_dia );
+    }
+
+    unset( $cortesias_dia );
 
     get_template_part('includes/widgets/template-parts/accordion-dias', null, [
         'eventos' => $eventos,
@@ -205,6 +235,7 @@ function get_cortesias_semana() {
     $timestamp = strtotime( $hoje );
     $inicio_semana  = date( 'Ymd', strtotime( 'monday this week', $timestamp ) );
     $fim_semana    = date('Ymd', strtotime( 'sunday this week', $timestamp ) );
+    $user_id = get_current_user_id();
 
     add_filter( 'posts_where', 'filtro_posts_where_evento_datas' );
     add_filter( 'posts_where', 'filtro_posts_where_evento_premios' );
@@ -328,12 +359,28 @@ function get_cortesias_semana() {
 
                 if ( in_array( $label, array_keys( $eventos ) ) ) {
 
+                    $responsavel = get_field( 'responsavel_noticia', $post_id );
+                    $nome_responsavel = $responsavel->display_name ?? 'Sem responsável';
+                    $id_responsavel = $responsavel->ID ?? 0;
+                    $classe_responsavel = '';
+            
+                    if ( empty( $id_responsavel ) ) {
+                        $classe_responsavel = 'text-secondary';
+                    } elseif ( $user_id == $id_responsavel ) {
+                        $classe_responsavel = 'text-success';
+                    } else {
+                        $classe_responsavel = 'text-primary';
+                    }
+
                     $eventos[$label][$post_id] = [
                         'post_id'  => $post_id,
                         'title'    => get_the_title(),
                         'data'     => $data,
                         'link'     => get_edit_post_link(),
                         'local'    => get_field('local'),
+                        'nome_responsavel' => $nome_responsavel,
+                        'id_responsavel' => $id_responsavel,
+                        'classe_responsavel' => $classe_responsavel
                     ];
 
                 }
