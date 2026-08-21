@@ -1443,7 +1443,7 @@
 
 			const defaultIcon = '•';
 
-			jQuery('.informacoes-evento table tr').each(function () {
+			jQuery('.informacoes-evento:visible table tr').each(function () {
 
 				const $tds = jQuery(this).find('td');
 
