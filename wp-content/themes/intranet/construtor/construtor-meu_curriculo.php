@@ -1230,17 +1230,31 @@
 
 					<div class="etapa-formulario text-right mb-4">
 						
-					<?php if($curriculo->status_curriculo === 'rascunho' || !$curriculo->status_curriculo): ?>
-						<button
-							type="submit"
-							name="acao_curriculo"
-							value="rascunho"
-							class="btn btn-rascunho save-btn">
+						<?php if($curriculo->status_curriculo === 'rascunho' || !$curriculo->status_curriculo): ?>
+							<button
+								type="submit"
+								name="acao_curriculo"
+								value="rascunho"
+								class="btn btn-rascunho save-btn mr-2">
 
-							Salvar rascunho
+								Salvar rascunho
 
-						</button>
-					<?php endif; ?>
+							</button>
+						<?php endif; ?>
+
+						<?php
+						if ( $curriculo->status_curriculo && $curriculo->status_curriculo === 'finalizado' ) :
+							$link_curriculo = Curriculo::get_link_visualizar_curriculo( $curriculo->user_id );
+							?>
+							<a
+								href="<?php echo esc_url( $link_curriculo ); ?>"
+								name="acao_curriculo"
+								class="btn btn-baixar-curriculo mr-2"
+								>
+
+								<i class="fa fa-download" aria-hidden="true"></i> Baixar Currículo
+							</a>
+						<?php endif; ?>
 
 						<button
 							type="submit"
@@ -2211,4 +2225,41 @@
 
 		atualizarCargosEfetivos();
 	});
+</script>
+
+<script>
+
+    jQuery(document).ready(function($) {
+
+        $(document).on('click', '.btn-baixar-curriculo', function (e) {
+
+            e.preventDefault();
+
+            const url = $(this).attr('href');
+
+            const largura = 1200;
+            const altura = 900;
+
+            const esquerda = (screen.width - largura) / 2;
+            const topo = (screen.height - altura) / 2;
+
+            window.open(
+                url,
+                'curriculo',
+                `
+                width=${largura},
+                height=${altura},
+                left=${esquerda},
+                top=${topo},
+                scrollbars=yes,
+                resizable=yes
+                `
+            );
+
+        });
+
+        $('#btn-imprimir').on('click', function () {
+            window.print();
+        });
+    });
 </script>

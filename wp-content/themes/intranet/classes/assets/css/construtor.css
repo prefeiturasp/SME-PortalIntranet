@@ -2718,7 +2718,8 @@ div#minhas-inscricoes .dataTables_paginate .paginate_button.current {
     padding: 7px 30px;
 }
 
-.btn.btn-rascunho {
+.btn.btn-rascunho,
+.btn.btn-baixar-curriculo {
     background: #FFFFFF;
     border: 2px solid;
     color: #14457c;
