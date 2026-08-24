@@ -126,6 +126,23 @@ class Curriculo
         return $current_user->ID === $user_id;
     }
 
+	public static function get_link_visualizar_curriculo( int $user_id ) {
+
+		$pagina_visualizar_curriculo = get_field( 'pagina_visualizar_curriculo', 'options' );
+
+		$link_curriculo = $pagina_visualizar_curriculo
+			? get_the_permalink( $pagina_visualizar_curriculo->ID )
+			: home_url( '/visualizar-curriculo/' );
+
+		$link_curriculo = add_query_arg(
+			'user_id',
+			$user_id,
+			$link_curriculo
+		);
+
+		return $link_curriculo;
+	}
+
 }
 
 Curriculo::init();
