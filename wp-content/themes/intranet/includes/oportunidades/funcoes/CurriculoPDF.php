@@ -99,8 +99,13 @@ class CurriculoPDF
         $dompdf->setPaper('A4', 'portrait', "margin:1cm 2cm 1cm 2cm");
         $dompdf->render();
 
+        $nome_arquivo = $dados['curriculo']->nome_completo ?? 'curriculo';
+        $nome_arquivo = sanitize_title( $nome_arquivo );
+        $nome_arquivo = str_replace( '-', '_', $nome_arquivo );
+        $nome_arquivo = ucwords( $nome_arquivo, '_' );
+
         $dompdf->stream(
-            'curriculo.pdf',
+            "{$nome_arquivo}.pdf",
             [
                 'Attachment' => true
             ]
