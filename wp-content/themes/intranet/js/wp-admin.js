@@ -619,3 +619,44 @@ jQuery(function ($) {
     $('[data-toggle="tooltip"]').tooltip();
 
 });
+
+(function ($) {
+
+    if (typeof acf === 'undefined') {
+        return;
+    }
+
+    acf.addAction('ready_field', function (field) {
+
+        var $field = field.$el;
+
+        if (!$field.hasClass('campo-admin-bloqueado')) {
+            return;
+        }
+
+        field.disable();
+
+        if (field.get('type') === 'wysiwyg') {
+
+            var $editor = $field.find('.acf-editor-wrap');
+        
+            $field.css({
+                'cursor': 'not-allowed'
+            });
+            
+            $editor.css({
+                'pointer-events': 'none',
+                'opacity': '0.7',
+            });
+        
+            $editor.attr('tabindex', '-1');
+            $editor.find('iframe, textarea, button, input').attr('tabindex', '-1');
+        }
+
+        if (field.get('type') === 'date_picker') {
+            $field.find('.acf-date-picker input[type="text"]').prop('disabled', true)
+        }
+
+    });
+
+})(jQuery);
