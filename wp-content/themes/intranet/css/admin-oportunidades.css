@@ -1,0 +1,30 @@
+.taxonomy-locais h1.wp-heading-inline,
+.taxonomy-locais #screen-meta-links,
+.taxonomy-locais .term-slug-wrap,
+.taxonomy-locais .wp-list-table .column-slug {
+
+    display: none;
+}
+
+.taxonomy-locais .form-wrap h2::after {
+    content: 'Preencha esta seção somente se o endereço da unidade de exercício da vaga e/ou da Coord/Div/DREs responsável pela vaga não estiver disponível na lista de seleção da seção "Local de Atuação - Unidade de Exercício", acessada pelos gestores e administradores no cadastramento da oportunidade.';
+    display: block;
+    margin-top: 20px;
+    padding: 10px 15px;
+    max-width: 560px;
+    border: 1px solid #b8daff;
+    border-radius: 4px;
+    background-color: #e7f3ff;
+    color: #004085;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/* Campos obrigatórios - Locais */
+.taxonomy-locais label[for="tag-name"]::after,
+.taxonomy-locais label[for="name"]::after,
+.taxonomy-locais label[for="tag-description"]::after,
+.taxonomy-locais label[for="description"]::after {
+    content: ' *';
+    color: #d63638;
+}

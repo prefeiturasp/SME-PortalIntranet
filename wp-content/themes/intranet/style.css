@@ -3574,7 +3574,8 @@ table.datatables td{
 }
 
 /* Flag de destaque em itens do menu */
-.navbar-nav .menu-item.novidade {
+.navbar-nav .menu-item.novidade,
+.navbar-nav .menu-item.em-breve {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -3593,7 +3594,21 @@ table.datatables td{
     margin-left: 4px;
 }
 
-.navbar-nav .menu-item.novidade:not(.active) .nav-link::after {
+.navbar-nav .menu-item.em-breve .nav-link::after {
+    content: "EM BREVE";
+    font-family: 'Open Sans', sans-serif;
+    font-size: 8px;
+    letter-spacing: 1px;
+    font-weight: 600;
+    background-color: #dd823b;
+    color: #FFFFFF;
+    padding: 2px 4px;
+    border-radius: 5px;
+    margin-left: 4px;
+}
+
+.navbar-nav .menu-item.novidade:not(.active) .nav-link::after,
+.navbar-nav .menu-item.em-breve:not(.active) .nav-link::after {
     animation: blink_smooth 1.5s infinite;
 }
 
