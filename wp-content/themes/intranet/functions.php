@@ -5422,7 +5422,7 @@ function alterar_rotulo_descricao_para_endereco() {
     $screen = get_current_screen();
 
     if ( $screen && ( $screen->taxonomy === 'post_tag' || $screen->taxonomy === 'locais' ) ) {
-		$text_helper = ($screen->taxonomy === 'locais') ? 'Insira o endereço do local cadastrado para mostrar na publicação da oportunidade.' : 'Insira o endereço do local cadastrado para mostrar na publicação do sorteio.';
+		$text_helper = 'Insira o endereço do local cadastrado para mostrar na publicação do sorteio.';
         ?>
         <script>
             document.addEventListener('DOMContentLoaded', function () {
