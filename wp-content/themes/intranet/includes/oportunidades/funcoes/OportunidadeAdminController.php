@@ -236,27 +236,20 @@ class OportunidadeAdminController {
             return;
         }
 
-        /*
-        * Taxonomias que possuem customizações específicas.
-        */
-        $taxonomias = ['locais'];
-        $paginas = ['term', 'edit-tags'];
-
-        if ( !in_array( $screen->base, $paginas ) || empty( $screen->taxonomy ) || !in_array( $screen->taxonomy, $taxonomias, true ) ) {
-            return;
-        }
-
         wp_enqueue_style( 'admin-oportunidades' );
         wp_enqueue_script( 'admin-oportunidades' );
     }
 
     public function validar_taxonomias( $term, $taxonomy ) {
 
-        $taxonomias = ['locais'];
+        $taxonomias = ['locais', 'eixos_atuacao'];
         $mensagens_validação = [
             'locais' => [
                 'nome' => 'Sigla e descrição completa da Coord/Div/DREs',
                 'endereco' => 'Endereço da Unidade de Exercício'
+            ],
+            'eixos_atuacao' => [
+                'nome' => 'Título do Eixo de Atuação',
             ]
         ];
         
@@ -268,8 +261,10 @@ class OportunidadeAdminController {
             return new WP_Error( 'nome_obrigatorio', "O campo {$mensagens_validação[$taxonomy]['nome']} é obrigatório." );
         }
 
-        if ( isset( $_POST['description'] ) && empty( trim( wp_unslash( $_POST['description'] ) ) ) ) {
-            return new WP_Error( 'descricao_obrigatoria', "O campo {$mensagens_validação[$taxonomy]['endereco']} é obrigatório." );
+        if ( $taxonomy === 'locais' ) {
+            if ( isset( $_POST['description'] ) && empty( trim( wp_unslash( $_POST['description'] ) ) ) ) {
+                return new WP_Error( 'descricao_obrigatoria', "O campo {$mensagens_validação[$taxonomy]['endereco']} é obrigatório." );
+            }
         }
 
         return $term;
