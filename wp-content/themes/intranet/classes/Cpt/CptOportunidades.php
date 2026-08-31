@@ -153,9 +153,9 @@ class CptOportunidades extends Cpt
                     'parent_item_colon' => 'Eixo de Atuação Pai:',
                     'edit_item'         => 'Editar Eixo de Atuação',
                     'update_item'       => 'Atualizar Eixo de Atuação',
-                    'add_new_item'      => 'Adicionar Novo Eixo de Atuação',
+                    'add_new_item'      => 'Adicionar Eixo de Atuação',
                     'new_item_name'     => 'Novo Eixo de Atuação',
-                    'menu_name'         => 'Eixos de Atuação',
+                    'menu_name'         => 'Add Eixo de Atuação',
                 ),
 
                 'map_meta_cap' => true,

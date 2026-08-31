@@ -9,6 +9,12 @@ jQuery(function ($) {
             texto_apoio_endereco: 'Este campo deverá ser preenchido com o endereço completo da Coord/Div/DREs (Ex: Rua Borges Lagoa, 1230, Vila Clementino, CEP: 04038-003)',
             btn_salvar: 'Salvar Local'
         },
+
+        eixos_atuacao: {
+            nome: 'Título do Eixo de Atuação',
+            texto_apoio_nome: 'Informe, de forma ampla, o eixo de atuação relacionado às atribuições e à área de atuação da especialidade desejada. O texto informado será utilizado como título do eixo. Exemplo: Inclusão e Acessibilidade',
+            btn_salvar: 'Salvar Eixo'
+        },
     };
 
     const taxonomy = new URLSearchParams(window.location.search).get('taxonomy');
@@ -46,6 +52,6 @@ jQuery(function ($) {
 
     // Adiciona "required" nos campos para informar que são de preenchimento obrigatório
     $('#name').attr('required', true);
-    $('#description').attr('required', true);
+    $('#description').attr('required', taxonomy === 'locais');
 
 });

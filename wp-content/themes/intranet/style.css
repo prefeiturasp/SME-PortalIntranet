@@ -3581,6 +3581,11 @@ table.datatables td{
     align-items: center;
 }
 
+.navbar-nav .menu-item.novidade .nav-link,
+.navbar-nav .menu-item.em-breve .nav-link {
+    white-space: nowrap;
+}
+
 .navbar-nav .menu-item.novidade .nav-link::after {
     content: "NOVO";
     font-family: 'Open Sans', sans-serif;
