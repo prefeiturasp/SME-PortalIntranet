@@ -95,23 +95,3 @@
       Quando eu acesso a lixeira
       E excluo a notícia permanente
       Então devo visualizar a mensagem informando que o post foi excluído permanentemente
-
-      @categorias
-      Cenário: Deve validar o cadastro de uma categoria
-      Dado eu realizo login na intranet no wp-admin
-      E acesso a página de categorias
-      Quando preencho os campos do formulário de categoria
-      E clico no botão adicionar categoria
-      Então devo visualizar a categoria cadastrada na listagem
-
-      @categorias
-      Cenário: Deve validar a edição de uma categoria
-      Dado eu possuo uma categoria cadastrada
-      Quando edito os campos da categoria
-      Então devo visualizar a categoria editada na listagem
-
-      @categorias
-      Cenário: Deve validar a exclusão de uma categoria
-      Dado eu possuo uma categoria cadastrada para exclusão
-      Quando excluo a categoria
-      Então não devo visualizar a categoria excluída na listagem

@@ -3,6 +3,7 @@ import "./commands_ui/commands_globais";
 import "./commands_ui/commands_login";
 import "./commands_ui/commands_noticias";
 import "./commands_ui/commands_paginas";
+import "./commands_ui/commands_calendario_escolar";
 import "cypress-xpath";
 import "cypress-plugin-tab";
 

@@ -6,6 +6,7 @@ import {
 	Before,
 } from 'cypress-cucumber-preprocessor/steps'
 import gerarNoticia from '../../utils/intranet/gerar_noticias'
+import { gerarConteudo } from '../../utils/intranet/gerar_paginas'
 
 const Dado = Given
 const Quando = When
@@ -14,6 +15,13 @@ const E = And
 
 const novaNoticia = gerarNoticia()
 const editarNoticia = gerarNoticia()
+const novaCategoria = gerarConteudo()
+const categoriaEditada = gerarConteudo()
+const categoriaParaExclusao = gerarConteudo()
+const categoriaParaPesquisa = gerarConteudo()
+const primeiraCategoriaEmMassa = gerarConteudo()
+const segundaCategoriaEmMassa = gerarConteudo()
+const categoriaSemPublicacoes = gerarConteudo()
 
 //----------------------------Dado----------------------------------------//
 
@@ -35,6 +43,65 @@ Dado('eu acesso a listagem de noticias no wp-admin', () => {
 	cy.realizar_login_intranet()
 	cy.visitar_listagem_noticias_intranet()
 })
+
+Dado('eu possuo uma categoria cadastrada', () => {
+	cy.realizar_login_intranet()
+	cy.visitar_pagina_categorias()
+	cy.preencher_formulario_categoria(
+		novaCategoria.nome,
+		novaCategoria.descricao,
+	)
+	cy.clicar_botao_adicionar_categoria()
+	cy.validar_categoria_na_listagem(
+		novaCategoria.nome,
+		novaCategoria.descricao,
+	)
+})
+
+Dado('eu possuo uma categoria cadastrada para exclusão', () => {
+	cy.realizar_login_intranet()
+	cy.visitar_pagina_categorias()
+	cy.preencher_formulario_categoria(
+		categoriaParaExclusao.nome,
+		categoriaParaExclusao.descricao,
+	)
+	cy.clicar_botao_adicionar_categoria()
+	cy.validar_categoria_na_listagem(
+		categoriaParaExclusao.nome,
+		categoriaParaExclusao.descricao,
+	)
+})
+
+Dado('eu possuo uma categoria cadastrada para pesquisa', () => {
+	cy.realizar_login_intranet()
+	cy.visitar_pagina_categorias()
+	cy.cadastrar_categoria(
+		categoriaParaPesquisa.nome,
+		categoriaParaPesquisa.descricao,
+	)
+})
+
+Dado('eu possuo duas categorias cadastradas para ações em massa', () => {
+	cy.realizar_login_intranet()
+	cy.visitar_pagina_categorias()
+	cy.cadastrar_categoria(
+		primeiraCategoriaEmMassa.nome,
+		primeiraCategoriaEmMassa.descricao,
+	)
+	cy.cadastrar_categoria(
+		segundaCategoriaEmMassa.nome,
+		segundaCategoriaEmMassa.descricao,
+	)
+})
+
+Dado('eu possuo uma categoria sem publicações cadastrada', () => {
+	cy.realizar_login_intranet()
+	cy.visitar_pagina_categorias()
+	cy.cadastrar_categoria(
+		categoriaSemPublicacoes.nome,
+		categoriaSemPublicacoes.descricao,
+	)
+})
 //----------------------------E----------------------------------------//
 
 E('acesso a página de adição de notícias', () => {
@@ -51,6 +118,14 @@ E('acesso uma notícia publicada', () => {
 })
 E('excluo a notícia permanente', () => {
 	cy.excluir_noticia_permanentemente(editarNoticia.titulo)
+})
+
+E('acesso a página de categorias', () => {
+	cy.visitar_pagina_categorias()
+})
+
+E('clico no botão adicionar categoria', () => {
+	cy.clicar_botao_adicionar_categoria()
 })
 
 //----------------------------Quando----------------------------------------//
@@ -104,6 +179,44 @@ Quando('eu acesso a pagina da notícia que foi enviada para a lixeira', () => {
 Quando('eu acesso a lixeira', () => {
 	cy.visitar_listagem_noticias_intranet()
 	cy.acessar_lixo_noticia()
+})
+
+Quando('preencho os campos do formulário de categoria', () => {
+	cy.preencher_formulario_categoria(
+		novaCategoria.nome,
+		novaCategoria.descricao,
+	)
+})
+
+Quando('edito os campos da categoria', () => {
+	cy.editar_categoria(
+		novaCategoria.nome,
+		categoriaEditada.nome,
+		categoriaEditada.descricao,
+	)
+})
+
+Quando('excluo a categoria', () => {
+	cy.excluir_categoria(categoriaParaExclusao.nome)
+})
+
+Quando('tento adicionar uma categoria sem informar o nome', () => {
+	cy.adicionar_categoria_sem_nome()
+})
+
+Quando('pesquiso pela categoria cadastrada', () => {
+	cy.pesquisar_categoria(categoriaParaPesquisa.nome)
+})
+
+Quando('ordeno a tabela de categorias pelo nome', () => {
+	cy.ordenar_categorias_por_nome()
+})
+
+Quando('excluo as categorias por meio das ações em massa', () => {
+	cy.excluir_categorias_em_massa([
+		primeiraCategoriaEmMassa.nome,
+		segundaCategoriaEmMassa.nome,
+	])
 })
 
 //----------------------------Então----------------------------------------//
@@ -185,6 +298,55 @@ Entao(
 )
 Entao('não devo visualizar a notícia na listagem', () => {
 	cy.validar_nao_exibicao_noticia_na_listagem_intranet()
+})
+
+Entao('devo visualizar a categoria cadastrada na listagem', () => {
+	cy.validar_categoria_na_listagem(
+		novaCategoria.nome,
+		novaCategoria.descricao,
+	)
+})
+
+Entao('devo visualizar a categoria editada na listagem', () => {
+	cy.validar_categoria_na_listagem(
+		categoriaEditada.nome,
+		categoriaEditada.descricao,
+	)
+})
+
+Entao('não devo visualizar a categoria excluída na listagem', () => {
+	cy.validar_categoria_excluida(categoriaParaExclusao.nome)
+})
+
+Entao('devo visualizar os campos do formulário de categoria', () => {
+	cy.validar_campos_formulario_categoria()
+})
+
+Entao('devo visualizar a validação de obrigatoriedade do nome da categoria', () => {
+	cy.validar_nome_categoria_obrigatorio()
+})
+
+Entao('devo visualizar a tabela com as categorias cadastradas', () => {
+	cy.validar_listagem_categorias()
+})
+
+Entao('devo visualizar somente a categoria pesquisada', () => {
+	cy.validar_resultado_pesquisa_categoria(categoriaParaPesquisa.nome)
+})
+
+Entao('devo visualizar as categorias ordenadas pelo nome', () => {
+	cy.validar_ordenacao_categorias_por_nome()
+})
+
+Entao('não devo visualizar as categorias excluídas na listagem', () => {
+	cy.validar_categorias_excluidas_em_massa([
+		primeiraCategoriaEmMassa.nome,
+		segundaCategoriaEmMassa.nome,
+	])
+})
+
+Entao('devo visualizar zero publicações para a categoria', () => {
+	cy.validar_contagem_publicacoes_categoria(categoriaSemPublicacoes.nome, 0)
 })
 
 //----------------------------Hooks----------------------------------------//

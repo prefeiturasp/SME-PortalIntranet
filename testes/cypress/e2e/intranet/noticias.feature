@@ -4,21 +4,21 @@
       backgroud
 
       Cenário: Deve validar publicação de noticia com sucesso
-      Dado eu realizo login na intranet no wp-admin 
+      Dado eu realizo login na intranet no wp-admin
       E acesso a página de adição de notícias
       Quando preencho todos os campos do formulário
       E clico no botão publicar
       Então devo visualizar a mensagem informando que o post foi publicado com sucesso
 
       Cenário: Deve validar mensagem de obrigatoriedade do campo de subtitulo
-      Dado eu realizo login na intranet no wp-admin 
+      Dado eu realizo login na intranet no wp-admin
       E acesso a página de adição de notícias
-      Quando eu não preencho o campo subtitulo 
+      Quando eu não preencho o campo subtitulo
       E clico no botão publicar
       Então devo visualizar a mensagem informando que o campo de subtitulo é obrigatório
 
       Cenário: Deve validar se a notícia foi publicada no portal da intranet
-      Dado eu publiquei uma notícia 
+      Dado eu publiquei uma notícia
       Quando eu clico na URL da notícia criada
       Então devo visualizar a notícia publicada no portal da intranet
 
@@ -44,10 +44,10 @@
       Quando eu acesso a listagem de notícias na intranet
       Então devo visualizar o título da notícia na listagem da intranet
 
-      Cenário: Deve validar edição de uma notícia  
+      Cenário: Deve validar edição de uma notícia
       Dado eu realizo login na intranet no wp-admin
       E acesso uma notícia publicada
-      Quando edito todos os campos do formulário 
+      Quando edito todos os campos do formulário
       E clico no botão publicar
       Então devo visualizar a mensagem informando que o post foi atualizado com sucesso
 
@@ -91,8 +91,65 @@
       E excluo a notícia permanente
       Então devo visualizar a mensagem informando que o post foi excluído permanentemente
 
+      @categorias
+      Cenário: Deve validar o cadastro de uma categoria
+      Dado eu realizo login na intranet no wp-admin
+      E acesso a página de categorias
+      Quando preencho os campos do formulário de categoria
+      E clico no botão adicionar categoria
+      Então devo visualizar a categoria cadastrada na listagem
 
+      @categorias
+      Cenário: Deve validar a edição de uma categoria
+      Dado eu possuo uma categoria cadastrada
+      Quando edito os campos da categoria
+      Então devo visualizar a categoria editada na listagem
 
+      @categorias
+      Cenário: Deve validar a exclusão de uma categoria
+      Dado eu possuo uma categoria cadastrada para exclusão
+      Quando excluo a categoria
+      Então não devo visualizar a categoria excluída na listagem
 
+      @categorias
+      Cenário: Deve validar os campos do formulário de categoria
+      Dado eu realizo login na intranet no wp-admin
+      E acesso a página de categorias
+      Então devo visualizar os campos do formulário de categoria
 
-      
+      @categorias
+      Cenário: Deve validar a obrigatoriedade do nome da categoria
+      Dado eu realizo login na intranet no wp-admin
+      E acesso a página de categorias
+      Quando tento adicionar uma categoria sem informar o nome
+      Então devo visualizar a validação de obrigatoriedade do nome da categoria
+
+      @categorias
+      Cenário: Deve validar a listagem de categorias
+      Dado eu realizo login na intranet no wp-admin
+      E acesso a página de categorias
+      Então devo visualizar a tabela com as categorias cadastradas
+
+      @categorias
+      Cenário: Deve validar a pesquisa de categorias
+      Dado eu possuo uma categoria cadastrada para pesquisa
+      Quando pesquiso pela categoria cadastrada
+      Então devo visualizar somente a categoria pesquisada
+
+      @categorias
+      Cenário: Deve validar a ordenação da tabela de categorias
+      Dado eu realizo login na intranet no wp-admin
+      E acesso a página de categorias
+      Quando ordeno a tabela de categorias pelo nome
+      Então devo visualizar as categorias ordenadas pelo nome
+
+      @categorias
+      Cenário: Deve validar a exclusão de categorias por ações em massa
+      Dado eu possuo duas categorias cadastradas para ações em massa
+      Quando excluo as categorias por meio das ações em massa
+      Então não devo visualizar as categorias excluídas na listagem
+
+      @categorias
+      Cenário: Deve validar a contagem de publicações de uma categoria
+      Dado eu possuo uma categoria sem publicações cadastrada
+      Então devo visualizar zero publicações para a categoria
