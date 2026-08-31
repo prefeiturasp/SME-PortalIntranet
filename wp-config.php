@@ -100,6 +100,22 @@ define('WP_DEBUG_DISPLAY', getenv('WORDPRESS_DEBUG_DISPLAY'));
 define( 'MEDIA_TRASH', true );
 define( 'EMPTY_TRASH_DAYS', 30 );
 
+// 1. Desabilita loopback nas requisições web
+define( 'ACTION_SCHEDULER_DISABLE_ASYNC_RUNNER', true );
+
+// 2. Timeout maior APENAS para o cron
+if ( php_sapi_name() === 'cli' || 
+     ( isset( $_GET['doing_wp_cron'] ) && defined( 'DOING_CRON' ) ) ) {
+    set_time_limit( 300 ); // 5 minutos para processar filas
+    define( 'WP_CRON_LOCK_TIMEOUT', 300 );
+} else {
+    // Requisições normais: timeout curto
+    set_time_limit( 30 );
+}
+
+// 3. Aumenta intervalo de heartbeat para reduzir requisições
+define( 'AUTOSAVE_INTERVAL', 300 ); // 5 minutos
+
 $cron_disabled = getenv('CRON_DISABLED');
 
 if (
