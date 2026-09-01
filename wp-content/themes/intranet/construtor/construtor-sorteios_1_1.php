@@ -9,9 +9,10 @@ if ( $tab === 'minhas-inscricoes' ) {
 
     return get_template_part( 'construtor/construtor', 'minhas_inscricoes' );
 }
+
 ?>
 
-<div class="container">
+<div class="container" id="container-lista-eventos">
     <div class="row">
         <div class="col-12">
 
@@ -543,4 +544,14 @@ if ( $tab === 'minhas-inscricoes' ) {
 			display: none;
 		}
 	</style>	
+<?php endif; ?>
+
+<?php if ( get_query_var('paged') &&  get_query_var('paged') > 0 ) : ?>
+    <script>
+        jQuery(function ($) {
+            $('html, body').animate({
+                scrollTop: $('#container-lista-eventos').offset().top - 110
+            }, 400);
+        });
+    </script>
 <?php endif; ?>

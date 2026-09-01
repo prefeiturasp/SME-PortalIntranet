@@ -61,24 +61,17 @@ if ( !empty( $eventos ) || !empty( $cortesias ) ) :
                                         </ul>
                                     <?php endif; ?>
 
-                                    <ul class="responsavel-evento">
-                                        <li>
-                                            <?php $responsavel = get_field( 'responsavel_noticia', $evento['post_id'] ); ?>
-                                            <?php if ( $responsavel ) : ?>
+                                    <?php if ( isset( $evento['nome_responsavel'] ) ) : ?>
+                                        <ul class="responsavel-evento">
+                                            <li>
                                                 Responsável:
-                                                <?php $user_class = get_current_user_id() == $responsavel->ID ? 'text-success' : 'text-primary'; ?>
-                                                <span class="<?php echo esc_html( $user_class ); ?>">
+                                                <span class="<?php echo esc_html( $evento['classe_responsavel'] ); ?>">
                                                     <i class="fa fa-user" aria-hidden="true"></i> 
-                                                    <?php echo esc_html( $responsavel->display_name ); ?>
+                                                    <?php echo esc_html( $evento['nome_responsavel'] ); ?>
                                                 </span>
-                                            <?php else : ?>
-                                                Responsável: 
-                                                <span class="text-secondary">
-                                                    <i class="fa fa-user" aria-hidden="true"></i> Sem responsável
-                                                </span>
-                                            <?php endif; ?>
-                                        </li>
-                                    </ul>
+                                            </li>
+                                        </ul>
+                                    <?php endif; ?>
 
                                 </div>
                             </div>
@@ -152,24 +145,17 @@ if ( !empty( $eventos ) || !empty( $cortesias ) ) :
                                         </ul>
                                     <?php endif; ?>
 
-                                    <ul class="responsavel-evento">
-                                        <li>
-                                            <?php $responsavel = get_field( 'responsavel_noticia', $cortesia['post_id'] ); ?>
-                                            <?php if ( $responsavel ) : ?>
+                                    <?php if ( isset( $cortesia['nome_responsavel'] ) ) : ?>
+                                        <ul class="responsavel-evento">
+                                            <li>
                                                 Responsável:
-                                                <?php $user_class = get_current_user_id() == $responsavel->ID ? 'text-success' : 'text-primary'; ?>
-                                                <span class="<?php echo esc_html( $user_class ); ?>">
+                                                <span class="<?php echo esc_html( $cortesia['classe_responsavel'] ); ?>">
                                                     <i class="fa fa-user" aria-hidden="true"></i> 
-                                                    <?php echo esc_html( $responsavel->display_name ); ?>
+                                                    <?php echo esc_html( $cortesia['nome_responsavel'] ); ?>
                                                 </span>
-                                            <?php else : ?>
-                                                Responsável: 
-                                                <span class="text-secondary">
-                                                    <i class="fa fa-user" aria-hidden="true"></i> Sem responsável
-                                                </span>
-                                            <?php endif; ?>
-                                        </li>
-                                    </ul>
+                                            </li>
+                                        </ul>
+                                    <?php endif; ?>
 
                                 </div>
                             </div>
