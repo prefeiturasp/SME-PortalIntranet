@@ -1099,3 +1099,8 @@ div#meu_meta_box_id table.dataTable.no-footer{
     transform:rotate(180deg);
     color:#215F9A;
 }
+
+/* Remove o submenu "Oportunidades" do menu do Portal de Oportunidades */
+#menu-posts-oportunidade ul li.wp-first-item {
+    display: none;
+}

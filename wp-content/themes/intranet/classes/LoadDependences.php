@@ -171,6 +171,10 @@ class LoadDependences
 
 		// ###### JS PORTAL DE OPORTUNIDADES
 		wp_register_script( 'oportunidade', STM_THEME_URL . 'js/oportunidade?v=1.0', ['jquery'] );
+		wp_register_script( 'admin-oportunidades', STM_THEME_URL . 'js/admin-oportunidades', ['jquery'] );
+
+		// ###### CSS PORTAL DE OPORTUNIDADES
+		wp_register_style('admin-oportunidades', STM_THEME_URL . 'css/admin-oportunidades.css');
 	}
 
 	public function custom_formats_admin(){
