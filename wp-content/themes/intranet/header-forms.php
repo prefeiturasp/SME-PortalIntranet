@@ -104,15 +104,12 @@ if ( is_user_logged_in() ) {
 	<?php wp_head() ?>
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-149756375-1"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'UA-149756375-1');
-    </script>
-    <script id="mcjs">!function(c,h,i,m,p){m=c.createElement(h),p=c.getElementsByTagName(h)[0],m.async=1,m.src=i,p.parentNode.insertBefore(m,p)}(document,"script","https://chimpstatic.com/mcjs-connected/js/users/5a2df64151ea7e12d55494267/c9466a177cfa11afee4e2e22b.js");</script>
+    <?php
+        $analytics = get_field('codigo','conf-analytics');
+        if($analytics && $analytics != ''){
+            echo $analytics;
+        }
+    ?>
 </head>
 
 <body>

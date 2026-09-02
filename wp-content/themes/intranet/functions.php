@@ -5621,6 +5621,7 @@ include_once get_template_directory() . '/includes/oportunidades/funcoes/BuscaAt
 include_once get_template_directory() . '/includes/oportunidades/funcoes/ExportarBuscaAtiva.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/ExportadorCurriculos.php';
 include_once get_template_directory() . '/includes/oportunidades/funcoes/envioEmails.php';
+include_once get_template_directory() . '/includes/oportunidades/funcoes/OportunidadeAdminController.php';
 Envia_Emails_Oportunidades_SME::registrar_hooks();
 //#################################################################################//
 
@@ -5629,7 +5630,7 @@ function alterar_rotulo_descricao_para_endereco() {
     $screen = get_current_screen();
 
     if ( $screen && ( $screen->taxonomy === 'post_tag' || $screen->taxonomy === 'locais' ) ) {
-		$text_helper = ($screen->taxonomy === 'locais') ? 'Insira o endereço do local cadastrado para mostrar na publicação da oportunidade.' : 'Insira o endereço do local cadastrado para mostrar na publicação do sorteio.';
+		$text_helper = 'Insira o endereço do local cadastrado para mostrar na publicação do sorteio.';
         ?>
         <script>
             document.addEventListener('DOMContentLoaded', function () {

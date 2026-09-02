@@ -341,7 +341,7 @@ if (!defined('ABSPATH')) {
                                     </div>
 
                                     <div class="mt-auto">
-                                        <?php $url = home_url('/index.php/visualizar-curriculo/?user_id=' . $curriculo['user_id']); ?>
+                                        <?php $url = Curriculo::get_link_visualizar_curriculo( $curriculo['user_id'] ); ?>
                                         <a
                                             href="<?= esc_url($url); ?>"
                                             class="curriculo-link btn-ver-curriculo"
