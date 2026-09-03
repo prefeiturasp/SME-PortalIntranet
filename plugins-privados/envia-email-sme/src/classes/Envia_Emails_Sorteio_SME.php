@@ -105,7 +105,8 @@ class Envia_Emails_Sorteio_SME {
                 $temaEmail = str_replace('{NOME-INGRESSO}', $incrito[0]["post_title"], $temaEmail);
                 $temaEmail = str_replace('{DATA-SORTEIO}', $dataSorteio, $temaEmail);
                 $temaEmail = str_replace('{LINK-CANCELAR}', get_site_url()."/index.php/beneficios/sorteios/cancela-inscricao-sorteio/?ni=".base64_encode($incrito[0]["id"]), $temaEmail);
-                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/logo.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/assinatura-email.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-ICONE}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/megaphone.png', $temaEmail);
 
                 // Define o cabeçalho para e-mail HTML
                 $headers = array('Content-Type: text/html; charset=UTF-8');
@@ -128,7 +129,8 @@ class Envia_Emails_Sorteio_SME {
                 $temaEmail = file_get_contents( DIR_ENVIA_EMAIL_SME . '/src/templates/tema-email-cancelamento.html');
                 $temaEmail = str_replace('{NOME-INGRESSO}', $incrito[0]["post_title"], $temaEmail);
                 $temaEmail = str_replace('{TEXTO-DATAS}', $mensagem, $temaEmail);
-                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/logo.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/assinatura-email.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-ICONE}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/megaphone.png', $temaEmail);
 
                 // Envia o e-mail
                 $this->sme_send_mail( $emailInstitucional, $emailSecundario, $assunto, $temaEmail );
@@ -239,7 +241,8 @@ class Envia_Emails_Sorteio_SME {
                 $temaEmail = str_replace('{LOCAL-OUTROS}', $local_outros, $temaEmail);
                 $temaEmail = str_replace('{AVISO-PERIODO-UTILIZACAO}', $aviso_utilizacao, $temaEmail);
                 $temaEmail = str_replace('{LINK-CONFIRMACAO}', get_site_url()."/index.php/beneficios/sorteios/confirma-inscricao-sorteio/?ni=".base64_encode($incrito[0]["id"])."&ne=".base64_encode($incrito[0]["post_title"]), $temaEmail);
-                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/logo.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/assinatura-email.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-ICONE}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/megaphone.png', $temaEmail);
                 
                 $this->registra_historico_e_envia_email($incrito[0]["id"], $incrito[0]["post_id"], $tipoEnvio, $emailInstitucional, $emailSecundario, $assunto, $temaEmail, $this->extra_args['prazo_expirado'] ?? false);
                 
@@ -253,7 +256,8 @@ class Envia_Emails_Sorteio_SME {
                 $temaEmail = file_get_contents( DIR_ENVIA_EMAIL_SME . '/src/templates/tema-email-instrucoes.html');
                 //$temaEmail = str_replace('{NOME-INGRESSO}', $incrito[0]["post_title"], $temaEmail);
                 $temaEmail = str_replace('{MENSAGEM}', $mensagem, $temaEmail);
-                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/logo.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/assinatura-email.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-ICONE}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/megaphone.png', $temaEmail);
 
                 //Envia o e-mail
                 $this->sme_send_mail( $emailInstitucional, $emailSecundario, $assunto, $temaEmail, $anexo );
@@ -327,7 +331,8 @@ class Envia_Emails_Sorteio_SME {
                 } else {
                     $temaEmail = str_replace('{LINK-CANCELAR}', get_site_url()."/index.php/beneficios/sorteios/cancela-inscricao-sorteio/?ni=" . $chave, $temaEmail);
                 }
-                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/logo.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/assinatura-email.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-ICONE}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/megaphone.png', $temaEmail);
 
                 // Envia o e-mail
                 $this->sme_send_mail( $emailInstitucional, $emailSecundario, $assunto, $temaEmail );
@@ -342,7 +347,8 @@ class Envia_Emails_Sorteio_SME {
 
                 $temaEmail = file_get_contents( DIR_ENVIA_EMAIL_SME . '/src/templates/cortesias/tema-email-cancelamento.html');
                 $temaEmail = str_replace('{NOME-INGRESSO}', $titulo_post, $temaEmail);
-                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/logo.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/assinatura-email.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-ICONE}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/megaphone.png', $temaEmail);
 
                 $this->sme_send_mail( $emailInstitucional, $emailSecundario, $assunto, $temaEmail );
 
@@ -427,7 +433,8 @@ class Envia_Emails_Sorteio_SME {
                 $temaEmail = str_replace('{LOCAL-OUTROS}', $local_outros, $temaEmail);
                 $temaEmail = str_replace('{AVISO-PERIODO-UTILIZACAO}', $aviso_utilizacao, $temaEmail);
                 $temaEmail = str_replace('{LINK-CONFIRMACAO}', $pagina_sorteios_url."confirma-inscricao-cortesia/?ni=".base64_encode($inscrito[0]->id)."&ne=".base64_encode($inscrito[0]->post_title), $temaEmail);
-                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/logo.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/assinatura-email.png', $temaEmail);
+                $temaEmail = str_replace('{LINK-ICONE}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/megaphone.png', $temaEmail);
 
                 $reenvio = isset( $this->extra_args["reenvio"] ) ? $this->extra_args["reenvio"] : false;
 
@@ -627,7 +634,8 @@ class Envia_Emails_Sorteio_SME {
         $temaEmail = file_get_contents( DIR_ENVIA_EMAIL_SME . '/src/templates/tema-email-cancelamento.html');
         $temaEmail = str_replace('{NOME-INGRESSO}', $nomeEvento, $temaEmail);
         $temaEmail = str_replace('{TEXTO-DATAS}', $mensagemDatas, $temaEmail);
-        $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/logo.png', $temaEmail);
+        $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/assinatura-email.png', $temaEmail);
+        $temaEmail = str_replace('{LINK-ICONE}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/megaphone.png', $temaEmail);
 
         $enviaEmail = self::sme_send_mail( $emailInstitucional, $emailSecundario, $assunto, $temaEmail );
 
@@ -837,7 +845,8 @@ class Envia_Emails_Sorteio_SME {
                 $template_email = str_replace( '{EMAIL}', implode( ', ', $emails ), $template_email );
 
                 $template_email = str_replace( '{DATA-HORA-CANCELAMENTO}', $agora, $template_email );
-                $template_email = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/logo.png', $template_email);
+                $template_email = str_replace('{LINK-ICONE}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/megaphone.png', $template_email);
+                $template_email = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/assinatura-email.png', $template_email);
                 
             break;
             
