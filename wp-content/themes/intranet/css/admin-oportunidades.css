@@ -55,3 +55,15 @@
     content: ' *';
     color: #d63638;
 }
+
+/* Oportunidades - Listagem/Edição/Filtros */
+.post-type-oportunidade #screen-meta-links,
+.post-type-oportunidade .wrap a.page-title-action,
+.post-type-oportunidade .wp-list-table .column-title span.inline,
+.post-type-oportunidade .tablenav .actions .postform:not(#eixos_atuacao),
+.post-type-oportunidade #submitpost #visibility,
+.post-type-oportunidade #submitpost .post-type-switcher,
+.post-type-oportunidade #postbox-container-1 #submitdiv .postbox-header .handle-actions,
+.post-type-oportunidade .bulkactions {
+    display: none;
+}

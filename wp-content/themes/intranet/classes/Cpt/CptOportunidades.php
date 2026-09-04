@@ -14,6 +14,10 @@ class CptOportunidades extends Cpt
 		$this->dashborarIcon = self::getDashborarIconExtendExtend();
 
 		add_action('init', array($this, 'register'));
+
+        add_filter( 'manage_posts_columns', array( $this, 'exibe_cols' ), 10, 2 );
+		add_action( 'manage_oportunidade_posts_custom_column', array( $this, 'cols_content' ) );
+		add_action( 'restrict_manage_posts', array( $this, 'my_restrict_manage_posts' ) );
 	}
 
 
@@ -170,6 +174,62 @@ class CptOportunidades extends Cpt
             )
         );
 
+	}
+
+	public function exibe_cols( $cols, $post_type ) {
+		if ( $post_type === 'oportunidade' ) {
+			$columns = array(
+				'title' => 'Titulo',
+				'author' => 'Autor',
+				'eixo_atuacao' => 'Eixo de Atuação',				
+				'date' => 'Data',
+			);
+
+			return $columns;
+		}else{
+			return $cols;
+		}
+
+	}
+
+	public function cols_content( $column ) {
+		switch ( $column ) {
+
+            case 'eixo_atuacao':
+                $terms = get_the_terms( $post_id, 'eixos_atuacao' );
+
+                if ( $terms && ! is_wp_error( $terms ) ) {
+                    $terms_links = array();
+                    foreach ( $terms as $term ) {
+                        $terms_links[] = '<a href="' . esc_url( admin_url('edit.php/?post_type=oportunidade&eixos_atuacao=' . $term->slug) ) . '">' . esc_html( $term->name ) . '</a>';
+                    }
+                    echo implode( ', ', $terms_links );
+                } else {
+                    echo '-';
+                }
+                
+                break;
+		}
+	}
+
+    public function my_restrict_manage_posts(){
+
+		global $typenow;
+
+		$taxonomy = 'eixos_atuacao';
+		if ( $typenow == $this->cptSlug ) {
+
+            $terms = get_terms( array(
+                'taxonomy' => $taxonomy,
+                'hide_empty' => false,
+            ) );
+            echo "<select name='$taxonomy' id='$taxonomy' class='postform'>";
+            echo "<option value=''>Ver todos os Eixos</option>";
+            foreach ( $terms as $term ) {
+                echo '<option value=' . $term->slug, $_GET[$taxonomy] == $term->slug ? ' selected="selected"' : '', '>' . $term->name . '</option>';
+            }
+            echo "</select>";
+		}
 	}
 
 }
