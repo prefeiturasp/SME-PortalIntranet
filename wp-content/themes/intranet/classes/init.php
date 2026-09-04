@@ -153,7 +153,7 @@ $cptAgendaSecretarioExtend = new \Classes\Cpt\CptAgendaSecretario();
 $cptAgendaSecretarioNew = new \Classes\Cpt\Cpt('agendanew', 'agendanew', 'Calendário Escolar', 'Todos os Eventos', 'Eventos', 'Eventos', null, null, null, 'dashicons-calendar-alt', true);
 $cptAgendaSecretarioNewExtend = new \Classes\Cpt\CptAgendaSecretarioNew();
 
-$cptOportunidade = new \Classes\Cpt\Cpt('oportunidade', 'oportunidade', 'Portal de Oportunidades', 'Todas as Oportunidades', 'Oportunidades', 'Oportunidade', null, null, null, 'dashicons-list-view', true);
+$cptOportunidade = new \Classes\Cpt\Cpt('oportunidade', 'oportunidade', 'Gestão de Oportunidades', 'Todas as Oportunidades', 'Oportunidades', 'Oportunidade', null, null, null, 'dashicons-list-view', true);
 $cptOportunidadeExtend = new \Classes\Cpt\CptOportunidades();
 
 //$cptContatoSme = new \Classes\Cpt\Cpt('contato', 'contato', 'Contatos SME', 'Todos os Contatos', 'Contatos', 'Contato', null, null, null ,'dashicons-email-alt', true);

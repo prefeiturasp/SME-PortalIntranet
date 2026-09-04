@@ -21,6 +21,15 @@ class OportunidadeAdminController {
          * Taxonomias
          */
         add_filter( 'pre_insert_term', [$this, 'validar_taxonomias'], 10, 2 );
+        add_filter( 'views_edit-oportunidade', [$this, 'alterar_labels_filtros_oportunidades'] );
+
+        /**
+         * Post type
+         */
+        add_action( 'pre_get_posts', [$this, 'filtrar_oportunidades_encerradas'] );
+        add_action( 'pre_get_posts', [$this, 'filtrar_oportunidades_listagem_padrao'] );
+        add_filter( 'post_row_actions', [$this, 'ordenar_acoes_oportunidade' ], 10, 2 );
+
     }
 
     /**
@@ -268,6 +277,178 @@ class OportunidadeAdminController {
         }
 
         return $term;
+    }
+
+    //Modifica a nomenclatura e a ordenação padrão dos filtros nas listagens das "Oportunidades".
+    public function alterar_labels_filtros_oportunidades( $views ) {
+
+        if ( isset( $views['mine'] ) ) {
+            $views['mine'] = str_replace( 'Meus', 'Editando', $views['mine'] );
+        }
+
+        if ( isset( $views['pending'] ) ) {
+            $views['pending'] = str_replace( 'Pendentes', 'Aguardando Validação', $views['pending'] );
+        }
+
+        $views['encerradas'] = $this->criar_view_encerradas();
+
+        $ordem = [
+            'all',
+            'mine',
+            'pending',
+            'publish',
+            'encerradas',
+            'draft',
+            'trash',
+        ];
+
+        $views_ordenadas = [];
+
+        foreach ( $ordem as $key ) {
+            if ( isset( $views[ $key ] ) ) {
+                $views_ordenadas[ $key ] = $views[ $key ];
+            }
+        }
+
+        // Remove os contadores de todos os filtros.
+        foreach ( $views_ordenadas as $key => $view ) {
+            $views_ordenadas[ $key ] = preg_replace( '/\s*<span class="count">.*?<\/span>/', '', $view );
+        }
+
+        return $views_ordenadas;
+    }
+
+    //Adiciona o link do filtro de "Encerradas" na listagem de Oportunidades
+    private function criar_view_encerradas() {
+
+        $url = add_query_arg([
+                'post_type' => 'oportunidade',
+                'oportunidade_view' => 'encerradas'
+            ],
+            admin_url( 'edit.php' )
+        );
+
+        $menu_classe = isset( $_GET['oportunidade_view'] ) && $_GET['oportunidade_view'] === 'encerradas'
+            ? 'current'
+            : '';
+
+        return sprintf(
+            '<a href="%s" class="%s">Encerradas</a>',
+            esc_url( $url ),
+            $menu_classe
+        );
+    }
+
+    //Monta o filtro "Encerradas" na listagem de "Oportunidades"
+    public function filtrar_oportunidades_encerradas( $query ) {
+
+        if ( !is_admin() || !$query->is_main_query() ) {
+            return;
+        }
+
+        if ( $query->get( 'post_type' ) !== 'oportunidade' ) {
+            return;
+        }
+
+        if ( !isset( $_GET['oportunidade_view'] ) || $_GET['oportunidade_view'] !== 'encerradas' ) {
+            return;
+        }
+
+        $data_atual = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+        $meta_query = $query->get( 'meta_query' );
+        
+        $query->set( 'post_status', ['pending','publish'] );
+
+        if ( !is_array( $meta_query ) ) {
+            $meta_query = [];
+        }
+
+        $meta_query[] = [
+            'key'     => 'ence_inscricoes',
+            'value'   => $data_atual,
+            'compare' => '<',
+            'type'    => 'NUMERIC',
+        ];
+
+        $query->set( 'meta_query', $meta_query );
+    }
+
+    //Modifica a listagem padrão para remover oportunidades "Encerradas" da listagem.
+    public function filtrar_oportunidades_listagem_padrao( $query ) {
+
+        if ( !is_admin() || !$query->is_main_query() ) {
+            return;
+        }
+
+        if ( $query->get( 'post_type' ) !== 'oportunidade' ) {
+            return;
+        }
+
+        // Não interfere nas views/filtros personalizados.
+        if ( !empty( $_GET['oportunidade_view'] ) ) {
+            return;
+        }
+
+        if ( !empty( $query->get( 'post_status' ) ) ) {
+            return;
+        }
+
+        $query->set( 'post_status', ['pending','publish'] );
+
+        $data_atual = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+        $meta_query = $query->get( 'meta_query' );
+
+        if ( !is_array( $meta_query ) ) {
+            $meta_query = [];
+        }
+
+        $meta_query[] = [
+            'relation' => 'OR',
+            [
+                'key'     => 'ence_inscricoes',
+                'value'   => $data_atual,
+                'compare' => '>=',
+                'type'    => 'NUMERIC',
+            ],
+            [
+                'key'     => 'ence_inscricoes',
+                'compare' => 'NOT EXISTS',
+            ],
+        ];
+
+        $query->set( 'meta_query', $meta_query );
+    }
+
+    //Modifica a ordenação padrão das ações exibidas em cada item da listagem de "Oportunidades".
+    public function ordenar_acoes_oportunidade( $actions, $post ) {
+
+        if ( $post->post_type !== 'oportunidade' ) {
+            return $actions;
+        }
+
+        $ordem = [
+            'view',
+            'edit',
+            'inline hide-if-no-js',
+            'trash'
+        ];
+
+        $acoes_ordenadas = [];
+
+        foreach ( $ordem as $acao ) {
+            if ( isset( $actions[ $acao ] ) ) {
+                $acoes_ordenadas[ $acao ] = $actions[ $acao ];
+            }
+        }
+
+        // Mantém qualquer ação adicional que não precise de uma ordem especifica.
+        foreach ( $actions as $key => $action ) {
+            if ( !isset( $acoes_ordenadas[ $key ] ) ) {
+                $acoes_ordenadas[ $key ] = $action;
+            }
+        }
+
+        return $acoes_ordenadas;
     }
 
 }
