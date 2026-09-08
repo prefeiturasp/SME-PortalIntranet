@@ -21,6 +21,21 @@ return [
                     'rf' => [
                         'label' => 'RF',
                     ],
+                    'concluiu_estagio' => [
+                        'label' => 'Concluiu o estágio probatório?',
+                    ],
+                    'cargo_efetivo' => [
+                        'label' => 'Qual é o seu cargo efetivo?',
+                    ],
+                    'cargo_outro' => [
+                        'label' => 'Informe o cargo',
+                    ],
+                    'acumula_cargo' => [
+                        'label' => 'Você acumula cargo na SME ou em outro órgão?',
+                    ],
+                    'acumula_descricao' => [
+                        'label' => 'Informe o órgão e o cargo onde acumula',
+                    ],
                 ],
 
             ],
@@ -92,15 +107,6 @@ return [
 
                 'titulo' => 'Lotação e Exercício',
                 'campos' => [
-                    'concluiu_estagio' => [
-                        'label' => 'Concluiu o estágio probatório?',
-                    ],
-                    'cargo_efetivo' => [
-                        'label' => 'Qual é o seu cargo efetivo?',
-                    ],
-                    'cargo_outro' => [
-                        'label' => 'Informe o cargo',
-                    ],
                     'dre_lotacao' => [
                         'label' => 'DRE de lotação',
                     ],
@@ -112,12 +118,6 @@ return [
                     ],
                     'unidade_exercicio' => [
                         'label' => 'Unidade de Exercício',
-                    ],
-                    'acumula_cargo' => [
-                        'label' => 'Você acumula cargo na SME ou em outro órgão?',
-                    ],
-                    'acumula_descricao' => [
-                        'label' => 'Informe o órgão e o cargo onde acumula',
                     ],
                 ],
 
@@ -267,7 +267,7 @@ return [
     ],
 
     'visualizacao' => [
-        'titulo' => 'Finalização e Visualização',
+        'titulo' => 'Informações Complementares e Finalização',
 
         'subsecoes' => [
 
@@ -286,7 +286,7 @@ return [
             ],
 
             'sugestoes' => [
-                'titulo' => 'Sugestões',
+                'titulo' => 'Informações adicionais',
             ],
 
         ],

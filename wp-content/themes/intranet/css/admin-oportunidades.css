@@ -67,3 +67,8 @@
 .post-type-oportunidade .bulkactions {
     display: none;
 }
+
+.post-type-oportunidade .campo-titulo-oportunidade span {
+    font-weight: bold;
+    color: #646970;
+}

@@ -6,6 +6,7 @@ class OportunidadeAdminController {
 
         add_action( 'load-post.php', [$this, 'inicializar_regras_edicao'] );
         add_action( 'admin_enqueue_scripts', [$this, 'enqueue_admin_styles'] );
+        add_action( 'admin_bar_menu', [ $this, 'personalizar_barra_admin' ], 999 );
         
         /*
         * Fluxo de exclusão e auditoria de exclusão de oportunidades.
@@ -26,9 +27,13 @@ class OportunidadeAdminController {
         /**
          * Post type
          */
+        add_filter( 'post_row_actions', [$this, 'ordenar_acoes_oportunidade' ], 10, 2 );
+
         add_action( 'pre_get_posts', [$this, 'filtrar_oportunidades_encerradas'] );
         add_action( 'pre_get_posts', [$this, 'filtrar_oportunidades_listagem_padrao'] );
-        add_filter( 'post_row_actions', [$this, 'ordenar_acoes_oportunidade' ], 10, 2 );
+        add_action( 'admin_menu', [ $this, 'remover_menu_painel' ] );
+        add_action( 'admin_init', [ $this, 'redirecionar_painel' ] );
+        add_action( 'edit_form_before_permalink', [ $this, 'exibir_titulo_oportunidade' ] );
 
     }
 
@@ -449,6 +454,74 @@ class OportunidadeAdminController {
         }
 
         return $acoes_ordenadas;
+    }
+
+    //Remove o menu painel dos perfis de usuários do Portal de Oportunidades
+    public function remover_menu_painel() {
+
+        if ( !$this->check_permissoes_usuario_logado( ['admin_portal', 'gestor_unidade'] ) ) {
+            return;
+        }
+
+        remove_menu_page( 'index.php' );
+    }
+
+    //Redireciona usuários do Portal de Oportunidades diretamente para o menu de "Gestão de Oportunidades"
+    public function redirecionar_painel() {
+
+        if ( !$this->check_permissoes_usuario_logado( ['admin_portal', 'gestor_unidade'] ) ) {
+            return;
+        }
+
+        global $pagenow;
+
+        if ( $pagenow !== 'index.php' ) {
+            return;
+        }
+
+        wp_safe_redirect( admin_url( 'edit.php?post_type=oportunidade' ) );
+        exit;
+    }
+
+    //Exibe o título da oportunidade na tela de edição
+    public function exibir_titulo_oportunidade( $post ) {
+
+        if ( $post->post_type !== 'oportunidade' ) {
+            return;
+        }
+
+        if ( !$post->post_title ) {
+            return;
+        }
+
+        ?>
+        <div class="campo-titulo-oportunidade">
+            <span>Oportunidade:</span>
+            <strong><?php echo esc_html( $post->post_title ); ?></strong>
+        </div>
+        <?php
+    }
+
+    //Personalizar as opções disponíveis na "Admin bar" para usuários com perfil do Portal de Oportunidades
+    public function personalizar_barra_admin( $wp_admin_bar ) {
+
+        $usuario = wp_get_current_user();
+
+        if ( !in_array( 'admin_portal', $usuario->roles, true ) && !in_array( 'gestor_unidade', $usuario->roles, true ) ) {
+            return;
+        }
+
+        $itens = [
+            'wp-logo',
+            'updates',
+            'comments',
+            'new-content',
+            'customize',
+        ];
+
+        foreach ( $itens as $item ) {
+            $wp_admin_bar->remove_node( $item );
+        }
     }
 
 }

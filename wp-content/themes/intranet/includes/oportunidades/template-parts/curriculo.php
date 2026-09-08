@@ -72,30 +72,65 @@ foreach ($comportamental as $item) {
 
                     <table class="table table-striped">
                         <tbody>
-                            <?php foreach ($dadosPessoais['campos'] as $campo => $config) : ?>
+                            <tr>
+                                <th><?= $dadosPessoais['campos']['nome_completo']['label']; ?></th>
+                                <td><?= valor($curriculo->nome_completo); ?></td>
+                            </tr>
+                            <tr>
+                                <th><?= $dadosPessoais['campos']['nome_social']['label']; ?></th>
+                                <td><?= valor($curriculo->nome_social); ?></td>
+                            </tr>
+                            <tr>
+                                <th><?= $dadosPessoais['campos']['rf']['label']; ?></th>
+                                <td><?= valor($curriculo->rf); ?></td>
+                            </tr>
+                            <tr>
+                                <th><?= $dadosPessoais['campos']['concluiu_estagio']['label']; ?></th>
+                                <td><?= sim_nao($curriculo->concluiu_estagio); ?></td>
+                            </tr>
+                            <tr>
+                                <th><?= $dadosPessoais['campos']['cargo_efetivo']['label']; ?></th>
+                                <td>
+
+                                    <?php
+
+                                    if (!empty($cargos)) {
+
+                                        echo esc_html(implode(', ', $cargos));
+
+                                    } else {
+
+                                        echo '<em>—</em>';
+
+                                    }
+
+                                    ?>
+
+                                </td>
+                            </tr>
+
+                            <?php if (in_array('Outro', $cargos, true)) : ?>
+
                                 <tr>
-                                    <th>
-                                        <?= $config['label']; ?>
-                                    </th>                                    
-                                    <td>
-                                        <?php
-                                        $valorCampo = $curriculo->$campo ?? '';
-
-                                        if (isset($config['mapa'])) {
-
-                                            $valorCampo = traduzir(
-                                                $valorCampo,
-                                                $config['mapa']
-                                            );
-
-                                        }
-
-                                        echo valor($valorCampo);
-
-                                        ?>
-                                    </td>
+                                    <th><?= $dadosPessoais['campos']['cargo_outro']['label']; ?></th>
+                                    <td><?= valor($curriculo->cargo_outro); ?></td>
                                 </tr>
-                            <?php endforeach; ?>
+
+                            <?php endif; ?>
+                            
+                            <tr>
+                                <th><?= $dadosPessoais['campos']['acumula_cargo']['label']; ?></th>
+                                <td><?= sim_nao($curriculo->acumula_cargo); ?></td>
+                            </tr>
+
+                            <?php if ((int) $curriculo->acumula_cargo === 1) : ?>
+
+                                <tr>
+                                    <th><?= $dadosPessoais['campos']['acumula_descricao']['label']; ?></th>
+                                    <td><?= valor($curriculo->acumula_descricao); ?></td>
+                                </tr>
+
+                            <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
@@ -246,42 +281,6 @@ foreach ($comportamental as $item) {
                     <table class="table table-striped">
 
                         <tbody>
-
-                            <tr>
-                                <th><?= $lotacaoExercicio['campos']['concluiu_estagio']['label']; ?></th>
-                                <td><?= sim_nao($curriculo->concluiu_estagio); ?></td>
-                            </tr>
-
-                            <tr>
-                                <th><?= $lotacaoExercicio['campos']['cargo_efetivo']['label']; ?></th>
-                                <td>
-
-                                    <?php
-
-                                    if (!empty($cargos)) {
-
-                                        echo esc_html(implode(', ', $cargos));
-
-                                    } else {
-
-                                        echo '<em>—</em>';
-
-                                    }
-
-                                    ?>
-
-                                </td>
-                            </tr>
-
-                            <?php if (in_array('Outro', $cargos, true)) : ?>
-
-                                <tr>
-                                    <th><?= $lotacaoExercicio['campos']['cargo_outro']['label']; ?></th>
-                                    <td><?= valor($curriculo->cargo_outro); ?></td>
-                                </tr>
-
-                            <?php endif; ?>
-
                             <tr>
                                 <th><?= $lotacaoExercicio['campos']['dre_lotacao']['label']; ?></th>
                                 <td><?= traduzir($curriculo->dre_lotacao, $MAPEAMENTO_OPCOES_DRES); ?></td>
@@ -301,21 +300,6 @@ foreach ($comportamental as $item) {
                                 <th><?= $lotacaoExercicio['campos']['unidade_exercicio']['label']; ?></th>
                                 <td><?= valor($curriculo->unidade_exercicio); ?></td>
                             </tr>
-
-                            <tr>
-                                <th><?= $lotacaoExercicio['campos']['acumula_cargo']['label']; ?></th>
-                                <td><?= sim_nao($curriculo->acumula_cargo); ?></td>
-                            </tr>
-
-                            <?php if ((int) $curriculo->acumula_cargo === 1) : ?>
-
-                                <tr>
-                                    <th><?= $lotacaoExercicio['campos']['acumula_descricao']['label']; ?></th>
-                                    <td><?= valor($curriculo->acumula_descricao); ?></td>
-                                </tr>
-
-                            <?php endif; ?>
-
                         </tbody>
 
                     </table>
