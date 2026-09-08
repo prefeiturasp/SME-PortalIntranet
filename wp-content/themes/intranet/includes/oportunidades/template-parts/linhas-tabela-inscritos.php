@@ -31,11 +31,39 @@ foreach ( $participantes as $participante ) :
         </td>
         <td>
             <?php if ($participante['nome_social']): ?>
-                <span class="nome-candidato"><?php echo esc_html($participante['nome_social']); ?> <br><small>(<?php echo esc_html($participante['nome_completo']); ?>)</small></span><br>
+                <span
+                    class="nome-candidato copiar-texto"
+                    data-texto="<?php echo esc_html($participante['nome_social']); ?>"
+                    data-toggle="tooltip"
+                    title="Clique para copiar a informação"
+                    >  
+                    <?php echo esc_html($participante['nome_social']); ?>
+                    <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio">
+                </span>
+                <br>
+                <small
+                    class="copiar-texto"
+                    data-texto="<?php echo esc_html($participante['nome_completo']); ?>"
+                    data-toggle="tooltip"
+                    title="Clique para copiar a informação"
+                    >
+                    (<?php echo esc_html($participante['nome_completo']); ?>)
+                    <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio" width="12">
+                </small>
+                <br>
             <?php else: ?>
-                <span class="nome-candidato"><?php echo esc_html($participante['nome_completo']); ?></span><br>
+                <span
+                    class="nome-candidato copiar-texto"
+                    data-texto="<?php echo esc_html($participante['nome_completo']); ?>"
+                    data-toggle="tooltip"
+                    title="Clique para copiar a informação"
+                    >
+                    <?php echo esc_html($participante['nome_completo']); ?>
+                    <img src="<?= get_stylesheet_directory_uri(); ?>/img/icon_copy_16.png" class="copia-email-sorteio">
+                </span>
+                <br>
             <?php endif; ?>
-            <span class="card-etapa data-inscricao">
+            <span class="card-etapa triagem-curricular">
                 Inscrição Recebida<br>
                 <span class="data-etapa"><?php echo date('d/m/Y \à\s H:i', strtotime($participante['created_at'])); ?></span>
             </span>

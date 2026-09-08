@@ -474,8 +474,8 @@ table.wp-list-table.media {
     margin-bottom: 10px;
 }
 
-.hide-label .acf-label {
-    display: none;
+.hide-label .acf-label label {
+    display: none !important;
 }
 
 .acf-accordion.-open .acf-accordion-title {

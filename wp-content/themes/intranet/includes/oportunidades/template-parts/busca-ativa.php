@@ -12,8 +12,8 @@ if (!defined('ABSPATH')) {
         Busca Ativa de Candidatos
     </h1>
 
-    <div class="alert alert-warning" role="alert">
-        <i class="fa fa-info-circle" aria-hidden="true"></i> Exibindo apenas candidatos que autorizaram a visualização de seus currículos para qualquer gestor que esteja consultando o Banco de Talentos da SME.
+    <div class="alert alert-warning border-warning" role="alert">
+        <strong><i class="fa fa-info-circle" aria-hidden="true"></i> Exibindo apenas candidatos que autorizaram a visualização de seus currículos para qualquer gestor que esteja consultando o Banco de Talentos da SME.</strong>
     </div>
 
     <hr class="wp-header-end">
