@@ -1054,3 +1054,37 @@ div#meu_meta_box_id table.dataTable.no-footer{
 #menu-posts-oportunidade ul li.wp-first-item {
     display: none;
 }
+
+/* Filtros de busca */
+.filtro-eventos-participante {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    padding: 10px 10px 0;
+    margin: 20px 0;
+    border-radius: 4px;
+    box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0px 1px 4px 1px rgba(0,0,0,0.3);
+}
+
+.filtro-eventos-participante label {
+    font-weight: 600;
+}
+
+/* Tag Sorteio */
+.post-type-tag {
+    background: rgba(8, 99, 151, 0.8);
+    width: 120px;
+    display: block;
+    border-radius: 5px;
+    font-size: 10px;
+    padding: 3px 11px;
+    line-height: 120%;
+    font-weight: 800;
+    color: #fff;
+    margin-top: 2px;
+}
+
+/* Tag Cortesia */
+.post-type-tag.cortesia-tag {
+    background: rgba(255, 110, 20, 0.9);
+}

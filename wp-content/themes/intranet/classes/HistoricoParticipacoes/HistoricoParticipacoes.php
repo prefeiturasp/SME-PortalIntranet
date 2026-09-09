@@ -51,7 +51,9 @@ class Historico_Participacoes {
         add_meta_box(
             'historico_eventos_container',  // ID
             'Listagem de Eventos',          // Título
-            array( $this, 'box_eventos' ),   // Callback
+            function() {
+                    $this->box_eventos( $this->dados_participante );
+                },   // Callback
             'historico-participantes',      // Tela
             'normal',                       // Contexto
             'default'
@@ -156,14 +158,15 @@ class Historico_Participacoes {
                     </div>
                 </div>
 
-                <div class="col-2 align-self-end">
-                    <button id="buscar-participante" class="btn btn-laranja mr-2">Buscar</button>
+                <div class="col-2 align-self-end d-flex">
                     <a
                         href="<?php echo esc_url( admin_url( 'edit.php?page=historico-participantes' ) ); ?>"
-                        class="btn btn-outline-secondary"
+                        class="btn btn-outline-secondary flex-fill mr-2"
                         >
                         Limpar
                     </a>
+                    <button id="buscar-participante" class="btn flex-fill btn-laranja">Buscar</button>
+                    
                 </div>
             </div>
         </form>
@@ -183,8 +186,14 @@ class Historico_Participacoes {
         ]);
     }
 
-    function box_eventos() {
-        get_template_part( 'classes/HistoricoParticipacoes/template-parts/lista-eventos', null, [ 'eventos' => $this->eventos ] );
+    function box_eventos( $dados_participante ) {
+
+        $sancao_ativa = $this->check_sancao_ativa_participante( $dados_participante->cpf );
+
+        get_template_part( 'classes/HistoricoParticipacoes/template-parts/lista-eventos', null, [ 
+            'eventos' => $this->eventos,
+            'dados' => $sancao_ativa
+        ] );
     }
 
     function render_page() {
