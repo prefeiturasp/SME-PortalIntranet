@@ -442,10 +442,12 @@ jQuery(document).ready(function($) {
         ordering: false,
         lengthChange: false,
         searching: true,
-        dom: 'rtip',
+        dom: 'rtip',        
         pageLength: 10,
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json',
+            emptyTable: 'Nenhum resultado encontrado para os filtros informados.',
+            zeroRecords: 'Nenhum resultado encontrado para os filtros informados.',
         }
     });
 
@@ -454,10 +456,72 @@ jQuery(document).ready(function($) {
         tabelaEventos.search($(this).val()).draw();
     });
 
+    // Filtro por foi sorteado
+    $('.filtro-eventos-participante #foi-sorteado').on('change', function() {
+        tabelaEventos.column(2).search($(this).val()).draw();
+    });
+
+    // Filtro por modalidade
+    $('.filtro-eventos-participante #modalidade').on('change', function() {
+        tabelaEventos.column(1).search($(this).val()).draw();
+    });
+
+    // Confirmou Presença
+    $('.filtro-eventos-participante #presenca').on('change', function() {
+        tabelaEventos.column(3).search($(this).val()).draw();
+    });
+
+    // Filtro por instruções enviadas
+    $('.filtro-eventos-participante #instrucoes').on('change', function() {
+        tabelaEventos.column(4).search($(this).val()).draw();
+    });
+
+    // Filtro por contato extra
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+
+        var contatoSelecionado = $('.filtro-eventos-participante #contato').val();
+
+        if (!contatoSelecionado) {
+            return true;
+        }
+
+        var linha = tabelaEventos.row(dataIndex).node();
+
+        return $(linha)
+            .find('.tipos-contato [data-filtro="' + contatoSelecionado + '"]')
+            .length > 0;
+    });
+
+    $('.filtro-eventos-participante #contato').on('change', function() {
+        tabelaEventos.draw();
+    });
+
+    // Filtro por compareceu ou resgatou
+    $('.filtro-eventos-participante #compareceu').on('change', function() {
+        tabelaEventos.column(6).search($(this).val()).draw();
+    });
+
+    // Botão limpar
     // Botão limpar
     $('.filtro-eventos-participante #btn-limpar-filtro').on('click', function() {
+
         $('.filtro-eventos-participante #evento-input').val('');
-        tabelaEventos.search('').draw();
+        $('.filtro-eventos-participante #modalidade').val('');
+        $('.filtro-eventos-participante #foi-sorteado').val('');
+        $('.filtro-eventos-participante #presenca').val('');
+        $('.filtro-eventos-participante #instrucoes').val('');
+        $('.filtro-eventos-participante #contato').val('');
+        $('.filtro-eventos-participante #compareceu').val('');
+
+        // Limpa a busca geral
+        tabelaEventos.search('');
+
+        // Limpa os filtros das colunas
+        tabelaEventos.columns().search('');
+
+        // Redesenha a tabela
+        tabelaEventos.draw();
+
     });
 });
 
