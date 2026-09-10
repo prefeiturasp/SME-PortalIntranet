@@ -207,6 +207,25 @@ div#categorias-contatodiv{
     border: 0;
 }
 
+.popup-notificar-sorteados .icone-modal-confirmacao {
+    width: 80px;
+    height: 80px;
+    padding: 10px;
+    background-color: #EFF6FF;
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-notificar-sorteados .icone-modal-confirmacao .dashicons {
+    font-size: 3rem;
+    width: auto;
+    height: auto;
+    color: #011257;
+}
+
 .dest-azul {
     color: #011257;
     font-weight: 700;

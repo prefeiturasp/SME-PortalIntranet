@@ -1145,27 +1145,9 @@ function enviar_email_cancelar_cortesia_ajax() {
 }
 
 //Define o prazo limite para confirmação de presença de um inscrito em eventos do tipo gratuidade e cortesias
-function definir_prazo_expiracao_email_confirmacao_cortesia( array $participantes, string $tipo_prazo, $prazo, bool $forcar_atualizacao = false ) {
+function definir_prazo_expiracao_email_confirmacao_cortesia( array $participantes, string $prazo, bool $forcar_atualizacao = false ) {
 
 	global $wpdb;
-	$timezone = new DateTimeZone( 'America/Sao_Paulo' );
-	$data_atual = new DateTime( 'now', $timezone );
-
-	// Aplica o prazo de validade conforme o tipo selecionado
-	if ( $tipo_prazo === 'dias' ) {
-		$data_atual->modify( "+{$prazo} days" );
-
-	} elseif ( $tipo_prazo === 'horas' ) {
-		$partes = explode( ':', $prazo );
-
-		$horas   = isset( $partes[0] ) ? (int) $partes[0] : 0;
-		$minutos = isset( $partes[1] ) ? (int) $partes[1] : 0;
-
-		$intervalo = new DateInterval( sprintf( 'PT%dH%dM', $horas, $minutos ) );
-		$data_atual->add( $intervalo );
-	}
-
-	$data_final = $data_atual->format( 'Y-m-d H:i:s' );
 
 	//Força a atualização do prazo de confirmação para o caso de reenvio
 	$extra_args = $forcar_atualizacao ? '' : 'AND (prazo_confirmacao IS NULL OR prazo_confirmacao = "")';
@@ -1176,7 +1158,7 @@ function definir_prazo_expiracao_email_confirmacao_cortesia( array $participante
 		SET prazo_confirmacao = %s
 		WHERE id IN ($lista_ids)
 		$extra_args",
-		$data_final
+		$prazo
 	);
 
 	return $wpdb->query( $query );
@@ -1188,9 +1170,9 @@ function definir_prazo_selecionados_cortesia_callback() {
     global $wpdb;
 
     $participantesSelecionados = isset( $_POST['selecionados'] ) ? $_POST['selecionados'] : null;
-	$tipo_prazo_confirmacao = isset( $_POST['tipo_prazo'] ) ? sanitize_text_field( $_POST['tipo_prazo'] ) : 'dias';
 	$prazo_confirmacao = isset( $_POST['prazo'] ) ? sanitize_text_field( $_POST['prazo'] ) : 1;
-    $reenvio = boolval( $_POST['reenvio'] );
+    $prazo_formatado = DateTime::createFromFormat( 'Y-m-d\TH:i', $prazo_confirmacao )->format( 'Y-m-d H:i' );
+    $forcar_reenvio = boolval( $_POST['reenvio'] );
 
     $arrEmails = array();
     $tabela =  $wpdb->prefix .'cortesias_inscricoes';
@@ -1216,9 +1198,7 @@ function definir_prazo_selecionados_cortesia_callback() {
 
         foreach($arrDados as $item){
             $item['tipoEmail'] = 'confirmar_presenca_cortesia';
-            array_push($arrEmails, $item);
-
-            $reenvio = false;
+            $reenvio = $forcar_reenvio;
 
             $dataPrazo = $item['prazo_confirmacao'] ?? null;
             if ($dataPrazo) {
@@ -1229,13 +1209,17 @@ function definir_prazo_selecionados_cortesia_callback() {
                 $reenvio = true;
             }
 
-            definir_prazo_expiracao_email_confirmacao_cortesia( [$item['id']], $tipo_prazo_confirmacao, $prazo_confirmacao, $reenvio );
+            $item['reenvio'] = $reenvio;
+
+            array_push($arrEmails, $item);
+
+            definir_prazo_expiracao_email_confirmacao_cortesia( [$item['id']], $prazo_formatado, $reenvio );
         }
 
         if(is_plugin_active('envia-email-sme/envia-email-sme.php')){            
 
-            foreach($arrEmails as $item){
-                new Envia_Emails_Sorteio_SME($item['id'], null, $item['post_id'], $item['tipoEmail'], null, null, ['reenvio' => $reenvio]);
+            foreach($arrEmails as $item) {
+                new Envia_Emails_Sorteio_SME($item['id'], null, $item['post_id'], $item['tipoEmail'], null, null, ['reenvio' => $item['reenvio']]);
             }
         }
     }
