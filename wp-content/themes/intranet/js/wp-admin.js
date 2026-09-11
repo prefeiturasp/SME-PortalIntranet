@@ -451,6 +451,26 @@ jQuery(document).ready(function($) {
         }
     });
 
+    function atualizarBotaoExportar() {
+
+        var quantidadeResultados = tabelaEventos
+            .rows({
+                search: 'applied'
+            })
+            .count();
+
+        $('#btn-exportar').prop(
+            'disabled',
+            quantidadeResultados === 0
+        );
+    }
+
+    tabelaEventos.on('draw', function() {
+        atualizarBotaoExportar();
+    });
+
+    atualizarBotaoExportar();
+
     // Busca personalizada
     $('.filtro-eventos-participante #evento-input').on('keyup', function() {
         tabelaEventos.search($(this).val()).draw();
@@ -502,7 +522,6 @@ jQuery(document).ready(function($) {
     });
 
     // Botão limpar
-    // Botão limpar
     $('.filtro-eventos-participante #btn-limpar-filtro').on('click', function() {
 
         $('.filtro-eventos-participante #evento-input').val('');
@@ -523,6 +542,100 @@ jQuery(document).ready(function($) {
         tabelaEventos.draw();
 
     });
+
+    $('#btn-exportar').on('click', function() {
+
+        var botao = $(this);
+        var inscricoes = [];
+
+        tabelaEventos
+            .rows({
+                search: 'applied'
+            })
+            .nodes()
+            .each(function(linha) {
+
+                var idInscricao = $(linha).attr('data-inscricao');
+                var tipo = $(linha).attr('data-tipo');
+
+                if (idInscricao && tipo) {
+                    inscricoes.push({
+                        id: idInscricao,
+                        tipo: tipo
+                    });
+                }
+
+            });
+
+        if (!inscricoes.length) {
+            alert('Nenhuma inscrição encontrada para exportação.');
+            return;
+        }
+
+        /*
+        * Evita múltiplos cliques enquanto o arquivo está sendo gerado.
+        */
+        botao.prop('disabled', true);
+
+        fetch(ajaxurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: new URLSearchParams({
+                action: 'exportar_historico_participacoes',
+                inscricoes: JSON.stringify(inscricoes)
+            })
+        })
+        .then(function(response) {
+
+            if (!response.ok) {
+                throw new Error('Erro ao gerar o arquivo.');
+            }
+
+            var contentDisposition = response.headers.get('Content-Disposition');
+
+            var nomeArquivo = 'relatorio-historico-participante.xlsx';
+
+            if (contentDisposition) {
+
+                var match = contentDisposition.match(
+                    /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+                );
+
+                if (match && match[1]) {
+                    nomeArquivo = match[1].replace(/['"]/g, '');
+                }
+            }
+
+            return response.blob().then(function(blob) {
+
+                var url = window.URL.createObjectURL(blob);
+                var link = document.createElement('a');
+
+                link.href = url;
+                link.download = nomeArquivo;
+
+                document.body.appendChild(link);
+                link.click();
+
+                link.remove();
+                window.URL.revokeObjectURL(url);
+
+            });
+        })
+        .catch(function(error) {
+
+            console.error('Erro na exportação:', error);
+            alert('Ocorreu um erro ao gerar o arquivo.');
+
+        })
+        .finally(function() {
+            botao.prop('disabled', false);
+        });
+
+    });
+
 });
 
 // ==============================

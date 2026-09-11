@@ -8,6 +8,10 @@ class Historico_Participacoes {
 
     function __construct() {
         add_action( 'admin_menu', array( $this, 'admin_menu' ) );
+        add_action(
+            'wp_ajax_exportar_historico_participacoes',
+            [$this, 'exportar_historico_participacoes']
+        );
     }
 
     function admin_menu() {
@@ -504,6 +508,607 @@ class Historico_Participacoes {
         $query = $wpdb->prepare($sql, ...$params);
 
         return $wpdb->get_results($query);
+    }
+
+    public function get_eventos_por_inscricoes( array $inscricoes ) {
+        global $wpdb;
+
+        if ( empty( $inscricoes ) ) {
+            return [];
+        }
+
+        $ids_sorteio = [];
+        $ids_cortesia = [];
+
+        foreach ( $inscricoes as $inscricao ) {
+
+            if ( empty( $inscricao['id'] ) || empty( $inscricao['tipo'] ) ) {
+                continue;
+            }
+
+            $id = absint( $inscricao['id'] );
+            $tipo = sanitize_key( $inscricao['tipo'] );
+
+            if ( ! $id ) {
+                continue;
+            }
+
+            if ( $tipo === 'sorteio' ) {
+                $ids_sorteio[] = $id;
+            }
+
+            if ( $tipo === 'cortesia' ) {
+                $ids_cortesia[] = $id;
+            }
+        }
+
+        if ( empty( $ids_sorteio ) && empty( $ids_cortesia ) ) {
+            return [];
+        }
+
+        $tabela_destinatarios = $wpdb->prefix . 'historico_envios_destinatarios';
+
+        $consultas = [];
+        $params = [];
+
+        /*
+        * Inscrições de sorteio
+        */
+        if ( ! empty( $ids_sorteio ) ) {
+
+            $placeholders = implode(
+                ', ',
+                array_fill( 0, count( $ids_sorteio ), '%d' )
+            );
+
+            $consultas[] = "
+                SELECT 
+                    i.id,
+                    i.cpf,
+                    i.post_id,
+                    i.sorteado,
+                    i.confirmou_presenca,
+                    i.prazo_confirmacao,
+                    i.enviou_email_instrucoes,
+                    i.compareceu,
+                    i.tipo_contato,
+                    i.data_inscricao,
+                    p.post_title AS nome_evento,
+                    'sorteio' AS tipo
+
+                FROM {$wpdb->prefix}inscricoes i
+
+                INNER JOIN {$wpdb->posts} p
+                    ON p.ID = i.post_id
+
+                WHERE i.id IN ($placeholders)
+            ";
+
+            $params = array_merge( $params, $ids_sorteio );
+        }
+
+        /*
+        * Inscrições de cortesia
+        */
+        if ( ! empty( $ids_cortesia ) ) {
+
+            $placeholders = implode(
+                ', ',
+                array_fill( 0, count( $ids_cortesia ), '%d' )
+            );
+
+            $consultas[] = "
+                SELECT 
+                    i.id,
+                    i.cpf,
+                    i.post_id,
+                    NULL AS sorteado,
+                    i.confirmou_presenca,
+                    i.prazo_confirmacao,
+                    i.enviou_email_instrucoes,
+                    i.compareceu,
+                    i.tipo_contato,
+                    i.data_inscricao,
+                    p.post_title AS nome_evento,
+                    'cortesia' AS tipo
+
+                FROM {$wpdb->prefix}cortesias_inscricoes i
+
+                INNER JOIN {$wpdb->posts} p
+                    ON p.ID = i.post_id
+
+                WHERE i.id IN ($placeholders)
+            ";
+
+            $params = array_merge( $params, $ids_cortesia );
+        }
+
+        $union = implode( "\n UNION ALL \n", $consultas );
+
+        $sql = "
+            SELECT 
+                e.*,
+
+                CASE 
+                    WHEN h.inscricao_id IS NULL THEN 0
+                    ELSE 1
+                END AS tem_historico
+
+            FROM (
+                {$union}
+            ) e
+
+            LEFT JOIN (
+                SELECT DISTINCT inscricao_id
+                FROM {$tabela_destinatarios}
+            ) h
+
+            ON h.inscricao_id = e.id
+
+            ORDER BY e.data_inscricao DESC
+        ";
+
+        $query = $wpdb->prepare( $sql, ...$params );
+
+        return $wpdb->get_results( $query );
+    }
+
+    public function exportar_historico_participacoes() {
+
+        if ( empty( $_POST['inscricoes'] ) ) {
+            wp_send_json_error([
+                'message' => 'Nenhuma inscrição foi informada.'
+            ]);
+        }
+
+        $inscricoes = json_decode(
+            wp_unslash( $_POST['inscricoes'] ),
+            true
+        );
+
+        if ( ! is_array( $inscricoes ) ) {
+            wp_send_json_error([
+                'message' => 'Dados de inscrições inválidos.'
+            ]);
+        }
+
+        $inscricoes_validas = [];
+
+        foreach ( $inscricoes as $inscricao ) {
+
+            if ( ! is_array( $inscricao ) ) {
+                continue;
+            }
+
+            $id = isset( $inscricao['id'] )
+                ? absint( $inscricao['id'] )
+                : 0;
+
+            $tipo = isset( $inscricao['tipo'] )
+                ? sanitize_key( $inscricao['tipo'] )
+                : '';
+
+            if ( ! $id || ! in_array( $tipo, ['sorteio', 'cortesia'], true ) ) {
+                continue;
+            }
+
+            $inscricoes_validas[] = [
+                'id' => $id,
+                'tipo' => $tipo,
+            ];
+        }
+
+        if ( empty( $inscricoes_validas ) ) {
+            wp_send_json_error([
+                'message' => 'Nenhuma inscrição válida foi informada.'
+            ]);
+        }
+
+        /*
+        * Recupera os eventos das inscrições selecionadas.
+        */
+        $eventos = $this->get_eventos_por_inscricoes(
+            $inscricoes_validas
+        );
+
+        if ( empty( $eventos ) ) {
+            wp_send_json_error([
+                'message' => 'Nenhuma inscrição foi encontrada.'
+            ]);
+        }
+
+        /*
+        * Recupera os dados do participante.
+        *
+        * O CPF vem dos eventos retornados pelo banco.
+        */
+        $dados_participante = $this->get_dados_participante(
+            'cpf',
+            $eventos[0]->cpf
+        );
+
+        if ( ! $dados_participante ) {
+            wp_send_json_error([
+                'message' => 'Não foi possível localizar os dados do participante.'
+            ]);
+        }
+
+        /*
+        * Recupera a sanção ativa do participante.
+        */
+        $sancao_ativa = $this->check_sancao_ativa_participante(
+            $dados_participante->cpf
+        );
+
+        /*
+        * Gera o arquivo Excel.
+        */
+        $this->gerar_excel_historico(
+            $eventos,
+            $dados_participante,
+            $sancao_ativa
+        );
+    }
+
+    private function gerar_excel_historico(
+        array $eventos,
+        object $dados_participante,
+        $sancao_ativa
+    ): void {
+
+        
+        $agora = new \DateTime('now', new DateTimeZone('America/Sao_Paulo'));
+        $dados = [];
+
+        /*
+        * Define o perfil do participante.
+        */
+        $perfil = 'ESTAGIÁRIO';
+
+        if ( $dados_participante->user_id && $dados_participante->user_id > 0 ) {
+
+            $tipo = get_user_meta(
+                $dados_participante->user_id,
+                'parceira',
+                true
+            );
+
+            $perfil = $tipo == 1 ? 'PARCEIRO' : 'SERVIDOR';
+        }
+
+        /*
+        * Monta as informações do participante.
+        *
+        * Todas as informações ficarão na mesma célula,
+        * utilizando quebra de linha.
+        */
+        $informacoes_participante = [
+            '<b>Nome Completo:</b> ' . ( $dados_participante->nome_completo ?: '-' ),
+            '<b>CPF:</b> ' . ( $dados_participante->cpf ?: '-' ),
+            '<b>E-mail principal:</b> ' . ( $dados_participante->email_institucional ?: '-' ),
+            '<b>E-mail secundário:</b> ' . ( $dados_participante->email_secundario ?: '-' ),
+            '<b>Telefone Celular:</b> ' . ( $dados_participante->celular ?: '-' ),
+            '<b>Telefone Comercial:</b> ' . ( $dados_participante->telefone_comercial ?: '-' ),
+            '<b>Perfil:</b> ' . $perfil,
+            '<b>DRE/SME:</b> ' . ( $dados_participante->dre ?: '-' ),
+            '<b>Cargo atual:</b> ' . ( $dados_participante->cargo_principal ?: '-' ),
+            '<b>Escola/Setor:</b> ' . ( $dados_participante->unidade_setor ?: '-' ),
+        ];        
+
+        /*
+        * Transforma as informações em uma única string,
+        * utilizando quebra de linha dentro da célula.
+        */
+       $dados_participante_excel =
+        "\n" .
+        implode(
+            "\n",
+            $informacoes_participante
+        ) .
+        "\n";
+
+        $mensagem_sancao = '';
+
+        if ( isset( $sancao_ativa ) && ! empty( $sancao_ativa ) ) {
+
+            $data_formatada = date(
+                'd/m/Y',
+                strtotime( $sancao_ativa['data_validade'] )
+            );
+
+            $mensagem_sancao =
+                'Atenção! Você está temporariamente impedido de se inscrever em novas oportunidades, devido à ausência em uma participação anterior. ' . "\n" . 'Você poderá realizar novas inscrições a partir de ' .
+                $data_formatada .
+                '.';
+        }
+
+        /*
+        * Cabeçalho do relatório
+        */
+        $dados[] = [
+            sprintf(
+                '<style font-size="22" bgcolor="#d9ead3" height="40" border="medium" color="#000000" bordercolor="#000000" valign="center"><middle><b>Histórico do Participante | Extraído em %s</b></middle></style>',
+                current_time( 'd/m/Y - H:i' )
+            ),
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ];
+
+        /*
+        * Informações do participante
+        */
+        $dados[] = [
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" border="medium" bordercolor="#000000" valign="center"><middle>' . $dados_participante_excel . '</middle></style>',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ];
+
+        if ( ! empty( $mensagem_sancao ) ) {
+
+            $dados[] = [
+                '<style font-size="12" bgcolor="#d9ead3" height="35" color="#000000" border="medium" bordercolor="#000000" valign="center"><middle>' . $mensagem_sancao . '</middle></style>',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+                '',
+            ];
+        }
+
+        /*
+        * Cabeçalho das colunas
+        */
+        $dados[] = [
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="medium" bordercolor="#000000"><center><wraptext><middle><b>ID do Evento</b></middle></wraptext></center></style>',
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="medium" bordercolor="#000000"><center><wraptext><middle><b>Nome Evento</b></middle></wraptext></center></style>',
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="medium" bordercolor="#000000"><center><wraptext><middle><b>Modalidade</b></middle></wraptext></center></style>',
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="medium" bordercolor="#000000"><center><wraptext><middle><b>Foi Sorteado?</b></middle></wraptext></center></style>',
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="medium" bordercolor="#000000"><center><wraptext><middle><b>Confirmou Presença?</b></middle></wraptext></center></style>',
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="medium" bordercolor="#000000"><center><wraptext><middle><b>Instruções Enviadas?</b></middle></wraptext></center></style>',
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="medium" bordercolor="#000000"><center><wraptext><middle><b>Contato Extra</b></middle></wraptext></center></style>',
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="medium" bordercolor="#000000"><center><wraptext><middle><b>Compareceu ou Resgatou?</b></middle></wraptext></center></style>',
+        ];
+
+        /*
+        * Dados
+        */
+        foreach ( $eventos as $evento ) {
+        
+            $tipo = '';
+            $sorteado = '';
+
+            $requerConfirmacao = get_post_meta($evento->post_id, 'confirm_presen', true);            
+            if( $evento->prazo_confirmacao && ($evento->sorteado || $evento->tipo == 'cortesia') ) {
+                $confirmacaoPresenca = $evento->confirmou_presenca;
+                $data_validar = new DateTime($evento->prazo_confirmacao, new DateTimeZone('America/Sao_Paulo'));                                
+                
+                if($confirmacaoPresenca == '1'){
+                    $confirmacao = 'Confirmada';
+                } elseif($confirmacaoPresenca == '2'){
+                    $confirmacao = 'Cancelou participação';
+                } else {			
+                    if($agora > $data_validar){
+                        $confirmacao = 'Prazo expirado';
+                    } else {
+                        $confirmacao = 'Aguardando';
+                    }
+                }
+            } elseif (!$requerConfirmacao) {
+                $confirmacao = 'Não requer';
+            } else {
+                $confirmacao = 'Aguardando';
+            }
+
+            if($evento->sorteado || $evento->tipo == 'cortesia') {
+                if($evento->enviou_email_instrucoes) {                    
+                    $instrucoes = 'Sim';                     
+                } else {
+                    $instrucoes = 'Não';
+                }
+            } else {
+                $instrucoes = '-';
+            }
+
+            if($evento->sorteado || $evento->tipo == 'cortesia') {
+                switch ($evento->tipo_contato) {
+                    case '1':                        
+                        $contato = 'Contato por telefone';
+                        break;
+                    case '2':                        
+                        $contato = 'Contato por e-mail';
+                        break;
+                    case '3':                        
+                        $contato = 'Contato por WhatsApp';
+                        break;
+                    default:
+                        $contato = '-';
+                }
+            } else {
+                $contato = '-';
+            }
+
+            $sancao_evento = $this->check_sancao_ativa_participante(
+                $evento->cpf
+            );
+
+            if ( $evento->sorteado || $evento->tipo == 'cortesia' ) {
+
+                if ( $evento->compareceu ) {
+                    $compareceu = 'Sim';
+
+                } elseif (
+                    is_array( $sancao_evento )
+                    && $sancao_evento['id_inscricao'] == $evento->id
+                ) {
+                    $compareceu = 'Bloqueado por Falta';
+
+                } else {
+                    $compareceu = 'Não';
+                }
+
+            } else {
+                $compareceu = '-';
+            }
+
+            if ( $evento->tipo === 'sorteio' ) {
+                $tipo = 'Sorteio';
+                $sorteado = $evento->sorteado ? 'Sim' : 'Não';
+            } else {
+                $tipo = 'Ordem de Inscrição';
+                $sorteado = 'N/A';
+            }
+
+            $dados[] = [
+                '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="thin" bordercolor="#000000"><center><wraptext><middle><b>' . $evento->post_id . '</b></middle></wraptext></center></style>',
+                '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="thin" bordercolor="#000000"><center><wraptext><middle>' . $evento->nome_evento . '</middle></wraptext></center></style>',
+                '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="thin" bordercolor="#000000"><center><wraptext><middle>' . $tipo . '</middle></wraptext></center></style>',
+                '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="thin" bordercolor="#000000"><center><wraptext><middle>' . $sorteado . '</middle></wraptext></center></style>',
+                '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="thin" bordercolor="#000000"><center><wraptext><middle>' . $confirmacao . '</middle></wraptext></center></style>',
+                '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="thin" bordercolor="#000000"><center><wraptext><middle>' . $instrucoes . '</middle></wraptext></center></style>',
+                '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="thin" bordercolor="#000000"><center><wraptext><middle>' . $contato . '</middle></wraptext></center></style>',                
+                '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="thin" bordercolor="#000000"><center><wraptext><middle>' . $compareceu . '</middle></wraptext></center></style>',
+            ];
+        }
+
+        /*
+        * Legendas
+        */
+
+        /*
+        * Espaço antes da primeira legenda
+        */
+        $dados[] = [
+            '<style height="8"></style>',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ];
+        
+        $dados[] = [
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="medium" bordercolor="#000000"><middle><b>N/A - coluna “Foi Sorteado?”: Indica eventos da modalidade Ordem de Inscrição, nos quais a participação é definida pela ordem de inscrição dos participantes, não havendo realização de sorteio.</b></middle></style>',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ];
+
+        /*
+        * Espaço antes da segunda legenda
+        */
+        $dados[] = [
+            '<style height="8"></style>',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ];
+
+        $dados[] = [
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" valign="center" border="medium" bordercolor="#000000"><middle><b>Não Requer - coluna “Confirmou Presença?”:  Indica que o evento não exige confirmação de presença do participante.</b></middle></style>',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+            '',
+        ];
+
+        $xlsx = Classes\Lib\SimpleXLSXGenExp::fromArray( $dados );
+        $xlsx->setDefaultFont('Aptos Narrow');
+        $xlsx->setColWidth(1, 15);
+
+        $xlsx->mergeCells( 'A1:H1' ); // mescla cabeçalho
+        $xlsx->mergeCells( 'A2:H2' ); // mescla informações do participante
+
+        /*
+        * Mescla a mensagem de sanção, caso exista.
+        */
+        if ( ! empty( $mensagem_sancao ) ) {
+            $xlsx->mergeCells( 'A3:H3' );
+        }
+
+        /*
+        * Ativa o filtro no cabeçalho das inscrições.
+        */
+
+        $linha_cabecalho = ! empty( $mensagem_sancao ) ? 4 : 3;
+        $ultima_linha = count( $dados ) - 4;
+
+        $xlsx->autoFilter(
+            'A' . $linha_cabecalho . ':H' . $ultima_linha,
+        );
+
+        /*
+        * Descobre as últimas duas linhas,
+        * que correspondem às legendas.
+        */
+        $total_linhas = count( $dados );
+
+        $linha_legenda_2 = $total_linhas;
+        $linha_legenda_1 = $total_linhas - 2;
+
+        /*
+        * Mescla as duas legendas.
+        */
+        $xlsx->mergeCells(
+            'A' . $linha_legenda_1 . ':H' . $linha_legenda_1
+        );
+
+        $xlsx->mergeCells(
+            'A' . $linha_legenda_2 . ':H' . $linha_legenda_2
+        );
+
+        $nome_participante = remove_accents(
+            $dados_participante->nome_completo
+        );
+
+        $nome_participante = preg_replace(
+            '/[^A-Za-z0-9]+/',
+            '_',
+            $nome_participante
+        );
+
+        $nome_participante = trim(
+            $nome_participante,
+            '_'
+        );
+
+        $data_relatorio = $agora->format( 'd_m_Y' );
+        $hora_relatorio = $agora->format( 'H_i' );
+
+        $nome_arquivo = sprintf(
+            'Relatorio_Historico_Do_Participante_%s_Extraido_%s_%s.xlsx',
+            $nome_participante,
+            $data_relatorio,
+            $hora_relatorio
+        );
+
+        $xlsx->downloadAs( $nome_arquivo );
+
+        exit;
     }
 
     public function get_eventos_participante_com_filtros(string $cpf, array $filtros = []) {
