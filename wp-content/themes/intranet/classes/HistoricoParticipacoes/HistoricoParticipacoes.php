@@ -167,7 +167,7 @@ class Historico_Participacoes {
                         href="<?php echo esc_url( admin_url( 'edit.php?page=historico-participantes' ) ); ?>"
                         class="btn btn-outline-secondary flex-fill mr-2"
                         >
-                        Limpar
+                        Limpar Filtros
                     </a>
                     <button id="buscar-participante" class="btn flex-fill btn-laranja">Buscar</button>
                     
