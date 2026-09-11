@@ -84,13 +84,18 @@
 
         </div>
     </div>
-    <div class="row">
-        <div class="col">
-            <p class="legenda-tabela">
+    <div class="row mb-3">
+        <div class="col-8 d-flex align-items-end">
+            <p class="legenda-tabela m-0">
                 <img src="<?= get_template_directory_uri(); ?>/img/icon-telefone.svg" alt="icone Telefone" class="mr-1"> Contatado por telefone
                 <img src="<?= get_template_directory_uri(); ?>/img/icon-email.svg" alt="icone Email" class="mr-1 ml-3"> Contatado por e-mail
                 <img src="<?= get_template_directory_uri(); ?>/img/icon-whatsapp.svg" alt="icone Whatsapp" class="mr-1 ml-3"> Contatado por WhatsApp
             </p>
+        </div>
+        <div class="col-4 text-right">
+            <button type="button" id="btn-exportar" class="btn btn-laranja">
+                <i class="fa fa-file-excel-o" aria-hidden="true"></i> Exportar Excel
+            </button>
         </div>
     </div>
     <table id="tabela-eventos" class="historico-participantes widefat striped">
