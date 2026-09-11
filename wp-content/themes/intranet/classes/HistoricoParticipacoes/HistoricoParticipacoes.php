@@ -847,7 +847,7 @@ class Historico_Participacoes {
         * Informações do participante
         */
         $dados[] = [
-            '<style font-size="12" bgcolor="#ebf1de" color="#000000" border="medium" bordercolor="#000000" valign="center"><middle>' . $dados_participante_excel . '</middle></style>',
+            '<style font-size="12" bgcolor="#ebf1de" color="#000000" border="medium" bordercolor="#000000" height="180" valign="center"><middle>' . $dados_participante_excel . '</middle></style>',
             '',
             '',
             '',
