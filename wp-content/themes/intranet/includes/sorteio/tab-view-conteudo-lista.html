@@ -22,28 +22,69 @@
                     </div>
                     <div class="modal-body">
 
-                        <div class="custom-control custom-radio custom-control-inline radio-todos {OCULTAR-CONFIRMADOS}">
-                            <input type="radio" id="{ATRIBUTO-DATA-CONF}_1" name="opcao_envio" value="todos" class="custom-control-input">
-                            <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_1">Enviar a todos com presença confirmada.</label>
-                        </div>
-
-                        <div class="custom-control custom-radio custom-control-inline radio-geral {OCULTAR-TODOS}">
-                            <input type="radio" id="{ATRIBUTO-DATA-CONF}_3" name="opcao_envio" value="geral" class="custom-control-input">
-                            <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_3">Enviar a todos os participantes.</label>
-                        </div>
-
-                        <div class="custom-control custom-radio custom-control-inline radio-selecionados">
-                            <input type="radio" id="{ATRIBUTO-DATA-CONF}_2" name="opcao_envio" value="selecionados" class="custom-control-input">
-                            <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_2">Enviar somente aos selecionados.</label>
-                        </div>
-                        <hr>
                         <div class="editorEmail" data-name="conteudo_email" id="{EDITOR-ID}"></div>
-                        <hr>
-                        <div class="form-group">
+
+                        <div class="form-group mt-2">
                             <label for="anexo_{ATRIBUTO-DATA-CONF}">Anexar documento (PDF, DOC, etc.)</label>
                             <input type="file" class="form-control-file input-anexo" 
                                 id="anexo_{ATRIBUTO-DATA-CONF}" 
                                 name="anexo">
+                        </div>
+
+                        <div class="opcoes-envio {OCULTAR-TODOS-CONFIRMACAO}" id="requer_confirmacao">
+                            <strong>Escolha como deseja realizar o envio das instruções:</strong>
+                            
+                            <div class="custom-control custom-radio radio-todos-confirmados mt-2">
+                                <input type="radio" id="{ATRIBUTO-DATA-CONF}_1" name="opcao_envio" value="todos_confirmados" class="custom-control-input">
+                                <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_1">
+                                    <strong>Enviar a todos com presença confirmada</strong>
+                                    <p>(Serão enviadas instruções para todos os participantes com presença confirmada que ainda não receberam o e-mail de instruções.)</p>
+                                </label>
+                            </div>
+
+                            <div class="custom-control custom-radio radio-selecionados">
+                                <input type="radio" id="{ATRIBUTO-DATA-CONF}_2" name="opcao_envio" value="selecionados" class="custom-control-input">
+                                <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_2">
+                                    <strong>Enviar somente aos participantes selecionados</strong>
+                                    <p>(Serão enviadas instruções a todos os participantes selecionados, independentemente da confirmação de presença e de já terem recebido o e-mail de instruções anteriormente.)</p>
+                                </label>
+                            </div>
+
+                            <div class="custom-control custom-radio radio-geral">
+                                <input type="radio" id="{ATRIBUTO-DATA-CONF}_3" name="opcao_envio" value="geral" class="custom-control-input">
+                                <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_3">
+                                    <strong>Reenviar instruções a todos os participantes</strong>
+                                    <p>(Serão enviadas instruções para todos os participantes, inclusive para aqueles que já receberam o e-mail anteriormente, independentemente de terem confirmado presença.)</p>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="opcoes-envio {OCULTAR-TODOS}" id="nao_requer_confirmacao">
+                            <strong>Escolha como deseja realizar o envio das instruções:</strong>
+
+                            <div class="custom-control custom-radio radio-todos-confirmados mt-2">
+                                <input type="radio" id="{ATRIBUTO-DATA-CONF}_1" name="opcao_envio" value="todos_nao_notificados" class="custom-control-input">
+                                <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_1">
+                                    <strong>Enviar a todos os participantes</strong>
+                                    <p>(Serão enviadas instruções para todos os participantes que ainda não receberam o e-mail de instruções.)</p>
+                                </label>
+                            </div>
+
+                            <div class="custom-control custom-radio radio-selecionados">
+                                <input type="radio" id="{ATRIBUTO-DATA-CONF}_2" name="opcao_envio" value="selecionados" class="custom-control-input">
+                                <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_2">
+                                    <strong>Enviar somente aos participantes selecionados</strong>
+                                    <p>(Serão enviadas instruções a todos os participantes selecionados, independentemente de já terem recebido o e-mail de instruções anteriormente.)</p>
+                                </label>
+                            </div>
+
+                            <div class="custom-control custom-radio radio-geral">
+                                <input type="radio" id="{ATRIBUTO-DATA-CONF}_3" name="opcao_envio" value="geral" class="custom-control-input">
+                                <label class="custom-control-label" for="{ATRIBUTO-DATA-CONF}_3">
+                                    <strong>Reenviar instruções a todos os participantes</strong>
+                                    <p>(Serão enviadas instruções para todos os participantes, inclusive para aqueles que já receberam o e-mail anteriormente.)</p>
+                                </label>
+                            </div>
                         </div>
                     </div>
                     <div class="modal-footer">

@@ -819,20 +819,22 @@ jQuery(function($){
     marcarSorteiosRelizados();
     adicionarContagemInscritos();
 
-    var $radioParticipantesConfirmados = $(document).find('.radio-todos');
-    var $radioParticipantesSelecionados = $(document).find('.radio-selecionados');
-    var $radioParticipantesGeral = $(document).find('.radio-geral');
+    var $opcoesEnvioConfirmacao = $(document).find('.opcoes-envio#requer_confirmacao');
+    var $opcoesEnvioSemConfirmacao = $(document).find('.opcoes-envio#nao_requer_confirmacao');
     var $btnRequerConfirmacao = $('div[data-name="confirm_presen"] input[type="checkbox"]');
 
     /**
-    * Verifica se o evento requer confirmação de presença e ajusta a visualização
-    * e ajusta a visualização do modal de instruções.
+    * Verifica se o evento requer confirmação de presença e
+    * ajusta a visualização do modal de instruções.
     */
     if ( !$btnRequerConfirmacao.is(':checked') ) {
-        $radioParticipantesConfirmados.addClass('d-none');
-        $radioParticipantesGeral.removeClass('d-none');
-        $radioParticipantesConfirmados.find('.custom-control-input').prop('checked', false);
-        $radioParticipantesGeral.find('.custom-control-input').prop('checked', true);   
+        $opcoesEnvioSemConfirmacao.removeClass('d-none');
+        $opcoesEnvioConfirmacao.addClass('d-none');
+        $opcoesEnvioConfirmacao.find('.custom-control-input').prop('checked', false);
+    } else {
+        $opcoesEnvioConfirmacao.removeClass('d-none');
+        $opcoesEnvioSemConfirmacao.addClass('d-none');
+        $opcoesEnvioSemConfirmacao.find('.custom-control-input').prop('checked', false);
     }
     
     //Evento para controlar a opção de selecionar todos os sorteados
@@ -857,10 +859,9 @@ jQuery(function($){
             $(document).find('.cont-histo').addClass('d-none');
 
             //Ajusta as opções do modal de envio de instruções
-            $radioParticipantesConfirmados.addClass('d-none');
-            $radioParticipantesGeral.removeClass('d-none');
-            $radioParticipantesConfirmados.find('.custom-control-input').prop('checked', false);
-            $radioParticipantesGeral.find('.custom-control-input').prop('checked', true);
+            $opcoesEnvioSemConfirmacao.removeClass('d-none');
+            $opcoesEnvioConfirmacao.addClass('d-none');
+            $opcoesEnvioConfirmacao.find('.custom-control-input').prop('checked', false);
 
         } else {
             $(document).find('.check-contato').removeClass('d-none');
@@ -870,9 +871,9 @@ jQuery(function($){
             $(document).find('.cont-histo').removeClass('d-none');
 
             //Ajusta as opções do modal de envio de instruções
-            $radioParticipantesConfirmados.removeClass('d-none');
-            $radioParticipantesGeral.addClass('d-none');
-            $radioParticipantesConfirmados.find('.custom-control-input').prop('checked', true);
+            $opcoesEnvioConfirmacao.removeClass('d-none');
+            $opcoesEnvioSemConfirmacao.addClass('d-none');
+            $opcoesEnvioSemConfirmacao.find('.custom-control-input').prop('checked', false);
         }
 
         $('.check-item').prop('checked', false).trigger('change');

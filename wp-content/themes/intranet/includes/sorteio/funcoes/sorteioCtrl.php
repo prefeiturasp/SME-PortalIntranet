@@ -308,10 +308,10 @@ function retorna_lista_sorteados_html($post_id, $data, $unica = false, $sancao =
 											<img src="' . get_template_directory_uri().'/img/icon-whatsapp.svg" alt="icone Whatsapp" class="mr-1 ml-3"> Contatado por WhatsApp
 										</p>',  $html);
 
-	if($requerConfirmacao){
-		$html = str_replace('{OCULTAR-TODOS}',   'd-none',  $html);
+	if(!$requerConfirmacao){
+		$html = str_replace('{OCULTAR-TODOS-CONFIRMACAO}',   'd-none',  $html);
 	}  else {
-		$html = str_replace('{OCULTAR-TODOS}',   '',  $html);
+		$html = str_replace('{OCULTAR-TODOS}',   'd-none',  $html);
 	}
 	$html = str_replace('{CONFIRMA-TODOS}',   $confirmaTodos,      $html);
 	$html = str_replace('{ATRIBUTO-ID}',      esc_attr($post_id),  $html);
@@ -2199,7 +2199,7 @@ function handle_enviar_instrucoes() {
             'ids' => $participantes
         ]);
 
-    } elseif ($opcao === 'todos' || $opcao === 'geral') { // Todos que confirmaram presença
+    } else {
 		global $wpdb;
 
 		// Converte a data recebida
@@ -2208,7 +2208,7 @@ function handle_enviar_instrucoes() {
 		$tabela = $wpdb->prefix . 'inscricoes';
 		$tabela_datas = $wpdb->prefix . 'inscricao_datas';
 
-		if ($opcao === 'todos' && $tipo_post === 'sorteio') {
+		if ($opcao === 'todos_confirmados' && $tipo_post === 'sorteio') {
 
 			if ( $tipo_evento === 'periodo' ) {
 				$arrDados = $wpdb->get_results(
@@ -2218,6 +2218,7 @@ function handle_enviar_instrucoes() {
 						WHERE i.post_id = %d
 						AND i.sorteado = 1
 						AND i.confirmou_presenca = 1 
+						AND i.enviou_email_instrucoes = 0
 						ORDER BY i.id
 					", $post_id),
 					ARRAY_A
@@ -2232,6 +2233,7 @@ function handle_enviar_instrucoes() {
 						AND i.sorteado = 1
 						AND i.confirmou_presenca = 1 
 						AND i.data_sorteada = %s
+						AND i.enviou_email_instrucoes = 0
 						ORDER BY i.id
 					", $post_id, $data_mysql),
 					ARRAY_A
@@ -2265,7 +2267,7 @@ function handle_enviar_instrucoes() {
 			}
 		}
 
-		if ($opcao === 'todos' && $tipo_post === 'cortesias') {
+		if ($opcao === 'todos_confirmados' && $tipo_post === 'cortesias') {
 
 			$tabela = $wpdb->prefix . 'cortesias_inscricoes';
 			$data = get_acf_info_by_key( $post_id, $data_mysql );
@@ -2276,6 +2278,7 @@ function handle_enviar_instrucoes() {
 					FROM $tabela i				
 					WHERE i.post_id = %d
 					AND i.confirmou_presenca = 1 
+					AND i.enviou_email_instrucoes = 0
 					AND i.acf_id = %d
 					ORDER BY i.id
 				", $post_id, $data->id),

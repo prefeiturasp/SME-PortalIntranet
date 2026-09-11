@@ -181,8 +181,7 @@ function retorna_lista_cortesias_html($post_id, $data, $unica = false, $sancao =
         2 => 'icon-email.svg',
         3 => 'icon-whatsapp.svg'
     ];
-
-    $confimacao = $requerConfirmacao ? 'd-none' : '';	
+	
     if(!empty($resultados)):
     ?>
         <div class="conteudo-lista" data-data="<?= esc_attr($data); ?>" data-tipo="<?= $premio; ?>">
@@ -209,28 +208,71 @@ function retorna_lista_cortesias_html($post_id, $data, $unica = false, $sancao =
                             </div>
                             <div class="modal-body">
 
-                                <div class="custom-control custom-radio custom-control-inline radio-todos">
-                                    <input type="radio" id="<?= esc_attr($dataConf); ?>_1" name="opcao_envio" value="todos" class="custom-control-input">
-                                    <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_1">Enviar a todos com presença confirmada.</label>
-                                </div>
-
-                                <div class="custom-control custom-radio custom-control-inline radio-geral <?= $confimacao; ?>">
-                                    <input type="radio" id="<?= esc_attr($dataConf); ?>_3" name="opcao_envio" value="geral" class="custom-control-input">
-                                    <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_3">Enviar a todos os participantes.</label>
-                                </div>
-
-                                <div class="custom-control custom-radio custom-control-inline radio-selecionados">
-                                    <input type="radio" id="<?= esc_attr($dataConf); ?>_2" name="opcao_envio" value="selecionados" class="custom-control-input">
-                                    <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_2">Enviar somente aos selecionados.</label>
-                                </div>
-                                <hr>
                                 <div class="editorEmail" data-name="conteudo_email" id="<?= $linha['id']; ?>"></div>
-                                <hr>
-                                <div class="form-group">
+  
+                                <div class="form-group mt-2">
                                     <label for="anexo_<?= esc_attr($dataConf); ?>">Anexar documento (PDF, DOC, etc.)</label>
                                     <input type="file" class="form-control-file input-anexo" 
                                         id="anexo_<?= esc_attr($dataConf); ?>" 
                                         name="anexo">
+                                </div>
+
+                                <div class="opcoes-envio <?php echo esc_html( !$requerConfirmacao ? 'd-none' : '' ); ?>" id="requer_confirmacao">
+                                    <strong>Escolha como deseja realizar o envio das instruções:</strong>
+                                    
+                                    <div class="custom-control custom-radio radio-todos-confirmados mt-2">
+                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_1" name="opcao_envio" value="todos_confirmados" class="custom-control-input">
+                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_1">
+                                            <strong>Enviar a todos com presença confirmada</strong>
+                                            <p>(Serão enviadas instruções para todos os participantes com presença confirmada que ainda não receberam o e-mail de instruções.)</p>
+                                        </label>
+                                    </div>
+
+                                    <div class="custom-control custom-radio radio-selecionados">
+                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_2" name="opcao_envio" value="selecionados" class="custom-control-input">
+                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_2">
+                                            <strong>Enviar somente aos participantes selecionados</strong>
+                                            <p>(Serão enviadas instruções a todos os participantes selecionados, independentemente da confirmação de presença e de já terem recebido o e-mail de instruções anteriormente.)</p>
+                                        </label>
+                                    </div>
+
+                                    <div class="custom-control custom-radio radio-geral">
+                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_3" name="opcao_envio" value="geral" class="custom-control-input">
+                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_3">
+                                            <strong>Reenviar instruções a todos os participantes</strong>
+                                            <p>(Serão enviadas instruções para todos os participantes, inclusive para aqueles que já receberam o e-mail anteriormente, independentemente de terem confirmado presença.)</p>
+                                        </label>
+                                    </div>
+
+                                </div>
+
+                                <div class="opcoes-envio <?php echo esc_html( $requerConfirmacao ? 'd-none' : '' ); ?>" id="nao_requer_confirmacao">
+                                    <strong>Escolha como deseja realizar o envio das instruções:</strong>
+                                    
+                                    <div class="custom-control custom-radio radio-todos-confirmados mt-2">
+                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_1" name="opcao_envio" value="todos_confirmados" class="custom-control-input">
+                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_1">
+                                            <strong>Enviar a todos os participantes</strong>
+                                            <p>(Serão enviadas instruções para todos os participantes que ainda não receberam o e-mail de instruções.)</p>
+                                        </label>
+                                    </div>
+
+                                    <div class="custom-control custom-radio radio-selecionados">
+                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_2" name="opcao_envio" value="selecionados" class="custom-control-input">
+                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_2">
+                                            <strong>Enviar somente aos participantes selecionados</strong>
+                                            <p>(Serão enviadas instruções a todos os participantes selecionados, independentemente de já terem recebido o e-mail de instruções anteriormente.)</p>
+                                        </label>
+                                    </div>
+
+                                    <div class="custom-control custom-radio radio-geral">
+                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_3" name="opcao_envio" value="geral" class="custom-control-input">
+                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_3">
+                                            <strong>Reenviar instruções a todos os participantes</strong>
+                                            <p>(Serão enviadas instruções para todos os participantes, inclusive para aqueles que já receberam o e-mail anteriormente.)</p>
+                                        </label>
+                                    </div>
+
                                 </div>
                             </div>
                             <div class="modal-footer">
