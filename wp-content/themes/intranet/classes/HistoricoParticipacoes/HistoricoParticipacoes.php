@@ -192,7 +192,11 @@ class Historico_Participacoes {
 
     function box_eventos( $dados_participante ) {
 
-        $sancao_ativa = $this->check_sancao_ativa_participante( $dados_participante->cpf );
+        $sancao_ativa = [];  
+    
+        if($dados_participante->cpf != ''){
+            $sancao_ativa = $this->check_sancao_ativa_participante( $dados_participante->cpf );
+        }
 
         get_template_part( 'classes/HistoricoParticipacoes/template-parts/lista-eventos', null, [ 
             'eventos' => $this->eventos,
