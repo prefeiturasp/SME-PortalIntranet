@@ -158,12 +158,9 @@ $s(document).on('shown.bs.modal', '.modal', function () {
 
     // Define radio padrão ao abrir
     var totalMarcadosAoAbrir = $lista.find('.check-item:checked:not(:disabled)').length;
-    var $btnRequerConfirmacao = $s('div[data-name="confirm_presen"] input[type="checkbox"]');
 
-    if (totalMarcadosAoAbrir === 0 && $btnRequerConfirmacao.is(':checked')) {
-        $modal.find('input[name="opcao_envio"][value="todos_confirmados"]:visible').prop('checked', true);
-    } else if (totalMarcadosAoAbrir === 0 && !$btnRequerConfirmacao.is(':checked')) {
-        $modal.find('input[name="opcao_envio"][value="geral"]:visible').prop('checked', true);
+    if (totalMarcadosAoAbrir === 0) {
+        $modal.find('.radio-todos-confirmados input[name="opcao_envio"]:visible').prop('checked', true);
     } else {
         $modal.find('input[name="opcao_envio"][value="selecionados"]:visible').prop('checked', true);
     }
