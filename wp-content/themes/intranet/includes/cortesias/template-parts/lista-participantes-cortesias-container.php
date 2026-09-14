@@ -221,24 +221,24 @@ function retorna_lista_cortesias_html($post_id, $data, $unica = false, $sancao =
                                     <strong>Escolha como deseja realizar o envio das instruções:</strong>
                                     
                                     <div class="custom-control custom-radio radio-todos-confirmados mt-2">
-                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_1" name="opcao_envio" value="todos_confirmados" class="custom-control-input">
-                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_1">
+                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_rc_1" name="opcao_envio" value="todos_confirmados" class="custom-control-input">
+                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_rc_1">
                                             <strong>Enviar a todos com presença confirmada</strong>
                                             <p>(Serão enviadas instruções para todos os participantes com presença confirmada que ainda não receberam o e-mail de instruções.)</p>
                                         </label>
                                     </div>
 
                                     <div class="custom-control custom-radio radio-selecionados">
-                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_2" name="opcao_envio" value="selecionados" class="custom-control-input">
-                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_2">
+                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_rc_2" name="opcao_envio" value="selecionados" class="custom-control-input">
+                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_rc_2">
                                             <strong>Enviar somente aos participantes selecionados</strong>
                                             <p>(Serão enviadas instruções a todos os participantes selecionados, independentemente da confirmação de presença e de já terem recebido o e-mail de instruções anteriormente.)</p>
                                         </label>
                                     </div>
 
                                     <div class="custom-control custom-radio radio-geral">
-                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_3" name="opcao_envio" value="geral" class="custom-control-input">
-                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_3">
+                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_rc_3" name="opcao_envio" value="geral" class="custom-control-input">
+                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_rc_3">
                                             <strong>Reenviar instruções a todos os participantes</strong>
                                             <p>(Serão enviadas instruções para todos os participantes, inclusive para aqueles que já receberam o e-mail anteriormente, independentemente de terem confirmado presença.)</p>
                                         </label>
@@ -250,24 +250,24 @@ function retorna_lista_cortesias_html($post_id, $data, $unica = false, $sancao =
                                     <strong>Escolha como deseja realizar o envio das instruções:</strong>
                                     
                                     <div class="custom-control custom-radio radio-todos-confirmados mt-2">
-                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_1" name="opcao_envio" value="todos_confirmados" class="custom-control-input">
-                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_1">
+                                        <input type="radio" id="_nrc_1" name="opcao_envio" value="nao_notificados" class="custom-control-input">
+                                        <label class="custom-control-label" for="_nrc_1">
                                             <strong>Enviar a todos os participantes</strong>
                                             <p>(Serão enviadas instruções para todos os participantes que ainda não receberam o e-mail de instruções.)</p>
                                         </label>
                                     </div>
 
                                     <div class="custom-control custom-radio radio-selecionados">
-                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_2" name="opcao_envio" value="selecionados" class="custom-control-input">
-                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_2">
+                                        <input type="radio" id="_nrc_2" name="opcao_envio" value="selecionados" class="custom-control-input">
+                                        <label class="custom-control-label" for="_nrc_2">
                                             <strong>Enviar somente aos participantes selecionados</strong>
                                             <p>(Serão enviadas instruções a todos os participantes selecionados, independentemente de já terem recebido o e-mail de instruções anteriormente.)</p>
                                         </label>
                                     </div>
 
                                     <div class="custom-control custom-radio radio-geral">
-                                        <input type="radio" id="<?= esc_attr($dataConf); ?>_3" name="opcao_envio" value="geral" class="custom-control-input">
-                                        <label class="custom-control-label" for="<?= esc_attr($dataConf); ?>_3">
+                                        <input type="radio" id="_nrc_3" name="opcao_envio" value="geral" class="custom-control-input">
+                                        <label class="custom-control-label" for="_nrc_3">
                                             <strong>Reenviar instruções a todos os participantes</strong>
                                             <p>(Serão enviadas instruções para todos os participantes, inclusive para aqueles que já receberam o e-mail anteriormente.)</p>
                                         </label>

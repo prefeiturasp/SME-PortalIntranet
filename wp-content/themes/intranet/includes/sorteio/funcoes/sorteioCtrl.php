@@ -2265,6 +2265,34 @@ function handle_enviar_instrucoes() {
 					ARRAY_A
 				);
 			}
+		} elseif ( $opcao === 'nao_notificados' && $tipo_post === 'sorteio' ) {
+
+			if ( $tipo_evento === 'periodo' ) {
+				$arrDados = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT i.id, i.post_id
+						FROM $tabela i				
+						WHERE i.post_id = %d
+						AND i.sorteado = 1 
+						AND i.enviou_email_instrucoes = 0
+						ORDER BY i.id
+					", $post_id),
+					ARRAY_A
+				);
+			} else {
+				$arrDados = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT i.id, i.post_id
+						FROM $tabela i				
+						WHERE i.post_id = %d
+						AND i.sorteado = 1 
+						AND i.data_sorteada = %s
+						AND i.enviou_email_instrucoes = 0
+						ORDER BY i.id
+					", $post_id, $data_mysql),
+					ARRAY_A
+				);
+			}
 		}
 
 		if ($opcao === 'todos_confirmados' && $tipo_post === 'cortesias') {
@@ -2295,6 +2323,23 @@ function handle_enviar_instrucoes() {
 					SELECT i.id, i.post_id
 					FROM $tabela i				
 					WHERE i.post_id = %d
+					AND i.acf_id = %d
+					ORDER BY i.id
+				", $post_id, $data->id),
+				ARRAY_A
+			);
+
+		} elseif ( $opcao === 'nao_notificados' && $tipo_post === 'cortesias' ) {
+
+			$tabela = $wpdb->prefix . 'cortesias_inscricoes';
+			$data = get_acf_info_by_key( $post_id, $data_mysql );
+
+			$arrDados = $wpdb->get_results(
+				$wpdb->prepare("
+					SELECT i.id, i.post_id
+					FROM $tabela i				
+					WHERE i.post_id = %d
+					AND i.enviou_email_instrucoes = 0
 					AND i.acf_id = %d
 					ORDER BY i.id
 				", $post_id, $data->id),
