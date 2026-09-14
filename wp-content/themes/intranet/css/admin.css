@@ -1108,6 +1108,13 @@ div#meu_meta_box_id table.dataTable.no-footer{
     background: rgba(255, 110, 20, 0.9);
 }
 
+.column-qtd_inscritos {
+    width: 185px;
+}
+
+.column-qtd_inscritos,
+.column-qtd_inscritos h3 {
+    text-align: center;
 /* Novo modelo das opções de envio no modal de instruções (Sorteio e Ordem de inscrição).  */
 .conteudo-lista .opcoes-envio .custom-radio {
     padding: 8px 36px;
