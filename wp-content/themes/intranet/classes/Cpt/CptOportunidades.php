@@ -226,7 +226,9 @@ class CptOportunidades extends Cpt
 	}
 
 
-	public function cols_content($column, $post_id) {
+	public function cols_content($column) {
+		$post_id = get_the_ID();
+
 		switch ($column) {
 
 			case 'eixo_atuacao':
