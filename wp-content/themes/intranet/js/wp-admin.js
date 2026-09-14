@@ -90,8 +90,9 @@ function getDeltaPadrao() {
             attributes: { link: "mailto:intranet.beneficios@sme.prefeitura.sp.gov.br" }
         },
         { insert: "\n" },
-        { insert: "- Comentando na página do sorteio\n\n" },
-        { insert: "Aproveitem! ✨" }
+        { insert: "- Comentando na página do sorteio\n" },
+        { insert: "\n" },
+        { insert: "Nosso atendimento é realizado em horário comercial, de segunda a sexta-feira. As mensagens recebidas fora desse período serão respondidas no próximo dia útil.\n\n" },
     ];
 }
 
@@ -110,8 +111,9 @@ function getDeltaCortesias() {
             attributes: { link: "mailto:intranet.beneficios@sme.prefeitura.sp.gov.br" }
         },
         { insert: "\n" },
-        { insert: "- Comentando na página do sorteio\n\n" },
-        { insert: "Aproveitem! ✨" }
+        { insert: "- Comentando na página do sorteio\n" },
+        { insert: "\n" },
+        { insert: "Nosso atendimento é realizado em horário comercial, de segunda a sexta-feira. As mensagens recebidas fora desse período serão respondidas no próximo dia útil.\n\n" },
     ];
 }
 
@@ -156,14 +158,11 @@ $s(document).on('shown.bs.modal', '.modal', function () {
 
     // Define radio padrão ao abrir
     var totalMarcadosAoAbrir = $lista.find('.check-item:checked:not(:disabled)').length;
-    var $btnRequerConfirmacao = $s('div[data-name="confirm_presen"] input[type="checkbox"]');
 
-    if (totalMarcadosAoAbrir === 0 && $btnRequerConfirmacao.is(':checked')) {
-        $modal.find('input[name="opcao_envio"][value="todos"]').prop('checked', true);
-    } else if (totalMarcadosAoAbrir === 0 && !$btnRequerConfirmacao.is(':checked')) {
-        $modal.find('input[name="opcao_envio"][value="geral"]').prop('checked', true);
+    if (totalMarcadosAoAbrir === 0) {
+        $modal.find('.radio-todos-confirmados input[name="opcao_envio"]:visible').prop('checked', true);
     } else {
-        $modal.find('input[name="opcao_envio"][value="selecionados"]').prop('checked', true);
+        $modal.find('input[name="opcao_envio"][value="selecionados"]:visible').prop('checked', true);
     }
 
     toggleAnexo();

@@ -1115,4 +1115,10 @@ div#meu_meta_box_id table.dataTable.no-footer{
 .column-qtd_inscritos,
 .column-qtd_inscritos h3 {
     text-align: center;
+/* Novo modelo das opções de envio no modal de instruções (Sorteio e Ordem de inscrição).  */
+.conteudo-lista .opcoes-envio .custom-radio {
+    padding: 8px 36px;
+    margin-bottom: 8px;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
 }
