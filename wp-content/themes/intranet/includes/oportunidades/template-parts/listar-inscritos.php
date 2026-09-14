@@ -36,21 +36,6 @@ if ($current_post_id > 0) {
     <div class="meu-layout-superior">
         <div class="row">
 
-            <div class="col-12">
-                <p><strong>
-                    <?php 
-                    printf(
-                        _n(
-                            '<strong>%s</strong> candidato inscrito',
-                            '<strong>%s</strong> candidatos inscritos',
-                            $total_participantes
-                        ),
-                        $total_participantes
-                    );
-                    ?>
-                </strong></p>
-            </div>            
-
             <div class="col-md-5">
                 <div class="">
                     <div class="filtros-header">                   
@@ -119,6 +104,21 @@ if ($current_post_id > 0) {
                     <button class="btn btn-primary btn-aplicar-etapa" onclick="aplicarEtapa()" type="button" disabled>Aplicar</button>
                 </div>
             </div>
+
+            <div class="col-5">
+                <p class="alert alert-warning border border-warning"><strong>
+                    <?php 
+                    printf(
+                        _n(
+                            '<strong>%s</strong> candidato inscrito',
+                            '<strong>%s</strong> candidatos inscritos',
+                            $total_participantes
+                        ),
+                        $total_participantes
+                    );
+                    ?>
+                </strong></p>
+            </div>   
 
         </div>
 
