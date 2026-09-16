@@ -1812,23 +1812,33 @@ function wpdocs_my_custom_submenu_page_callback() {
     echo '<div class="wrap">';
     echo '<h2>Exportar Usuários</h2><br>';
     ?>
-    <form id="exportForm">
-        <select name="funcao">
-            <option value="all">Todos</option>
-            <option value="administrator">Administrador</option>
-            <option value="editor">Editor</option>
-            <option value="contributor">Colaborador</option>
-            <option value="assessor">Assessor</option>
-            <option value="admin_portal">Admin do Portal</option>
-            <option value="gestor_unidade">Gestor de Unidade</option>
-        </select>
+    <form id="exportForm" class="w-50">
 
-        <input type="number" name="per_page" value="300" min="50" max="2000" style="width:100px;margin-left:10px;">
-        <label>Itens por lote</label>
+        <div class="form-wraper d-flex justify-content-start">
+            <select name="funcao">
+                <option value="all">Todos</option>
+                <option value="administrator">Administrador</option>
+                <option value="editor">Editor</option>
+                <option value="contributor">Colaborador</option>
+                <option value="assessor">Assessor</option>
+                <option value="admin_portal">Admin do Portal</option>
+                <option value="gestor_unidade">Gestor de Unidade</option>
+            </select>
 
-        <button type="submit" class="button button-primary" id="exportUsersBtn">
-            Gerar relatório
-        </button>
+            <input type="number" name="per_page" value="300" min="50" max="2000" style="width:100px;margin-left:10px;">
+            <label class="ml-2 mt-1">Itens por lote</label>
+
+            <button type="submit" class="button button-primary ml-auto" id="exportUsersBtn">
+                Gerar relatório
+            </button>
+        </div>
+
+        <div class="alert alert-primary mt-3" role="alert">
+            <i class="fa fa-info-circle" aria-hidden="true"></i> Devido ao grande volume de usuários, a exportação é <strong>realizada em lote</strong>.<br> 
+            Informe a <strong>quantidade de itens por lote</strong> para o processamento.<br> 
+            Ao final da geração, será disponibilizado um <strong>único arquivo</strong> contendo todos os dados da exportação.<br>
+            Basta aguardar a conclusão do processamento para realizar o download.
+        </div>
 
         <div id="exportStatus" style="margin-top:10px;"></div>
     </form>
@@ -7808,7 +7818,8 @@ function buscar_dados_api($user_id) {
         'unidade_lotacao' => $funcional['ueCargoBase'] ?? '',
         'dre_exercicio' => $dre_exercicio,
         'unidade_exercicio' => $unidade_exercicio,
-
+        'cargo_base' => $funcional['cargoBase'] ?? '',
+        'cargo_sobreposto' => $funcional['cargoSobreposto'] ?? ''
     );
 
     return $dados_normalizados;

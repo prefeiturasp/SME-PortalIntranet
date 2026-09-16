@@ -1,3 +1,4 @@
+//Taxonomias
 jQuery(function ($) {
 
     const configuracoes = {
@@ -43,7 +44,6 @@ jQuery(function ($) {
     alterarLabel('tfoot .column-name a span:eq(0)', configuracao.nome);
     alterarLabel('tfoot .column-description a span:eq(0)', configuracao.endereco);
     
-
     // Tela de edição
     alterarLabel('label[for="name"]', configuracao.nome);
     alterarLabel('label[for="description"]', configuracao.endereco);
@@ -54,4 +54,9 @@ jQuery(function ($) {
     $('#name').attr('required', true);
     $('#description').attr('required', taxonomy === 'locais');
 
+});
+
+//Post type
+jQuery(function($) {
+    $(document).find('#submitdiv .postbox-header h2').text('Ações');
 });

@@ -207,6 +207,25 @@ div#categorias-contatodiv{
     border: 0;
 }
 
+.popup-notificar-sorteados .icone-modal-confirmacao {
+    width: 80px;
+    height: 80px;
+    padding: 10px;
+    background-color: #EFF6FF;
+    border-radius: 50%;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.popup-notificar-sorteados .icone-modal-confirmacao .dashicons {
+    font-size: 3rem;
+    width: auto;
+    height: auto;
+    color: #011257;
+}
+
 .dest-azul {
     color: #011257;
     font-weight: 700;
@@ -474,8 +493,8 @@ table.wp-list-table.media {
     margin-bottom: 10px;
 }
 
-.hide-label .acf-label {
-    display: none;
+.hide-label .acf-label label {
+    display: none !important;
 }
 
 .acf-accordion.-open .acf-accordion-title {
@@ -1103,4 +1122,55 @@ div#meu_meta_box_id table.dataTable.no-footer{
 /* Remove o submenu "Oportunidades" do menu do Portal de Oportunidades */
 #menu-posts-oportunidade ul li.wp-first-item {
     display: none;
+}
+
+/* Filtros de busca */
+.filtro-eventos-participante {
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    padding: 10px 10px 0;
+    margin: 20px 0;
+    border-radius: 4px;
+    box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: 0px 1px 4px 1px rgba(0, 0, 0, 0.15);
+    -moz-box-shadow: 0px 1px 4px 1px rgba(0,0,0,0.3);
+}
+
+.filtro-eventos-participante label {
+    font-weight: 600;
+}
+
+/* Tag Sorteio */
+.post-type-tag {
+    background: rgba(8, 99, 151, 0.8);
+    width: 120px;
+    display: block;
+    border-radius: 5px;
+    font-size: 10px;
+    padding: 3px 11px;
+    line-height: 120%;
+    font-weight: 800;
+    color: #fff;
+    margin-top: 2px;
+}
+
+/* Tag Cortesia */
+.post-type-tag.cortesia-tag {
+    background: rgba(255, 110, 20, 0.9);
+}
+
+/* Novo modelo das opções de envio no modal de instruções (Sorteio e Ordem de inscrição).  */
+.conteudo-lista .opcoes-envio .custom-radio {
+    padding: 8px 36px;
+    margin-bottom: 8px;
+    border: 1px solid #CCCCCC;
+    border-radius: 5px;
+}
+
+.column-qtd_inscritos {
+    width: 185px;
+}
+
+.column-qtd_inscritos,
+.column-qtd_inscritos h3 {
+    text-align: center;
 }

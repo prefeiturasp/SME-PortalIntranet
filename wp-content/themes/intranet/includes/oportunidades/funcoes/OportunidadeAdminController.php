@@ -6,6 +6,7 @@ class OportunidadeAdminController {
 
         add_action( 'load-post.php', [$this, 'inicializar_regras_edicao'] );
         add_action( 'admin_enqueue_scripts', [$this, 'enqueue_admin_styles'] );
+        add_action( 'admin_bar_menu', [ $this, 'personalizar_barra_admin' ], 999 );
         
         /*
         * Fluxo de exclusão e auditoria de exclusão de oportunidades.
@@ -21,6 +22,19 @@ class OportunidadeAdminController {
          * Taxonomias
          */
         add_filter( 'pre_insert_term', [$this, 'validar_taxonomias'], 10, 2 );
+        add_filter( 'views_edit-oportunidade', [$this, 'alterar_labels_filtros_oportunidades'] );
+
+        /**
+         * Post type
+         */
+        add_filter( 'post_row_actions', [$this, 'ordenar_acoes_oportunidade' ], 10, 2 );
+
+        add_action( 'pre_get_posts', [$this, 'filtrar_oportunidades_encerradas'] );
+        add_action( 'pre_get_posts', [$this, 'filtrar_oportunidades_listagem_padrao'] );
+        add_action( 'admin_menu', [ $this, 'remover_menu_painel' ] );
+        add_action( 'admin_init', [ $this, 'redirecionar_painel' ] );
+        add_action( 'edit_form_before_permalink', [ $this, 'exibir_titulo_oportunidade' ] );
+
     }
 
     /**
@@ -268,6 +282,246 @@ class OportunidadeAdminController {
         }
 
         return $term;
+    }
+
+    //Modifica a nomenclatura e a ordenação padrão dos filtros nas listagens das "Oportunidades".
+    public function alterar_labels_filtros_oportunidades( $views ) {
+
+        if ( isset( $views['mine'] ) ) {
+            $views['mine'] = str_replace( 'Meus', 'Editando', $views['mine'] );
+        }
+
+        if ( isset( $views['pending'] ) ) {
+            $views['pending'] = str_replace( 'Pendentes', 'Aguardando Validação', $views['pending'] );
+        }
+
+        $views['encerradas'] = $this->criar_view_encerradas();
+
+        $ordem = [
+            'all',
+            'mine',
+            'pending',
+            'publish',
+            'encerradas',
+            'draft',
+            'trash',
+        ];
+
+        $views_ordenadas = [];
+
+        foreach ( $ordem as $key ) {
+            if ( isset( $views[ $key ] ) ) {
+                $views_ordenadas[ $key ] = $views[ $key ];
+            }
+        }
+
+        // Remove os contadores de todos os filtros.
+        foreach ( $views_ordenadas as $key => $view ) {
+            $views_ordenadas[ $key ] = preg_replace( '/\s*<span class="count">.*?<\/span>/', '', $view );
+        }
+
+        return $views_ordenadas;
+    }
+
+    //Adiciona o link do filtro de "Encerradas" na listagem de Oportunidades
+    private function criar_view_encerradas() {
+
+        $url = add_query_arg([
+                'post_type' => 'oportunidade',
+                'oportunidade_view' => 'encerradas'
+            ],
+            admin_url( 'edit.php' )
+        );
+
+        $menu_classe = isset( $_GET['oportunidade_view'] ) && $_GET['oportunidade_view'] === 'encerradas'
+            ? 'current'
+            : '';
+
+        return sprintf(
+            '<a href="%s" class="%s">Encerradas</a>',
+            esc_url( $url ),
+            $menu_classe
+        );
+    }
+
+    //Monta o filtro "Encerradas" na listagem de "Oportunidades"
+    public function filtrar_oportunidades_encerradas( $query ) {
+
+        if ( !is_admin() || !$query->is_main_query() ) {
+            return;
+        }
+
+        if ( $query->get( 'post_type' ) !== 'oportunidade' ) {
+            return;
+        }
+
+        if ( !isset( $_GET['oportunidade_view'] ) || $_GET['oportunidade_view'] !== 'encerradas' ) {
+            return;
+        }
+
+        $data_atual = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+        $meta_query = $query->get( 'meta_query' );
+        
+        $query->set( 'post_status', ['pending','publish'] );
+
+        if ( !is_array( $meta_query ) ) {
+            $meta_query = [];
+        }
+
+        $meta_query[] = [
+            'key'     => 'ence_inscricoes',
+            'value'   => $data_atual,
+            'compare' => '<',
+            'type'    => 'NUMERIC',
+        ];
+
+        $query->set( 'meta_query', $meta_query );
+    }
+
+    //Modifica a listagem padrão para remover oportunidades "Encerradas" da listagem.
+    public function filtrar_oportunidades_listagem_padrao( $query ) {
+
+        if ( !is_admin() || !$query->is_main_query() ) {
+            return;
+        }
+
+        if ( $query->get( 'post_type' ) !== 'oportunidade' ) {
+            return;
+        }
+
+        // Não interfere nas views/filtros personalizados.
+        if ( !empty( $_GET['oportunidade_view'] ) ) {
+            return;
+        }
+
+        if ( !empty( $query->get( 'post_status' ) ) ) {
+            return;
+        }
+
+        $query->set( 'post_status', ['pending','publish'] );
+
+        $data_atual = obter_data_com_timezone( 'Ymd', 'America/Sao_Paulo' );
+        $meta_query = $query->get( 'meta_query' );
+
+        if ( !is_array( $meta_query ) ) {
+            $meta_query = [];
+        }
+
+        $meta_query[] = [
+            'relation' => 'OR',
+            [
+                'key'     => 'ence_inscricoes',
+                'value'   => $data_atual,
+                'compare' => '>=',
+                'type'    => 'NUMERIC',
+            ],
+            [
+                'key'     => 'ence_inscricoes',
+                'compare' => 'NOT EXISTS',
+            ],
+        ];
+
+        $query->set( 'meta_query', $meta_query );
+    }
+
+    //Modifica a ordenação padrão das ações exibidas em cada item da listagem de "Oportunidades".
+    public function ordenar_acoes_oportunidade( $actions, $post ) {
+
+        if ( $post->post_type !== 'oportunidade' ) {
+            return $actions;
+        }
+
+        $ordem = [
+            'view',
+            'edit',
+            'inline hide-if-no-js',
+            'trash'
+        ];
+
+        $acoes_ordenadas = [];
+
+        foreach ( $ordem as $acao ) {
+            if ( isset( $actions[ $acao ] ) ) {
+                $acoes_ordenadas[ $acao ] = $actions[ $acao ];
+            }
+        }
+
+        // Mantém qualquer ação adicional que não precise de uma ordem especifica.
+        foreach ( $actions as $key => $action ) {
+            if ( !isset( $acoes_ordenadas[ $key ] ) ) {
+                $acoes_ordenadas[ $key ] = $action;
+            }
+        }
+
+        return $acoes_ordenadas;
+    }
+
+    //Remove o menu painel dos perfis de usuários do Portal de Oportunidades
+    public function remover_menu_painel() {
+
+        if ( !$this->check_permissoes_usuario_logado( ['admin_portal', 'gestor_unidade'] ) ) {
+            return;
+        }
+
+        remove_menu_page( 'index.php' );
+    }
+
+    //Redireciona usuários do Portal de Oportunidades diretamente para o menu de "Gestão de Oportunidades"
+    public function redirecionar_painel() {
+
+        if ( !$this->check_permissoes_usuario_logado( ['admin_portal', 'gestor_unidade'] ) ) {
+            return;
+        }
+
+        global $pagenow;
+
+        if ( $pagenow !== 'index.php' ) {
+            return;
+        }
+
+        wp_safe_redirect( admin_url( 'edit.php?post_type=oportunidade' ) );
+        exit;
+    }
+
+    //Exibe o título da oportunidade na tela de edição
+    public function exibir_titulo_oportunidade( $post ) {
+
+        if ( $post->post_type !== 'oportunidade' ) {
+            return;
+        }
+
+        if ( !$post->post_title ) {
+            return;
+        }
+
+        ?>
+        <div class="campo-titulo-oportunidade">
+            <span>Oportunidade:</span>
+            <strong><?php echo esc_html( $post->post_title ); ?></strong>
+        </div>
+        <?php
+    }
+
+    //Personalizar as opções disponíveis na "Admin bar" para usuários com perfil do Portal de Oportunidades
+    public function personalizar_barra_admin( $wp_admin_bar ) {
+
+        $usuario = wp_get_current_user();
+
+        if ( !in_array( 'admin_portal', $usuario->roles, true ) && !in_array( 'gestor_unidade', $usuario->roles, true ) ) {
+            return;
+        }
+
+        $itens = [
+            'wp-logo',
+            'updates',
+            'comments',
+            'new-content',
+            'customize',
+        ];
+
+        foreach ( $itens as $item ) {
+            $wp_admin_bar->remove_node( $item );
+        }
     }
 
 }

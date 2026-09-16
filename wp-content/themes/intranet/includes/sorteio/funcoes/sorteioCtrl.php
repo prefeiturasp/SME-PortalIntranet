@@ -308,10 +308,10 @@ function retorna_lista_sorteados_html($post_id, $data, $unica = false, $sancao =
 											<img src="' . get_template_directory_uri().'/img/icon-whatsapp.svg" alt="icone Whatsapp" class="mr-1 ml-3"> Contatado por WhatsApp
 										</p>',  $html);
 
-	if($requerConfirmacao){
-		$html = str_replace('{OCULTAR-TODOS}',   'd-none',  $html);
+	if(!$requerConfirmacao){
+		$html = str_replace('{OCULTAR-TODOS-CONFIRMACAO}',   'd-none',  $html);
 	}  else {
-		$html = str_replace('{OCULTAR-TODOS}',   '',  $html);
+		$html = str_replace('{OCULTAR-TODOS}',   'd-none',  $html);
 	}
 	$html = str_replace('{CONFIRMA-TODOS}',   $confirmaTodos,      $html);
 	$html = str_replace('{ATRIBUTO-ID}',      esc_attr($post_id),  $html);
@@ -923,8 +923,8 @@ function processa_ajax_envia_email_sorteio(){//** OK */
 	
     $acao = isset($_POST['action']) ? sanitiza_str_requisicoes($_POST['action']) : '';
 	$data = isset($_POST['data_sorteada']) ? sanitize_text_field($_POST['data_sorteada']) : '';
-	$tipo_prazo_confirmacao = isset( $_POST['tipo_prazo'] ) ? sanitize_text_field( $_POST['tipo_prazo'] ) : 'dias';
 	$prazo_confirmacao = isset( $_POST['prazo'] ) ? sanitize_text_field( $_POST['prazo'] ) : 1;
+	$prazo_formatado = DateTime::createFromFormat( 'Y-m-d\TH:i', $prazo_confirmacao )->format( 'Y-m-d H:i' );
 
 	if ($acao == 'envia_email_sorteio'){
         global $wpdb;
@@ -946,7 +946,7 @@ function processa_ajax_envia_email_sorteio(){//** OK */
                     $wpdb->update( $tabela, $data, $where);
             }
             if(is_plugin_active('envia-email-sme/envia-email-sme.php')){
-				definir_prazo_expiracao_email_confirmacao( [$idPart], $tipo_prazo_confirmacao, $prazo_confirmacao, true );
+				definir_prazo_expiracao_email_confirmacao( [$idPart], $prazo_formatado, true );
 				new Envia_Emails_Sorteio_SME($idPart, null, $postId, $tipoEmail);
 			}
         } else {
@@ -961,8 +961,8 @@ function retornaListaSorteados(){//** OK */
 
     $acao = isset($_POST['action']) ? sanitiza_str_requisicoes($_POST['action']) : '';
 	$participantesSelecionados = isset( $_POST['selecionados'] ) ? $_POST['selecionados'] : null;
-	$tipo_prazo_confirmacao = isset( $_POST['tipo_prazo'] ) ? sanitize_text_field( $_POST['tipo_prazo'] ) : 'dias';
 	$prazo_confirmacao = isset( $_POST['prazo'] ) ? sanitize_text_field( $_POST['prazo'] ) : 1;
+	$prazo_formatado = DateTime::createFromFormat( 'Y-m-d\TH:i', $prazo_confirmacao )->format( 'Y-m-d H:i' );
 
 	if ( $acao == 'retorna_lista_sorteados' ) {
 		global $wpdb;
@@ -1008,7 +1008,7 @@ function retornaListaSorteados(){//** OK */
 				
 				array_push($arrEmails, $item);
 
-				definir_prazo_expiracao_email_confirmacao( [$item['id']], $tipo_prazo_confirmacao, $prazo_confirmacao, $prazoExpirado );
+				definir_prazo_expiracao_email_confirmacao( [$item['id']], $prazo_formatado, $prazoExpirado );
 			}
 
 			if(is_plugin_active('envia-email-sme/envia-email-sme.php')){
@@ -2198,7 +2198,7 @@ function handle_enviar_instrucoes() {
             'ids' => $participantes
         ]);
 
-    } elseif ($opcao === 'todos' || $opcao === 'geral') { // Todos que confirmaram presença
+    } else {
 		global $wpdb;
 
 		// Converte a data recebida
@@ -2207,7 +2207,7 @@ function handle_enviar_instrucoes() {
 		$tabela = $wpdb->prefix . 'inscricoes';
 		$tabela_datas = $wpdb->prefix . 'inscricao_datas';
 
-		if ($opcao === 'todos' && $tipo_post === 'sorteio') {
+		if ($opcao === 'todos_confirmados' && $tipo_post === 'sorteio') {
 
 			if ( $tipo_evento === 'periodo' ) {
 				$arrDados = $wpdb->get_results(
@@ -2217,6 +2217,7 @@ function handle_enviar_instrucoes() {
 						WHERE i.post_id = %d
 						AND i.sorteado = 1
 						AND i.confirmou_presenca = 1 
+						AND i.enviou_email_instrucoes = 0
 						ORDER BY i.id
 					", $post_id),
 					ARRAY_A
@@ -2231,6 +2232,7 @@ function handle_enviar_instrucoes() {
 						AND i.sorteado = 1
 						AND i.confirmou_presenca = 1 
 						AND i.data_sorteada = %s
+						AND i.enviou_email_instrucoes = 0
 						ORDER BY i.id
 					", $post_id, $data_mysql),
 					ARRAY_A
@@ -2262,9 +2264,37 @@ function handle_enviar_instrucoes() {
 					ARRAY_A
 				);
 			}
+		} elseif ( $opcao === 'nao_notificados' && $tipo_post === 'sorteio' ) {
+
+			if ( $tipo_evento === 'periodo' ) {
+				$arrDados = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT i.id, i.post_id
+						FROM $tabela i				
+						WHERE i.post_id = %d
+						AND i.sorteado = 1 
+						AND i.enviou_email_instrucoes = 0
+						ORDER BY i.id
+					", $post_id),
+					ARRAY_A
+				);
+			} else {
+				$arrDados = $wpdb->get_results(
+					$wpdb->prepare("
+						SELECT i.id, i.post_id
+						FROM $tabela i				
+						WHERE i.post_id = %d
+						AND i.sorteado = 1 
+						AND i.data_sorteada = %s
+						AND i.enviou_email_instrucoes = 0
+						ORDER BY i.id
+					", $post_id, $data_mysql),
+					ARRAY_A
+				);
+			}
 		}
 
-		if ($opcao === 'todos' && $tipo_post === 'cortesias') {
+		if ($opcao === 'todos_confirmados' && $tipo_post === 'cortesias') {
 
 			$tabela = $wpdb->prefix . 'cortesias_inscricoes';
 			$data = get_acf_info_by_key( $post_id, $data_mysql );
@@ -2275,6 +2305,7 @@ function handle_enviar_instrucoes() {
 					FROM $tabela i				
 					WHERE i.post_id = %d
 					AND i.confirmou_presenca = 1 
+					AND i.enviou_email_instrucoes = 0
 					AND i.acf_id = %d
 					ORDER BY i.id
 				", $post_id, $data->id),
@@ -2291,6 +2322,23 @@ function handle_enviar_instrucoes() {
 					SELECT i.id, i.post_id
 					FROM $tabela i				
 					WHERE i.post_id = %d
+					AND i.acf_id = %d
+					ORDER BY i.id
+				", $post_id, $data->id),
+				ARRAY_A
+			);
+
+		} elseif ( $opcao === 'nao_notificados' && $tipo_post === 'cortesias' ) {
+
+			$tabela = $wpdb->prefix . 'cortesias_inscricoes';
+			$data = get_acf_info_by_key( $post_id, $data_mysql );
+
+			$arrDados = $wpdb->get_results(
+				$wpdb->prepare("
+					SELECT i.id, i.post_id
+					FROM $tabela i				
+					WHERE i.post_id = %d
+					AND i.enviou_email_instrucoes = 0
 					AND i.acf_id = %d
 					ORDER BY i.id
 				", $post_id, $data->id),
@@ -2384,27 +2432,9 @@ function handle_enviar_instrucoes() {
     wp_send_json_error(['msg' => 'Opção inválida']);
 }
 
-function definir_prazo_expiracao_email_confirmacao( array $participantes, string $tipo_prazo, $prazo, bool $forcar_atualizacao = false ) {
+function definir_prazo_expiracao_email_confirmacao( array $participantes, $prazo, bool $forcar_atualizacao = false ) {
 
 	global $wpdb;
-	$timezone = new DateTimeZone( 'America/Sao_Paulo' );
-	$data_atual = new DateTime( 'now', $timezone );
-
-	// Aplica o prazo de validade conforme o tipo selecionado
-	if ( $tipo_prazo === 'dias' ) {
-		$data_atual->modify( "+{$prazo} days" );
-
-	} elseif ( $tipo_prazo === 'horas' ) {
-		$partes = explode( ':', $prazo );
-
-		$horas   = isset( $partes[0] ) ? (int) $partes[0] : 0;
-		$minutos = isset( $partes[1] ) ? (int) $partes[1] : 0;
-
-		$intervalo = new DateInterval( sprintf( 'PT%dH%dM', $horas, $minutos ) );
-		$data_atual->add( $intervalo );
-	}
-
-	$data_final = $data_atual->format( 'Y-m-d H:i:s' );
 
 	//Força a atualização do prazo de confirmação para o caso de reenvio
 	$extra_args = $forcar_atualizacao ? '' : 'AND (prazo_confirmacao IS NULL OR prazo_confirmacao = "")';
@@ -2415,7 +2445,7 @@ function definir_prazo_expiracao_email_confirmacao( array $participantes, string
 		SET prazo_confirmacao = %s
 		WHERE id IN ($lista_ids)
 		$extra_args",
-		$data_final
+		$prazo
 	);
 
 	return $wpdb->query( $query );

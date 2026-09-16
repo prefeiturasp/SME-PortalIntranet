@@ -90,8 +90,9 @@ function getDeltaPadrao() {
             attributes: { link: "mailto:intranet.beneficios@sme.prefeitura.sp.gov.br" }
         },
         { insert: "\n" },
-        { insert: "- Comentando na página do sorteio\n\n" },
-        { insert: "Aproveitem! ✨" }
+        { insert: "- Comentando na página do sorteio\n" },
+        { insert: "\n" },
+        { insert: "Nosso atendimento é realizado em horário comercial, de segunda a sexta-feira. As mensagens recebidas fora desse período serão respondidas no próximo dia útil.\n\n" },
     ];
 }
 
@@ -110,8 +111,9 @@ function getDeltaCortesias() {
             attributes: { link: "mailto:intranet.beneficios@sme.prefeitura.sp.gov.br" }
         },
         { insert: "\n" },
-        { insert: "- Comentando na página do sorteio\n\n" },
-        { insert: "Aproveitem! ✨" }
+        { insert: "- Comentando na página do sorteio\n" },
+        { insert: "\n" },
+        { insert: "Nosso atendimento é realizado em horário comercial, de segunda a sexta-feira. As mensagens recebidas fora desse período serão respondidas no próximo dia útil.\n\n" },
     ];
 }
 
@@ -157,14 +159,11 @@ $s(document).on('shown.bs.modal', '.modal', function () {
 
     // Define radio padrão ao abrir
     var totalMarcadosAoAbrir = $lista.find('.check-item:checked:not(:disabled)').length;
-    var $btnRequerConfirmacao = $s('div[data-name="confirm_presen"] input[type="checkbox"]');
 
-    if (totalMarcadosAoAbrir === 0 && $btnRequerConfirmacao.is(':checked')) {
-        $modal.find('input[name="opcao_envio"][value="todos"]').prop('checked', true);
-    } else if (totalMarcadosAoAbrir === 0 && !$btnRequerConfirmacao.is(':checked')) {
-        $modal.find('input[name="opcao_envio"][value="geral"]').prop('checked', true);
+    if (totalMarcadosAoAbrir === 0) {
+        $modal.find('.radio-todos-confirmados input[name="opcao_envio"]:visible').prop('checked', true);
     } else {
-        $modal.find('input[name="opcao_envio"][value="selecionados"]').prop('checked', true);
+        $modal.find('input[name="opcao_envio"][value="selecionados"]:visible').prop('checked', true);
     }
 
     toggleAnexo();
@@ -446,23 +445,200 @@ jQuery(document).ready(function($) {
         ordering: false,
         lengthChange: false,
         searching: true,
-        dom: 'rtip',
+        dom: 'rtip',        
         pageLength: 10,
         language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+            url: '//cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json',
+            emptyTable: 'Nenhum resultado encontrado para os filtros informados.',
+            zeroRecords: 'Nenhum resultado encontrado para os filtros informados.',
         }
     });
+
+    function atualizarBotaoExportar() {
+
+        var quantidadeResultados = tabelaEventos
+            .rows({
+                search: 'applied'
+            })
+            .count();
+
+        $('#btn-exportar').prop(
+            'disabled',
+            quantidadeResultados === 0
+        );
+    }
+
+    tabelaEventos.on('draw', function() {
+        atualizarBotaoExportar();
+    });
+
+    atualizarBotaoExportar();
 
     // Busca personalizada
     $('.filtro-eventos-participante #evento-input').on('keyup', function() {
         tabelaEventos.search($(this).val()).draw();
     });
 
+    // Filtro por foi sorteado
+    $('.filtro-eventos-participante #foi-sorteado').on('change', function() {
+        tabelaEventos.column(2).search($(this).val()).draw();
+    });
+
+    // Filtro por modalidade
+    $('.filtro-eventos-participante #modalidade').on('change', function() {
+        tabelaEventos.column(1).search($(this).val()).draw();
+    });
+
+    // Confirmou Presença
+    $('.filtro-eventos-participante #presenca').on('change', function() {
+        tabelaEventos.column(3).search($(this).val()).draw();
+    });
+
+    // Filtro por instruções enviadas
+    $('.filtro-eventos-participante #instrucoes').on('change', function() {
+        tabelaEventos.column(4).search($(this).val()).draw();
+    });
+
+    // Filtro por contato extra
+    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+
+        var contatoSelecionado = $('.filtro-eventos-participante #contato').val();
+
+        if (!contatoSelecionado) {
+            return true;
+        }
+
+        var linha = tabelaEventos.row(dataIndex).node();
+
+        return $(linha)
+            .find('.tipos-contato [data-filtro="' + contatoSelecionado + '"]')
+            .length > 0;
+    });
+
+    $('.filtro-eventos-participante #contato').on('change', function() {
+        tabelaEventos.draw();
+    });
+
+    // Filtro por compareceu ou resgatou
+    $('.filtro-eventos-participante #compareceu').on('change', function() {
+        tabelaEventos.column(6).search($(this).val()).draw();
+    });
+
     // Botão limpar
     $('.filtro-eventos-participante #btn-limpar-filtro').on('click', function() {
+
         $('.filtro-eventos-participante #evento-input').val('');
-        tabelaEventos.search('').draw();
+        $('.filtro-eventos-participante #modalidade').val('');
+        $('.filtro-eventos-participante #foi-sorteado').val('');
+        $('.filtro-eventos-participante #presenca').val('');
+        $('.filtro-eventos-participante #instrucoes').val('');
+        $('.filtro-eventos-participante #contato').val('');
+        $('.filtro-eventos-participante #compareceu').val('');
+
+        // Limpa a busca geral
+        tabelaEventos.search('');
+
+        // Limpa os filtros das colunas
+        tabelaEventos.columns().search('');
+
+        // Redesenha a tabela
+        tabelaEventos.draw();
+
     });
+
+    $('#btn-exportar').on('click', function() {
+
+        var botao = $(this);
+        var inscricoes = [];
+
+        tabelaEventos
+            .rows({
+                search: 'applied'
+            })
+            .nodes()
+            .each(function(linha) {
+
+                var idInscricao = $(linha).attr('data-inscricao');
+                var tipo = $(linha).attr('data-tipo');
+
+                if (idInscricao && tipo) {
+                    inscricoes.push({
+                        id: idInscricao,
+                        tipo: tipo
+                    });
+                }
+
+            });
+
+        if (!inscricoes.length) {
+            alert('Nenhuma inscrição encontrada para exportação.');
+            return;
+        }
+
+        /*
+        * Evita múltiplos cliques enquanto o arquivo está sendo gerado.
+        */
+        botao.prop('disabled', true);
+
+        fetch(ajaxurl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+            },
+            body: new URLSearchParams({
+                action: 'exportar_historico_participacoes',
+                inscricoes: JSON.stringify(inscricoes)
+            })
+        })
+        .then(function(response) {
+
+            if (!response.ok) {
+                throw new Error('Erro ao gerar o arquivo.');
+            }
+
+            var contentDisposition = response.headers.get('Content-Disposition');
+
+            var nomeArquivo = 'relatorio-historico-participante.xlsx';
+
+            if (contentDisposition) {
+
+                var match = contentDisposition.match(
+                    /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+                );
+
+                if (match && match[1]) {
+                    nomeArquivo = match[1].replace(/['"]/g, '');
+                }
+            }
+
+            return response.blob().then(function(blob) {
+
+                var url = window.URL.createObjectURL(blob);
+                var link = document.createElement('a');
+
+                link.href = url;
+                link.download = nomeArquivo;
+
+                document.body.appendChild(link);
+                link.click();
+
+                link.remove();
+                window.URL.revokeObjectURL(url);
+
+            });
+        })
+        .catch(function(error) {
+
+            console.error('Erro na exportação:', error);
+            alert('Ocorreu um erro ao gerar o arquivo.');
+
+        })
+        .finally(function() {
+            botao.prop('disabled', false);
+        });
+
+    });
+
 });
 
 // ==============================

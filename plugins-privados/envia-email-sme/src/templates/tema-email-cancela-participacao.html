@@ -2,9 +2,9 @@
     <head>
         <style>
             body { font-family: Arial, sans-serif; color: #333; }
-            .container { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; }
+            .container { background-color: #f9f9f9; padding: 20px; border: 1px solid #ddd; max-width: 700px; margin: auto; }
             .dado { margin: 10px 0 20px 0; }
-            .espaco { padding-top: 25px; }
+            .espaco { padding-top: 10px; padding-bottom: 10px; }
             a:active {color: blue;font-weight: 500;}
         </style>
     </head>
@@ -15,6 +15,12 @@
             <p class='espaco'>
                 <strong>ID do Post: </strong>{POST-ID}<br>
                 <strong>Link do post no WP Admin: </strong><a href="{LINK-ADMIN}">{LINK-ADMIN}</a>
+            </p>
+            <p class="espaco">
+                <strong>Caso o link não abra, copie a URL a seguir e cole no navegador:</strong>
+                <br>
+                <br>
+                <i>{LINK-ADMIN-TEXTO}</i>
             </p>
             <p class='espaco'>
                 <strong>Nome: </strong>{NOME}<br>
