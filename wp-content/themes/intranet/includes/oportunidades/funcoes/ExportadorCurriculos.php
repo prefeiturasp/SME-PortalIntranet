@@ -287,9 +287,13 @@ class ExportadorCurriculos
                         continue;
                     }
 
-                    $cabecalho[] = $this->estilizarCabecalho(
-                        $campo['label']
-                    );
+                    $label = $campo['label'];
+
+                    if ($nomeCampo === 'data_nascimento') {
+                        $label .= "\n (Formato de Data: Dia/Mês/Ano)";
+                    }
+
+                    $cabecalho[] = $this->estilizarCabecalho( $label );
 
                 }
 
@@ -713,7 +717,6 @@ class ExportadorCurriculos
         $etapas = Inscricao::get_etapas_processo();
         $linha[] = $this->estilizarLinha($etapas[$etapa]['descricao'] ?? '—');
     }
-    
 }
 
 ExportadorCurriculos::init();

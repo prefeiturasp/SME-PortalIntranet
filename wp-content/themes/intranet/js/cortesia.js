@@ -47,21 +47,25 @@ function inicializaPagina(){
                         popup: 'popup-notificar-sorteados sem-borda p-4',
                     },
                     preConfirm: () => {
-                        const $selected = jQuery('input[name="tipo"]:checked');
-        
-                        if (!$selected) {
-                            Swal.showValidationMessage('Você precisa selecionar uma opção!');
-                        }
-        
-                        const $inputValue = jQuery(`#input-${$selected.val()}`);
-        
+
+                        const $inputValue = jQuery('#input-prazo-confirmacao');
+
                         if (!$inputValue.val().length) {
-                            Swal.showValidationMessage('Você precisa definir um valor para continuar.');
+                            return Swal.showValidationMessage('Você precisa definir um prazo para continuar.');
                         }
-        
+
+                        let prazo = new Date($inputValue.val());
+
+                        if (isNaN(prazo.getTime())) {
+                            return Swal.showValidationMessage('O valor informado é inválido.');
+                        }
+
+                        if (prazo < new Date()) {
+                            return Swal.showValidationMessage('A data informada deve ser maior que a data atual.');
+                        }
+
                         return {
-                            'tipo': $selected.val(),
-                            'valor': $inputValue.val()
+                            'prazo': $inputValue.val()
                         };
                     }
                 }).then((result) => {
@@ -139,8 +143,7 @@ function enviaEmailListaInscritos(participantesSelecionados, prazoConfirmacao){
     let data = {
         action: 'definir_prazo_selecionados_cortesia',
         selecionados: participantesSelecionados,
-        tipo_prazo: prazoConfirmacao.tipo,
-        prazo: prazoConfirmacao.valor
+        prazo: prazoConfirmacao.prazo
     };    
         
     $s.post(ajaxurl, data);
@@ -253,8 +256,7 @@ function reenvia_email(idPart, prazoConfirmacao){
     let data = {
         action: 'definir_prazo_selecionados_cortesia',
         selecionados: [idPart],
-        tipo_prazo: prazoConfirmacao.tipo,
-        prazo: prazoConfirmacao.valor,
+        prazo: prazoConfirmacao.prazo,
         reenvio: true
     };    
         
@@ -816,20 +818,22 @@ jQuery(function($){
     marcarSorteiosRelizados();
     adicionarContagemInscritos();
 
-    var $radioParticipantesConfirmados = $(document).find('.radio-todos');
-    var $radioParticipantesSelecionados = $(document).find('.radio-selecionados');
-    var $radioParticipantesGeral = $(document).find('.radio-geral');
+    var $opcoesEnvioConfirmacao = $(document).find('.opcoes-envio#requer_confirmacao');
+    var $opcoesEnvioSemConfirmacao = $(document).find('.opcoes-envio#nao_requer_confirmacao');
     var $btnRequerConfirmacao = $('div[data-name="confirm_presen"] input[type="checkbox"]');
 
     /**
-    * Verifica se o evento requer confirmação de presença e ajusta a visualização
-    * e ajusta a visualização do modal de instruções.
+    * Verifica se o evento requer confirmação de presença e
+    * ajusta a visualização do modal de instruções.
     */
     if ( !$btnRequerConfirmacao.is(':checked') ) {
-        $radioParticipantesConfirmados.addClass('d-none');
-        $radioParticipantesGeral.removeClass('d-none');
-        $radioParticipantesConfirmados.find('.custom-control-input').prop('checked', false);
-        $radioParticipantesGeral.find('.custom-control-input').prop('checked', true);   
+        $opcoesEnvioSemConfirmacao.removeClass('d-none');
+        $opcoesEnvioConfirmacao.addClass('d-none');
+        $opcoesEnvioConfirmacao.find('.custom-control-input').prop('checked', false);
+    } else {
+        $opcoesEnvioConfirmacao.removeClass('d-none');
+        $opcoesEnvioSemConfirmacao.addClass('d-none');
+        $opcoesEnvioSemConfirmacao.find('.custom-control-input').prop('checked', false);
     }
     
     //Evento para controlar a opção de selecionar todos os sorteados
@@ -854,10 +858,9 @@ jQuery(function($){
             $(document).find('.cont-histo').addClass('d-none');
 
             //Ajusta as opções do modal de envio de instruções
-            $radioParticipantesConfirmados.addClass('d-none');
-            $radioParticipantesGeral.removeClass('d-none');
-            $radioParticipantesConfirmados.find('.custom-control-input').prop('checked', false);
-            $radioParticipantesGeral.find('.custom-control-input').prop('checked', true);
+            $opcoesEnvioSemConfirmacao.removeClass('d-none');
+            $opcoesEnvioConfirmacao.addClass('d-none');
+            $opcoesEnvioConfirmacao.find('.custom-control-input').prop('checked', false);
 
         } else {
             $(document).find('.check-contato').removeClass('d-none');
@@ -867,9 +870,9 @@ jQuery(function($){
             $(document).find('.cont-histo').removeClass('d-none');
 
             //Ajusta as opções do modal de envio de instruções
-            $radioParticipantesConfirmados.removeClass('d-none');
-            $radioParticipantesGeral.addClass('d-none');
-            $radioParticipantesConfirmados.find('.custom-control-input').prop('checked', true);
+            $opcoesEnvioConfirmacao.removeClass('d-none');
+            $opcoesEnvioSemConfirmacao.addClass('d-none');
+            $opcoesEnvioSemConfirmacao.find('.custom-control-input').prop('checked', false);
         }
 
         $('.check-item').prop('checked', false).trigger('change');
@@ -958,23 +961,28 @@ jQuery(function($){
                 popup: 'popup-notificar-sorteados sem-borda p-4',
             },
             preConfirm: () => {
-                const $selected = jQuery('input[name="tipo"]:checked');
 
-                if (!$selected) {
-                    Swal.showValidationMessage('Você precisa selecionar uma opção!');
-                }
-
-                const $inputValue = jQuery(`#input-${$selected.val()}`);
+                const $inputValue = jQuery('#input-prazo-confirmacao');
 
                 if (!$inputValue.val().length) {
-                    Swal.showValidationMessage('Você precisa definir um valor para continuar.');
+                    return Swal.showValidationMessage('Você precisa definir um prazo para continuar.');
+                }
+
+                let prazo = new Date($inputValue.val());
+
+                if (isNaN(prazo.getTime())) {
+                    return Swal.showValidationMessage('O valor informado é inválido.');
+                }
+
+                if (prazo < new Date()) {
+                    return Swal.showValidationMessage('A data informada deve ser maior que a data atual.');
                 }
 
                 return {
-                    'tipo': $selected.val(),
-                    'valor': $inputValue.val()
+                    'prazo': $inputValue.val()
                 };
             }
+
         }).then((result) => {
             if (result.isConfirmed) {
                 let prazoConfirmacao = result.value;
@@ -1061,27 +1069,27 @@ function adicionarContagemInscritos() {
 
 function renderHtmlFormPrazoConfirmacao(sorteado = null) {
     const mensagem = sorteado
-        ? `Defina o prazo para que o(a) inscrito(a) <strong>${sorteado}</strong> confirme a presença pelo link enviado no e-mail.`
-        : 'Defina o prazo para que os inscritos confirmem a presença pelo link enviado no e-mail. <div class="alert alert-warning mt-3">O novo prazo será enviado apenas aos participantes selecionados que ainda não receberam o e-mail de confirmação ou estiverem com a situação de prazo expirado</div>';
+        ? `Informe a data e o horário limite para que <strong>${sorteado}</strong> confirme a presença pelo link enviado no e-mail.`
+        : `Informe a data e o horário limite para que os participantes selecionados confirmem a presença pelo link que será enviado no e-mail.
+            <div class="alert alert-primary mt-3">
+                O novo prazo será enviado apenas aos participantes selecionados que ainda não receberam o e-mail de confirmação ou estiverem com a situação de prazo expirado
+            </div>
+        `;
     
     return`
+    <div class="icone-modal-confirmacao mb-2 mx-auto">
+        <span class="dashicons dashicons-calendar-alt"></span>
+    </div>
     <h4>Prazo para confirmação de presença</h4>
     <br>
     <h6>${mensagem}</h6>
-    <form id="formOpcao" class="container text-left mt-5">
+    <form id="formOpcao" class="text-left mt-5">
         <div class="form-group">
-            <div class="form-check form-check-inline align-items-center">
-                <input class="form-check-input" type="radio" name="tipo" id="radioHoras" value="horas" checked>
-                <label class="form-check-label mr-2" for="radioHoras" style="width:67px">Horas</label>
-                <input type="time" id="input-horas" class="form-control form-control-sm" style="width:220px" value="01:00">
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="form-check form-check-inline align-items-center">
-                <input class="form-check-input" type="radio" name="tipo" id="radioDias" value="dias">
-                <label class="form-check-label mr-2" for="radioDias" style="width:67px">Dias</label>
-                <input type="number" id="input-dias" class="form-control form-control-sm" style="width:220px; display:none;" min="1" step="1" value="1">
-            </div>
+            <label for="input-prazo-confirmacao">
+                Data e hora do prazo limite <span class="text-danger">*</span>
+            </label>
+            <input type="datetime-local" id="input-prazo-confirmacao" class="form-control form-control-sm" required>
+            <small class="text-secondary">Formato: dd/mm/aaaa hh:mm</small>
         </div>
     </form>`
 }

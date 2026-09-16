@@ -14,6 +14,37 @@ class CptOportunidades extends Cpt
 		$this->dashborarIcon = self::getDashborarIconExtendExtend();
 
 		add_action('init', array($this, 'register'));
+
+		add_filter(
+			'manage_posts_columns',
+			array($this, 'exibe_cols'),
+			10,
+			2
+		);
+
+		add_action(
+			'manage_oportunidade_posts_custom_column',
+			array($this, 'cols_content'),
+			10,
+			2
+		);
+
+		add_filter(
+			'manage_edit-oportunidade_sortable_columns',
+			array($this, 'sortable_cols')
+		);
+
+		add_filter(
+			'posts_clauses',
+			array($this, 'ordenar_qtd_inscritos'),
+			10,
+			2
+		);
+
+		add_action(
+			'restrict_manage_posts',
+			array($this, 'my_restrict_manage_posts')
+		);
 	}
 
 
@@ -26,7 +57,7 @@ class CptOportunidades extends Cpt
 		$labels = array(
 			'name' => _x($this->name, 'post type general name'),
 			'singular_name' => _x($this->name, 'post type singular name'),
-			'all_items' => _x( 'Oportunidades', 'Admin Menu todos os itens'),
+			'all_items' => _x('Oportunidades', 'Admin Menu todos os itens'),
 			'add_new' => _x('Add Oportunidades ', 'Novo item'),
 			'add_new_item' => __('Add Oportunidade'),
 			'edit_item' => __('Editar Oportunidade'),
@@ -46,8 +77,8 @@ class CptOportunidades extends Cpt
 			'show_ui' => true,
 			'show_in_menu' => true,
 			'query_var' => true,
-			'rewrite' => array( 'with_front' => false ),
-			'capability_type' => array('oportunidade','oportunidades'),
+			'rewrite' => array('with_front' => false),
+			'capability_type' => array('oportunidade', 'oportunidades'),
 			'capabilities' => array(
 				'edit_post' => 'edit_oportunidade',
 				'edit_posts' => 'edit_oportunidades',
@@ -57,15 +88,15 @@ class CptOportunidades extends Cpt
 				'delete_post' => 'delete_oportunidade',
 				'delete_published_posts' => 'delete_published_oportunidades',
 			),
-			'map_meta_cap'        => true,
+			'map_meta_cap' => true,
 			'has_archive' => true,
 			'hierarchical' => false,
 			'menu_position' => 10,
-			'menu_icon'   => $this->dashborarIcon,
+			'menu_icon' => $this->dashborarIcon,
 			'exclude_from_search' => true,
 			'show_in_rest' => true,
 			'rest_controller_class' => 'WP_REST_Posts_Controller',
-			'supports' => array('title', 'editor', 'excerpt',  'author'),
+			'supports' => array('title', 'editor', 'excerpt', 'author'),
 		);
 
 		register_post_type($this->cptSlug, $args);
@@ -73,103 +104,269 @@ class CptOportunidades extends Cpt
 
 		// Locais
 		register_taxonomy(
-            'locais',
-            'oportunidade',
-            array(
-                'hierarchical' => false,
+			'locais',
+			'oportunidade',
+			array(
+				'hierarchical' => false,
 
-                'labels' => array(
-                    'name'              => 'Locais',
-                    'singular_name'     => 'Local',
-                    'search_items'      => 'Buscar Locais',
-                    'all_items'         => 'Todos os Locais',
-                    'parent_item'       => 'Local Pai',
-                    'parent_item_colon' => 'Local Pai:',
-                    'edit_item'         => 'Editar Local de Atuação',
-                    'update_item'       => 'Atualizar Local de Atuação',
-                    'add_new_item'      => 'Adicionar Novo Local de Atuação',
-                    'new_item_name'     => 'Novo Local de Atuação',
-                    'menu_name'         => 'Add Local de Atuação',
-                ),
+				'labels' => array(
+					'name'              => 'Locais',
+					'singular_name'     => 'Local',
+					'search_items'      => 'Buscar Locais',
+					'all_items'         => 'Todos os Locais',
+					'parent_item'       => 'Local Pai',
+					'parent_item_colon' => 'Local Pai:',
+					'edit_item'         => 'Editar Local de Atuação',
+					'update_item'       => 'Atualizar Local de Atuação',
+					'add_new_item'      => 'Adicionar Novo Local de Atuação',
+					'new_item_name'     => 'Novo Local de Atuação',
+					'menu_name'         => 'Add Local de Atuação',
+				),
 
-                'map_meta_cap' => true,
+				'map_meta_cap' => true,
 				'meta_box_cb' => false,
 
-                'capabilities' => array(
-                    'manage_terms' => 'manage_locais',
-                    'edit_terms'   => 'edit_locais',
-                    'delete_terms' => 'delete_locais',
-                    'assign_terms' => 'assign_locais',
-                )
-            )
-        );
+				'capabilities' => array(
+					'manage_terms' => 'manage_locais',
+					'edit_terms'   => 'edit_locais',
+					'delete_terms' => 'delete_locais',
+					'assign_terms' => 'assign_locais',
+				)
+			)
+		);
 
 		// Coordenadorias
 		register_taxonomy(
-            'coordenadorias',
-            'oportunidade',
-            array(
-                'hierarchical' => true,
+			'coordenadorias',
+			'oportunidade',
+			array(
+				'hierarchical' => true,
 
-                'labels' => array(
-                    'name'              => 'Coordenadorias/DREs',
-                    'singular_name'     => 'Coordenadoria',
-                    'search_items'      => 'Buscar Coordenadorias/DREs',
-                    'all_items'         => 'Todas as Coordenadorias/DREs',
-                    'parent_item'       => 'Coordenadoria/DRE Pai',
-                    'parent_item_colon' => 'Coordenadoria/DRE Pai:',
-                    'edit_item'         => 'Editar Coordenadoria/DRE',
-                    'update_item'       => 'Atualizar Coordenadoria/DRE',
-                    'add_new_item'      => 'Adicionar Nova Coordenadoria/DRE',
-                    'new_item_name'     => 'Nova Coordenadoria/DRE',
-                    'menu_name'         => 'Coordenadorias/DREs',
-                ),
+				'labels' => array(
+					'name'              => 'Coordenadorias/DREs',
+					'singular_name'     => 'Coordenadoria',
+					'search_items'      => 'Buscar Coordenadorias/DREs',
+					'all_items'         => 'Todas as Coordenadorias/DREs',
+					'parent_item'       => 'Coordenadoria/DRE Pai',
+					'parent_item_colon' => 'Coordenadoria/DRE Pai:',
+					'edit_item'         => 'Editar Coordenadoria/DRE',
+					'update_item'       => 'Atualizar Coordenadoria/DRE',
+					'add_new_item'      => 'Adicionar Nova Coordenadoria/DRE',
+					'new_item_name'     => 'Nova Coordenadoria/DRE',
+					'menu_name'         => 'Coordenadorias/DREs',
+				),
 
-                'map_meta_cap' => true,
+				'map_meta_cap' => true,
 				'meta_box_cb' => false,
 
-                'capabilities' => array(
-                    'manage_terms' => 'manage_coordenadorias',
-                    'edit_terms'   => 'edit_coordenadorias',
-                    'delete_terms' => 'delete_coordenadorias',
-                    'assign_terms' => 'assign_coordenadorias',
-                )
-            )
-        );
+				'capabilities' => array(
+					'manage_terms' => 'manage_coordenadorias',
+					'edit_terms'   => 'edit_coordenadorias',
+					'delete_terms' => 'delete_coordenadorias',
+					'assign_terms' => 'assign_coordenadorias',
+				)
+			)
+		);
 
 		// Eixo de Atuação
 		register_taxonomy(
-            'eixos_atuacao',
-            'oportunidade',
-            array(
-                'hierarchical' => false,
+			'eixos_atuacao',
+			'oportunidade',
+			array(
+				'hierarchical' => false,
 
-                'labels' => array(
-                    'name'              => 'Eixos de Atuação',
-                    'singular_name'     => 'Eixo de Atuação',
-                    'search_items'      => 'Buscar Eixos de Atuação',
-                    'all_items'         => 'Todos os Eixos de Atuação',
-                    'parent_item'       => 'Eixo de Atuação Pai',
-                    'parent_item_colon' => 'Eixo de Atuação Pai:',
-                    'edit_item'         => 'Editar Eixo de Atuação',
-                    'update_item'       => 'Atualizar Eixo de Atuação',
-                    'add_new_item'      => 'Adicionar Eixo de Atuação',
-                    'new_item_name'     => 'Novo Eixo de Atuação',
-                    'menu_name'         => 'Add Eixo de Atuação',
-                ),
+				'labels' => array(
+					'name'              => 'Eixos de Atuação',
+					'singular_name'     => 'Eixo de Atuação',
+					'search_items'      => 'Buscar Eixos de Atuação',
+					'all_items'         => 'Todos os Eixos de Atuação',
+					'parent_item'       => 'Eixo de Atuação Pai',
+					'parent_item_colon' => 'Eixo de Atuação Pai:',
+					'edit_item'         => 'Editar Eixo de Atuação',
+					'update_item'       => 'Atualizar Eixo de Atuação',
+					'add_new_item'      => 'Adicionar Eixo de Atuação',
+					'new_item_name'     => 'Novo Eixo de Atuação',
+					'menu_name'         => 'Add Eixo de Atuação',
+				),
 
-                'map_meta_cap' => true,
+				'map_meta_cap' => true,
 				'meta_box_cb' => false,
 
-                'capabilities' => array(
-                    'manage_terms' => 'manage_eixos_atuacao',
-                    'edit_terms'   => 'edit_eixos_atuacao',
-                    'delete_terms' => 'delete_eixos_atuacao',
-                    'assign_terms' => 'assign_eixos_atuacao',
-                )
-            )
-        );
+				'capabilities' => array(
+					'manage_terms' => 'manage_eixos_atuacao',
+					'edit_terms'   => 'edit_eixos_atuacao',
+					'delete_terms' => 'delete_eixos_atuacao',
+					'assign_terms' => 'assign_eixos_atuacao',
+				)
+			)
+		);
 
+	}
+
+
+	public function exibe_cols($cols, $post_type)
+	{
+		if ($post_type === 'oportunidade') {
+
+			$columns = array(
+				'title'         => 'Titulo',
+				'author'        => 'Autor',
+				'eixo_atuacao'  => 'Eixo de Atuação',
+				'date'          => 'Data',
+				'qtd_inscritos' => 'Quantidade de Inscritos',
+			);
+
+			return $columns;
+
+		} else {
+
+			return $cols;
+		}
+
+	}
+
+
+	public function cols_content($column) {
+		$post_id = get_the_ID();
+
+		switch ($column) {
+
+			case 'eixo_atuacao':
+
+				$terms = get_the_terms(
+					$post_id,
+					'eixos_atuacao'
+				);
+
+				if ($terms && ! is_wp_error($terms)) {
+
+					$terms_links = array();
+
+					foreach ($terms as $term) {
+
+						$terms_links[] = '<a href="' .
+							esc_url(
+								admin_url(
+									'edit.php/?post_type=oportunidade&eixos_atuacao=' . $term->slug
+								)
+							) .
+							'">' .
+							esc_html($term->name) .
+							'</a>';
+					}
+
+					echo implode(', ', $terms_links);
+
+				} else {
+
+					echo '-';
+
+				}
+
+				break;
+
+
+			case 'qtd_inscritos':
+
+				global $wpdb;
+
+				$tabela = $wpdb->prefix . 'oportunidade_inscricoes';
+
+				$quantidade = $wpdb->get_var(
+					$wpdb->prepare(
+						"SELECT COUNT(*)
+						FROM {$tabela}
+						WHERE oportunidade_id = %d",
+						$post_id
+					)
+				);
+
+				echo '<h3><strong>' . esc_html((int) $quantidade) . '</strong></h3>';
+
+				break;
+		}
+	}
+
+
+	/**
+	 * Define quais colunas da listagem podem ser ordenadas.
+	 */
+	public function sortable_cols($columns)
+	{
+		$columns['qtd_inscritos'] = 'qtd_inscritos';
+
+		return $columns;
+	}
+
+
+	/**
+	 * Ordena a listagem do CPT pelo número de inscritos.
+	 */
+	public function ordenar_qtd_inscritos($clauses, $query)
+	{
+		if (
+			! is_admin()
+			|| ! $query->is_main_query()
+			|| $query->get('post_type') !== 'oportunidade'
+			|| $query->get('orderby') !== 'qtd_inscritos'
+		) {
+			return $clauses;
+		}
+
+		global $wpdb;
+
+		$tabela = $wpdb->prefix . 'oportunidade_inscricoes';
+
+		$clauses['join'] .= "
+			LEFT JOIN (
+				SELECT
+					oportunidade_id,
+					COUNT(*) AS qtd_inscritos
+				FROM {$tabela}
+				GROUP BY oportunidade_id
+			) AS inscricoes
+				ON inscricoes.oportunidade_id = {$wpdb->posts}.ID
+		";
+
+		$ordem = strtoupper($query->get('order'));
+
+		if (! in_array($ordem, array('ASC', 'DESC'), true)) {
+			$ordem = 'ASC';
+		}
+
+		$clauses['orderby'] = "COALESCE(inscricoes.qtd_inscritos, 0) {$ordem}";
+
+		return $clauses;
+	}
+
+
+	public function my_restrict_manage_posts()
+	{
+
+		global $typenow;
+
+		$taxonomy = 'eixos_atuacao';
+
+		if ($typenow == $this->cptSlug) {
+
+			$terms = get_terms(array(
+				'taxonomy' => $taxonomy,
+				'hide_empty' => false,
+			));
+
+			echo "<select name='$taxonomy' id='$taxonomy' class='postform'>";
+
+			echo "<option value=''>Ver todos os Eixos</option>";
+
+			foreach ($terms as $term) {
+
+				echo '<option value=' . $term->slug,
+				$_GET[$taxonomy] == $term->slug ? ' selected="selected"' : '',
+				'>' . $term->name . '</option>';
+			}
+
+			echo "</select>";
+		}
 	}
 
 }

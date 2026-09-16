@@ -22,6 +22,7 @@ class SimpleXLSXGenExp {
     protected $template;
     protected $XF, $XF_KEYS; // cellXfs
     protected $SI, $SI_KEYS; // shared strings
+    protected $autoFilter = null;
     
     // Number formats
     const N_NORMAL = 0; // General
@@ -119,7 +120,7 @@ class SimpleXLSXGenExp {
             'xl/worksheets/sheet1.xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
     xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"
-><dimension ref="{REF}"/>{COLS}<sheetData>{ROWS}</sheetData>{MERGECELLS}{HYPERLINKS}</worksheet>',
+><dimension ref="{REF}"/>{COLS}<sheetData>{ROWS}</sheetData>{AUTOFILTER}{MERGECELLS}{HYPERLINKS}</worksheet>',
             'xl/worksheets/_rels/sheet1.xml.rels' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">{HYPERLINKS}</Relationships>',
             'xl/sharedStrings.xml' => '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -808,6 +809,12 @@ class SimpleXLSXGenExp {
             $MERGECELLS[] = '</mergeCells>';
         }
 
+        $AUTOFILTER = [];
+
+        if ( ! empty( $this->autoFilter ) ) {
+            $AUTOFILTER[] = '<autoFilter ref="' . $this->autoFilter . '"/>';
+        }
+
         $HYPERLINKS = [];
         if ( count( $this->sheets[$idx]['hyperlinks']) ) {
             $HYPERLINKS[] = '<hyperlinks>';
@@ -819,9 +826,18 @@ class SimpleXLSXGenExp {
         //restore locale
         setlocale(LC_NUMERIC, $_loc);
 
-        return str_replace(['{REF}','{COLS}','{ROWS}','{MERGECELLS}','{HYPERLINKS}'],
-            [ $REF, implode("\r\n", $COLS), implode("\r\n",$ROWS), implode("\r\n", $MERGECELLS), implode("\r\n", $HYPERLINKS) ],
-            $template );
+        return str_replace(
+            ['{REF}', '{COLS}', '{ROWS}', '{MERGECELLS}', '{AUTOFILTER}', '{HYPERLINKS}'],
+            [
+                $REF,
+                implode("\r\n", $COLS),
+                implode("\r\n", $ROWS),
+                implode("\r\n", $MERGECELLS),
+                implode("\r\n", $AUTOFILTER),
+                implode("\r\n", $HYPERLINKS)
+            ],
+            $template
+        );
     }
 
     public function num2name($num) {
@@ -886,6 +902,12 @@ class SimpleXLSXGenExp {
         // XML UTF-8: #x9 | #xA | #xD | [#x20-#xD7FF] | [#xE000-#xFFFD] | [#x10000-#x10FFFF]
         // but we use fast version
         return str_replace( ['&', '<', '>', "\x00","\x03","\x0B"], ['&amp;', '&lt;', '&gt;', '', '', ''], $str );
+    }
+
+    public function autoFilter( $range ) {
+        $this->autoFilter = $range;
+
+        return $this;
     }
     
     // Métodos auxiliares para bordas

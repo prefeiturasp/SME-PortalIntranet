@@ -144,6 +144,162 @@
 									<input type="text" class="form-control campo-obrigatorio" id="rf" name="rf" placeholder="RF" value="<?= esc_attr($curriculo->rf ?? '') ?>" readonly>
 								</div>
 
+								<div class="form-group campo-obrigatorio-radio">
+									<label>Concluiu o estágio probatório? <span class="required-icon">*</span></label>
+
+									<div class="form-check">
+										<input class="form-check-input" type="radio" name="estagio" id="estagioSim" value="1" <?= checked($curriculo->concluiu_estagio ?? '', '1', false) ?>>
+										<label class="form-check-label" for="estagioSim">Sim</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input" type="radio" name="estagio" id="estagioNao" value="0" <?= checked($curriculo->concluiu_estagio ?? '', '0', false) ?>>
+										<label class="form-check-label" for="estagioNao">Não</label>
+									</div>
+								</div>
+
+								<div class="form-group campo-obrigatorio-checkbox">
+									<label>
+										Qual é o seu cargo efetivo? <span class="required-icon">*</span>
+										<br>
+										<small>Informe o seu cargo de posse por concurso público. Caso esteja exercendo cargo/função comissionada/designada, marque também a opção "Outro" e especifique o cargo atual.</small>
+									</label>
+
+									<div class="form-check">
+										<input class="form-check-input" 
+											type="checkbox" 
+											value="Auxiliar Técnico de Educação (ATE)" 
+											id="cargoAte" 
+											name="cargoEfetivo[]" 
+											<?= in_array('Auxiliar Técnico de Educação (ATE)', $cargos) ? 'checked' : '' ?>>
+										<label for="cargoAte">Auxiliar Técnico de Educação (ATE)</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input" 
+											type="checkbox" 
+											value="Agente Escolar" 
+											id="cargoAgente" 
+											name="cargoEfetivo[]" 
+											<?= in_array('Agente Escolar', $cargos) ? 'checked' : '' ?>>
+										<label for="cargoAgente">Agente Escolar</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input" 
+											type="checkbox" 
+											value="Coordenador(a) Pedagógico" 
+											id="cargoCoordenador" 
+											name="cargoEfetivo[]" 
+											<?= in_array('Coordenador(a) Pedagógico', $cargos) ? 'checked' : '' ?>>
+										<label for="cargoCoordenador">Coordenador(a) Pedagógico</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input" 
+											type="checkbox" 
+											value="Diretor(a) de Escola" 
+											id="cargoDiretor" 
+											name="cargoEfetivo[]" 
+											<?= in_array('Diretor(a) de Escola', $cargos) ? 'checked' : '' ?>>
+										<label for="cargoDiretor">Diretor(a) de Escola</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input" 
+											type="checkbox" 
+											value="Professor(a) de Educação Infantil (PEI)" 
+											id="cargoPei" 
+											name="cargoEfetivo[]" 
+											<?= in_array('Professor(a) de Educação Infantil (PEI)', $cargos) ? 'checked' : '' ?>>
+										<label for="cargoPei">Professor(a) de Educação Infantil (PEI)</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input" 
+											type="checkbox" 
+											value="Professor(a) de Educação Infantil e Ensino Fundamental I (PEIF)" 
+											id="cargoPeif" 
+											name="cargoEfetivo[]" 
+											<?= in_array('Professor(a) de Educação Infantil e Ensino Fundamental I (PEIF)', $cargos) ? 'checked' : '' ?>>
+										<label for="cargoPeif">Professor(a) de Educação Infantil e Ensino Fundamental I (PEIF)</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input" 
+											type="checkbox" 
+											value="Professor(a) de Ensino Fundamental II e Médio" 
+											id="cargoFundamental2" 
+											name="cargoEfetivo[]" 
+											<?= in_array('Professor(a) de Ensino Fundamental II e Médio', $cargos) ? 'checked' : '' ?>>
+										<label for="cargoFundamental2">Professor(a) de Ensino Fundamental II e Médio</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input" 
+											type="checkbox" 
+											value="Supervisor(a) Escolar" 
+											id="cargoSupervisor" 
+											name="cargoEfetivo[]" 
+											<?= in_array('Supervisor(a) Escolar', $cargos) ? 'checked' : '' ?>>
+										<label for="cargoSupervisor">Supervisor(a) Escolar</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input" 
+											type="checkbox" 
+											value="Outro" 
+											id="cargoOutroCheck" 
+											name="cargoEfetivo[]" 
+											<?= in_array('Outro', $cargos) ? 'checked' : '' ?>>
+										<label for="cargoOutroCheck">Outro</label>
+									</div>
+								</div>
+
+								<div class="form-group form-group-cargo-outro">
+									<label for="cargoOutro">Informe o cargo <span class="required-icon">*</span></label>
+									<input type="text" class="form-control campo-obrigatorio" id="cargoOutro" name="cargoOutro" value="<?= esc_attr($curriculo->cargo_outro ?? '') ?>">
+								</div>
+
+								<div class="form-group campo-obrigatorio-radio">
+									<label>Você acumula cargo na SME ou em outro órgão? <span class="required-icon">*</span></label>
+
+									<div class="form-check">
+										<input class="form-check-input"
+											type="radio"
+											name="acumulaCargo"
+											id="acumulaSim"
+											value="1"
+											<?= checked($curriculo->acumula_cargo ?? '', '1', false) ?>>
+
+										<label for="acumulaSim">Sim</label>
+									</div>
+
+									<div class="form-check">
+										<input class="form-check-input"
+											type="radio"
+											name="acumulaCargo"
+											id="acumulaNao"
+											value="0"
+											<?= checked($curriculo->acumula_cargo ?? '', '0', false) ?>>
+
+										<label for="acumulaNao">Não</label>
+									</div>
+								</div>
+
+								<div class="form-group grupo-acumula-cargo">
+									<label for="informaCargo">
+										Informe o órgão e o cargo onde acumula <span class="required-icon">*</span>
+									</label>
+
+									<input type="text"
+										class="form-control campo-obrigatorio"
+										id="informaCargo"
+										name="informaCargo"
+										value="<?= esc_attr($curriculo->acumula_descricao ?? '') ?>"
+										placeholder="Órgão - Cargo">
+								</div>
+
 								<h3>Identificação pessoal</h3>
 
 								<div class="form-group">
@@ -313,119 +469,6 @@
 
 								<h3>Lotação e Exercício</h3>
 
-								<div class="form-group campo-obrigatorio-radio">
-									<label>Concluiu o estágio probatório? <span class="required-icon">*</span></label>
-
-									<div class="form-check">
-										<input class="form-check-input" type="radio" name="estagio" id="estagioSim" value="1" <?= checked($curriculo->concluiu_estagio ?? '', '1', false) ?>>
-										<label class="form-check-label" for="estagioSim">Sim</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" type="radio" name="estagio" id="estagioNao" value="0" <?= checked($curriculo->concluiu_estagio ?? '', '0', false) ?>>
-										<label class="form-check-label" for="estagioNao">Não</label>
-									</div>
-								</div>
-
-								<div class="form-group campo-obrigatorio-checkbox">
-									<label>Qual é o seu cargo efetivo? <span class="required-icon">*</span></label>
-
-									<div class="form-check">
-										<input class="form-check-input" 
-											type="checkbox" 
-											value="Auxiliar Técnico de Educação (ATE)" 
-											id="cargoAte" 
-											name="cargoEfetivo[]" 
-											<?= in_array('Auxiliar Técnico de Educação (ATE)', $cargos) ? 'checked' : '' ?>>
-										<label for="cargoAte">Auxiliar Técnico de Educação (ATE)</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" 
-											type="checkbox" 
-											value="Agente Escolar" 
-											id="cargoAgente" 
-											name="cargoEfetivo[]" 
-											<?= in_array('Agente Escolar', $cargos) ? 'checked' : '' ?>>
-										<label for="cargoAgente">Agente Escolar</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" 
-											type="checkbox" 
-											value="Coordenador(a) Pedagógico" 
-											id="cargoCoordenador" 
-											name="cargoEfetivo[]" 
-											<?= in_array('Coordenador(a) Pedagógico', $cargos) ? 'checked' : '' ?>>
-										<label for="cargoCoordenador">Coordenador(a) Pedagógico</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" 
-											type="checkbox" 
-											value="Diretor(a) de Escola" 
-											id="cargoDiretor" 
-											name="cargoEfetivo[]" 
-											<?= in_array('Diretor(a) de Escola', $cargos) ? 'checked' : '' ?>>
-										<label for="cargoDiretor">Diretor(a) de Escola</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" 
-											type="checkbox" 
-											value="Professor(a) de Educação Infantil (PEI)" 
-											id="cargoPei" 
-											name="cargoEfetivo[]" 
-											<?= in_array('Professor(a) de Educação Infantil (PEI)', $cargos) ? 'checked' : '' ?>>
-										<label for="cargoPei">Professor(a) de Educação Infantil (PEI)</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" 
-											type="checkbox" 
-											value="Professor(a) de Educação Infantil e Ensino Fundamental I (PEIF)" 
-											id="cargoPeif" 
-											name="cargoEfetivo[]" 
-											<?= in_array('Professor(a) de Educação Infantil e Ensino Fundamental I (PEIF)', $cargos) ? 'checked' : '' ?>>
-										<label for="cargoPeif">Professor(a) de Educação Infantil e Ensino Fundamental I (PEIF)</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" 
-											type="checkbox" 
-											value="Professor(a) de Ensino Fundamental II e Médio" 
-											id="cargoFundamental2" 
-											name="cargoEfetivo[]" 
-											<?= in_array('Professor(a) de Ensino Fundamental II e Médio', $cargos) ? 'checked' : '' ?>>
-										<label for="cargoFundamental2">Professor(a) de Ensino Fundamental II e Médio</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" 
-											type="checkbox" 
-											value="Supervisor(a) Escolar" 
-											id="cargoSupervisor" 
-											name="cargoEfetivo[]" 
-											<?= in_array('Supervisor(a) Escolar', $cargos) ? 'checked' : '' ?>>
-										<label for="cargoSupervisor">Supervisor(a) Escolar</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input" 
-											type="checkbox" 
-											value="Outro" 
-											id="cargoOutroCheck" 
-											name="cargoEfetivo[]" 
-											<?= in_array('Outro', $cargos) ? 'checked' : '' ?>>
-										<label for="cargoOutroCheck">Outro</label>
-									</div>
-								</div>
-
-								<div class="form-group form-group-cargo-outro">
-									<label for="cargoOutro">Informe o cargo <span class="required-icon">*</span></label>
-									<input type="text" class="form-control campo-obrigatorio" id="cargoOutro" name="cargoOutro" value="<?= esc_attr($curriculo->cargo_outro ?? '') ?>">
-								</div>
-
 								<div class="form-group">
 									<label for="dreLotacao">DRE de lotação? <span class="required-icon">*</span><br><small>A unidade de lotação é o órgão onde o cargo do servidor público está oficialmente vinculado para exercer suas funções.</small></label>
 									<select class="form-control campo-obrigatorio" id="dreLotacao" name="dreLotacao">
@@ -476,45 +519,6 @@
 								<div class="form-group">
 									<label for="unidadeExercicio">Unidade de exercício <span class="required-icon">*</span><br><small>A unidade de exercício é o local onde o servidor efetivamente desempenha suas atividades diárias, podendo ou não coincidir com a sua unidade de lotação.</small></label>
 									<input type="text" class="form-control campo-obrigatorio" id="unidadeExercicio" name="unidadeExercicio" value="<?= esc_attr($curriculo->unidade_exercicio ?? '') ?>" placeholder="Digite a nomenclatura completa">
-								</div>
-
-								<div class="form-group campo-obrigatorio-radio">
-									<label>Você acumula cargo na SME ou em outro órgão? <span class="required-icon">*</span></label>
-
-									<div class="form-check">
-										<input class="form-check-input"
-											type="radio"
-											name="acumulaCargo"
-											id="acumulaSim"
-											value="1"
-											<?= checked($curriculo->acumula_cargo ?? '', '1', false) ?>>
-
-										<label for="acumulaSim">Sim</label>
-									</div>
-
-									<div class="form-check">
-										<input class="form-check-input"
-											type="radio"
-											name="acumulaCargo"
-											id="acumulaNao"
-											value="0"
-											<?= checked($curriculo->acumula_cargo ?? '', '0', false) ?>>
-
-										<label for="acumulaNao">Não</label>
-									</div>
-								</div>
-
-								<div class="form-group grupo-acumula-cargo">
-									<label for="informaCargo">
-										Informe o órgão e o cargo onde acumula <span class="required-icon">*</span>
-									</label>
-
-									<input type="text"
-										class="form-control campo-obrigatorio"
-										id="informaCargo"
-										name="informaCargo"
-										value="<?= esc_attr($curriculo->acumula_descricao ?? '') ?>"
-										placeholder="Órgão - Cargo">
 								</div>
 
 							</div>
@@ -1167,7 +1171,7 @@
 									data-toggle="collapse"
 									data-target="#collapseSeven">
 
-									<span class="numeral">7</span> Finalização e Visualização
+									<span class="numeral">7</span> Informações Complementares e Finalização
 								</button>
 							</h2>
 						</div>
@@ -1208,19 +1212,20 @@
 									</div>
 
 								</div>
-
-								<p><strong>Sugestões</strong><br><small>Você teria alguma sugestão para melhorar este questionário?</small></p>
 								
 								<div class="form-group">
 									<label for="sugestoes">
-										Utilize esse espaço livremente para expressar suas críticas e/ou sugestões.
+										Informações adicionais
+										<br>
+										<small>
+											Campo opcional para inclusão de links profissionais (portfólio, LinkedIn, Currículo Lattes etc.), informações complementares relevantes ao perfil profissional e sugestões de melhoria do Portal.
+										</small>
 									</label>
 
 									<textarea
 										class="form-control"
 										id="sugestoes"
 										name="sugestoes"
-										placeholder="Escreva aqui suas sugestões..."
 										rows="6"><?= esc_textarea($curriculo->sugestoes ?? '') ?></textarea>
 								</div>
 

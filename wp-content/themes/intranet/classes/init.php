@@ -152,6 +152,9 @@ $cptAgendaSecretarioExtend = new \Classes\Cpt\CptAgendaSecretario();
 $cptAgendaSecretarioNew = new \Classes\Cpt\Cpt('agendanew', 'agendanew', 'Calendário Escolar', 'Todos os Eventos', 'Eventos', 'Eventos', null, null, null, 'dashicons-calendar-alt', true);
 $cptAgendaSecretarioNewExtend = new \Classes\Cpt\CptAgendaSecretarioNew();
 
+$cptOportunidade = new \Classes\Cpt\Cpt('oportunidade', 'oportunidade', 'Gestão de Oportunidades', 'Todas as Oportunidades', 'Oportunidades', 'Oportunidade', null, null, null, 'dashicons-list-view', true);
+$cptOportunidadeExtend = new \Classes\Cpt\CptOportunidades();
+
 //$cptContatoSme = new \Classes\Cpt\Cpt('contato', 'contato', 'Contatos SME', 'Todos os Contatos', 'Contatos', 'Contato', null, null, null ,'dashicons-email-alt', true);
 //$cptContatoSmeExtend = new \Classes\Cpt\CptContato();
 //$cptOrganograma = new \Classes\Cpt\Cpt('organograma', 'organograma-sec', 'Organograma', 'Todos os Itens', 'Organogramas', 'Organograma', 'categorias-organograma', 'Categorias de Organograma', 'Categoria de Organograma', 'dashicons-networking', true );
@@ -194,6 +197,3 @@ $cptMuralProfExtend = new \Classes\Cpt\CptMuralProf();
 
 $cptCortesias = new \Classes\Cpt\Cpt('cortesias', 'cortesias', 'Ordem de Inscrição', 'Ordem de Inscrição', 'cortesias', 'cortesias', null, null, null, 'dashicons-superhero', true);
 $cptCortesiasExtend = new \Classes\Cpt\CptCortesias();
-
-$cptOportunidade = new \Classes\Cpt\Cpt('oportunidade', 'oportunidade', 'Portal de Oportunidades', 'Todas as Oportunidades', 'Oportunidades', 'Oportunidade', null, null, null, 'dashicons-list-view', true);
-$cptOportunidadeExtend = new \Classes\Cpt\CptOportunidades();
