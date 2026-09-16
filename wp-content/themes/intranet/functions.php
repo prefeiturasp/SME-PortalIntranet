@@ -8549,7 +8549,8 @@ function buscar_dados_api($user_id) {
         'unidade_lotacao' => $funcional['ueCargoBase'] ?? '',
         'dre_exercicio' => $dre_exercicio,
         'unidade_exercicio' => $unidade_exercicio,
-
+        'cargo_base' => $funcional['cargoBase'] ?? '',
+        'cargo_sobreposto' => $funcional['cargoSobreposto'] ?? ''
     );
 
     return $dados_normalizados;

@@ -22,8 +22,8 @@ class LoopSingleFormInscricao extends LoopSingle
         $parceira = get_field('parceira', 'user_' . $user_id);
         $this->tipo_evento = get_field('tipo_evento');
 
-        $dados = buscar_dados_api($user_id);       
-
+        $dados = buscar_dados_api($user_id); 
+        
 		wp_localize_script(
 			'valida-inscricao',
 			'validacaoConfig',
@@ -375,18 +375,25 @@ class LoopSingleFormInscricao extends LoopSingle
                             </div>
 
                             <div class="form-row">
-                                <?php 
-                                    if(!$parceira){
-                                        if($inscricao->cargo_principal){
-                                            $cargo = $inscricao->cargo_principal;
-                                        } else {
-                                            $cargo = get_field('cargo_principal', 'user_' . $user_id);
+                                <?php
+
+                                    $cargo = '';
+
+                                    if ( !$parceira ) {
+
+                                        if ( !empty( $dados['cargo_sobreposto'] ) ) {
+
+                                            $cargo = $dados['cargo_sobreposto'];
+
+                                        } elseif ( !empty( $dados['cargo_base'] ) ) {
+
+                                            $cargo = $dados['cargo_base'];
                                         }
                                     }
                                 ?>
                                 <div class="form-group col-12 col-md-6">
                                     <label for="cargo_principal">Cargo atual <span>*</span></label>
-                                    <input type="text" name="cargo_principal" class="form-control" id="cargo_principal" placeholder="Cargo Atual" value="<?= $cargo; ?>">
+                                    <input type="text" name="cargo_principal" class="form-control" id="cargo_principal" placeholder="Cargo Atual" value="<?= $cargo ?? ''; ?>">
                                 </div>
 
                                 <div class="form-group col-12 col-md-6">

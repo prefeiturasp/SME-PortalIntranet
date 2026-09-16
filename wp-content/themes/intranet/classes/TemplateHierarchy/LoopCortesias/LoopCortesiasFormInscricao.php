@@ -399,16 +399,22 @@ class LoopCortesiasFormInscricao extends LoopCortesias
                                 </div>
 
                                 <div class="form-row">
-                                    <?php 
-                                        $cargo = old( 'cargo_principal' );
-                                        if(!$parceira){
-											if($inscricao->cargo_principal){
-												$cargo = $inscricao->cargo_principal;
-											} else {
-												$cargo = get_field('cargo_principal', 'user_' . $user_id);
+									<?php
+
+										$cargo = old( 'cargo_principal' );
+
+										if ( !$parceira && empty( $cargo ) ) {
+
+											if ( !empty( $dados['cargo_sobreposto'] ) ) {
+
+												$cargo = $dados['cargo_sobreposto'];
+
+											} elseif ( !empty( $dados['cargo_base'] ) ) {
+
+												$cargo = $dados['cargo_base'];
 											}
 										}
-                                    ?>
+									?>
                                     <div class="form-group col-12 col-md-6">
                                         <label for="cargo_principal">Cargo atual <span>*</span></label>
                                         <input type="text" name="cargo_principal" class="form-control" id="cargo_principal" placeholder="Cargo Atual" value="<?= $cargo; ?>">
