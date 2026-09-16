@@ -4,6 +4,7 @@ import "./commands_ui/commands_login";
 import "./commands_ui/commands_noticias";
 import "./commands_ui/commands_paginas";
 import "./commands_ui/commands_calendario_escolar";
+import "./commands_ui/commands_agenda_sme";
 import "cypress-xpath";
 import "cypress-plugin-tab";
 
