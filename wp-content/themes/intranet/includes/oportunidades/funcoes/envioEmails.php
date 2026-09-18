@@ -187,7 +187,7 @@ class Envia_Emails_Oportunidades_SME {
         /**
          * Assunto do email
          */
-        $assunto = 'Portal de Oportunidades SME | Atualização da sua candidatura';
+        $assunto = 'Portal de Talentos & Oportunidades da SME | Atualização da sua candidatura';
 
 
         /**
@@ -254,7 +254,7 @@ class Envia_Emails_Oportunidades_SME {
         $iconeSeta = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/seta-azul.png';
         $iconeAviso = get_template_directory_uri() . '/includes/oportunidades/template-parts/assets/img/icone-aviso.png';
 
-        $assunto = "Portal de Oportunidades SME | Atualização da sua candidatura";
+        $assunto = "Portal de Talentos & Oportunidades da SME | Atualização da sua candidatura";
 
         
 
@@ -383,7 +383,7 @@ class Envia_Emails_Oportunidades_SME {
         );
 
         $headers = ['Content-Type: text/html; charset=UTF-8'];
-        $assunto = 'Portal de Oportunidades SME | Atualização da sua candidatura';
+        $assunto = 'Portal de Talentos & Oportunidades da SME | Atualização da sua candidatura';
 
         $enviados = 0;
         $falhas = [];
@@ -706,7 +706,7 @@ class Envia_Emails_Oportunidades_SME {
             }
         }
 
-        $assunto = 'Portal de Oportunidades SME | Resposta da Confirmação de Interesse - ';
+        $assunto = 'Portal de Talentos & Oportunidades da SME | Resposta da Confirmação de Interesse - ';
         $assunto .= $etapas_processo[$inscricao->status_confirm]['descricao'];
 
         /**

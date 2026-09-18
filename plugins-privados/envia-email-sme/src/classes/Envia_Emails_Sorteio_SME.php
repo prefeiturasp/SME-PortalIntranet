@@ -838,9 +838,6 @@ class Envia_Emails_Sorteio_SME {
                 $template_email = str_replace( '{POST-ID}', $inscrito[0]->post_id, $template_email );
                 $template_email = str_replace( '{LINK-ADMIN}', get_edit_post_link( $inscrito[0]->post_id ), $template_email );
 
-                $link_admin_texto = str_replace( [ 'https://', 'http://' ], '', get_edit_post_link( $inscrito[0]->post_id ) );
-                $template_email = str_replace( '{LINK-ADMIN-TEXTO}', $link_admin_texto, $template_email );
-
                 $template_email = str_replace( '{NOME}', $inscrito[0]->nome_completo, $template_email );
                 $template_email = str_replace( '{CPF}', $inscrito[0]->cpf, $template_email );
 
