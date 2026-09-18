@@ -95,7 +95,7 @@ $logo = get_template_directory_uri() . '/includes/oportunidades/template-parts/a
                 </p>
             </div>
             
-            <p>Atenciosamente, <br><strong>Equipe do Portal de Oportunidades SME</strong></p>
+            <p>Atenciosamente, <br><strong>Equipe do Portal de Talentos & Oportunidades da SME</strong></p>
             
             <img src="<?= $logo; ?>" width="120" alt="Logo SME">
             <br>

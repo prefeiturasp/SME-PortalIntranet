@@ -140,7 +140,7 @@ $info_cadidato = Inscricao::obter_curriculo_usuario( get_current_user_id() );
 
                                 <div>
                                     <p>Atenciosamente,</p>
-                                    <strong>Equipe do Portal de Oportunidades SME</strong>
+                                    <strong>Equipe do Portal de Talentos & Oportunidades da SME</strong>
                                 </div>
 
                                 <div class="alert alert-warning mt-4 mb-0">
@@ -259,7 +259,7 @@ $info_cadidato = Inscricao::obter_curriculo_usuario( get_current_user_id() );
 
                                 <div>
                                     <p>Atenciosamente,</p>
-                                    <strong>Equipe do Portal de Oportunidades SME</strong>
+                                    <strong>Equipe do Portal de Talentos & Oportunidades da SME</strong>
                                 </div>
                             </div>
 
