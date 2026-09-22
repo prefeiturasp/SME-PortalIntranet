@@ -912,9 +912,15 @@ function contatos_filter($views){
 
 add_filter('views_edit-contato', 'contatos_filter');
 
-// Incluir CSS no admin
+// Incluir CSS no admin com cache busting automático
 function admin_style() {
-	wp_enqueue_style('admin-styles', get_template_directory_uri().'/css/admin.css');
+    $css_path = get_template_directory() . '/css/admin.css';
+    $css_uri  = get_template_directory_uri() . '/css/admin.css';
+    
+    // Pega o timestamp da última modificação do arquivo como versão
+    $version = file_exists($css_path) ? filemtime($css_path) : '1.0.0';
+
+    wp_enqueue_style('admin-styles', $css_uri, array(), $version);
 }
 
 add_action('admin_enqueue_scripts', 'admin_style');
