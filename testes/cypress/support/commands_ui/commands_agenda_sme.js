@@ -20,6 +20,43 @@ const preencherCampo = (seletor, valor, opcoes = {}) => {
 		.type(valor, opcoes)
 }
 
+const selecionarDataNoDatepicker = (seletor, valor) => {
+	const [dia, mes, ano] = valor.split('/')
+	const indiceMes = String(Number(mes) - 1)
+	const diaSemZero = String(Number(dia))
+
+	cy.get(seletor).first().should('be.visible').click({ force: true })
+	cy.get('#ui-datepicker-div').should('be.visible')
+	cy.get('#ui-datepicker-div .ui-datepicker-month').select(indiceMes)
+	cy.get('#ui-datepicker-div .ui-datepicker-year').select(ano)
+	cy.get(
+		`#ui-datepicker-div td[data-month="${indiceMes}"][data-year="${ano}"] a[data-date="${diaSemZero}"]`,
+	).click({ force: true })
+	cy.get(seletor).first().should('have.value', valor)
+}
+
+const selecionarHorarioNoTimepicker = (indiceLinha, seletor, valor) => {
+	const [hora, minuto] = valor.split(':')
+
+	cy.get(agendaEventosSme.linhas_eventos())
+		.eq(indiceLinha)
+		.find(seletor)
+		.should('be.visible')
+		.click({ force: true })
+	cy.get('#ui-datepicker-div').should('be.visible')
+	cy.get('#ui-datepicker-div .ui_tpicker_hour select').select(
+		String(Number(hora)),
+	)
+	cy.get('#ui-datepicker-div .ui_tpicker_minute select').select(
+		String(Number(minuto)),
+	)
+	cy.get('#ui-datepicker-div .ui-datepicker-close').click({ force: true })
+	cy.get(agendaEventosSme.linhas_eventos())
+		.eq(indiceLinha)
+		.find(seletor)
+		.should('have.value', `${hora.padStart(2, '0')}:${minuto.padStart(2, '0')}`)
+}
+
 const definirToggle = (seletor, habilitado) => {
 	const toggle = cy.get(seletor).should('exist')
 
@@ -31,11 +68,23 @@ const definirToggle = (seletor, habilitado) => {
 	toggle.uncheck({ force: true }).should('not.be.checked')
 }
 
+const normalizarTitulo = (titulo) =>
+	titulo.replace(/[–—]/g, '-').replace(/\s+/g, ' ').trim()
+
 const obterLinhaEventoPorTitulo = (titulo) =>
 	cy
-		.contains(`${listaAgendaEventosSme.linhas_eventos()} .row-title`, titulo)
-		.should('have.text', titulo)
-		.closest('tr')
+		.get(`${listaAgendaEventosSme.linhas_eventos()} .row-title`)
+		.then(($titulos) => {
+			const tituloEsperado = normalizarTitulo(titulo)
+			const elementoEncontrado = [...$titulos].find(
+				(elemento) =>
+					normalizarTitulo(elemento.textContent) === tituloEsperado,
+			)
+
+			expect(elementoEncontrado, `evento ${titulo}`).to.exist
+
+			return cy.wrap(elementoEncontrado).closest('tr')
+		})
 
 Cypress.Commands.add('visitar_listagem_agenda_sme', () => {
 	cy.visit('/wp-admin/edit.php?post_type=agenda')
@@ -46,13 +95,18 @@ Cypress.Commands.add('ir_para_formulario_adicionar_agenda_sme', () => {
 })
 
 Cypress.Commands.add('adicionar_evento_agenda_sme', () => {
-	cy.get(agendaEventosSme.botao_adicionar_evento())
-		.should('be.visible')
-		.click()
+	cy.get(agendaEventosSme.campo_eventos_do_dia()).then(($campoEventos) => {
+		const quantidadeAtual = $campoEventos.find(
+			'tr.acf-row:not(.acf-clone)',
+		).length
 
-	cy.get(agendaEventosSme.linhas_eventos())
-		.should('have.length', 1)
-		.and('be.visible')
+		cy.get(agendaEventosSme.botao_adicionar_evento())
+			.should('be.visible')
+			.click()
+		cy.get(agendaEventosSme.linhas_eventos())
+			.should('have.length', quantidadeAtual + 1)
+			.and('be.visible')
+	})
 })
 
 Cypress.Commands.add('selecionar_tipo_data_periodo_agenda_sme', () => {
@@ -65,13 +119,111 @@ Cypress.Commands.add('selecionar_tipo_data_unica_agenda_sme', () => {
 
 Cypress.Commands.add('preencher_periodo_agenda_sme', (dataInicial, dataFinal) => {
 	cy.selecionar_tipo_data_periodo_agenda_sme()
-	preencherCampo(agendaEventosSme.campo_data_do_evento(), dataInicial, {
-		force: true,
-	})
-	preencherCampo(agendaEventosSme.campo_data_final(), dataFinal, {
-		force: true,
-	})
+	selecionarDataNoDatepicker(
+		agendaEventosSme.campo_data_do_evento(),
+		dataInicial,
+	)
+	selecionarDataNoDatepicker(agendaEventosSme.campo_data_final(), dataFinal)
 })
+
+Cypress.Commands.add('preencher_titulo_agenda_sme', (titulo) => {
+	preencherCampo(agendaEventosSme.campo_titulo(), titulo)
+})
+
+Cypress.Commands.add('selecionar_tipo_evento_agenda_sme', (tipoEvento) => {
+	cy.get(agendaEventosSme.select_tipo_de_evento())
+		.should('be.visible')
+		.select(tipoEvento)
+})
+
+Cypress.Commands.add('preencher_data_evento_agenda_sme', (dataEvento) => {
+	selecionarDataNoDatepicker(
+		agendaEventosSme.campo_data_do_evento(),
+		dataEvento,
+	)
+	cy.get(agendaEventosSme.campo_data_do_evento_interno()).should(
+		'not.have.value',
+		'',
+	)
+})
+
+Cypress.Commands.add(
+	'preencher_compromisso_agenda_sme',
+	(indiceLinha, compromisso) => {
+		const {
+			tipo,
+			nome,
+			horaInicio,
+			horaFim,
+			descricao,
+			endereco,
+			enderecoManual,
+			participantes,
+		} = compromisso
+
+		if (tipo) {
+			cy.get(agendaEventosSme.linhas_eventos())
+				.eq(indiceLinha)
+				.find(agendaEventosSme.select_compromisso_na_linha())
+				.select(tipo)
+		}
+
+		if (nome) {
+			cy.get(agendaEventosSme.linhas_eventos())
+				.eq(indiceLinha)
+				.find(agendaEventosSme.campo_nome_compromisso_na_linha())
+				.clear({ force: true })
+				.type(nome, { force: true })
+		}
+
+		if (horaInicio) {
+			selecionarHorarioNoTimepicker(
+				indiceLinha,
+				agendaEventosSme.campo_hora_evento_na_linha(),
+				horaInicio,
+			)
+		}
+
+		if (horaFim) {
+			selecionarHorarioNoTimepicker(
+				indiceLinha,
+				agendaEventosSme.campo_fim_evento_na_linha(),
+				horaFim,
+			)
+		}
+
+		if (descricao) {
+			cy.get(agendaEventosSme.linhas_eventos())
+				.eq(indiceLinha)
+				.find(agendaEventosSme.campo_descricao_evento_na_linha())
+				.clear({ force: true })
+				.type(descricao, { force: true })
+		}
+
+		if (endereco) {
+			cy.get(agendaEventosSme.linhas_eventos())
+				.eq(indiceLinha)
+				.find(agendaEventosSme.select_endereco_evento_na_linha())
+				.select(endereco)
+		}
+
+		if (enderecoManual) {
+			cy.get(agendaEventosSme.linhas_eventos())
+				.eq(indiceLinha)
+				.find(agendaEventosSme.campo_endereco_manual_na_linha())
+				.clear({ force: true })
+				.type(enderecoManual, { force: true })
+		}
+
+		if (participantes) {
+			cy.get(agendaEventosSme.linhas_eventos())
+				.eq(indiceLinha)
+				.find(agendaEventosSme.textarea_participantes_evento_na_linha())
+				.should('exist')
+				.type(participantes, { force: true })
+		}
+	},
+)
 
 Cypress.Commands.add('definir_servidores_publicos_agenda_sme', (habilitado) => {
 	definirToggle(agendaEventosSme.toggle_servidores_publicos(), habilitado)
@@ -108,41 +260,27 @@ Cypress.Commands.add('preencher_evento_agenda_sme', (evento, opcoes = {}) => {
 		profissionaisRedeParceira,
 	} = opcoes
 
-	preencherCampo(agendaEventosSme.campo_titulo(), titulo)
-	cy.get(agendaEventosSme.select_tipo_de_evento()).select(tipoEvento)
+	cy.preencher_titulo_agenda_sme(titulo)
+	cy.selecionar_tipo_evento_agenda_sme(tipoEvento)
 
 	if (tipoData === 'periodo') {
 		cy.preencher_periodo_agenda_sme(dataEvento, dataEventoFinal)
 	} else {
 		cy.selecionar_tipo_data_unica_agenda_sme()
-		preencherCampo(agendaEventosSme.campo_data_do_evento(), dataEvento, {
-			force: true,
-		})
+		cy.preencher_data_evento_agenda_sme(dataEvento)
 	}
 
 	cy.adicionar_evento_agenda_sme()
-	cy.get(agendaEventosSme.select_compromisso()).first().select(compromisso)
-	preencherCampo(agendaEventosSme.campo_nome_compromisso(), nome, {
-		force: true,
-	})
-	preencherCampo(agendaEventosSme.campo_hora_evento(), horaInicio, {
-		force: true,
-	})
-	preencherCampo(agendaEventosSme.campo_fim_evento(), horaFim, {
-		force: true,
-	})
-	preencherCampo(agendaEventosSme.campo_descricao_evento(), descricao, {
-		force: true,
-	})
-	cy.get(agendaEventosSme.select_endereco_evento()).first().select(endereco)
-	preencherCampo(agendaEventosSme.campo_endereco_manual(), enderecoManual, {
-		force: true,
-	})
-	preencherCampo(
-		agendaEventosSme.textarea_participantes_evento(),
+	cy.preencher_compromisso_agenda_sme(0, {
+		tipo: compromisso,
+		nome,
+		horaInicio,
+		horaFim,
+		descricao,
+		endereco,
+		enderecoManual,
 		participantes,
-		{ force: true },
-	)
+	})
 
 	if (typeof servidoresPublicos === 'boolean') {
 		cy.definir_servidores_publicos_agenda_sme(servidoresPublicos)
@@ -156,9 +294,33 @@ Cypress.Commands.add('preencher_evento_agenda_sme', (evento, opcoes = {}) => {
 })
 
 Cypress.Commands.add('publicar_evento_agenda_sme', () => {
+	cy.get(agendaEventosSme.link_permanente(), { timeout: 30000 })
+		.should('have.attr', 'href')
+		.and('not.be.empty')
+	cy.get('#publishing-action .spinner').should('not.have.class', 'is-active')
 	cy.get(agendaEventosSme.botao_publicar())
 		.should('be.visible')
-		.click({ force: true })
+		.and('not.be.disabled')
+		.scrollIntoView()
+		.click()
+	cy.wait(1500)
+	cy.get('body').then(($body) => {
+		const possuiResultado =
+			$body.find(agendaEventosSme.mensagem_sucesso()).length > 0 ||
+			$body.find('.acf-notice.-error.acf-error-message').length > 0 ||
+			$body.find('#post_status').val() === 'publish'
+
+		if (!possuiResultado) {
+			cy.get('#publishing-action .spinner').should(
+				'not.have.class',
+				'is-active',
+			)
+			cy.get(agendaEventosSme.botao_publicar())
+				.should('be.visible')
+				.and('not.be.disabled')
+				.click()
+		}
+	})
 })
 
 Cypress.Commands.add('criar_evento_publicado_agenda_sme', (evento) => {
@@ -215,6 +377,88 @@ Cypress.Commands.add('validar_publicacao_evento_agenda_sme', () => {
 		.invoke('text')
 		.should('match', /publicado/i)
 })
+
+Cypress.Commands.add(
+	'validar_publicacao_bloqueada_agenda_sme',
+	({ titulo, campo, mensagem }) => {
+		const containers = {
+			tipoEvento: agendaEventosSme.container_tipo_de_evento(),
+			dataEvento: agendaEventosSme.container_data_do_evento(),
+			dataFinal: agendaEventosSme.container_data_final(),
+		}
+
+		cy.url().should('include', '/wp-admin/post-new.php?post_type=agenda')
+		cy.get(agendaEventosSme.mensagem_sucesso()).should('not.exist')
+		cy.get('#post_status').should('have.value', 'draft')
+		cy.get(agendaEventosSme.campo_titulo()).should('have.value', titulo)
+		cy.contains(
+			'.acf-notice.-error.acf-error-message',
+			'Falha na validação',
+		).should('be.visible')
+		cy.get(containers[campo])
+			.find(agendaEventosSme.mensagem_obrigatoriedade())
+			.should('be.visible')
+			.and('contain', mensagem)
+	},
+)
+
+Cypress.Commands.add('validar_evento_nao_publicado_agenda_sme', (titulo) => {
+	cy.visitar_listagem_agenda_sme()
+	cy.pesquisar_evento_agenda_sme(titulo)
+	cy.get(listaAgendaEventosSme.linhas_eventos()).should(($linhas) => {
+		const eventoPublicado = [...$linhas].some((linha) => {
+			const tituloLinha = linha.querySelector('.row-title')?.textContent
+
+			return (
+				linha.classList.contains('status-publish') &&
+				tituloLinha &&
+				normalizarTitulo(tituloLinha) === normalizarTitulo(titulo)
+			)
+		})
+
+		expect(eventoPublicado, 'evento publicado na listagem').to.be.false
+	})
+})
+
+Cypress.Commands.add(
+	'validar_compromissos_agenda_sme',
+	(compromissosEsperados) => {
+		cy.get(agendaEventosSme.linhas_eventos()).should(($linhas) => {
+			expect($linhas, 'quantidade de compromissos').to.have.length(
+				compromissosEsperados.length,
+			)
+
+			const compromissosEncontrados = [...$linhas].map((linha) => ({
+				nome: linha.querySelector(
+					agendaEventosSme.campo_nome_compromisso_na_linha(),
+				)?.value,
+				hora: linha.querySelector(
+					agendaEventosSme.campo_hora_evento_na_linha(),
+				)?.value,
+			}))
+
+			compromissosEsperados.forEach((compromisso) => {
+				expect(compromissosEncontrados).to.deep.include(compromisso)
+			})
+		})
+	},
+)
+
+Cypress.Commands.add(
+	'validar_evento_com_dois_compromissos_na_listagem_agenda_sme',
+	(titulo, dataEvento) => {
+		cy.visitar_listagem_agenda_sme()
+		cy.pesquisar_evento_agenda_sme(titulo)
+		obterLinhaEventoPorTitulo(titulo).within(() => {
+			cy.get('.column-data_evento').should('contain', dataEvento)
+			cy.get('.column-qtd_evento').should('contain', '2 eventos')
+		})
+		obterLinhaEventoPorTitulo(titulo)
+			.should('have.class', 'status-publish')
+			.find('.row-title')
+			.click({ force: true })
+	},
+)
 
 Cypress.Commands.add('validar_campos_novo_item_agenda_sme', () => {
 	cy.get(agendaEventosSme.painel_agenda_eventos_sme()).should('be.visible')
