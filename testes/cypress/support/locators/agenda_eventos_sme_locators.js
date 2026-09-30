@@ -166,8 +166,16 @@ export class Adicionar_Agenda_Eventos_SME_Localizadores {
 	select_tipo_de_evento = () => '#acf-field_67e546bb44fbe'
 	campo_data_do_evento = () =>
 		'.acf-field[data-key="field_67d9b9ce73c67"] input.hasDatepicker'
+	campo_data_do_evento_interno = () => '#acf-field_67d9b9ce73c67'
 	campo_data_final = () =>
 		'.acf-field[data-key="field_67d9b9ce73ca8"] input.hasDatepicker'
+	campo_data_final_interno = () => '#acf-field_67d9b9ce73ca8'
+	container_tipo_de_evento = () =>
+		'.acf-field[data-key="field_67e546bb44fbe"]'
+	container_data_do_evento = () =>
+		'.acf-field[data-key="field_67d9b9ce73c67"]'
+	container_data_final = () =>
+		'.acf-field[data-key="field_67d9b9ce73ca8"]'
 
 	// Eventos do dia
 	campo_eventos_do_dia = () =>
@@ -202,6 +210,26 @@ export class Adicionar_Agenda_Eventos_SME_Localizadores {
 		'.acf-field[data-key="field_67d9b9ce73ce7"] tr.acf-row:not(.acf-clone) .acf-field[data-key="field_67d9b9ceb4ee7"] iframe'
 	textarea_participantes_evento = () =>
 		'.acf-field[data-key="field_67d9b9ce73ce7"] tr.acf-row:not(.acf-clone) .acf-field[data-key="field_67d9b9ceb4ee7"] textarea.wp-editor-area'
+
+	// Campos relativos a uma linha do repetidor de eventos
+	select_compromisso_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4c66"] select'
+	campo_nome_compromisso_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4ccf"] input[type="text"]'
+	campo_hora_evento_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4d21"] input.input'
+	campo_hora_evento_interno_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4d21"] input[type="hidden"]'
+	campo_fim_evento_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4d6c"] input.input'
+	campo_descricao_evento_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4db7"] textarea'
+	select_endereco_evento_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4e33"] select'
+	campo_endereco_manual_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4ea1"] input[type="text"]'
+	textarea_participantes_evento_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4ee7"] textarea.wp-editor-area'
 
 	// Visão dos grupos de usuários
 	painel_grupos_usuarios = () => '#acf-group_620bb83997f6c'
