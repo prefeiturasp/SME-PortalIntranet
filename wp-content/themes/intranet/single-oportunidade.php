@@ -171,16 +171,19 @@ $curriculo = Inscricao::obter_curriculo_usuario( get_current_user_id() );
                             </h2>
 
                             <div class="conteudo-informacoes">
-                                <p><i class="fa fa-info-circle text-primary" aria-hidden="true"></i> A designação fica condicionada à anuência da chefia imediata, cuja obtenção é de responsabilidade exclusiva do servidor.</p>
+                                <p><i class="fa fa-info-circle text-primary" aria-hidden="true"></i> A inscrição tem caráter de interesse, não implicando obrigação nem garantia de designação.</p>
+                                <p><i class="fa fa-info-circle text-primary" aria-hidden="true"></i> A designação está condicionada à anuência da chefia imediata, cuja obtenção é de responsabilidade exclusiva do servidor.</p>
 
                                 <p><i class="fa fa-info-circle text-primary" aria-hidden="true"></i> Tipo de oportunidade:</p>
                                 <ul>
-                                    <li>Para prestação de Serviços Técnico Educacionais (STE): exclusiva para servidores efetivos do Quadro do Magistério – (Professor, Coordenador Pedagógico, Diretor de Escola e Supervisor Escolar)</li>
-                                    <li>Para prestação de Serviços Técnico Administrativos (STA): exclusiva para servidores efetivos do Quadro de Apoio – (Auxiliar Técnicos de Educação).</li>
+                                    <li>Para prestação de Serviços Técnico Educacionais (STE): exclusiva para servidores efetivos do Quadro do Magistério – (Professor, Coordenador Pedagógico, Diretor de Escola e Supervisor Escolar).</li>
+                                    <li>Para prestação de Serviços Técnico Administrativos (STA): exclusiva para servidores efetivos do Quadro de Apoio – (Auxiliar Técnico de Educação).</li>
                                 </ul>
                                 <p><i class="fa fa-info-circle text-primary" aria-hidden="true"></i> STA e STE pressupõe atuação em jornada de 40h relógio. Os proventos de origem serão mantidos sem acréscimos de gratificações, somente com o pagamento da ampliação de jornada para os servidores que seu cargo base não seja de 40h relógio (professores).</p>
-                                <p><i class="fa fa-info-circle text-primary" aria-hidden="true"></i> A comunicação sobre as próximas etapas será realizada, por e-mail, pelo setor responsável pela vaga.</p>
-                                <p><i class="fa fa-info-circle text-primary" aria-hidden="true"></i> <strong>Essa inscrição tem caráter de interesse, não implicando obrigação nem garantia de designação.</strong></p>
+                                <br>
+                                <p><i class="fa fa-info-circle text-primary" aria-hidden="true"></i><strong> Comunicação:</strong> A comunicação sobre as etapas e o andamento da seleção será realizada pela área ou gestor responsável pela divulgação da vaga, por e-mail e/ou por meio da área logada do candidato (aba "Minhas Oportunidades").</p>
+                                <p><i class="fa fa-info-circle text-primary" aria-hidden="true"></i><strong> Cadastro e Privacidade:</strong> Para se candidatar às oportunidades, o servidor deve preencher e manter atualizado seu currículo na área logada (aba "Meu Currículo"). Ao ativar a opção de visibilidade durante o preenchimento, o currículo ficará disponível no Banco de Talentos, permitindo que gestores cadastrados acessem suas informações por meio da busca ativa do Portal.</p>
+                                <p><i class="fa fa-info-circle text-primary" aria-hidden="true"></i><strong> Critérios e Prerrogativas:</strong> A administração reserva-se o direito de cancelar o processo seletivo a qualquer tempo — haja ou não candidatos inscritos ou selecionados. Cabe exclusivamente ao gestor a definição dos métodos, a condução autônoma do processo e a escolha final do candidato, não estando prevista a divulgação de notas, classificações ou resultado.</p> 
                             </div>
 
                         </div>
