@@ -1,3 +1,30 @@
+export class Compromissos_Agenda_SME_Localizadores {
+	titulo_pagina = () => '#wpbody-content .wrap > h1'
+	formulario_cadastro = () => '#addtag'
+	campo_nome = () => '#addtag #tag-name'
+	campo_slug = () => '#addtag #tag-slug'
+	select_ascendente = () => '#addtag #parent'
+	campo_descricao = () => '#addtag #tag-description'
+	botao_adicionar = () => '#addtag #submit'
+	campo_busca = () => '#tag-search-input'
+	botao_buscar = () => '#search-submit'
+	linhas = () => '#the-list > tr:not(.inline-edit-row)'
+	link_nome = () => '.row-title'
+	coluna_nome = () => '.column-name'
+	coluna_descricao = () => '.column-description'
+	texto_acessivel_descricao = () => '.screen-reader-text'
+	coluna_slug = () => '.column-slug'
+	coluna_contagem = () => '.column-posts'
+	cabecalhos = () => '.wp-list-table thead'
+	mensagem_erro = () => '#ajax-response .notice-error, #ajax-response .error'
+	formulario_edicao = () => '#edittag'
+	campo_nome_edicao = () => '#edittag #name'
+	campo_slug_edicao = () => '#edittag #slug'
+	select_ascendente_edicao = () => '#edittag #parent'
+	campo_descricao_edicao = () => '#edittag #description'
+	botao_atualizar = () => '#edittag input[type="submit"]'
+}
+
 export class Menu_Agenda_Eventos_SME_Localizadores {
 	// Item principal do menu Agenda de Eventos SME
 	menu_agenda_eventos_sme = () => '#menu-posts-agenda'

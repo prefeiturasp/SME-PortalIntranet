@@ -1,10 +1,114 @@
 import {
+	Compromissos_Agenda_SME_Localizadores,
 	Adicionar_Agenda_Eventos_SME_Localizadores,
 	Lista_Agenda_Eventos_SME_Localizadores,
 } from '../locators/agenda_eventos_sme_locators'
 
 const agendaEventosSme = new Adicionar_Agenda_Eventos_SME_Localizadores()
 const listaAgendaEventosSme = new Lista_Agenda_Eventos_SME_Localizadores()
+const categoriasCompromissosSme = new Compromissos_Agenda_SME_Localizadores()
+
+const obterLinhaCategoriaCompromisso = (nome) =>
+	cy.get(categoriasCompromissosSme.linhas()).filter((_, linha) =>
+		linha.querySelector(categoriasCompromissosSme.link_nome())?.textContent.trim() === nome,
+	).should('have.length', 1)
+
+Cypress.Commands.add('visitar_compromissos_agenda_sme', () => {
+	cy.visit('/wp-admin/edit-tags.php?taxonomy=compromisso_sec&post_type=agenda')
+	cy.get(categoriasCompromissosSme.titulo_pagina()).should('have.text', 'Compromissos')
+})
+
+Cypress.Commands.add('preencher_categoria_compromisso_agenda_sme', (dados, edicao = false) => {
+	const campos = edicao
+		? [categoriasCompromissosSme.campo_nome_edicao(), categoriasCompromissosSme.campo_slug_edicao(), categoriasCompromissosSme.campo_descricao_edicao()]
+		: [categoriasCompromissosSme.campo_nome(), categoriasCompromissosSme.campo_slug(), categoriasCompromissosSme.campo_descricao()]
+	campos.forEach((seletor, indice) => {
+		const valor = [dados.nome, dados.slug, dados.descricao][indice]
+		cy.get(seletor).should('be.visible').clear()
+		if (valor) cy.get(seletor).type(valor, { parseSpecialCharSequences: false })
+	})
+	cy.get(edicao ? categoriasCompromissosSme.select_ascendente_edicao() : categoriasCompromissosSme.select_ascendente()).select(dados.ascendente || 'Nenhum')
+})
+
+Cypress.Commands.add('salvar_categoria_compromisso_agenda_sme', () => {
+	cy.intercept('POST', '**/wp-admin/admin-ajax.php', (requisicao) => {
+		const parametros = new URLSearchParams(requisicao.body)
+		if (parametros.get('action') === 'add-tag') {
+			requisicao.alias = 'adicionarCategoriaCompromisso'
+		}
+	})
+	cy.get(categoriasCompromissosSme.botao_adicionar()).click()
+	cy.wait('@adicionarCategoriaCompromisso').its('response.statusCode').should('eq', 200)
+})
+
+Cypress.Commands.add('criar_categoria_compromisso_agenda_sme', (dados) => {
+	cy.visitar_compromissos_agenda_sme()
+	cy.preencher_categoria_compromisso_agenda_sme(dados)
+	cy.salvar_categoria_compromisso_agenda_sme()
+	obterLinhaCategoriaCompromisso(dados.nome).should('be.visible')
+})
+
+Cypress.Commands.add('pesquisar_categoria_compromisso_agenda_sme', (nome, deveExistir = true) => {
+	cy.get(categoriasCompromissosSme.campo_busca()).clear().type(nome)
+	cy.get(categoriasCompromissosSme.botao_buscar()).click()
+	cy.get(categoriasCompromissosSme.campo_busca()).should('have.value', nome)
+	if (deveExistir) obterLinhaCategoriaCompromisso(nome).should('be.visible')
+	else cy.get(categoriasCompromissosSme.linhas()).find(categoriasCompromissosSme.link_nome()).should('not.exist')
+})
+
+Cypress.Commands.add('validar_pesquisa_categoria_compromisso_agenda_sme', (dados) => {
+	cy.get(categoriasCompromissosSme.linhas()).find(categoriasCompromissosSme.link_nome()).should('have.length', 1).and('have.text', dados.nome)
+	cy.validar_categoria_compromisso_agenda_sme(dados)
+})
+
+Cypress.Commands.add('validar_categoria_compromisso_agenda_sme', (dados) => {
+	cy.get(categoriasCompromissosSme.cabecalhos()).within(() => {
+		const colunas = ['Nome', 'Descrição', 'Slug', 'Contagem']
+		colunas.forEach((coluna) => cy.contains('th', coluna).should('be.visible'))
+	})
+	obterLinhaCategoriaCompromisso(dados.nome).within(() => {
+		cy.get(categoriasCompromissosSme.coluna_nome()).find(categoriasCompromissosSme.link_nome()).should('have.text', dados.nome)
+		cy.get(categoriasCompromissosSme.coluna_descricao()).should(($celula) => {
+			const conteudoVisivel = $celula.clone()
+			conteudoVisivel.find(categoriasCompromissosSme.texto_acessivel_descricao()).remove()
+			expect(conteudoVisivel.text().trim(), 'descrição visível').to.eq(dados.descricao || '—')
+			if (!dados.descricao) {
+				expect(
+					$celula.find(categoriasCompromissosSme.texto_acessivel_descricao()).text().trim(),
+					'descrição para leitores de tela',
+				).to.eq('Sem descrição')
+			}
+		})
+		cy.get(categoriasCompromissosSme.coluna_slug()).should('have.text', dados.slug)
+		cy.get(categoriasCompromissosSme.coluna_contagem()).should(($celula) => {
+			expect($celula.text().trim()).to.eq(dados.contagem)
+		})
+	})
+})
+
+Cypress.Commands.add('abrir_edicao_categoria_compromisso_agenda_sme', (dados) => {
+	cy.pesquisar_categoria_compromisso_agenda_sme(dados.nome)
+	obterLinhaCategoriaCompromisso(dados.nome).find(categoriasCompromissosSme.link_nome()).click()
+	cy.get(categoriasCompromissosSme.campo_nome_edicao()).should('have.value', dados.nome)
+	cy.get(categoriasCompromissosSme.campo_slug_edicao()).should('have.value', dados.slug)
+	cy.get(categoriasCompromissosSme.campo_descricao_edicao()).should('have.value', dados.descricao)
+	cy.get(categoriasCompromissosSme.select_ascendente_edicao()).find('option:selected').should('have.text', dados.ascendente)
+})
+
+Cypress.Commands.add('atualizar_categoria_compromisso_agenda_sme', (dados) => {
+	cy.preencher_categoria_compromisso_agenda_sme(dados, true)
+	cy.intercept('POST', '**/wp-admin/edit-tags.php').as('atualizarCategoriaCompromisso')
+	cy.get(categoriasCompromissosSme.botao_atualizar()).click()
+	cy.wait('@atualizarCategoriaCompromisso').its('response.statusCode').should('eq', 302)
+	cy.visitar_compromissos_agenda_sme()
+	cy.reload()
+	cy.abrir_edicao_categoria_compromisso_agenda_sme(dados)
+})
+
+Cypress.Commands.add('validar_nome_obrigatorio_compromisso_agenda_sme', (mensagem) => {
+	cy.get(categoriasCompromissosSme.mensagem_erro()).should('be.visible').and('contain.text', mensagem)
+	cy.get(categoriasCompromissosSme.campo_nome()).should('have.value', '')
+})
 
 const validarElementosVisiveis = (seletores) => {
 	seletores.forEach((seletor) => {

@@ -29,4 +29,16 @@ const gerarEventoAgendaSme = () => {
 	}
 }
 
+export const gerarCompromissoAgendaSme = (opcoes = {}) => {
+	const identificador = faker.string.uuid()
+	return {
+		nome: `Compromisso SME ${identificador}`,
+		slug: `compromisso-sme-${identificador}`,
+		descricao: faker.lorem.sentence(),
+		ascendente: 'Nenhum',
+		contagem: '0',
+		...opcoes,
+	}
+}
+
 export default gerarEventoAgendaSme

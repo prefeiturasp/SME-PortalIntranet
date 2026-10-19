@@ -77,3 +77,48 @@ Funcionalidade: Agenda de Eventos SME
     E salvo as alterações do evento da Agenda de Eventos SME
     Então devo visualizar a confirmação de atualização do evento
     E devo visualizar o evento atualizado na listagem
+
+  @compromissos
+  Cenário: Deve exibir nome, descrição, slug e contagem de um compromisso
+    Dado que possuo um compromisso cadastrado com descrição na Agenda de Eventos SME
+    Então devo visualizar nome, descrição, slug e contagem do compromisso
+
+  @compromissos
+  Cenário: Deve representar a descrição vazia de um compromisso por um traço
+    Dado que possuo um compromisso cadastrado sem descrição na Agenda de Eventos SME
+    Então devo visualizar nome, descrição, slug e contagem do compromisso
+    E a descrição vazia do compromisso deve ser representada por um traço
+
+  @compromissos
+  Cenário: Deve cadastrar um compromisso apenas com nome
+    Dado que acesso Compromissos da Agenda de Eventos SME
+    Quando cadastro um compromisso preenchendo apenas o nome
+    Então devo visualizar nome, descrição, slug e contagem do compromisso
+    E os campos cadastrados do compromisso devem permanecer na edição
+
+  @compromissos
+  Cenário: Deve cadastrar um compromisso com todos os campos
+    Dado que acesso Compromissos da Agenda de Eventos SME
+    Quando cadastro um compromisso preenchendo todos os campos
+    Então devo visualizar nome, descrição, slug e contagem do compromisso
+    E os campos cadastrados do compromisso devem permanecer na edição
+
+  @compromissos
+  Cenário: Deve editar um compromisso
+    Dado que possuo um compromisso cadastrado com descrição na Agenda de Eventos SME
+    Quando edito nome, slug e descrição do compromisso cadastrado
+    Então devo visualizar nome, descrição, slug e contagem do compromisso
+    E os campos cadastrados do compromisso devem permanecer na edição
+
+  @compromissos
+  Cenário: Deve impedir cadastro de compromisso sem nome
+    Dado que acesso Compromissos da Agenda de Eventos SME
+    Quando tento cadastrar um compromisso sem preencher o nome
+    Então devo visualizar a mensagem de nome obrigatório do compromisso "Um nome é necessário para esse termo."
+    E o compromisso sem nome não deve ser cadastrado
+
+  @compromissos
+  Cenário: Deve pesquisar um compromisso existente
+    Dado que possuo um compromisso cadastrado com descrição na Agenda de Eventos SME
+    Quando pesquiso pelo nome do compromisso cadastrado
+    Então devo visualizar somente o compromisso pesquisado
