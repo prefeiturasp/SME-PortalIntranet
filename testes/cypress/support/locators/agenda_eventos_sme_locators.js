@@ -1,3 +1,30 @@
+export class Compromissos_Agenda_SME_Localizadores {
+	titulo_pagina = () => '#wpbody-content .wrap > h1'
+	formulario_cadastro = () => '#addtag'
+	campo_nome = () => '#addtag #tag-name'
+	campo_slug = () => '#addtag #tag-slug'
+	select_ascendente = () => '#addtag #parent'
+	campo_descricao = () => '#addtag #tag-description'
+	botao_adicionar = () => '#addtag #submit'
+	campo_busca = () => '#tag-search-input'
+	botao_buscar = () => '#search-submit'
+	linhas = () => '#the-list > tr:not(.inline-edit-row)'
+	link_nome = () => '.row-title'
+	coluna_nome = () => '.column-name'
+	coluna_descricao = () => '.column-description'
+	texto_acessivel_descricao = () => '.screen-reader-text'
+	coluna_slug = () => '.column-slug'
+	coluna_contagem = () => '.column-posts'
+	cabecalhos = () => '.wp-list-table thead'
+	mensagem_erro = () => '#ajax-response .notice-error, #ajax-response .error'
+	formulario_edicao = () => '#edittag'
+	campo_nome_edicao = () => '#edittag #name'
+	campo_slug_edicao = () => '#edittag #slug'
+	select_ascendente_edicao = () => '#edittag #parent'
+	campo_descricao_edicao = () => '#edittag #description'
+	botao_atualizar = () => '#edittag input[type="submit"]'
+}
+
 export class Menu_Agenda_Eventos_SME_Localizadores {
 	// Item principal do menu Agenda de Eventos SME
 	menu_agenda_eventos_sme = () => '#menu-posts-agenda'
@@ -166,8 +193,16 @@ export class Adicionar_Agenda_Eventos_SME_Localizadores {
 	select_tipo_de_evento = () => '#acf-field_67e546bb44fbe'
 	campo_data_do_evento = () =>
 		'.acf-field[data-key="field_67d9b9ce73c67"] input.hasDatepicker'
+	campo_data_do_evento_interno = () => '#acf-field_67d9b9ce73c67'
 	campo_data_final = () =>
 		'.acf-field[data-key="field_67d9b9ce73ca8"] input.hasDatepicker'
+	campo_data_final_interno = () => '#acf-field_67d9b9ce73ca8'
+	container_tipo_de_evento = () =>
+		'.acf-field[data-key="field_67e546bb44fbe"]'
+	container_data_do_evento = () =>
+		'.acf-field[data-key="field_67d9b9ce73c67"]'
+	container_data_final = () =>
+		'.acf-field[data-key="field_67d9b9ce73ca8"]'
 
 	// Eventos do dia
 	campo_eventos_do_dia = () =>
@@ -202,6 +237,26 @@ export class Adicionar_Agenda_Eventos_SME_Localizadores {
 		'.acf-field[data-key="field_67d9b9ce73ce7"] tr.acf-row:not(.acf-clone) .acf-field[data-key="field_67d9b9ceb4ee7"] iframe'
 	textarea_participantes_evento = () =>
 		'.acf-field[data-key="field_67d9b9ce73ce7"] tr.acf-row:not(.acf-clone) .acf-field[data-key="field_67d9b9ceb4ee7"] textarea.wp-editor-area'
+
+	// Campos relativos a uma linha do repetidor de eventos
+	select_compromisso_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4c66"] select'
+	campo_nome_compromisso_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4ccf"] input[type="text"]'
+	campo_hora_evento_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4d21"] input.input'
+	campo_hora_evento_interno_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4d21"] input[type="hidden"]'
+	campo_fim_evento_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4d6c"] input.input'
+	campo_descricao_evento_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4db7"] textarea'
+	select_endereco_evento_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4e33"] select'
+	campo_endereco_manual_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4ea1"] input[type="text"]'
+	textarea_participantes_evento_na_linha = () =>
+		'.acf-field[data-key="field_67d9b9ceb4ee7"] textarea.wp-editor-area'
 
 	// Visão dos grupos de usuários
 	painel_grupos_usuarios = () => '#acf-group_620bb83997f6c'
