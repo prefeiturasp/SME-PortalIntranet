@@ -61,6 +61,10 @@ function renderizar_eventos_hoje() {
     while ($query->have_posts()) {
         $query->the_post();
 
+        if ( !validar_data_sorteio_por_tipo( get_the_ID(), $hoje ) ) {
+            continue;
+        }
+
         $data = get_field('data_sorteio');
         $hora_real = get_field('hora_sorteio'); // valor do ACF original (pode estar vazio)
 
@@ -168,6 +172,10 @@ function get_cortesias_dia( string $data ) {
     if ( $query_cortesias->have_posts() ) {
         while ($query_cortesias->have_posts()) {
             $query_cortesias->the_post();
+
+            if ( !validar_data_cortesia_por_tipo( get_the_ID(), $data ) ) {
+                continue;
+            }
 
             $responsavel = get_field( 'responsavel_noticia' );
             $nome_responsavel = $responsavel->display_name ?? 'Sem responsável';

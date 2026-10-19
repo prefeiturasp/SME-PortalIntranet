@@ -10205,3 +10205,89 @@ function ordenar_eventos_por_responsavel( array $itens ) {
 
     return $itens;
 }
+
+// Valida se a data exibida pertence ao "Tipo de uso" atual do Sorteio (Calendário dos sorteios)
+function validar_data_sorteio_por_tipo( $post_id, $hoje ) {
+    $tipo_evento = get_field( 'tipo_evento', $post_id );
+
+    if ( $tipo_evento === 'data' ) {
+        if ( !have_rows( 'evento_datas', $post_id ) ) {
+            return false;
+        }
+
+        while ( have_rows( 'evento_datas', $post_id ) ) {
+            the_row();
+
+            if ( get_sub_field( 'data_sorteio', false ) == $hoje ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    if ( $tipo_evento === 'premio' ) {
+        if ( !have_rows( 'evento_premios', $post_id ) ) {
+            return false;
+        }
+
+        while ( have_rows( 'evento_premios', $post_id ) ) {
+            the_row();
+
+            if ( get_sub_field( 'data_sorteio', false ) == $hoje ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    if ( $tipo_evento === 'periodo' ) {
+        return get_field( 'evento_periodo_data_sorteio', $post_id, false ) == $hoje;
+    }
+
+    // Estrutura antiga
+    return get_field( 'data_sorteio', $post_id ) == $hoje;
+}
+
+// Valida se a data exibida pertence ao "Tipo de uso" atual da Ordem de inscrição (Calendário dos sorteios)
+function validar_data_cortesia_por_tipo( $post_id, $hoje ) {
+    $tipo_evento = get_field( 'tipo_evento', $post_id );
+
+    if ( $tipo_evento === 'data' ) {
+        if ( !have_rows( 'evento_datas', $post_id ) ) {
+            return false;
+        }
+
+        while ( have_rows( 'evento_datas', $post_id ) ) {
+            the_row();
+
+            if ( get_sub_field( 'encerramento_inscricoes', false ) == $hoje ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    if ( $tipo_evento === 'premio' ) {
+        if ( !have_rows( 'evento_premios', $post_id ) ) {
+            return false;
+        }
+
+        while ( have_rows( 'evento_premios', $post_id ) ) {
+            the_row();
+
+            if ( get_sub_field( 'encerramento_inscricoes', false ) == $hoje ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    if ( $tipo_evento === 'periodo' ) {
+        return get_field( 'evento_periodo_encerramento_inscricoes', $post_id, false ) == $hoje;
+    }
+
+}
