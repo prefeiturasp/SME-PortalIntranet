@@ -23,9 +23,10 @@ class CamposAdicionais
 
 		//$this->exibeTodosUsuarios();
 
-		add_action( 'restrict_manage_users', array($this,'add_setor_filter' ));
-
-		add_filter( 'pre_get_users', array($this,'filter_users_by_setor' ));
+		// Filtro de setor desativado.
+		// O campo não é utilizado neste portal.
+		//add_action( 'restrict_manage_users', array($this,'add_setor_filter' ));
+		//add_filter( 'pre_get_users', array($this,'filter_users_by_setor' ));
 
 
 	}
