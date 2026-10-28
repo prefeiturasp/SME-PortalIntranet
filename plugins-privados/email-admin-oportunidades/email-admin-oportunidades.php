@@ -27,7 +27,8 @@ function oportunidade_pending_email($new_status, $old_status, $post) {
     // auto-draft -> pending
     // new -> pending
     // publish -> pending
-    if ( !in_array( $old_status, ['new', 'auto-draft', 'publish'], true ) ) {
+    // draft -> pending
+    if ( !in_array( $old_status, ['new', 'auto-draft', 'publish', 'draft'], true ) ) {
         return;
     }
 
