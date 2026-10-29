@@ -122,3 +122,43 @@ Funcionalidade: Agenda de Eventos SME
     Dado que possuo um compromisso cadastrado com descrição na Agenda de Eventos SME
     Quando pesquiso pelo nome do compromisso cadastrado
     Então devo visualizar somente o compromisso pesquisado
+
+  @enderecos
+  Cenário: Deve representar a descrição vazia de um endereço por um traço
+    Dado que possuo um endereço cadastrado sem descrição na Agenda de Eventos SME
+    Então devo visualizar nome, descrição, slug e contagem do endereço
+    E a descrição vazia do endereço deve ser representada por um traço
+
+  @enderecos
+  Cenário: Deve cadastrar um endereço apenas com nome
+    Dado que acesso Endereços da Agenda de Eventos SME
+    Quando cadastro um endereço preenchendo apenas o nome
+    Então devo visualizar nome, descrição, slug e contagem do endereço
+    E os campos cadastrados do endereço devem permanecer na edição
+
+  @enderecos
+  Cenário: Deve cadastrar um endereço com todos os campos
+    Dado que acesso Endereços da Agenda de Eventos SME
+    Quando cadastro um endereço preenchendo todos os campos
+    Então devo visualizar nome, descrição, slug e contagem do endereço
+    E os campos cadastrados do endereço devem permanecer na edição
+
+  @enderecos
+  Cenário: Deve editar um endereço
+    Dado que possuo um endereço cadastrado com descrição na Agenda de Eventos SME
+    Quando edito nome, slug e descrição do endereço cadastrado
+    Então devo visualizar nome, descrição, slug e contagem do endereço
+    E os campos cadastrados do endereço devem permanecer na edição
+
+  @enderecos
+  Cenário: Deve impedir cadastro de endereço sem nome
+    Dado que acesso Endereços da Agenda de Eventos SME
+    Quando tento cadastrar um endereço sem preencher o nome
+    Então devo visualizar a mensagem de nome obrigatório do endereço "Um nome é necessário para esse termo."
+    E o endereço sem nome não deve ser cadastrado
+
+  @enderecos
+  Cenário: Deve pesquisar um endereço existente
+    Dado que possuo um endereço cadastrado com descrição na Agenda de Eventos SME
+    Quando pesquiso pelo nome do endereço cadastrado
+    Então devo visualizar somente o endereço pesquisado

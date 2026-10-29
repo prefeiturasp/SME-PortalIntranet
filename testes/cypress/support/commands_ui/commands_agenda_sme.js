@@ -1,5 +1,6 @@
 import {
 	Compromissos_Agenda_SME_Localizadores,
+	Enderecos_Agenda_SME_Localizadores,
 	Adicionar_Agenda_Eventos_SME_Localizadores,
 	Lista_Agenda_Eventos_SME_Localizadores,
 } from '../locators/agenda_eventos_sme_locators'
@@ -592,4 +593,108 @@ Cypress.Commands.add('validar_campos_novo_item_agenda_sme', () => {
 	])
 
 	cy.get(agendaEventosSme.textarea_participantes_evento()).should('exist')
+})
+
+const categoriasEnderecosSme = new Enderecos_Agenda_SME_Localizadores()
+
+const obterLinhaCategoriaEndereco = (nome) =>
+	cy.get(categoriasEnderecosSme.linhas()).filter((_, linha) =>
+		linha.querySelector(categoriasEnderecosSme.link_nome())?.textContent.trim() === nome,
+	).should('have.length', 1)
+
+Cypress.Commands.add('visitar_enderecos_agenda_sme', () => {
+	cy.visit('/wp-admin/edit-tags.php?taxonomy=endereco_sec&post_type=agenda')
+	cy.get(categoriasEnderecosSme.titulo_pagina()).should('have.text', 'Endereços')
+})
+
+Cypress.Commands.add('preencher_categoria_endereco_agenda_sme', (dados, edicao = false) => {
+	const campos = edicao
+		? [categoriasEnderecosSme.campo_nome_edicao(), categoriasEnderecosSme.campo_slug_edicao(), categoriasEnderecosSme.campo_descricao_edicao()]
+		: [categoriasEnderecosSme.campo_nome(), categoriasEnderecosSme.campo_slug(), categoriasEnderecosSme.campo_descricao()]
+	campos.forEach((seletor, indice) => {
+		const valor = [dados.nome, dados.slug, dados.descricao][indice]
+		cy.get(seletor).should('be.visible').clear()
+		if (valor) cy.get(seletor).type(valor, { parseSpecialCharSequences: false })
+	})
+	cy.get(edicao ? categoriasEnderecosSme.select_ascendente_edicao() : categoriasEnderecosSme.select_ascendente()).select(dados.ascendente || 'Nenhum')
+})
+
+Cypress.Commands.add('salvar_categoria_endereco_agenda_sme', () => {
+	cy.intercept('POST', '**/wp-admin/admin-ajax.php', (requisicao) => {
+		const parametros = new URLSearchParams(requisicao.body)
+		if (parametros.get('action') === 'add-tag') {
+			requisicao.alias = 'adicionarCategoriaEndereco'
+		}
+	})
+	cy.get(categoriasEnderecosSme.botao_adicionar()).click()
+	cy.wait('@adicionarCategoriaEndereco').its('response.statusCode').should('eq', 200)
+})
+
+Cypress.Commands.add('criar_categoria_endereco_agenda_sme', (dados) => {
+	cy.visitar_enderecos_agenda_sme()
+	cy.preencher_categoria_endereco_agenda_sme(dados)
+	cy.salvar_categoria_endereco_agenda_sme()
+	obterLinhaCategoriaEndereco(dados.nome).should('be.visible')
+})
+
+Cypress.Commands.add('pesquisar_categoria_endereco_agenda_sme', (nome, deveExistir = true) => {
+	cy.get(categoriasEnderecosSme.campo_busca()).clear().type(nome)
+	cy.get(categoriasEnderecosSme.botao_buscar()).click()
+	cy.get(categoriasEnderecosSme.campo_busca()).should('have.value', nome)
+	if (deveExistir) obterLinhaCategoriaEndereco(nome).should('be.visible')
+	else cy.get(`${categoriasEnderecosSme.linhas()} ${categoriasEnderecosSme.link_nome()}`).should('not.exist')
+})
+
+Cypress.Commands.add('validar_pesquisa_categoria_endereco_agenda_sme', (dados) => {
+	cy.get(categoriasEnderecosSme.linhas()).find(categoriasEnderecosSme.link_nome()).should('have.length', 1).and('have.text', dados.nome)
+	cy.validar_categoria_endereco_agenda_sme(dados)
+})
+
+Cypress.Commands.add('validar_categoria_endereco_agenda_sme', (dados) => {
+	cy.get(categoriasEnderecosSme.cabecalhos()).within(() => {
+		const colunas = ['Nome', 'Descrição', 'Slug', 'Contagem']
+		colunas.forEach((coluna) => cy.contains('th', coluna).should('be.visible'))
+	})
+	obterLinhaCategoriaEndereco(dados.nome).within(() => {
+		cy.get(categoriasEnderecosSme.coluna_nome()).find(categoriasEnderecosSme.link_nome()).should('have.text', dados.nome)
+		cy.get(categoriasEnderecosSme.coluna_descricao()).should(($celula) => {
+			const conteudoVisivel = $celula.clone()
+			conteudoVisivel.find(categoriasEnderecosSme.texto_acessivel_descricao()).remove()
+			expect(conteudoVisivel.text().trim(), 'descrição visível').to.eq(dados.descricao || '—')
+			if (!dados.descricao) {
+				expect(
+					$celula.find(categoriasEnderecosSme.texto_acessivel_descricao()).text().trim(),
+					'descrição para leitores de tela',
+				).to.eq('Sem descrição')
+			}
+		})
+		cy.get(categoriasEnderecosSme.coluna_slug()).should('have.text', dados.slug)
+		cy.get(categoriasEnderecosSme.coluna_contagem()).should(($celula) => {
+			expect($celula.text().trim()).to.eq(dados.contagem)
+		})
+	})
+})
+
+Cypress.Commands.add('abrir_edicao_categoria_endereco_agenda_sme', (dados) => {
+	cy.pesquisar_categoria_endereco_agenda_sme(dados.nome)
+	obterLinhaCategoriaEndereco(dados.nome).find(categoriasEnderecosSme.link_nome()).click()
+	cy.get(categoriasEnderecosSme.campo_nome_edicao()).should('have.value', dados.nome)
+	cy.get(categoriasEnderecosSme.campo_slug_edicao()).should('have.value', dados.slug)
+	cy.get(categoriasEnderecosSme.campo_descricao_edicao()).should('have.value', dados.descricao)
+	cy.get(categoriasEnderecosSme.select_ascendente_edicao()).find('option:selected').should('have.text', dados.ascendente)
+})
+
+Cypress.Commands.add('atualizar_categoria_endereco_agenda_sme', (dados) => {
+	cy.preencher_categoria_endereco_agenda_sme(dados, true)
+	cy.intercept('POST', '**/wp-admin/edit-tags.php').as('atualizarCategoriaEndereco')
+	cy.get(categoriasEnderecosSme.botao_atualizar()).click()
+	cy.wait('@atualizarCategoriaEndereco').its('response.statusCode').should('eq', 302)
+	cy.visitar_enderecos_agenda_sme()
+	cy.reload()
+	cy.abrir_edicao_categoria_endereco_agenda_sme(dados)
+})
+
+Cypress.Commands.add('validar_nome_obrigatorio_endereco_agenda_sme', (mensagem) => {
+	cy.get(categoriasEnderecosSme.mensagem_erro()).should('be.visible').and('contain.text', mensagem)
+	cy.get(categoriasEnderecosSme.campo_nome()).should('have.value', '')
 })
