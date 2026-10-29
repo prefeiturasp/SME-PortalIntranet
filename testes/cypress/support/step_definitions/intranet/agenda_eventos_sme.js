@@ -4,12 +4,96 @@ import {
 	Then,
 	And,
 } from 'cypress-cucumber-preprocessor/steps'
-import gerarEventoAgendaSme from '../../utils/intranet/gerar_evento_agenda_sme'
+import gerarEventoAgendaSme, {
+	gerarCompromissoAgendaSme,
+	gerarEnderecoAgendaSme,
+} from '../../utils/intranet/gerar_evento_agenda_sme'
 
 const Dado = Given
 const Quando = When
 const Entao = Then
 const E = And
+
+let categoriaCompromisso
+let categoriaCompromissoEditada
+
+Dado('que acesso Compromissos da Agenda de Eventos SME', () => {
+	cy.realizar_login_intranet()
+	cy.visitar_compromissos_agenda_sme()
+})
+
+Dado('que possuo um compromisso cadastrado com descrição na Agenda de Eventos SME', () => {
+	categoriaCompromisso = gerarCompromissoAgendaSme()
+	cy.realizar_login_intranet()
+	cy.criar_categoria_compromisso_agenda_sme(categoriaCompromisso)
+})
+
+Dado('que possuo um compromisso cadastrado sem descrição na Agenda de Eventos SME', () => {
+	categoriaCompromisso = gerarCompromissoAgendaSme({ descricao: '' })
+	cy.realizar_login_intranet()
+	cy.criar_categoria_compromisso_agenda_sme(categoriaCompromisso)
+})
+
+Quando('cadastro um compromisso preenchendo apenas o nome', () => {
+	categoriaCompromisso = gerarCompromissoAgendaSme({ descricao: '' })
+	cy.preencher_categoria_compromisso_agenda_sme({ nome: categoriaCompromisso.nome })
+	cy.salvar_categoria_compromisso_agenda_sme()
+})
+
+Quando('cadastro um compromisso preenchendo todos os campos', () => {
+	const ascendente = gerarCompromissoAgendaSme()
+	cy.criar_categoria_compromisso_agenda_sme(ascendente)
+	categoriaCompromisso = gerarCompromissoAgendaSme({ ascendente: ascendente.nome })
+	cy.preencher_categoria_compromisso_agenda_sme(categoriaCompromisso)
+	cy.salvar_categoria_compromisso_agenda_sme()
+})
+
+Quando('edito nome, slug e descrição do compromisso cadastrado', () => {
+	cy.abrir_edicao_categoria_compromisso_agenda_sme(categoriaCompromisso)
+	categoriaCompromissoEditada = gerarCompromissoAgendaSme()
+	cy.atualizar_categoria_compromisso_agenda_sme(categoriaCompromissoEditada)
+	categoriaCompromisso = categoriaCompromissoEditada
+})
+
+Quando('tento cadastrar um compromisso sem preencher o nome', () => {
+	categoriaCompromisso = gerarCompromissoAgendaSme({ nome: '' })
+	cy.preencher_categoria_compromisso_agenda_sme(categoriaCompromisso)
+	cy.salvar_categoria_compromisso_agenda_sme()
+})
+
+Quando('pesquiso pelo nome do compromisso cadastrado', () => {
+	cy.pesquisar_categoria_compromisso_agenda_sme(categoriaCompromisso.nome)
+})
+
+Entao('devo visualizar nome, descrição, slug e contagem do compromisso', () => {
+	cy.visitar_compromissos_agenda_sme()
+	cy.pesquisar_categoria_compromisso_agenda_sme(categoriaCompromisso.nome)
+	cy.validar_categoria_compromisso_agenda_sme(categoriaCompromisso)
+})
+
+E('a descrição vazia do compromisso deve ser representada por um traço', () => {
+	expect(categoriaCompromisso.descricao).to.eq('')
+	cy.validar_categoria_compromisso_agenda_sme(categoriaCompromisso)
+})
+
+E('os campos cadastrados do compromisso devem permanecer na edição', () => {
+	cy.abrir_edicao_categoria_compromisso_agenda_sme(categoriaCompromisso)
+	cy.visitar_compromissos_agenda_sme()
+	cy.abrir_edicao_categoria_compromisso_agenda_sme(categoriaCompromisso)
+})
+
+Entao('devo visualizar a mensagem de nome obrigatório do compromisso {string}', (mensagem) => {
+	cy.validar_nome_obrigatorio_compromisso_agenda_sme(mensagem)
+})
+
+E('o compromisso sem nome não deve ser cadastrado', () => {
+	cy.reload()
+	cy.pesquisar_categoria_compromisso_agenda_sme(categoriaCompromisso.slug, false)
+})
+
+Entao('devo visualizar somente o compromisso pesquisado', () => {
+	cy.validar_pesquisa_categoria_compromisso_agenda_sme(categoriaCompromisso)
+})
 
 const gerarEventoCompletoAgendaSme = () => ({
 	...gerarEventoAgendaSme(),
@@ -248,4 +332,85 @@ E('devo visualizar o evento atualizado na listagem', () => {
 	cy.visitar_listagem_agenda_sme()
 	cy.pesquisar_evento_agenda_sme(tituloEventoEditado)
 	cy.validar_evento_publicado_na_listagem_agenda_sme(tituloEventoEditado)
+})
+
+let categoriaEndereco
+let categoriaEnderecoEditada
+
+Dado('que acesso Endereços da Agenda de Eventos SME', () => {
+	cy.realizar_login_intranet()
+	cy.visitar_enderecos_agenda_sme()
+})
+
+Dado('que possuo um endereço cadastrado com descrição na Agenda de Eventos SME', () => {
+	categoriaEndereco = gerarEnderecoAgendaSme()
+	cy.realizar_login_intranet()
+	cy.criar_categoria_endereco_agenda_sme(categoriaEndereco)
+})
+
+Dado('que possuo um endereço cadastrado sem descrição na Agenda de Eventos SME', () => {
+	categoriaEndereco = gerarEnderecoAgendaSme({ descricao: '' })
+	cy.realizar_login_intranet()
+	cy.criar_categoria_endereco_agenda_sme(categoriaEndereco)
+})
+
+Quando('cadastro um endereço preenchendo apenas o nome', () => {
+	categoriaEndereco = gerarEnderecoAgendaSme({ descricao: '' })
+	cy.preencher_categoria_endereco_agenda_sme({ nome: categoriaEndereco.nome })
+	cy.salvar_categoria_endereco_agenda_sme()
+})
+
+Quando('cadastro um endereço preenchendo todos os campos', () => {
+	const ascendente = gerarEnderecoAgendaSme()
+	cy.criar_categoria_endereco_agenda_sme(ascendente)
+	categoriaEndereco = gerarEnderecoAgendaSme({ ascendente: ascendente.nome })
+	cy.preencher_categoria_endereco_agenda_sme(categoriaEndereco)
+	cy.salvar_categoria_endereco_agenda_sme()
+})
+
+Quando('edito nome, slug e descrição do endereço cadastrado', () => {
+	cy.abrir_edicao_categoria_endereco_agenda_sme(categoriaEndereco)
+	categoriaEnderecoEditada = gerarEnderecoAgendaSme()
+	cy.atualizar_categoria_endereco_agenda_sme(categoriaEnderecoEditada)
+	categoriaEndereco = categoriaEnderecoEditada
+})
+
+Quando('tento cadastrar um endereço sem preencher o nome', () => {
+	categoriaEndereco = gerarEnderecoAgendaSme({ nome: '' })
+	cy.preencher_categoria_endereco_agenda_sme(categoriaEndereco)
+	cy.salvar_categoria_endereco_agenda_sme()
+})
+
+Quando('pesquiso pelo nome do endereço cadastrado', () => {
+	cy.pesquisar_categoria_endereco_agenda_sme(categoriaEndereco.nome)
+})
+
+Entao('devo visualizar nome, descrição, slug e contagem do endereço', () => {
+	cy.visitar_enderecos_agenda_sme()
+	cy.pesquisar_categoria_endereco_agenda_sme(categoriaEndereco.nome)
+	cy.validar_categoria_endereco_agenda_sme(categoriaEndereco)
+})
+
+E('a descrição vazia do endereço deve ser representada por um traço', () => {
+	expect(categoriaEndereco.descricao).to.eq('')
+	cy.validar_categoria_endereco_agenda_sme(categoriaEndereco)
+})
+
+E('os campos cadastrados do endereço devem permanecer na edição', () => {
+	cy.abrir_edicao_categoria_endereco_agenda_sme(categoriaEndereco)
+	cy.visitar_enderecos_agenda_sme()
+	cy.abrir_edicao_categoria_endereco_agenda_sme(categoriaEndereco)
+})
+
+Entao('devo visualizar a mensagem de nome obrigatório do endereço {string}', (mensagem) => {
+	cy.validar_nome_obrigatorio_endereco_agenda_sme(mensagem)
+})
+
+E('o endereço sem nome não deve ser cadastrado', () => {
+	cy.reload()
+	cy.pesquisar_categoria_endereco_agenda_sme(categoriaEndereco.slug, false)
+})
+
+Entao('devo visualizar somente o endereço pesquisado', () => {
+	cy.validar_pesquisa_categoria_endereco_agenda_sme(categoriaEndereco)
 })
