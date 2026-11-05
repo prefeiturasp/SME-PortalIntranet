@@ -29,6 +29,7 @@ if (is_user_logged_in()){
     add_shortcode('exibe_tab_participantes_sorteio', 'exibeTabParticipantesSorteio');
     add_shortcode('exibe_tab_historico_emails_enviados', 'exibe_historico_emails_enviados');
     add_shortcode('listar_participantes_sorteados', 'exibir_lista_sorteados_por_data');
+	add_shortcode('resorteio_shortcode', 'renderizar_bloco_resorteio');
     add_shortcode('exibe_btn_sortear', 'exibir_btn_sortear');
 
     add_action('admin_enqueue_scripts', 'scripts_exportacao_inscritos_admin');
@@ -372,15 +373,22 @@ function exibir_lista_sorteados_por_data ($post_id = null) {//** OK */
 		$unica = true;
     }
 
+	$exibeNaPagina = get_post_meta($post_id, 'exibe_resultado_pagina', true);
+	if ($exibeNaPagina == '1') {
+		$exibeNaPagina = 'checked';
+	} else {
+		$exibeNaPagina = '';
+	}
+
 	if (!empty($datas)) {
 		$args = [
 			'post_id' => $post_id,
 			'datas' => $datas,
 			'unica' => $unica,
 			'tipo_evento' => $tipo_evento,
+			'exibe_resultado' => $exibeNaPagina
 		];
 
-		echo "<div class='acf-label'><label>Lista de Participantes Sorteados:</label></div>";
 		echo '<div class="row">';
 			echo '<div class="col text-right">';
 				echo '<button type="button" class="btn btn-outline-success btn-sm mb-3" id="exportar-sorteados" data-post-id="' . $post_id . '" data-responsavel="' . $responsavel . '">Baixar relatório de sorteados</button>';
@@ -389,14 +397,27 @@ function exibir_lista_sorteados_por_data ($post_id = null) {//** OK */
 
 		get_template_part( '/includes/sorteio/template-parts/lista-participantes-sorteados-container', null, $args );		
 	}
+}
 
-	$exibeNaPagina = get_post_meta($post_id, 'exibe_resultado_pagina', true);
-	if ($exibeNaPagina == '1') {
-		$exibeNaPagina = 'checked';
-	} else {
-		$exibeNaPagina = '';
+function renderizar_bloco_resorteio($post_id = null) {
+	if (!$post_id) {
+		$post_id = get_the_id();
 	}
 
+	$tipo_evento = get_field('tipo_evento', $post_id);
+	$tipo_evento = ( is_array( $tipo_evento ) && !empty( $tipo_evento ) ) ? $tipo_evento[0] : $tipo_evento;
+
+	if ( $tipo_evento == 'premio' ) {
+		$datas = get_field('evento_premios', $post_id);
+	} elseif ( $tipo_evento == 'data' ) {
+		$datas = get_field('evento_datas', $post_id);
+	} else {
+		$datas = [];
+	}
+
+	if(!$datas){
+        $datas[]['data'] = get_field('data_sorteio', $post_id);
+    }
 
 	$output = '';
 	if ( $tipo_evento === 'periodo' ) {
@@ -1809,29 +1830,6 @@ if ( !get_option( 'tabelas_sorteio_configuradas' ) ) {
 	configura_tabelas_sorteio();
 	update_option( 'tabelas_sorteio_configuradas', true );
 }
-
-//Posiciona os metaboxes da maneira correta.
-add_action('admin_footer', function () {
-    $screen = get_current_screen();
-    if ($screen->post_type !== 'post') return;
-    ?>
-    <script>
-    jQuery(function($) {
-        const destino = $('#normal-sortables');
-
-        $('[id^="inscritos_data_"]').each(function() {
-        	const box = $(this).closest('.postbox');
-        	box.insertBefore($('#acf-group_684ae6e1601bf')); // Acima do metabox de histórico de emails
-        });
-
-		$('[id^="sorteados_data_"]').each(function() {
-        	const box = $(this).closest('.postbox');
-        	box.insertBefore($('#acf-group_684ae6e1601bf')); // Acima do metabox de histórico de emails
-        });
-    });
-    </script>
-    <?php
-});
 
 // Obtem adata do próximo sorteio de um evento com multiplas datas
 function obter_proxima_data_sorteio( $post_id, $semana = true ) {

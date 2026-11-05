@@ -10291,3 +10291,127 @@ function validar_data_cortesia_por_tipo( $post_id, $hoje ) {
     }
 
 }
+
+add_action( 'admin_footer-post.php', 'recolher_paineis_admin' );
+add_action( 'admin_footer-post-new.php', 'recolher_paineis_admin' );
+function recolher_paineis_admin() {
+
+    $screen = get_current_screen();
+    $post_types = ['post'];
+
+    if ( !$screen || !in_array( $screen->post_type, $post_types, true ) ) {
+        return;
+    }
+
+    ?>
+    <script>
+        jQuery(function ($) {
+
+            /*
+            * Inicia a página com todos os metaboxes fechados
+            * Remove a classe "closed" apenas do metabox com as ações de publicação.
+            */
+            $('#poststuff .postbox').addClass('closed');
+            $('#poststuff #submitdiv.postbox').removeClass('closed');
+
+            const storageKey = 'estado_envio_instrucoes';
+            const dados = sessionStorage.getItem(storageKey);
+            const retorno = JSON.parse(dados);
+
+            if (retorno) {
+                $(`#${retorno.collapse}`).closest('.postbox.acf-postbox').removeClass('closed');
+                sessionStorage.removeItem(storageKey);
+            }
+
+            const confirmacaoStorageKey = 'estado_envio_confirmacoes';
+            const dadosConfirmacao = sessionStorage.getItem(confirmacaoStorageKey);
+            const retornoConfirmacao = JSON.parse(dadosConfirmacao);
+
+            if (retornoConfirmacao) {
+                $(`#${retornoConfirmacao.metabox}`).removeClass('closed');
+                sessionStorage.removeItem(confirmacaoStorageKey);
+            }
+
+            $(document).on('postbox-toggled', function (evento, metabox) {
+
+                const $metabox = $(metabox);
+
+                if ($metabox.hasClass('closed')) {
+                    return;
+                }
+
+                // Identifica a coluna do metabox aberto
+                const $coluna = $metabox.closest('.meta-box-sortables');
+
+                // Fecha os demais metaboxes da mesma coluna
+                $coluna.children('.postbox').not($metabox).each(function () {
+
+                    const $outroMetabox = $(this);
+
+                    if (!$outroMetabox.hasClass('closed')) {
+                        $outroMetabox.find('> .postbox-header .handlediv').trigger('click');
+                    }
+
+                });
+
+            });
+
+            function bloquear_movimentacao_metaboxes() {
+
+                // Desabilita o arrastar e soltar
+                $('#poststuff .meta-box-sortables').each(function () {
+
+                    if ($(this).data('ui-sortable')) {
+                        $(this).sortable('disable');
+                    }
+
+                });
+
+                $('#poststuff .postbox .handle-order-higher, #poststuff .postbox .handle-order-lower').remove();
+                $('#poststuff .postbox .hndle, #poststuff .postbox .postbox-header').css('cursor', 'default');
+            }
+
+            $(window).on('load', bloquear_movimentacao_metaboxes);
+            
+        });
+    </script>
+    <?php
+}
+
+add_filter( 'get_user_option_meta-box-order_post', 'definir_ordem_metaboxes_sorteios' );
+function definir_ordem_metaboxes_sorteios( $ordem ) {
+
+    return [
+        'normal' => implode(',', [
+            'acf-group_685061c66e51d',  //Informações internas
+            'acf-group_67eeca20c488f',  //Regras e informações importantes
+            'acf-group_677d799a80f3b',  //Informações do evento e do sorteio
+            'acf-group_67eeaf8a2214c',  //Lista de participantes sorteados
+            'acf-group_68403f4c6e52f',  //Lista de participantes inscritos
+            'acf-group_684ae6e1601bf',  //Histórico de e-mails
+            'authordiv',
+            'revisionsdiv',
+            'commentsdiv'
+        ]),
+        'side'     => implode( ',', [
+            'submitdiv',                //Publicar
+            'acf-group_68d2f29eebcd9',  //Confirmação
+            'acf-group_6a26aeca9a397',  //Atribuir responsável
+            'acf-group_684304285f9b9',  //Portal SME
+            'postimagediv'              //Imagem destacada,
+        ]),
+        'advanced' => '',
+    ];
+}
+
+add_action( 'add_meta_boxes_post', 'remover_metaboxes_sorteios', 99 );
+
+function remover_metaboxes_sorteios() {
+
+    remove_meta_box( 'postexcerpt', 'post', 'normal' );
+    remove_meta_box( 'trackbacksdiv', 'post', 'normal' );
+    remove_meta_box( 'commentstatusdiv', 'post', 'normal' );
+    remove_meta_box( 'slugdiv', 'post', 'normal' );
+    remove_meta_box( 'categorydiv', 'post', 'side' );
+    remove_meta_box( 'tagsdiv-post_tag', 'post', 'side' );
+}

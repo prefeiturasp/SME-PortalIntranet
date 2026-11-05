@@ -2,6 +2,7 @@
 extract( $args );
 
 $requer_confirmacao = get_field( 'confirm_presen', get_the_ID() );
+$exibe_resultado_pagina = $exibe_resultado ?? '';
 ?>
 
 <div class="accordion-sorteio" id="lista-participantes-sorteados" data-post="<?php echo esc_html( get_the_ID() ); ?>">
@@ -84,5 +85,27 @@ $requer_confirmacao = get_field( 'confirm_presen', get_the_ID() );
         $i++;
     endforeach;
     ?>
+
+    <div class="row mt-4 d-flex justify-content-center align-items-center">
+        <div class="col-35 divulgacao">
+            <font class="status">DIVULGAR RESULTADO NA PÁGINA:</font>
+        </div>
+        <div class="col divulgacao">
+            <input
+                class="toggle-checkbox"
+                name="divulgar-resultado"
+                <?php echo esc_html( $exibe_resultado_pagina ); ?>
+                id="divulgar-resultado"
+                data-onstyle="success"
+                type="checkbox"
+                data-toggle="toggle"
+                data-on="SIM"
+                data-off="NÃO"
+                data-style="ios"
+                data-size="xs"
+            >
+            <span id="divulgar-resultado-gif" class="spinner"></span>
+        </div>
+    </div>
 
 </div>

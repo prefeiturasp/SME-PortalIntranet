@@ -76,8 +76,7 @@ div.conteudo-lista > div.container, div#conteudo-sortear-novamente > div.contain
 }
 
 div#conteudo-sortear-novamente{
-  margin-top: 30px;
-  border-top: 1px solid #e2e0e0;
+  margin: 12px 0;
 }
 
 .toggle-conf-todos > .status {

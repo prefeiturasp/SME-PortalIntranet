@@ -189,9 +189,11 @@ function realizarSorteio(tipo, data_sorteios = null, qtd_sortear = null, $target
     } else if (tipo == 2 && (!qtd_sortear || qtd_sortear == null || qtd_sortear == '')){
         //qtd_sorteio = $s('#qtd-resorteada').val();
         msg = "Informe a quantidade a ser resorteada, por gentileza!";
+        $s('#btn-resortear').prop('disabled', false);
     } else if (tipo == 2 && tipo_sorteio != 'periodo' && (data_sorteios || data_sorteios != null || data_sorteios != '')) {
         //qtd_sorteio = $s('#qtd-resorteada').val();
         msg = "Informe a data a ser resorteada, por gentileza!";
+        $s('#btn-resortear').prop('disabled', false);
     }
 
     let $linha = null;
@@ -976,6 +978,8 @@ jQuery(function($){
         })
         .get();
 
+        const $metabox = $(this).closest('.postbox.acf-postbox');
+
         Swal.fire({
             html: renderHtmlFormPrazoConfirmacao(),
             showCancelButton: true,
@@ -1011,6 +1015,8 @@ jQuery(function($){
             if (result.isConfirmed) {
                 let prazoConfirmacao = result.value;
                 enviaEmailListaSorteados(participantesSelecionados, prazoConfirmacao);
+
+                sessionStorage.setItem('estado_envio_confirmacoes',  JSON.stringify({'metabox' : $metabox.attr('id')}));
             }
         });
     });
@@ -1464,8 +1470,6 @@ jQuery(function ($) {
     if (!dados) {
         return;
     }
-
-    sessionStorage.removeItem(storageKey);
 
     const retorno = JSON.parse(dados);
 
