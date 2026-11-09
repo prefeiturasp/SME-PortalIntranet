@@ -952,6 +952,8 @@ jQuery(function($){
         })
         .get();
 
+        const $metabox = $(this).closest('.postbox.acf-postbox');
+
         Swal.fire({
             html: renderHtmlFormPrazoConfirmacao(),
             showCancelButton: true,
@@ -988,6 +990,8 @@ jQuery(function($){
             if (result.isConfirmed) {
                 let prazoConfirmacao = result.value;
                 enviaEmailListaInscritos(participantesSelecionados, prazoConfirmacao);
+
+                sessionStorage.setItem('estado_envio_confirmacoes',  JSON.stringify({'metabox' : $metabox.attr('id')}));
             }
         });
     });
@@ -1185,8 +1189,6 @@ jQuery(function ($) {
     if (!dados) {
         return;
     }
-
-    sessionStorage.removeItem(storageKey);
 
     const retorno = JSON.parse(dados);
 
