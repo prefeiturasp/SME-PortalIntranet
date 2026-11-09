@@ -824,16 +824,14 @@ function exibeTabParticipantesCortesias ($post_id = null) {//** OK */
 		$exibeNaPagina = '';
 	}
 
-    echo '<div id="conteudo-sortear-novamente">';
-        echo '<div class="container margem-superior">';
-            echo '<div class="row">';
-                echo '<div class="col-35 divulgacao">';
-                    echo '<font class="status">DIVULGAR RESULTADO NA PÁGINA:</font>';
-                echo '</div>';
-                echo '<div class="col divulgacao">';
-                    echo '<input class="toggle-checkbox" name="divulgar-resultado" ' . $exibeNaPagina . ' id="divulgar-resultado" data-onstyle="success" type="checkbox" data-toggle="toggle" data-on="SIM" data-off="NÃO" data-style="ios" data-size="xs">';
-                    echo '<span id="divulgar-resultado-gif" class="spinner"></span>';
-                echo '</div>';
+    echo '<div id="conteudo-sortear-novamente" class="mt-4">';
+        echo '<div class="row d-flex justify-content-center align-items-center">';
+            echo '<div class="col-35 divulgacao">';
+                echo '<font class="status">DIVULGAR RESULTADO NA PÁGINA:</font>';
+            echo '</div>';
+            echo '<div class="col divulgacao">';
+                echo '<input class="toggle-checkbox" name="divulgar-resultado" ' . $exibeNaPagina . ' id="divulgar-resultado" data-onstyle="success" type="checkbox" data-toggle="toggle" data-on="SIM" data-off="NÃO" data-style="ios" data-size="xs">';
+                echo '<span id="divulgar-resultado-gif" class="spinner"></span>';
             echo '</div>';
         echo '</div>';
     echo '</div>';

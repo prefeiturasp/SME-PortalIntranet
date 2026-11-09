@@ -10297,7 +10297,7 @@ add_action( 'admin_footer-post-new.php', 'recolher_paineis_admin' );
 function recolher_paineis_admin() {
 
     $screen = get_current_screen();
-    $post_types = ['post'];
+    $post_types = ['post', 'cortesias'];
 
     if ( !$screen || !in_array( $screen->post_type, $post_types, true ) ) {
         return;
@@ -10381,37 +10381,106 @@ function recolher_paineis_admin() {
 add_filter( 'get_user_option_meta-box-order_post', 'definir_ordem_metaboxes_sorteios' );
 function definir_ordem_metaboxes_sorteios( $ordem ) {
 
+    global $post;
+
+    $informacoes_internas = obter_id_metabox_por_campo( 'campo_de_informacoes', $post->ID );
+    $regras_informacoes = obter_id_metabox_por_campo( 'regras_info', $post->ID );
+    $informacoes_evento = obter_id_metabox_por_campo( 'tipo_evento', $post->ID );
+    $lista_sorteados = obter_id_metabox_por_campo( 'lista_sorteados', $post->ID );
+    $lista_inscritos = obter_id_metabox_por_campo( 'participantes_inscritos_no_sorteio', $post->ID );
+    $historico_emails = obter_id_metabox_por_campo( 'historico_emails_enviados', $post->ID );
+    $confirmacao = obter_id_metabox_por_campo( 'confirm_presen', $post->ID );
+    $responsavel = obter_id_metabox_por_campo( 'responsavel_noticia', $post->ID );
+    $exibir_portal = obter_id_metabox_por_campo( 'exibir_portal', $post->ID );
+
     return [
         'normal' => implode(',', [
-            'acf-group_685061c66e51d',  //Informações internas
-            'acf-group_67eeca20c488f',  //Regras e informações importantes
-            'acf-group_677d799a80f3b',  //Informações do evento e do sorteio
-            'acf-group_67eeaf8a2214c',  //Lista de participantes sorteados
-            'acf-group_68403f4c6e52f',  //Lista de participantes inscritos
-            'acf-group_684ae6e1601bf',  //Histórico de e-mails
+            $informacoes_internas,  //Informações internas
+            $regras_informacoes,    //Regras e informações importantes
+            $informacoes_evento,    //Informações do evento e do sorteio
+            $lista_sorteados,       //Lista de participantes sorteados
+            $lista_inscritos,       //Lista de participantes inscritos
+            $historico_emails,      //Histórico de e-mails
             'authordiv',
             'revisionsdiv',
             'commentsdiv'
         ]),
         'side'     => implode( ',', [
-            'submitdiv',                //Publicar
-            'acf-group_68d2f29eebcd9',  //Confirmação
-            'acf-group_6a26aeca9a397',  //Atribuir responsável
-            'acf-group_684304285f9b9',  //Portal SME
-            'postimagediv'              //Imagem destacada,
+            'submitdiv',    //Publicar
+            $confirmacao,
+            $responsavel,
+            $exibir_portal,
+            'postimagediv'  //Imagem destacada,
         ]),
         'advanced' => '',
     ];
 }
 
 add_action( 'add_meta_boxes_post', 'remover_metaboxes_sorteios', 99 );
+add_action( 'add_meta_boxes_cortesias', 'remover_metaboxes_sorteios', 99 );
+function remover_metaboxes_sorteios( $post ) {
 
-function remover_metaboxes_sorteios() {
+    remove_meta_box( 'postexcerpt', $post->post_type, 'normal' );
+    remove_meta_box( 'trackbacksdiv', $post->post_type, 'normal' );
+    remove_meta_box( 'commentstatusdiv', $post->post_type, 'normal' );
+    remove_meta_box( 'slugdiv', $post->post_type, 'normal' );
+    remove_meta_box( 'categorydiv', $post->post_type, 'side' );
+    remove_meta_box( 'tagsdiv-post_tag', $post->post_type, 'side' );
+}
 
-    remove_meta_box( 'postexcerpt', 'post', 'normal' );
-    remove_meta_box( 'trackbacksdiv', 'post', 'normal' );
-    remove_meta_box( 'commentstatusdiv', 'post', 'normal' );
-    remove_meta_box( 'slugdiv', 'post', 'normal' );
-    remove_meta_box( 'categorydiv', 'post', 'side' );
-    remove_meta_box( 'tagsdiv-post_tag', 'post', 'side' );
+add_filter( 'get_user_option_meta-box-order_cortesias', 'definir_ordem_metaboxes_cortesias' );
+function definir_ordem_metaboxes_cortesias( $ordem ) {
+
+    global $post;
+
+    $informacoes_internas = obter_id_metabox_por_campo( 'campo_de_informacoes', $post->ID );
+    $regras_informacoes = obter_id_metabox_por_campo( 'regras_informacoes_evento', $post->ID );
+    $informacoes_evento = obter_id_metabox_por_campo( 'tipo_evento', $post->ID );
+    $participantes_inscritos = obter_id_metabox_por_campo( 'participantes_inscritos_no_sorteio', $post->ID );
+    $historico_emails = obter_id_metabox_por_campo( 'tabela_historico_envios', $post->ID );
+    $confirmacao = obter_id_metabox_por_campo( 'confirm_presen', $post->ID );
+    $responsavel = obter_id_metabox_por_campo( 'responsavel_noticia', $post->ID );
+    $exibir_portal = obter_id_metabox_por_campo( 'exibir_portal', $post->ID );
+
+    return [
+        'normal' => implode(',', [
+            $informacoes_internas,
+            $regras_informacoes,
+            $informacoes_evento,
+            $participantes_inscritos,
+            $historico_emails,
+            'authordiv',
+            'revisionsdiv',
+            'commentsdiv'
+        ]),
+        'side'     => implode( ',', [
+            'submitdiv',    //Publicar
+            $confirmacao,
+            $responsavel,
+            $exibir_portal,
+            'postimagediv'  //Imagem destacada,
+        ]),
+        'advanced' => '',
+    ];
+}
+
+//Pega o ID do grupo de campos com base em um dos campos internos
+function obter_id_metabox_por_campo( $nome, $post_id ) {
+    static $mapas = [];
+
+    if ( !function_exists( 'acf_get_field_groups' ) ) {
+        return null;
+    }
+
+    if ( !isset( $mapas[$post_id] ) ) {
+        $mapas[$post_id] = [];
+
+        foreach ( acf_get_field_groups( ['post_id' => $post_id] ) as $grupo ) {
+            foreach ( acf_get_fields( $grupo ) ?: [] as $campo ) {
+                $mapas[$post_id][$campo['name']] = 'acf-' . $grupo['key'];
+            }
+        }
+    }
+
+    return $mapas[ $post_id ][ $nome ] ?? null;
 }
