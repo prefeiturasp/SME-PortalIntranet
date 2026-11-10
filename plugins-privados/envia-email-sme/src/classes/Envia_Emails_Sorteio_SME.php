@@ -137,96 +137,50 @@ class Envia_Emails_Sorteio_SME {
 
             break;
             case 'vencedor':
-                $assunto = 'Parabéns, você foi sorteado(a)! Confirme sua participação';
+                $assunto = 'CONFIRME SUA PARTICIPAÇÃO, VOCÊ FOI PRÉ-SELECIONADO(A)!';
 
                 $incrito = $this->retornaDadosDB($tipoEnvio);
                 $emailInstitucional = $incrito[0]["email_institucional"];
                 $emailSecundario = $incrito[0]["email_secundario"];
 
-                $o_que = get_post_meta( $this->idEvento, 'o_que', true );
-                
+                $textoSorteio = 'Você foi pré-selecionado(a) para <strong>' . $incrito[0]["post_title"] . '</strong>';
+                $prazoConfirmacao = '';
+
+                if($incrito[0]["prazo_confirmacao"]){
+                    $prazo = date('d/m \à\s H\hi', strtotime($incrito[0]["prazo_confirmacao"]));
+                    $prazo = str_replace('h00', 'h', $prazo);   
+                    $prazoConfirmacao = "<strong>Prazo de confirmação: </strong>{$prazo}";
+                } 
+
                 if ( $this->tipo_sorteio === 'periodo' ) {
-                    $textoSorteio = 'Você foi sorteado(a) para o evento <strong>' . $incrito[0]["post_title"] . '</strong>';
                     $info_periodo_evento = get_field( 'evento_periodo',$this->idEvento );
                     $dataEvento = "<strong>Período:</strong> {$info_periodo_evento['descricao']}";
-                    $textoDestaque = 'Atenção para as informações do evento:';                    
-                    $textoComparecimento = 'É necessário confirmar sua presença, fique atento ao prazo para garantir seu ingresso no evento. ';
-
-                    if($incrito[0]["prazo_confirmacao"]){
-                        $prazo = date('d/m \à\s H\hi', strtotime($incrito[0]["prazo_confirmacao"]));
-                        $prazo = str_replace('h00', 'h', $prazo);   
-                        $textoComparecimento .= '<br><br><strong>Prazo de confirmação:</strong> ' . $prazo . '<br> ⚠️ Em caso de prorrogação, o prazo válido será o exibido ao acessar o link abaixo.<br>';
-                    } 
-                    
-                    $textoComparecimento .= '<br>Após esse prazo, o link de confirmação expira automaticamente e a vaga vai para outro participante.';
-
-                    $aviso_utilizacao = " <div class='espaco'>
-                        <strong>Importante:</strong>
-                        <p>Você poderá utilizar o seu ingresso durante o período descrito acima. Entretanto, sua participação é válida uma única vez.</p>
-                    </div>";
+ 
                 } elseif(  $this->tipo_sorteio === 'premio' ) {
                     $premio = get_premio_por_data($this->idEvento, $incrito[0]['data_sorteada']);
-                    $textoSorteio = 'Você foi sorteado(a) para <strong>' . $incrito[0]["post_title"] . ' / ' . $premio . '</strong>';
-                    $dataEvento = "";
-                    $textoDestaque = 'Informações do sorteio:';
-                    $textoComparecimento = 'Para continuar, é necessário confirmar sua participação dentro do prazo estabelecido. ';
-
-                    if($incrito[0]["prazo_confirmacao"]){
-                        $prazo = date('d/m \à\s H\hi', strtotime($incrito[0]["prazo_confirmacao"]));
-                        $prazo = str_replace('h00', 'h', $prazo);   
-                        $textoComparecimento .= '<br><br><strong>Prazo de confirmação:</strong> ' . $prazo . '<br> ⚠️ Em caso de prorrogação, o prazo válido será o exibido ao acessar o link abaixo.<br>';
-                    } 
-                    
-                    $textoComparecimento .= '<br>Após esse prazo, o link de confirmação expira automaticamente e a oportunidade será disponibilizada para outro participante.';
-                    $aviso_utilizacao = '';
+                    $textoSorteio .=  " / <strong>{$premio}</strong>";
+                    $dataEvento = '';
 
                 } else {
-                    $textoSorteio = 'Você foi sorteado(a) para o evento <strong>' . $incrito[0]["post_title"] . '</strong>';
                     $dataEvento = $incrito[0]['data_sorteada'];
                     $dataEvento = '<strong>Data:</strong> ' . $this->converte_data_sorteio_com_hora($dataEvento);
-                    $hora_evento = $this->obter_informacoes_data_evento($this->idEvento, $incrito[0]['data_sorteada']);
-                    $horaTime = strtotime($hora_evento);
-                    $textoDestaque = 'Atenção para as informações do evento:';                   
-                    $textoComparecimento = 'É necessário confirmar sua presença, fique atento ao prazo para garantir seu ingresso no evento. ';
-
-                    if($incrito[0]["prazo_confirmacao"]){
-                        $prazo = date('d/m \à\s H\hi', strtotime($incrito[0]["prazo_confirmacao"]));
-                        $prazo = str_replace('h00', 'h', $prazo);   
-                        $textoComparecimento .= '<br><br><strong>Prazo de confirmação:</strong> ' . $prazo . '<br> ⚠️ Em caso de prorrogação, o prazo válido será o exibido ao acessar o link abaixo.<br>';
-                    } 
-                    
-                    $textoComparecimento .= '<br>Após esse prazo, o link de confirmação expira automaticamente e a vaga vai para outro participante.';
-                    $aviso_utilizacao = '';
+  
                 }
 
                 $generoBusca = get_field('genero_taxo', $this->idEvento);
-                $genero = $generoBusca->name; // Tipo de evento
+                $genero = $generoBusca->name ?? null; // Tipo de evento
                 $duracao = get_post_meta( $this->idEvento, 'duracao', true );
-                $class_indicativa = get_post_meta( $this->idEvento, 'class_indicativa', true );
                 $local = get_term(get_post_meta( $this->idEvento, 'local', true ));
-                $local_outros = get_post_meta( $this->idEvento, 'local_outros', true );
                 $endereco = get_post_meta( $this->idEvento, 'endereco', true );
 
                 $temaEmail = file_get_contents( DIR_ENVIA_EMAIL_SME . '/src/templates/tema-email-vencedor.html');
                 $temaEmail = str_replace('{NOME-INGRESSO}', $textoSorteio, $temaEmail);
-                $temaEmail = str_replace('{TEXTO-DESTAQUE}', $textoDestaque, $temaEmail);
-                $temaEmail = str_replace('{TEXTO-COMPARECIMENTO}', $textoComparecimento, $temaEmail);
-                $temaEmail = str_replace('{O-QUE}', $o_que, $temaEmail);
                 $temaEmail = str_replace('{DATA-HORA-EVENTO}', $dataEvento, $temaEmail);
+
                 if($genero){
                     $temaEmail = str_replace('{GENERO}', '<strong>Tipo de Evento:</strong> ' . $genero, $temaEmail);
                 } else {
                     $temaEmail = str_replace('{GENERO}', '', $temaEmail);
-                }
-                if($duracao){
-                    $temaEmail = str_replace('{DURACAO}', '<strong>Duração:</strong> ' . $duracao, $temaEmail);
-                } else {
-                    $temaEmail = str_replace('{DURACAO}', '', $temaEmail);
-                }
-                if($class_indicativa){
-                    $temaEmail = str_replace('{CLASSIFICACAO}', '<strong>Classificação Indicativa:</strong> ' . $class_indicativa, $temaEmail);
-                } else {
-                    $temaEmail = str_replace('{CLASSIFICACAO}', '', $temaEmail);
                 }
                 if($local->name){
                     $temaEmail = str_replace('{LOCAL-EVENTO}', '<strong>Local:</strong> ' . $local->name, $temaEmail);
@@ -237,9 +191,9 @@ class Envia_Emails_Sorteio_SME {
                     $temaEmail = str_replace('{ENDERECO-EVENTO}', '<strong>Endereço:</strong> ' . $endereco, $temaEmail);
                 } else {
                     $temaEmail = str_replace('{ENDERECO-EVENTO}', '', $temaEmail);
-                }                
-                $temaEmail = str_replace('{LOCAL-OUTROS}', $local_outros, $temaEmail);
-                $temaEmail = str_replace('{AVISO-PERIODO-UTILIZACAO}', $aviso_utilizacao, $temaEmail);
+                }
+
+                $temaEmail = str_replace('{PRAZO-CONFIRMACAO}', $prazoConfirmacao, $temaEmail);
                 $temaEmail = str_replace('{LINK-CONFIRMACAO}', get_site_url()."/index.php/beneficios/sorteios/confirma-inscricao-sorteio/?ni=".base64_encode($incrito[0]["id"])."&ne=".base64_encode($incrito[0]["post_title"]), $temaEmail);
                 $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/assinatura-email.png', $temaEmail);
                 $temaEmail = str_replace('{LINK-ICONE}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/megaphone.png', $temaEmail);
@@ -354,62 +308,48 @@ class Envia_Emails_Sorteio_SME {
 
             break;
             case 'confirmar_presenca_cortesia':
-                $assunto = 'Confirme sua participação';
+                $assunto = 'CONFIRME SUA PARTICIPAÇÃO, VOCÊ FOI PRÉ-SELECIONADO(A)!';
 
                 $inscrito = self::get_inscrito_by_id( $this->idInscrito, 'cortesias' );
                 $emailInstitucional = $inscrito[0]->email_institucional;
                 $emailSecundario = $inscrito[0]->email_secundario;
                 $tituloEvento = get_the_title( $this->idEvento );
+                $dataEvento = '';
                 
                 if ( $this->tipo_sorteio === 'periodo' ) {
                     $info_periodo_evento = get_field( 'evento_periodo',$this->idEvento );
                     $dataEvento = "<strong>Período:</strong> {$info_periodo_evento['descricao']}";
-                    $aviso_utilizacao = " <div class='espaco'>
-                        <strong>Importante:</strong>
-                        <p>Você poderá utilizar o seu ingresso durante o período descrito acima. Entretanto, sua participação é válida uma única vez.</p>
-                    </div>";
+
                 } else if ( $this->tipo_sorteio === 'premio' ) {
                         $data_info = get_acf_info_by_id( $inscrito[0]->acf_id );
                         $tituloEvento = get_the_title( $this->idEvento ) . ' / ' .  $data_info['info'];
-                        $aviso_utilizacao = '';
+
                 } else {
                     $data_info = get_acf_info_by_id( $inscrito[0]->acf_id );
                     $dataEvento = $data_info['info'];
                     $dataEvento = '<strong>Data:</strong> ' . $this->converte_data_sorteio_com_hora($dataEvento);
-                    $aviso_utilizacao = '';
+
                 }
 
                 if ( isset( $inscrito[0]->prazo_confirmacao ) && !empty( $inscrito[0]->prazo_confirmacao ) ) {
                     $prazo = date( 'd/m \à\s H\hi', strtotime( $inscrito[0]->prazo_confirmacao ) );
                     $prazo = str_replace( 'h00', 'h', $prazo );   
-                    $prazoConfirmacao = '<strong>Prazo de confirmação:</strong> ' . $prazo . '<br> ⚠️ Em caso de prorrogação, o prazo válido será o exibido ao acessar o link abaixo.';
+                    $prazoConfirmacao = "<strong>Prazo de confirmação:</strong> {$prazo}";
                 }
 
                 $generoBusca = get_field('genero_taxo', $this->idEvento);
                 $genero = $generoBusca->name ?? null; // Tipo de evento
-                $duracao = get_post_meta( $this->idEvento, 'duracao', true );
-                $class_indicativa = get_post_meta( $this->idEvento, 'class_indicativa', true );
                 $local = get_term(get_post_meta( $this->idEvento, 'local', true ));
-                $local_outros = get_post_meta( $this->idEvento, 'local_outros', true );
                 $endereco = get_post_meta( $this->idEvento, 'endereco', true );
 
                 $temaEmail = file_get_contents( DIR_ENVIA_EMAIL_SME . '/src/templates/cortesias/tema-email-corfirmar-presenca.html');
                 $temaEmail = str_replace( '{NOME-INGRESSO}', $tituloEvento, $temaEmail );
                 $temaEmail = str_replace('{DATA-HORA-EVENTO}', $dataEvento, $temaEmail);
+
                 if($genero){
                     $temaEmail = str_replace('{GENERO}', '<br><strong>Tipo de Evento:</strong> ' . $genero, $temaEmail);
                 } else {
                     $temaEmail = str_replace('{GENERO}', '', $temaEmail);
-                }
-                if($duracao){
-                    $temaEmail = str_replace('{DURACAO}', '<br><strong>Duração:</strong> ' . $duracao, $temaEmail);
-                } else {
-                    $temaEmail = str_replace('{DURACAO}', '', $temaEmail);
-                }
-                if($class_indicativa){
-                    $temaEmail = str_replace('{CLASSIFICACAO}', '<br><strong>Classificação Indicativa:</strong> ' . $class_indicativa, $temaEmail);
-                } else {
-                    $temaEmail = str_replace('{CLASSIFICACAO}', '', $temaEmail);
                 }
                 if($local->name){
                     $temaEmail = str_replace('{LOCAL-EVENTO}', '<br><strong>Local:</strong> ' . $local->name, $temaEmail);
@@ -430,15 +370,12 @@ class Envia_Emails_Sorteio_SME {
                 $pagina_sorteios_id = get_field( 'pagina_principal_sorteios_cortesias', 'options' );
                 $pagina_sorteios_url = $pagina_sorteios_id ? get_permalink( $pagina_sorteios_id ) : get_site_url() . '/index.php/beneficios/sorteios-e-descontos/';
 
-                $temaEmail = str_replace('{LOCAL-OUTROS}', $local_outros, $temaEmail);
-                $temaEmail = str_replace('{AVISO-PERIODO-UTILIZACAO}', $aviso_utilizacao, $temaEmail);
                 $temaEmail = str_replace('{LINK-CONFIRMACAO}', $pagina_sorteios_url."confirma-inscricao-cortesia/?ni=".base64_encode($inscrito[0]->id)."&ne=".base64_encode($inscrito[0]->post_title), $temaEmail);
                 $temaEmail = str_replace('{LINK-LOGO}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/assinatura-email.png', $temaEmail);
                 $temaEmail = str_replace('{LINK-ICONE}', URL_ENVIA_EMAIL_SME . '/src/templates/assets/img/megaphone.png', $temaEmail);
 
                 $reenvio = isset( $this->extra_args["reenvio"] ) ? $this->extra_args["reenvio"] : false;
 
-                
                 $this->registra_historico_e_envia_email($inscrito[0]->id, $inscrito[0]->post_id, 'vencedor', $emailInstitucional, $emailSecundario, $assunto, $temaEmail, $reenvio);
                 
             break;

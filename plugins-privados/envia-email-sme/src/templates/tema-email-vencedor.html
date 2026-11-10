@@ -11,23 +11,32 @@
     </head>
     <body>
         <div class='container'>
-            <div class='dado'>Parabéns!!!</div>
+            <div class='dado'>🎉 Parabéns!</div>
             <div class='dado'>{NOME-INGRESSO}</div>
-            <div class='espaco'><span class="destaque">{TEXTO-DESTAQUE}</span></div>
+            <div class="dado">⚠️ <strong>ATENÇÃO:</strong> A pré-seleção ainda não garante sua participação.</div>
+            <div class="dado">Para garantir sua participação, é obrigatório realizar a confirmação por meio do link abaixo.</div>
+            <div class="dado">{PRAZO-CONFIRMACAO}</div>
+            <p class="dado">                
+                <strong><a href="{LINK-CONFIRMACAO}">Clique aqui para confirmar ou cancelar</a></strong>.
+            </p>
+            <div class="dado">
+                Em caso de prorrogação, será considerado válido o prazo exibido ao acessar o link.
+                Caso a confirmação não seja realizada dentro do prazo informado, sua pré-seleção será cancelada e a oportunidade poderá ser disponibilizada a outra pessoa.
+                <br><br>
+                Após o cancelamento, não será mais possível utilizar esta pré-seleção.
+            </div>
+            <div class='espaco'>
+                <span class="destaque">📌 Atenção para as informações:</span>
+            </div>
             <p class='espaco'>
                 {DATA-HORA-EVENTO}<br>
                 {GENERO}<br>
-                {DURACAO}<br>
-                {CLASSIFICACAO}<br>
                 {LOCAL-EVENTO}<br>
                 {ENDERECO-EVENTO}
-            </p>            
-            {AVISO-PERIODO-UTILIZACAO}
-            <p class="espaco">                
-                {TEXTO-COMPARECIMENTO} <br><strong><a href="{LINK-CONFIRMACAO}">Clique aqui para confirmar ou cancelar</a></strong>.
             </p>
-            <p>Caso não possa confirmar sua participação, <strong>lembre-se de cancelar dentro do prazo</strong>, assim, outra pessoa terá a chance de participar. <br>Sua colaboração faz a diferença!</p>
-
+            
+            <div class="dado">Sua colaboração faz a diferença!</div>
+            
             <p>Atenciosamente,</p>
             <p><b>Equipe Intranet SME-SP</b></p>
             <hr>
