@@ -10484,3 +10484,26 @@ function obter_id_metabox_por_campo( $nome, $post_id ) {
 
     return $mapas[ $post_id ][ $nome ] ?? null;
 }
+
+// Atribui a categoria padrão automaticamente durante criacao do sorteio.
+add_action( 'wp_after_insert_post', 'atribuir_categoria_padrao_sorteio', 10, 3 );
+function atribuir_categoria_padrao_sorteio( $post_id, $post, $update ) {
+
+    if ( $update || $post->post_type != 'post' ) {
+        return;
+    }
+
+    $categoria = get_term_by( 'slug', 'sorteios', 'category' );
+
+    if ( !$categoria ) {
+        return;
+    }
+
+    wp_set_post_categories( $post_id, [ (int) $categoria->term_id ], true );
+}
+
+// Oculta apenas o submenu de categorias dos sorteios.
+add_action( 'admin_menu', 'ocultar_submenu_categorias_sorteios', 999 );
+function ocultar_submenu_categorias_sorteios() {
+    remove_submenu_page( 'edit.php', 'edit-tags.php?taxonomy=category' );
+}
