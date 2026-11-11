@@ -1,8 +1,6 @@
 // currents.config.js
-require("dotenv").config({ path: require("path").resolve(__dirname, ".env") });
-
 module.exports = {
-  projectId: process.env.CURRENTS_PROJECT_ID || "SME-INTRANET",
-  recordKey: process.env.CYPRESS_RECORD_KEY,
-  cloudServiceUrl: process.env.CURRENTS_CLOUD_SERVICE_URL,
+  projectId: "SME-INTRANET", // the projectId, can be any values for sorry-cypress users
+  recordKey: "somekey", // the record key, can be any value for sorry-cypress users
+  cloudServiceUrl: "http://10.50.1.202:1234",   // Sorry Cypress users - set the director service URL
 };
