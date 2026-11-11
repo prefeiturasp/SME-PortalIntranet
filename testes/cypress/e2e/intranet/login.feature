@@ -10,8 +10,8 @@
       Então devo visualizar a tela inicial do sistema logado
 
       Exemplos:
-      | usuario     | senha              | device |
-      | smeintranet | h*%VE&tsIR1vURB@70 | web    |    
+      | usuario               | senha               | device |
+      | {{INTRANET_USUARIO}}  | {{INTRANET_SENHA}}  | web    |
 
 
       Cenário: Deve validar mensagem de obrigatoriedade do campo usuário

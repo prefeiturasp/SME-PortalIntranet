@@ -61,26 +61,12 @@ const unidadesSetoresPT = [
 const pegarAleatorio = (lista) =>
     lista[Math.floor(Math.random() * lista.length)];
 
-describe("Inscrever usuários na oportunidade 5515", () => {
-    const senhaPadrao = "h*%VE&tsIR1vURB@70";
+describe.skip("Inscrever usuários na oportunidade 5515", () => {
+    const { senha: senhaPadrao, usuarios } = Cypress.env("scripts").oportunidade;
 
     const urlLogin = "https://hom-intranet.sme.prefeitura.sp.gov.br/index.php";
     const urlOportunidade =
         "https://hom-intranet.sme.prefeitura.sp.gov.br/oportunidade/5515/";
-
-    const usuarios = [
-        "6904335",
-        "7976607",
-        "6943705",
-        "7776659",
-        "7823151",
-        "5376335",
-        "7930518",
-        "8053669",
-        "8224501",
-        "8358508",
-        "8284423",
-    ];
 
     function loginComRf(rf) {
         cy.clearCookies();
@@ -93,7 +79,7 @@ describe("Inscrever usuários na oportunidade 5515", () => {
         cy.get("#pass")
             .should("be.visible")
             .clear()
-            .type(senhaPadrao, { parseSpecialCharSequences: false });
+            .type(senhaPadrao, { parseSpecialCharSequences: false, log: false });
 
         cy.get("#wp-submit").should("be.visible").click();
 

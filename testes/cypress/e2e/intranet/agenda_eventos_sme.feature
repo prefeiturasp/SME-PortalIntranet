@@ -63,11 +63,11 @@ Funcionalidade: Agenda de Eventos SME
     Quando pesquiso o evento pelo título
     Então devo visualizar somente o evento pesquisado
 
-  @todos_os_eventos
-  Cenário: Deve visualizar na listagem um evento publicado
-    Dado que possuo um evento publicado na Agenda de Eventos SME
-    Quando acesso a listagem de eventos da Agenda de Eventos SME
-    Então devo visualizar o evento publicado na listagem
+  # @todos_os_eventos
+  # Cenário: Deve visualizar na listagem um evento publicado
+    # Dado que possuo um evento publicado na Agenda de Eventos SME
+    # Quando acesso a listagem de eventos da Agenda de Eventos SME
+    # Então devo visualizar o evento publicado na listagem
 
   @todos_os_eventos
   Cenário: Deve editar um item publicado

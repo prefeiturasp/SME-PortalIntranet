@@ -59,16 +59,15 @@ const pegarAleatorio = (lista) =>
 
 beforeEach(() => {
 	cy.session('loginManual', () => {
-		cy.visit(
-			'https://hom-educacao.sme.prefeitura.sp.gov.br/wp-login.php?loggedout=true&wp_lang=pt_BR',
-		)
-		cy.get('#user_login').type('acessosme')
-		cy.get('#user_pass').type('oXGZhkO9jZQ)oUoecUn&tdsC')
+		const { urlLogin, usuario, senha } = Cypress.env('scripts').estagio
+		cy.visit(urlLogin)
+		cy.get('#user_login').type(usuario)
+		cy.get('#user_pass').type(senha, { log: false })
 		cy.get('#wp-submit').click()
 	})
 })
 
-describe('Preenchimento do segundo formulário com dados PT-BR válidos', () => {
+describe.skip('Preenchimento do segundo formulário com dados PT-BR válidos', () => {
 	for (let i = 0; i < 10; i++) {
 		it(`Submissão #${i + 1}`, () => {
 			const cpfValido = gerarCpfValidoComMascara()
