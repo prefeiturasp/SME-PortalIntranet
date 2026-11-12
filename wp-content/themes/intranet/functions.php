@@ -5683,6 +5683,7 @@ function obter_data_com_timezone( $formato = 'd/m/Y H:i:s', $timezone = 'UTC' ) 
 //############################### FUNÇÕES DO SORTEIO ##############################//
 //#################################################################################//
 include_once get_template_directory() . '/includes/sorteio/funcoes/sorteioCtrl.php';
+include_once get_template_directory() . '/includes/sorteio/funcoes/responsaveis-entrega.php';
 //#################################################################################//
 
 //#################################################################################//
