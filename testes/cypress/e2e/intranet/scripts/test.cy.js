@@ -70,142 +70,134 @@ beforeEach(() => {
 	})
 })
 
-describe('Preenchimento automático do formulário SME', () => {
-	for (let i = 0; i < 50; i++) {
-		const cpfValido = gerarCpfValidoComMascara()
-		// você pode ajustar esse número conforme o número de vezes desejado
-		it(`Submissão #${i + 1}`, () => {
-			// cy.visit(
-			// 	'https://hom-intranet.sme.prefeitura.sp.gov.br/index.php/nova-noticia-teste-sorteio/',
-			// )
+// Edite esta URL para escolher a cortesia ou o sorteio que será testado.
+// Também pode sobrescrever pela linha de comando: --env URL_EVENTO=https://...
+const urlEvento =
+	Cypress.env('URL_EVENTO') ||
+	'https://hom-intranet.sme.prefeitura.sp.gov.br/index.php/cortesias/ordem-de-inscricao-para-validar-demanda-156782-2-data-definida-2/'
+const paginaEvento = new URL(urlEvento, Cypress.config('baseUrl')).href
+// Altere este número para definir quantas inscrições o teste fará.
+const repeticoes = 5
 
-			cy.visit(
-				'https://hom-intranet.sme.prefeitura.sp.gov.br/index.php/sroteio-para-validar-demanda-143589-premiacao/',
-			)
-			cy.get('#nomeComp').invoke('val', faker.person.fullName())
-			cy.get('#emailInsti').invoke('val', faker.internet.email())
-			cy.get('#cpf').invoke('val', cpfValido)
-			cy.get('#emailSec').invoke('val', 'marcelo.jesus@spassu.com.br')
-			cy.get('#celular').invoke('val', faker.phone.number('(##) ####-####'))
-			cy.get('#telCom').invoke('val', faker.phone.number('(##) ####-####'))
+function selecionarOpcoesEvento() {
+	cy.get('#form-inscri')
+		.should('be.visible')
+		.then(($form) => {
+			// Sorteios usam checkboxes; cortesias usam radios nos dois grupos.
+			const $grupos = $form.find('#grupo-datas, #grupo-data-selecionada')
+			$grupos.each((_indice, grupo) => {
+				const $opcoes = Cypress.$(grupo)
+					.find('input[type="checkbox"], input[type="radio"]')
+					.filter(':visible:enabled')
+				expect(
+					$opcoes.length,
+					'opções disponíveis para data ou prêmio',
+				).to.be.greaterThan(0)
 
-			cy.get('#dre').select(1)
+				const $checks = $opcoes.filter('[type="checkbox"]')
+				if ($checks.length) {
+					cy.wrap($checks).check().should('be.checked')
+				}
 
-			cy.get('#cargo_principal').invoke('val', pegarAleatorio(cargosPT))
-			cy.get('#uniSetor').invoke('val', pegarAleatorio(unidadesSetoresPT))
-			cy.get('#disciplina').invoke('val', pegarAleatorio(disciplinasPT))
-			cy.get('#ciente').check()
-			//cy.get('#grupo-datas .form-check-input').check()
-
-			cy.document().then((doc) => {
-				const label = [...doc.querySelectorAll('label')].find((el) =>
-					el.textContent.includes(
-						'Selecione a(s) data(s) que deseja participar',
+				// Seleciona apenas uma opção por grupo de radios (atributo name).
+				const nomes = [
+					...new Set(
+						$opcoes
+							.filter('[type="radio"]')
+							.toArray()
+							.map((el) => el.name),
 					),
-				)
-
-				if (label) {
-					cy.get('#grupo-datas .form-check-input').each(($el) => {
-						cy.wrap($el).check({ force: true })
-					})
-				} else {
-					cy.log('Label não existe')
-				}
+				]
+				nomes.forEach((nome) => {
+					const $radio = $opcoes
+						.filter('[type="radio"]')
+						.filter((_i, el) => el.name === nome)
+						.first()
+					cy.wrap($radio).check().should('be.checked')
+				})
 			})
 
-			cy.get('body').then(($body) => {
-				const texto = 'Selecione os prêmios que deseja participar do sorteio:'
+			// No período não h? opção para marcar: a data vem em um input oculto.
+			const $dataOculta = $form.find('input[type="hidden"][name="data"]')
+			if ($dataOculta.length) {
+				cy.wrap($dataOculta).should('not.have.value', '')
+			}
+		})
+}
 
-				if ($body.text().includes(texto)) {
-					// Pega todos os checkboxes dentro do grupo
-					cy.get('#grupo-datas .form-check-input').then(($checks) => {
-						if ($checks.length > 0) {
-							cy.log(
-								`Foram encontrados ${$checks.length} checkboxes. Marcando todos...`,
-							)
-							cy.wrap($checks).check({ force: true })
-						} else {
-							cy.log('Nenhum checkbox encontrado dentro do grupo.')
-						}
-					})
-				} else {
-					cy.log('Texto não encontrado, nenhum checkbox será clicado.')
-				}
-			})
+function preencherQuantidade() {
+	cy.get('#form-inscri').then(($form) => {
+		const $qtd = $form.find('#qtd')
+		// Sorteios não possuem quantidade; algumas cortesias já a trazem oculta.
+		if (!$qtd.length) return
+		if ($qtd.is('[type="hidden"]')) {
+			expect(Number($qtd.val()), 'quantidade predefinida').to.be.greaterThan(0)
+			return
+		}
 
-			cy.get('body').then(($body) => {
-				const texto = 'Selecione os prêmios que deseja participar do sorteio:'
+		const minimo = Number($qtd.attr('min') || 1)
+		const maximo = $qtd.attr('max')
+		if (maximo !== undefined && maximo !== '') {
+			expect(Number(maximo), 'limite de quantidade disponível').to.be.at.least(
+				minimo,
+			)
+		}
+		cy.wrap($qtd)
+			.should('be.visible')
+			.clear()
+			.type(String(minimo))
+			.trigger('change')
+	})
+}
 
-				if ($body.text().includes(texto)) {
-					// Pega todos os checkboxes dentro do grupo
-					cy.get('#grupo-datas .form-check-input').then(($checks) => {
-						if ($checks.length > 0) {
-							cy.log(
-								`Foram encontrados ${$checks.length} checkboxes. Marcando todos...`,
-							)
-							cy.wrap($checks).check({ force: true })
-						} else {
-							cy.log('Nenhum checkbox encontrado dentro do grupo.')
-						}
-					})
-				} else {
-					cy.log('Texto não encontrado, nenhum checkbox será clicado.')
-				}
-			})
+describe('Preenchimento automático de ordens de inscrição e sorteios SME', () => {
+	// Repete as submissões na URL configurada acima.
+	for (let i = 0; i < repeticoes; i++) {
+		const pagina = paginaEvento
+		const slug = new URL(pagina).pathname.split('/').filter(Boolean).pop()
+		it(`Submissão #${i + 1} - ${slug}`, () => {
+			const cpfValido = gerarCpfValidoComMascara()
+			cy.visit(pagina)
+			cy.get('#form-inscri').should('be.visible')
+			cy.get('#nomeComp')
+				.invoke('val', faker.person.fullName())
+				.trigger('change')
+			cy.get('#emailInsti')
+				.invoke('val', faker.internet.email())
+				.trigger('change')
+			cy.get('#cpf').invoke('val', cpfValido).trigger('change')
+			cy.get('#emailSec')
+				.invoke('val', 'marcelo.jesus@spassu.com.br')
+				.trigger('change')
+			cy.get('#celular')
+				.invoke('val', faker.phone.number('(##) 9####-####'))
+				.trigger('change')
+			cy.get('#telCom')
+				.invoke('val', faker.phone.number('(##) ####-####'))
+				.trigger('change')
+			cy.get('#dre').select(1)
+			cy.get('#cargo_principal')
+				.invoke('val', pegarAleatorio(cargosPT))
+				.trigger('change')
+			cy.get('#uniSetor')
+				.invoke('val', pegarAleatorio(unidadesSetoresPT))
+				.trigger('change')
+			cy.get('#disciplina')
+				.invoke('val', pegarAleatorio(disciplinasPT))
+				.trigger('change')
 
-			cy.get('body').then(($body) => {
-				const texto = 'Selecione a data que deseja participar:'
-				const $grupo = $body.find('#grupo-data-selecionada')
-
-				if ($grupo.length > 0) {
-					if ($grupo.text().includes(texto)) {
-						const $radios = $grupo.find('.form-check-input[type="radio"]')
-
-						if ($radios.length > 0) {
-							cy.log(
-								`Foram encontrados ${$radios.length} radios. Marcando o primeiro...`,
-							)
-							cy.wrap($radios.first()).check({ force: true })
-						} else {
-							cy.log('Nenhum radio button encontrado dentro do grupo.')
-						}
-					} else {
-						cy.log('Texto não encontrado dentro do grupo-data-selecionada.')
-					}
-				} else {
-					cy.log(
-						'Grupo #grupo-data-selecionada não encontrado. O teste continua sem falhar.',
-					)
-				}
-			})
-
-			cy.get('body').then(($body) => {
-				const texto = 'Selecione o prêmio que deseja participar:'
-				const $grupo = $body.find('#grupo-datas')
-
-				if ($grupo.length > 0) {
-					if ($grupo.text().includes(texto)) {
-						const $radios = $grupo.find('.form-check-input[type="radio"]')
-
-						if ($radios.length > 0) {
-							cy.log(
-								`Foram encontrados ${$radios.length} radios. Marcando o primeiro...`,
-							)
-							cy.wrap($radios.first()).check({ force: true })
-						} else {
-							cy.log('Nenhum radio button encontrado dentro do grupo-datas.')
-						}
-					} else {
-						cy.log('Texto não encontrado dentro do grupo-datas.')
-					}
-				} else {
-					cy.log(
-						'Grupo #grupo-datas não encontrado. O teste continua sem falhar.',
-					)
-				}
-			})
-
-			cy.get('#botaoEnviar').click() // força o envio
+			selecionarOpcoesEvento()
+			preencherQuantidade()
+			cy.get('#ciente').check().should('be.checked')
+			cy.get('#botaoEnviar').should('be.enabled').click()
+			cy.contains('Confirme seus e-mails').should('be.visible')
+			cy.contains('button', /^Sim$/)
+				.should('be.visible')
+				.should('be.enabled')
+				.click()
+			cy.contains('Sua inscrição foi realizada com sucesso!').should(
+				'be.visible',
+			)
 		})
 	}
 })
