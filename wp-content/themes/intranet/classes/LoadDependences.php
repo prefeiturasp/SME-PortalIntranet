@@ -150,6 +150,7 @@ class LoadDependences
 
 		// ###### JS SORTEIOS
 		wp_register_script('sweetalert-sorteio-js', STM_THEME_URL . 'js/lib/sweetalert2.all.min.js');
+		wp_register_script( 'responsaveis-entrega', STM_THEME_URL . 'js/responsaveis-entrega.js', [ 'jquery', 'acf-input', 'sweetalert-sorteio-js' ], filemtime( get_template_directory() . '/js/responsaveis-entrega.js' ), true );
 		wp_register_script('toggle-sorteio-js', STM_THEME_URL . 'js/lib/bootstrap4-toggle.min.js');
 		wp_register_script('toastr-sorteio-js', STM_THEME_URL . 'js/lib/toastr.min.js');
 		wp_register_script('sorteio-js', STM_THEME_URL . 'js/sorteio.js?v=1.2');
