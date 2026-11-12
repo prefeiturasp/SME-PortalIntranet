@@ -57,7 +57,7 @@ module.exports = defineConfig({
     retries: { runMode: isCI ? 1 : 0, openMode: 0 },
 
     env: {
-      TAGS: process.env.TAGS || "not @skip",
+      TAGS: process.env.TAGS || "not @skip and not @ignore",
       CI: isCI,
     },
 

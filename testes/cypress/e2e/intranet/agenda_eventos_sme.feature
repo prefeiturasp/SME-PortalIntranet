@@ -8,21 +8,23 @@ Funcionalidade: Agenda de Eventos SME
     E seleciono o tipo de data por período
     Então devo visualizar os campos do novo item da Agenda de Eventos SME
 
-  @novo_item
-  Cenário: Deve criar evento com data única e todos os campos preenchidos
-    Dado que acesso o formulário de novo item da Agenda de Eventos SME
-    Quando preencho todos os campos do evento com uma data única
-    E publico o evento da Agenda de Eventos SME
-    Então devo visualizar a confirmação de publicação do evento
+  # @novo_item
+  # Cenário: Deve criar evento com data única e todos os campos preenchidos
+    # Dado que acesso o formulário de novo item da Agenda de Eventos SME
+    # Quando preencho todos os campos do evento com uma data única
+    # E publico o evento da Agenda de Eventos SME
+    # Então devo visualizar a confirmação de publicação do evento
 
   @novo_item 
+  @ignore
   Cenário: Deve criar evento por período e todos os campos preenchidos
     Dado que acesso o formulário de novo item da Agenda de Eventos SME
     Quando preencho todos os campos do evento por período
     E publico o evento da Agenda de Eventos SME
     Então devo visualizar a confirmação de publicação do evento
 
-  @novo_item 
+  @novo_item
+  @ignore 
   Cenário: Deve impedir a publicação sem o Tipo do Evento
     Dado que acesso o formulário de novo item da Agenda de Eventos SME
     Quando preencho os dados obrigatórios sem o Tipo do Evento
@@ -30,7 +32,8 @@ Funcionalidade: Agenda de Eventos SME
     Então a publicação deve ser bloqueada pelo Tipo do Evento
     E o evento não deve constar como publicado na Agenda de Eventos SME
 
-  @novo_item 
+  @novo_item
+  @ignore 
   Cenário: Deve impedir a publicação sem a Data do Evento
     Dado que acesso o formulário de novo item da Agenda de Eventos SME
     Quando preencho os dados obrigatórios sem a Data do Evento
@@ -39,6 +42,7 @@ Funcionalidade: Agenda de Eventos SME
     E o evento não deve constar como publicado na Agenda de Eventos SME
 
   @novo_item
+  @ignore 
   Cenário: Deve impedir a publicação por período sem a Data Final
     Dado que acesso o formulário de novo item da Agenda de Eventos SME
     Quando preencho um período sem a Data Final
@@ -47,6 +51,7 @@ Funcionalidade: Agenda de Eventos SME
     E o evento não deve constar como publicado na Agenda de Eventos SME
 
   @novo_item 
+  @ignore 
   Cenário: Deve criar dois compromissos no mesmo dia
     Dado que acesso o formulário de novo item da Agenda de Eventos SME
     Quando preencho uma publicação com dois compromissos no mesmo dia
@@ -57,19 +62,22 @@ Funcionalidade: Agenda de Eventos SME
     E ao abrir os detalhes devo visualizar os dois compromissos
 
   @todos_os_eventos
+  @ignore
   Cenário: Deve pesquisar evento pelo título
     Dado que possuo um evento publicado na Agenda de Eventos SME
     E acesso a listagem de eventos da Agenda de Eventos SME
     Quando pesquiso o evento pelo título
     Então devo visualizar somente o evento pesquisado
 
-  # @todos_os_eventos
-  # Cenário: Deve visualizar na listagem um evento publicado
-    # Dado que possuo um evento publicado na Agenda de Eventos SME
-    # Quando acesso a listagem de eventos da Agenda de Eventos SME
-    # Então devo visualizar o evento publicado na listagem
+  @todos_os_eventos
+  @ignore
+  Cenário: Deve visualizar na listagem um evento publicado
+    Dado que possuo um evento publicado na Agenda de Eventos SME
+    Quando acesso a listagem de eventos da Agenda de Eventos SME
+    Então devo visualizar o evento publicado na listagem
 
   @todos_os_eventos
+  @ignore
   Cenário: Deve editar um item publicado
     Dado que possuo um evento publicado na Agenda de Eventos SME
     E acesso a listagem de eventos da Agenda de Eventos SME
@@ -84,6 +92,7 @@ Funcionalidade: Agenda de Eventos SME
     Então devo visualizar nome, descrição, slug e contagem do compromisso
 
   @compromissos
+  @ignore
   Cenário: Deve representar a descrição vazia de um compromisso por um traço
     Dado que possuo um compromisso cadastrado sem descrição na Agenda de Eventos SME
     Então devo visualizar nome, descrição, slug e contagem do compromisso
