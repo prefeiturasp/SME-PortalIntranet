@@ -105,7 +105,7 @@ $iconeCalendario = get_template_directory_uri() . '/includes/oportunidades/templ
                 </p>            
             <?php endif; ?>
             
-            <p>Atenciosamente, <br><strong>Equipe do Portal de Oportunidades SME</strong></p>
+            <p>Atenciosamente, <br><strong>Equipe do Portal de Talentos & Oportunidades da SME</strong></p>
 
             <div class='espaco'>
                 <span class="destaque">
@@ -118,10 +118,7 @@ $iconeCalendario = get_template_directory_uri() . '/includes/oportunidades/templ
                             </td>
                             
                             <td style="vertical-align: top;">
-                            
-                                <span style="color: #0331CD; font-weight: 600;">Importante:</span> Este é um e-mail enviado automaticamente pelo Portal de Oportunidades SME e não recebe respostas.<br><br>
-                                Em caso de novas comunicações sobre sua candidatura, elas serão encaminhadas por este mesmo canal.
-
+                                <span style="color: #0331CD; font-weight: 600;">Importante:</span> Este é um e-mail enviado automaticamente pelo Portal de Talentos & Oportunidades da SME e não recebe respostas.
                             </td>                            
                         </tr>
                     </table>
