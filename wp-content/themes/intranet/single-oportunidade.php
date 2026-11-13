@@ -279,7 +279,7 @@ $curriculo = Inscricao::obter_curriculo_usuario( get_current_user_id() );
                     
                     <div class="mt-5">
                         <a href="<?php the_permalink( $pagina_principal->ID ); ?>" class="link-voltar">
-                            <i class="fa fa-long-arrow-left" aria-hidden="true"></i> Voltar ao Portal de Oportunidades
+                            <i class="fa fa-long-arrow-left" aria-hidden="true"></i> Voltar ao Portal de Talentos & Oportunidades
                         </a>
                     </div>
                 </div>
