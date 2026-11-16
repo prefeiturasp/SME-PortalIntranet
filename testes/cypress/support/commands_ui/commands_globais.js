@@ -18,7 +18,9 @@ Cypress.Commands.add('realizar_login_intranet', () => {
 		const senha = Cypress.env('intranet').senha
 		cy.visit('/')
 		cy.get(login_Intranet_Localizadores.campo_usuario()).type(usuario)
-		cy.get(login_Intranet_Localizadores.campo_senha()).type(senha)
+		cy.get(login_Intranet_Localizadores.campo_senha()).type(senha, {
+			log: false,
+		})
 		cy.clicar_botao()
 	})
 })

@@ -156,6 +156,7 @@ const selecionarHorarioNoTimepicker = (indiceLinha, seletor, valor) => {
 		String(Number(minuto)),
 	)
 	cy.get('#ui-datepicker-div .ui-datepicker-close').click({ force: true })
+	cy.get('#ui-datepicker-div').should('not.be.visible')
 	cy.get(agendaEventosSme.linhas_eventos())
 		.eq(indiceLinha)
 		.find(seletor)
@@ -403,29 +404,17 @@ Cypress.Commands.add('publicar_evento_agenda_sme', () => {
 		.should('have.attr', 'href')
 		.and('not.be.empty')
 	cy.get('#publishing-action .spinner').should('not.have.class', 'is-active')
+	cy.get('#ui-datepicker-div').should('not.be.visible')
+	cy.get('.ui-widget-overlay').should('not.exist')
 	cy.get(agendaEventosSme.botao_publicar())
 		.should('be.visible')
 		.and('not.be.disabled')
 		.scrollIntoView()
 		.click()
-	cy.wait(1500)
-	cy.get('body').then(($body) => {
-		const possuiResultado =
-			$body.find(agendaEventosSme.mensagem_sucesso()).length > 0 ||
-			$body.find('.acf-notice.-error.acf-error-message').length > 0 ||
-			$body.find('#post_status').val() === 'publish'
-
-		if (!possuiResultado) {
-			cy.get('#publishing-action .spinner').should(
-				'not.have.class',
-				'is-active',
-			)
-			cy.get(agendaEventosSme.botao_publicar())
-				.should('be.visible')
-				.and('not.be.disabled')
-				.click()
-		}
-	})
+	cy.get(
+		`${agendaEventosSme.mensagem_sucesso()}, .acf-notice.-error.acf-error-message`,
+		{ timeout: 30000 },
+	).should('exist')
 })
 
 Cypress.Commands.add('criar_evento_publicado_agenda_sme', (evento) => {

@@ -63,9 +63,10 @@ const pegarAleatorio = (lista) =>
 
 beforeEach(() => {
 	cy.session('loginManual', () => {
+		const { usuario, senha } = Cypress.env('scripts').sorteio
 		cy.visit('https://hom-intranet.sme.prefeitura.sp.gov.br/index.php')
-		cy.get('#user').type('309395')
-		cy.get('#pass').type('Sgp@1234')
+		cy.get('#user').type(usuario)
+		cy.get('#pass').type(senha, { log: false })
 		cy.get('#wp-submit').click()
 	})
 })

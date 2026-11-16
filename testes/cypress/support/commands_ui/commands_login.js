@@ -7,16 +7,31 @@ Cypress.Commands.add('login_intranet', (device) => {
 	cy.visit('/')
 })
 
+// Resolve placeholders do .feature (ex.: {{INTRANET_USUARIO}}) a partir do .env,
+// evitando credenciais em texto puro nos cenarios.
+const resolver_credencial = (valor) => {
+	const credenciais = {
+		'{{INTRANET_USUARIO}}': Cypress.env('intranet')?.usuario,
+		'{{INTRANET_SENHA}}': Cypress.env('intranet')?.senha,
+	}
+	return Object.prototype.hasOwnProperty.call(credenciais, valor)
+		? credenciais[valor]
+		: valor
+}
+
 Cypress.Commands.add('dados_de_login', (usuario, senha) => {
-	usuario
+	const usuarioResolvido = resolver_credencial(usuario)
+	const senhaResolvida = resolver_credencial(senha)
+
+	usuarioResolvido
 		? cy
 				.get(login_Intranet_Localizadores.campo_usuario())
-				.type(usuario, { force: true })
+				.type(usuarioResolvido, { force: true })
 		: ''
-	senha
+	senhaResolvida
 		? cy
 				.get(login_Intranet_Localizadores.campo_senha())
-				.type(senha, { force: true })
+				.type(senhaResolvida, { force: true, log: false })
 		: ''
 })
 
