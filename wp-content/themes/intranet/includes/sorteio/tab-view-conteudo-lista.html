@@ -1,14 +1,20 @@
 <div class="conteudo-lista" data-data="{ATRIBUTO-DATA}" data-tipo="{ATRIBUTO-TIPO}">
-    <div class="row fixar-btn">
+    <div class="col-lg-6 float-lg-left px-0 d-flex justify-content-center align-items-center">
+        <i class="fa fa-user-circle fa-2x" aria-hidden="true"></i>
+        {SELETOR-RESPONSAVEL-ENTREGA}
+    </div>
+    <div class="row fixar-btn col-lg-6 ml-lg-auto mr-lg-0 px-0">
         <div class="col accordion-buttons">
-            <div class="text-right">
-                <button data-data="{ATRIBUTO-DATA}" class="btn btn-notificar-sorteados {OCULTAR-BOTAO}" disabled>
-                    <i class="fa fa-envelope" aria-hidden="true"></i> Confirmar Presença 
-                </button>
-                <button data-data="{ATRIBUTO-DATA}" class="btn btn-enviar-instrucoes" data-toggle="modal" data-target="#modal_{ATRIBUTO-DATA-CONF}" data-postid="{POST-ID}" data-responsavel="{RESPONSAVEL}">
-                    <i class="fa fa-envelope-open" aria-hidden="true"></i> Enviar Instruções 
-                </button>
-                <div class="text-secondary mt-2 count-selecionados d-none"><strong>0 Selecionados</strong></div>
+                <div class="row align-items-end">
+                <div class="col-12 text-right mb-3 pt-lg-4">
+                    <button data-data="{ATRIBUTO-DATA}" class="btn btn-notificar-sorteados {OCULTAR-BOTAO}" disabled>
+                        <i class="fa fa-envelope" aria-hidden="true"></i> Confirmar Presença 
+                    </button>
+                    <button data-data="{ATRIBUTO-DATA}" class="btn btn-enviar-instrucoes" data-toggle="modal" data-target="#modal_{ATRIBUTO-DATA-CONF}" data-postid="{POST-ID}" data-responsavel="{RESPONSAVEL}">
+                        <i class="fa fa-envelope-open" aria-hidden="true"></i> Enviar Instruções 
+                    </button>
+                    <div class="text-secondary mt-2 count-selecionados d-none"><strong>0 Selecionados</strong></div>
+                </div>
             </div>
 
             <div class="modal fade" id="modal_{ATRIBUTO-DATA-CONF}" data-data="{ATRIBUTO-DATA-CONF}" tabindex="-1" role="dialog" aria-labelledby="modal_{ATRIBUTO-DATA-CONF}_label" aria-hidden="true">
@@ -21,6 +27,30 @@
                         </button>
                     </div>
                     <div class="modal-body">
+
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <input
+                                    type="checkbox"
+                                    name="responsavel-entrega"
+                                    value="1"
+                                    id="check-responsavel-entrega-{POST-ID}-{ATRIBUTO-DATA-CONF}"
+                                    class="my-0"
+                                    disabled
+                                >
+                                <label for="check-responsavel-entrega-{POST-ID}-{ATRIBUTO-DATA-CONF}" class="my-0 ml-2 text-muted">
+                                    <strong><i class="fa fa-picture-o" aria-hidden="true"></i> Incluir foto do responsável</strong>
+                                    <i
+                                        class="fa fa-info-circle text-primary"
+                                        aria-hidden="true"
+                                        data-toggle="tooltip"
+                                        data-placement="top"
+                                        title="Ao marcar esta opção, a foto do responsável pela entrega será incluída nas instruções enviadas por e-mail aos participantes."
+                                        >
+                                    </i>
+                                </label>
+                            </div>
+                        </div>
 
                         <div class="editorEmail" data-name="conteudo_email" id="{EDITOR-ID}"></div>
 
@@ -97,6 +127,7 @@
 
         </div>
     </div>
+    <div class="clearfix"></div>
     <div class="row"><div class="col">{LEGENDAS}</div></div>
     <div id="sorteados_data_{ATRIBUTO-DATA-CONF}">
         <div class="table-responsive">
