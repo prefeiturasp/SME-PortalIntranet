@@ -70,7 +70,8 @@ class ArchiveAgendaAjaxCalendario extends Util
 								<?php
 									//converte campo hora por extenso para ordenar
 									$hri = $evento['hora_evento'];
-									echo $hri=date('His',$hri);
+									$timestamp = is_numeric($hri) ? (int) $hri : strtotime((string) $hri);
+									echo $timestamp !== false ? date('His', $timestamp) : '000000';
 								?>
 							</div>
 

@@ -1,5 +1,9 @@
 jQuery(document).ready(function ($) {
 
+    if (!$('#mostra_data').length) {
+        return;
+    }
+
     var primeiro_clique = false;
 
     var date = moment().locale('pt-br'); //Get the current date
