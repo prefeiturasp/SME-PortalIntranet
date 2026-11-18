@@ -18,9 +18,9 @@ ln -s /var/www/html/plugins-privados/envia-email-sme /var/www/html/wp-content/pl
 ln -s /var/www/html/plugins-privados/taxonomy-order /var/www/html/wp-content/plugins/taxonomy-order
 ln -s /var/www/html/plugins-privados/email-admin-oportunidades /var/www/html/wp-content/plugins/email-admin-oportunidades
 
-# Mesmo comportamento do entrypoint da imagem oficial php:7.4-apache:
-# sem argumentos ou com flags (ex.: -DFOREGROUND), inicia o Apache em foreground.
-if [ "$#" -eq 0 ] || [ "${1#-}" != "$1" ]; then
+# Mesmo comportamento do entrypoint oficial da imagem php:*-apache
+# first arg is `-f` or `--some-option`
+if [ "${1#-}" != "$1" ]; then
   set -- apache2-foreground "$@"
 fi
 

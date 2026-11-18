@@ -78,7 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
                     $cargo = $userInfo->cargos[0]->nome;
                     $cargoSobre = $userInfo->cargosSobrePosto[0]->nome;
-                    $areaAtuacao = implode(", ", $userInfo->areasAtuacao);
+                    $areaAtuacao = implode(", ", is_array($userInfo->areasAtuacao ?? null) ? $userInfo->areasAtuacao : []);
                     $local = $userInfo->unidadeLotacao->nomeUnidade;
                     $localSobre = $userInfo->unidadeExercicio->nomeUnidade;
                     
@@ -167,7 +167,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             
                         $cargo = $userInfo->cargos[0]->nome;
                         $cargoSobre = $userInfo->cargosSobrePosto[0]->nome;
-                        $areaAtuacao = implode(", ", $userInfo->areasAtuacao);
+                        $areaAtuacao = implode(", ", is_array($userInfo->areasAtuacao ?? null) ? $userInfo->areasAtuacao : []);
                         $local = $userInfo->unidadeLotacao->nomeUnidade;
                         $localSobre = $userInfo->unidadeExercicio->nomeUnidade;
                         

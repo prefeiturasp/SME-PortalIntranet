@@ -6,7 +6,7 @@ wp_enqueue_style('slick');
 wp_register_style('slick-theme', STM_THEME_URL . 'classes/assets/css/slick-theme.css', null, null, 'all');
 wp_enqueue_style('slick-theme');
 global $has_posts;
-$colunas = get_sub_field('colunas');
+$colunas = max(1, (int) get_sub_field('colunas'));
 $titulo = get_sub_field('titulo');
 $link = get_sub_field('link_ver_todos');
 $calc = (1100 / $colunas) - 14;
