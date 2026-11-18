@@ -254,7 +254,7 @@ jQuery(document).ready(function ($) {
 
     cpfInput.on('input', function () {
         const cpfValue = cpfInput.val();
-        const postId = postIdInput.val();
+        const postId = postIdInput.length ? postIdInput.val() : $('.infos-topo-noticia .pp_like').data('id');
 
         // Remove caracteres não numéricos
         const cpfLimpo = cpfValue.replace(/\D/g, '');
