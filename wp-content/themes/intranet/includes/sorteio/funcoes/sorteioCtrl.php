@@ -326,6 +326,16 @@ function retorna_lista_sorteados_html($post_id, $data, $unica = false, $sancao =
 	$html = str_replace('{POST-ID}',   $post_id,        $html);
 	$html = str_replace('{RESPONSAVEL}',   $responsavel,        $html);
 
+	//Seletor com a opções de responsáveis pela entrega dos ingressos/prêmios
+	$seletor_responsavel = '';
+
+	ob_start();
+	exibir_seletor_responsavel_entrega_sessao( $post_id, $data );
+	$seletor_responsavel = ob_get_clean();
+	
+	$html = str_replace( '{SELETOR-RESPONSAVEL-ENTREGA}', $seletor_responsavel, $html );
+
+
 	return $html;
 	
 }
@@ -2122,6 +2132,9 @@ function handle_enviar_instrucoes() {
 	$post_id = isset($_POST['post_id']) ? sanitize_text_field($_POST['post_id']) : '';
 	$responsavel = isset($_POST['responsavel']) ? sanitize_text_field($_POST['responsavel']) : '';
 	$conteudo_email = isset($_POST['conteudo_email']) ? wp_kses_post($_POST['conteudo_email']) : '';
+	$enviar_dados_responsavel = boolval($_POST['enviar_dados_responsavel']) ?? false;
+	$responsavel_entrega = $enviar_dados_responsavel ? obter_responsavel_entrega_sessao( $post_id, $data ) : null;
+
 	$anexo = '';
 	$tipo_post = get_post_type_label( $post_id );
 	$tipo_evento = get_field( 'tipo_evento', $post_id );

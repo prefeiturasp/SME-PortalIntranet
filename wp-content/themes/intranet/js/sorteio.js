@@ -702,6 +702,7 @@ jQuery(document).ready(function($) {
         // Post ID
         var postID = $('[data-toggle="modal"][data-target="#' + $modal.attr('id') + '"]').data('postid');
         var responsavel = $('[data-toggle="modal"][data-target="#' + $modal.attr('id') + '"]').data('responsavel');
+        var enviarDadosResponsavelEntrega = $modal.find('input[name="responsavel-entrega"]').is(':checked');
 
         // Radio selecionado
         var opcao = $modal.find('input[name="opcao_envio"]:checked').val();
@@ -754,6 +755,7 @@ jQuery(document).ready(function($) {
         formData.append('post_id', postID);
         formData.append('responsavel', responsavel);
         formData.append('conteudo_email', conteudoEmail);
+        formData.append('enviar_dados_responsavel', enviarDadosResponsavelEntrega ? 1 : 0);
 
         if (file) {
             formData.append('anexo', file);
