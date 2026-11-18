@@ -433,11 +433,21 @@ class Envia_Emails_Oportunidades_SME {
     */
     public function processar_anexos_email( $campo = 'anexos', int $limite_arquivos = 5, int $tamanho_maximo = 2 ) {
 
-        if ( empty( $_FILES[$campo] ) || empty( $_FILES[$campo]['name'][0] ) ) {
+        if ( empty( $_FILES[$campo] ) || empty( $_FILES[$campo]['name'] ) ) {
             return [];
         }
 
         $arquivos = $_FILES[$campo];
+        if (!is_array($arquivos['name'])) {
+            $arquivos = array_map(static function ($valor) {
+                return [$valor];
+            }, $arquivos);
+        }
+
+        if (empty($arquivos['name'][0])) {
+            return [];
+        }
+
         $tamanho_maximo = $tamanho_maximo * 1024 * 1024;
 
         $extensoes_permitidas = [
@@ -607,7 +617,7 @@ class Envia_Emails_Oportunidades_SME {
         return $envio_id;
     }
 
-    public function handle_get_envio() {
+    public static function handle_get_envio() {
 
         check_ajax_referer( 'visualizar_envio', 'nonce' );
 

@@ -971,7 +971,7 @@ add_action('admin_enqueue_scripts', 'admin_style');
  */
 function admin_color_scheme() {
 	global $_wp_admin_css_colors;
-	$_wp_admin_css_colors = 0;
+	$_wp_admin_css_colors = array();
 }
 add_action('admin_head', 'admin_color_scheme');
 
@@ -1996,13 +1996,21 @@ add_action('wp_ajax_start_export_users', function () {
     $xlsx = $dir . "/" . $fileName;
 
     // cria CSV com header
-    $fh = fopen($csv, 'w');
-    fputcsv($fh, [
+    $fh = @fopen($csv, 'w');
+    if ($fh === false) {
+        wp_send_json_error('Não foi possível criar o arquivo de exportação.');
+    }
+
+    $written = fputcsv($fh, [
         'Nome','RF','E-mail','Função',
         'Novidades Email','Telefone',
         'Novidades Whats','DRE','Cargo'
     ]);
     fclose($fh);
+
+    if ($written === false) {
+        wp_send_json_error('Não foi possível gravar o arquivo de exportação.');
+    }
 
     $total = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->users}");
 
@@ -2068,7 +2076,12 @@ add_action('wp_ajax_process_export_users', function () {
 
         require_once 'classes/Lib/SimpleXLSXGen.php';
 
-        $rows = array_map('str_getcsv', file($state['csv']));
+        $lines = @file($state['csv']);
+        if ($lines === false) {
+            wp_send_json_error('Não foi possível ler o arquivo de exportação.');
+        }
+
+        $rows = array_map('str_getcsv', $lines);
 
         $xlsx = \Classes\Lib\SimpleXLSXGenExp::fromArray($rows);
         $xlsx->saveAs($state['xlsx']);
@@ -2079,7 +2092,10 @@ add_action('wp_ajax_process_export_users', function () {
         wp_send_json_success(['done' => true]);
     }
 
-    $fh = fopen($state['csv'], 'a');
+    $fh = @fopen($state['csv'], 'a');
+    if ($fh === false) {
+        wp_send_json_error('Não foi possível abrir o arquivo de exportação para gravação.');
+    }
 
     foreach ($results as $row) {
 
@@ -2101,7 +2117,7 @@ add_action('wp_ajax_process_export_users', function () {
         $conf_email = $row->nov_email == 1 ? 'Sim' : '-';
         $conf_whats = $row->nov_whats == 1 ? 'Sim' : '-';
 
-        fputcsv($fh, [
+        $written = fputcsv($fh, [
             $nome,
             $row->rf,
             $row->user_email,
@@ -2112,6 +2128,11 @@ add_action('wp_ajax_process_export_users', function () {
             $row->dre,
             $row->cargo
         ]);
+
+        if ($written === false) {
+            fclose($fh);
+            wp_send_json_error('Não foi possível gravar o arquivo de exportação.');
+        }
     }
 
     fclose($fh);
@@ -8958,7 +8979,7 @@ function salvar_banco_talentos() {
 
         $erros = array();
 
-        if ( empty($dados['rf']) && count($dados['rf']) != 7 ) {
+        if ( strlen($dados['rf']) !== 7 ) {
             $erros[] = 'RF inválido.';
         }
 
@@ -9561,6 +9582,11 @@ add_filter('acf/fields/taxonomy/query/name=setor', function ($args, $field, $pos
         'fields'     => 'ids'
     ]);
  
+    if (is_wp_error($children)) {
+        $args['include'] = [0];
+        return $args;
+    }
+
     // inclui pai + filhos
     $permitidos = array_merge(
         [$coordenadoria_id],
